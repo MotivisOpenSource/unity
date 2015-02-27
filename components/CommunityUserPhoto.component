@@ -1,0 +1,28 @@
+<apex:component layout="none">
+	<apex:attribute name="current" description="" type="Boolean" required="false" default="true"/>
+	<apex:attribute name="fmode" description="" type="Boolean" required="false" default="false"/>
+	<apex:attribute name="photoUrl" description="" type="String" required="false" default="/profilephoto/005/T"/>
+	<div class="chatter-photo shadow-wrapper">
+	<div class="box-shadow shadow-effect-2">	
+		<apex:outputPanel layout="block" id="userPhoto" rendered="{!current}">
+			<style>
+				div[id$=userPhoto]>span,
+				a.chatter-upload-avatar,
+				span.chatter-avatarFull {
+					width: 100%;
+					display:block;
+				}
+				img.chatter-photo {
+					width: 100%;
+				}
+			</style>
+			<chatter:userPhotoUpload showOriginalPhoto="true" />
+		</apex:outputPanel>
+		<apex:image value="{!photoUrl}" rendered="{!!current}" style="width: 100%;" styleclass="img-responsive img-bordered"/>
+	</div>
+	</div>
+	<script type="text/javascript">
+		//window.sfdcPage = new GenericSfdcPage();
+	</script>
+	<div class="margin-bottom-10"/>
+</apex:component>

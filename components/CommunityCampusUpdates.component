@@ -1,0 +1,23 @@
+<apex:component controller="CommunityHomeComponentController">
+<div class="headline">
+	<h2><i class="fa fa-institution"></i>Campus Updates</h2>
+</div>
+<div class="row">
+	<apex:repeat value="{!CampusNews}" var="cn">
+		<div class="col-md-4 col-sm-6">
+			<div class="thumbnails thumbnail-style thumbnail-kenburn">
+				<div class="thumbnail-img">
+					<div class="overflow-hidden">
+						<img class="img-responsive" src="{!$Site.Prefix}{!cn.Image_Path__c}" alt=""/>
+					</div>
+					<a class="btn-more hover-effect" href="{!$Page.CommunityNewsDetail}?id={!cn.Id}">read more +</a>
+				</div>
+				<div class="caption">
+					<h3><a class="hover-effect" href="{!$Page.CommunityNewsDetail}?id={!cn.Id}">{!cn.Title__c}</a></h3>
+					<p>{!cn.Teaser__c}</p>
+				</div>
+			</div>
+		</div>
+	</apex:repeat>
+</div>
+</apex:component>

@@ -1,0 +1,15 @@
+<apex:component controller="CommunityTagDisplayController">
+	<apex:attribute name="oId" description="" type="string" required="false" assignTo="{!objectId}"/>
+	<apex:attribute name="oType" description="" type="string" required="false" assignTo="{!objectType}"/>
+	<apex:attribute name="fName" description="" type="string" required="false" assignTo="{!filterName}"/>
+
+	<ul class="list-unstyled blog-tags">
+		<apex:repeat value="{!tags}" var="tag">
+			<li>
+				<a href="{!$Page.CommunityNews}?t={!tag.Url}" target="_blank">
+					<i class="fa fa-tags"></i>&nbsp;{!tag.Name}
+				</a>
+			</li>
+		</apex:repeat>
+	</ul>
+</apex:component>

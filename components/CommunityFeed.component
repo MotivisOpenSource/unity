@@ -1,0 +1,541 @@
+<apex:component controller="CommunityFeedController">
+	<apex:attribute name="pid" type="String" assignTo="{!parentId}" required="false" description="Parent Id" />
+	<apex:attribute name="ft" type="String" assignTo="{!feedType}" required="false" description="Feed Type" />
+	<apex:attribute name="fm" type="Boolean" assignTo="{!fullMode}" required="false" default="true" description="Feed Type" />
+	<apex:attribute name="sjcb" type="Boolean" required="false" default="false" description="show Join the Conversation button" />
+	<script src="{!$Resource.CommunityResources}/js/underscore/underscore-min.js"></script>
+	<script type="text/javascript" src="{!$Resource.assets}/plugins/mentions/jquery.mentionsInput.js" ></script>
+	<!--<script type="text/javascript" src="{!$Resource.assets}/plugins/mentions/jquery.elastic.js" ></script-->
+	<script type="text/javascript" src="{!$Resource.assets}/plugins/mentions/jquery.events.input.js" ></script>
+	<script type="text/javascript" src="{!$Resource.assets}/plugins/sky-forms/version-2.0.1/js/jquery-ui.min.js"></script>
+	<!--<script type="text/javascript" src="{!$Resource.assets}/js/plugins/datepicker.js"></script-->
+	<!--script src="/soap/ajax/31.0/connection.js" type="text/javascript"></script>
+	<script src="/soap/ajax/31.0/apex.js" type="text/javascript"></script-->
+	<style>
+/*profile.css*/
+.profile i.expand-list.active {
+	color:#72c02c;
+	border: 1px solid #72c02c;
+}
+.profile i.expand-list.active:hover {
+	color: #999;
+	border-color: #999;
+}
+.d-comment {
+	height: 2px;
+	border-bottom: 1px solid #ccc;
+}
+.profile i.expand-list {
+	min-width: 24px;
+}
+.profile .media.media-v2 .media.media-v2 {
+	margin-top: 20px;
+	background-color: #eee;
+	padding: 5px 15px;
+}
+.profile .media-body .d-link {
+	border: 1px solid #ddd;
+	padding: 5px 12px;
+}
+.profile .media-body .d-link:hover {
+	background-color: #eee;
+	color: #555;
+	text-decoration: none;
+}
+textarea.form-control {
+	resize: vertical;
+}
+/*mention input*/
+.mentions-input-box .mentions-autocomplete-list {
+	display: none;
+	background: #fff;
+	border: 1px solid #b2b2b2;
+	position: absolute;
+	/*left: 0;
+	right: 0;*/
+	z-index: 10000;
+	margin-top: -2px;
+
+	border-radius:5px;
+	border-top-right-radius:0;
+	border-top-left-radius:0;
+
+	-webkit-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.148438);
+		 -moz-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.148438);
+					box-shadow: 0 2px 5px rgba(0, 0, 0, 0.148438);
+}
+
+.mentions-input-box .mentions-autocomplete-list ul {
+		margin: 0;
+		padding: 0;
+}
+
+.mentions-input-box .mentions-autocomplete-list li {
+	background-color: #fff;
+	padding: 0 5px;
+	margin: 0;
+	width: auto;
+	border-bottom: 1px solid #eee;
+	height: 26px;
+	line-height: 26px;
+	overflow: hidden;
+	cursor: pointer;
+	list-style: none;
+	white-space: nowrap;
+}
+
+.mentions-input-box .mentions-autocomplete-list li:last-child {
+	border-radius:5px;
+}
+
+.mentions-input-box .mentions-autocomplete-list li > img,
+.mentions-input-box .mentions-autocomplete-list li > div.icon {
+	width: 16px;
+	height: 16px;
+	float: left;
+	margin-top:5px;
+	margin-right: 5px;
+	-moz-background-origin:3px;
+
+	border-radius:3px;
+}
+
+.mentions-input-box .mentions-autocomplete-list li em {
+	font-weight: bold;
+	font-style: none;
+}
+
+.mentions-input-box .mentions-autocomplete-list li:hover,
+.mentions-input-box .mentions-autocomplete-list li.active {
+	background-color: #f2f2f2;
+}
+
+.mentions-input-box .mentions-autocomplete-list li b {
+	background: #ffff99;
+	font-weight: normal;
+}
+
+.mentions-input-box .mentions {
+	display:none;
+}
+#palist a.curr i.expand-list {
+	font-size: 1.5em;
+	width: 32px;
+	color: #72c02c;
+	border: 1px solid #72c02c;
+}
+#palist a.curr:after {
+	display: inline-block;
+	content: attr(title);
+	color: #72c02c;
+}
+#palist a.curr i {
+	margin-right: 5px;
+}
+/*share actions*/
+.share {
+	background-image: url(/img/chatter/innershadow-normal.png);
+	background-position: 0 0;
+	background-repeat: repeat-x;
+}
+.sky-div-margin {
+	margin: 0 30px;
+}
+.profile .sky-form.bordered {
+	border: 1px solid #ddd;
+}
+	</style>
+	<apex:outputPanel id="simple" layout="block" styleClass="row" rendered="{!!fullMode}" style="display:none;">
+		<div id="cfcmp" class="col-sm-12 profile margin-bottom-20">
+			<div class="panel panel-profile">
+				<div id="scrollbar4" class="panel-body contentHolder ps-container"></div>
+			</div>	
+		</div>
+		<apex:outputPanel layout="block" styleClass="col-sm-12" rendered="{!sjcb}">
+			<button class="btn-u btn-u-blue" onclick="window.open('{!$Page.CommunityFeed_MyFeed}','_self');" type="button"><i class="fa fa-comment-o"></i> Join the conversation</button> 
+		</apex:outputPanel>
+		<script>
+			$(document).ready(function() {
+				Visualforce.remoting.Manager.invokeAction(
+					'{!$RemoteAction.CommunityFeedController.feeds}',
+					'{!parentId}',
+					'{!feedType}',
+					'',
+					function(result, event) {
+						var div = document.createElement('div');
+						div.innerHTML = result;
+						_.templateSettings.variable = 'rc';
+						var template = _.template($('#tto').html());
+						var tt = JSON.parse(div.firstChild.nodeValue);
+						$('#scrollbar4').append(template(tt));
+						$('[id$=simple]').fadeIn();
+					}
+				);
+			});
+		</script>
+		<script id="tto" type="text/template">
+			<% _.each(rc.elements, function(p){ %>
+			<div class="comment">
+				<img src="<%= p.actor.photo.smallPhotoUrl %>" alt=""/>
+				<div class="overflow-h">
+					<strong><%= p.actor.displayName %><small class="pull-right"><%= p.dateStr %></small></strong> 
+					<p><% print(wrapnl(p.body.text)); %></p>
+					<ul class="list-inline comment-list">
+						<li><i class="fa fa-comments"></i> <a href="#"><%= p.total %></a></li>
+					</ul>
+				</div>	
+			</div>
+			<% }); %>
+		</script>
+	</apex:outputPanel>
+	<apex:outputPanel layout="block" styleClass="panel panel-profile" rendered="{!fullMode}">
+		<div>
+			<ul id="palist" class="list-inline pull-left">
+				<apex:repeat value="{!AvailableActions}" var="aa">
+					<li>
+						<a href="javascript:;" title="{!aa.label}" id="{!aa.name}" onclick="setActiveli(this);" class="{!IF(aa.name == 'FeedItem.TextPost','curr','')}" name="{!aa.icon}"><i class="expand-list rounded-x fa {!aa.icon}"></i></a>
+					</li>
+				</apex:repeat>
+			</ul>
+			<div class="clearfix"></div>
+			<span id="postarea">
+				<div class="sky-form bordered margin-bottom-5">
+					<textarea name="message" id="message" class="form-control share" onclick="checkmi(this);" onkeyup="checkbtn(this,'#mesbtn');"></textarea>
+				</div>
+				<div class="text-right">
+					<button type="button" class="btn btn-u disabled" id="mesbtn" onclick="postFeed($('#message').val());" disabled="disabled">
+						<i class="fa fa-spinner fa-pulse" style="display:none;"></i>
+						<span>Share</span>
+					</button>
+				</div>
+			</span>
+		</div>
+		<div id="cfcmp" class="panel panel-profile"></div>
+		<button id="shmbtn" type="button" class="btn-u btn-u-default btn-block" style="display:none;">
+			<i class="fa fa-spinner fa-pulse" style="display:none;"></i>
+			<span>Load More</span>
+		</button>
+		<script id="ttp1" type="text/template">
+			<% _.each(rc.elements, function(p2){ %>
+			<div class="media media-v2" id="m<%= p2.id %>">
+				<a class="pull-left" href="{!$Page.CommunityProfilePage}?id=<%= p2.actor.id %>">
+					<img class="media-object rounded-x" src="<%= p2.actor.photo.smallPhotoUrl %>" alt=""/>
+				</a>
+				<div class="media-body">
+					<h4 class="media-heading">
+						<strong><a href="{!$Page.CommunityProfilePage}?id=<%= p2.actor.id %>"><%= p2.actor.displayName %></a></strong>
+						<small><%= p2.dateStr %></small>
+					</h4>
+					<% if (p2.showLink) { %>
+					<a href="<%= p2.linkHref %>" target="_blank" class="d-link">
+						<i class="fa fa-link"></i>
+						<%= p2.linkName %>
+					</a>
+					<% } %>
+					<p><% print(wrapnl(p2.body.text)); %></p>
+					<ul class="list-inline results-list pull-left">
+						<li><a href="javascript:void(0);"><span><%= p2.countLikes %></span> Likes</a></li>
+					</ul>
+					<ul class="list-inline pull-right" id="ul<%= p2.id %>">
+						<li><a href="javascript:void(0);"><i onclick="focusComment('<%= p2.id %>');" class="expand-list rounded-x fa fa-reply"></i></a></li>
+						<li><a href="javascript:void(0);"><i onclick="inlAct('<%= p2.id %>','fa-thumbs-up','<%= p2.likeId %>');" class="expand-list rounded-x fa fa-thumbs-up<%= p2.likeStyle %>"></i></a></li>
+						<% if (p2.showFlag) { %>
+						<li><a href="javascript:void(0);"><i onclick="inlAct('<%= p2.id %>','fa-flag','<%= p2.flagStatus %>');" class="expand-list rounded-x fa fa-flag<%= p2.flagStyle %>"></i></a></li>
+						<% } %>
+						<li><a href="javascript:void(0);"><i onclick="inlAct('<%= p2.id %>','fa-bookmark','<%= p2.bookmarkStatus %>');" class="expand-list rounded-x fa fa-bookmark<%= p2.bookmarkStyle %>"></i></a></li>
+						<% if (!p2.isDeleteRestricted) { %>
+						<li><a href="javascript:void(0);"><i onclick="inlAct('<%= p2.id %>','fa-times','');" class="expand-list rounded-x fa fa-times"></i></a></li>
+						<% } %>
+					</ul>
+					<div class="clearfix"></div>
+					<% if (p2.showComments) { %>
+					<% if (p2.capabilities.comments.page.showNextComments) { %>
+						<a id="l<%= p2.id %>" href="javascript:void(0);" onclick="getComments('<%= p2.id %>', '<%= p2.capabilities.comments.page.nextPageToken%>');">Show More Comments</a>
+					<% } %>
+					<div class="media media-v2" id="c<%= p2.id %>" name="<%= p2.id %>">
+						<% _.each(p2.capabilities.comments.page.items, function(c2){ %>
+		</script>
+		<script id="ttp21" type="text/template">
+						<% _.each(rc.items, function(c2){ %>
+		</script>
+		<script id="ttp2" type="text/template">
+							<span id="m<%= c2.id %>">
+							<a class="pull-left" href="{!$Page.CommunityProfilePage}?id=<%= c2.user.id %>">
+								<img class="media-object rounded-x" src="<%= c2.user.photo.smallPhotoUrl %>" alt=""/>
+							</a>
+							<div class="media-body">
+								<h4 class="media-heading">
+									<strong><a href="{!$Page.CommunityProfilePage}?id=<%= c2.user.id %>"><%= c2.user.displayName %></a></strong>
+									<small><%= c2.dateStr %></small>
+								</h4>
+								<p><% print(wrapnl(c2.body.text)); %></p>
+								<ul class="list-inline results-list pull-left">
+									<li><a href="#"><span><%= c2.countLikes %></span> Likes</a></li>
+								</ul>
+								<ul class="list-inline pull-right" id="ul<%= c2.id %>">
+									<li><a href="javascript:void(0);"><i onclick="inlAct('<%= c2.id %>','fa-thumbs-up','<%= c2.likeId %>');" class="expand-list rounded-x fa fa-thumbs-up<%= c2.likeStyle %>"></i></a></li>
+									<% if (c2.showFlag) { %>
+									<li><a href="javascript:void(0);"><i onclick="inlAct('<%= c2.id %>','fa-flag','<%= c2.flagStatus %>');" class="expand-list rounded-x fa fa-flag<%= c2.flagStyle %>"></i></a></li>
+									<% } %>
+									<% if (!c2.isDeleteRestricted) { %>
+									<li><a href="javascript:void(0);"><i onclick="inlAct('<%= c2.id %>','fa-times','');" class="expand-list rounded-x fa fa-times"></i></a></li>
+									<% } %>
+								</ul>
+							</div>
+							<div class="d-comment"></div>
+							</span>
+						<% }); %>
+		</script>
+		<script id="ttp3" type="text/template">
+					<% } else { %>
+					<div class="media media-v2" id="c<%= p2.id %>" name="<%= p2.id %>" style="display:none;">
+					<% } %>
+						<div id="d<%= p2.id %>" class="margin-bottom-10"></div>
+						<span id="s<%= p2.id %>">
+							<a class="pull-left" href="javascript:void(0);">
+								<img class="media-object rounded-x" src="{!currentUserPhoto}" alt=""/>
+							</a>
+							<div class="media-body">
+								<textarea id="a<%= p2.id %>" class="form-control margin-bottom-5" onclick="checkmi(this);" onkeyup="checkbtn(this,'#b<%= p2.id %>');"></textarea>
+								<ul class="list-inline pull-right">
+									<button type="button" class="btn btn-u disabled" id="b<%= p2.id %>" onclick="postComment($('#a<%= p2.id %>').val(),'<%= p2.id %>');" disabled="disabled">
+										<i class="fa fa-spinner fa-pulse" style="display:none;"></i>
+										<span>Comment</span>
+									</button>
+								</ul>
+						</div>
+						</span>
+					</div>
+					
+				</div>
+			</div>
+			<% }); %>
+		</script>
+		<script id="atp" type="text/template">
+			<div class="sky-form bordered margin-bottom-5">
+			<% if (rc.beforeFields) { %>
+				<div class="sky-div-margin">
+			<% } %>
+			<% _.each(rc.items, function(ii){ %>
+				<% if (ii.ftype == 'post') { %>
+					<% if (rc.beforeFields) { %>
+				</div>
+					<% } %>
+					<textarea name="message" id="message" class="form-control share" onclick="checkmi(this);" onkeyup="checkbtn(this,'#mesbtn');"></textarea>
+					<% if (rc.afterFields) { %>
+				<div class="sky-div-margin">		
+					<% } %>
+				<% } else {%>
+					<section>
+						<label class="label"><%= ii.label %></label> 
+						<label class="<%= ii.ftype %>">
+							<input type="text"/>
+						</label>
+					</section>
+				<% } %>
+			<% }); %>
+			<% if (rc.afterFields) { %>
+				</div>
+			<% } %>
+			</div>
+			<% if (rc.post) { %>
+			<div class="text-right">
+				<button type="button" class="btn btn-u disabled" id="mesbtn" onclick="postFeed($('#message').val());" disabled="disabled">
+					<i class="fa fa-spinner fa-pulse" style="display:none;"></i>
+					<span><%= rc.btntxt %></span>
+				</button>
+			</div>
+			<% } %>
+		</script>
+		<script>
+			$(document).ready(function() {
+				loadFeeds(null);
+				/*TEMPORARY/
+				$('#date').datepicker({
+					dateFormat: 'dd.mm.yy',
+					prevText: '<i class="fa fa-angle-left"></i>',
+					nextText: '<i class="fa fa-angle-right"></i>'
+				});
+				/*TEMPORARY*/
+			});
+			function loadFeeds(inpt) {
+				disableBtn('shmbtn',true);
+				Visualforce.remoting.Manager.invokeAction(
+					'{!$RemoteAction.CommunityFeedController.feeds}',
+					'{!parentId}',
+					'{!feedType}',
+					inpt,
+					function(result, event) {
+						var div = document.createElement('div');
+						div.innerHTML = result;
+						_.templateSettings.variable = 'rc';
+						var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
+						var tt = JSON.parse(div.firstChild.nodeValue);
+						$('#cfcmp').append(template(tt));
+						enableBtn('shmbtn');
+						$('#shmbtn').css('display',tt.showMore?'block':'none').click(function(){loadFeeds(tt.nextPageToken);});
+					}
+				);
+			}
+			function postFeed(text) {
+				disableBtn('mesbtn');
+				$('#message').mentionsInput('val', function(text) {
+					Visualforce.remoting.Manager.invokeAction(
+						'{!$RemoteAction.CommunityFeedController.postFeed}',
+						'{!parentId}',
+						text,
+						function(result, event) {
+							var div = document.createElement('div');
+							div.innerHTML = result;
+							_.templateSettings.variable = 'rc';
+							var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
+							var tt = JSON.parse(div.firstChild.nodeValue);
+							$('#cfcmp').prepend(template(tt));
+							enableBtn('mesbtn');
+							$('#message').val('');
+						}
+					);
+				});
+			}
+			function getComments(feedid, token) {
+				Visualforce.remoting.Manager.invokeAction(
+					'{!$RemoteAction.CommunityFeedController.getComments}',
+					feedid,
+					token,
+					function(result, event) {
+						var div = document.createElement('div');
+						div.innerHTML = result;
+						_.templateSettings.variable = 'rc';
+						var template = _.template($('#ttp21').html() + $('#ttp2').html());
+						var tt = JSON.parse(div.firstChild.nodeValue);
+						$('#c'+tt.feedId).prepend(template(tt));
+						$('#l'+tt.feedId).css('display',tt.showNextComments?'block':'none').click(function(){getComments(tt.feedId,tt.nextPageToken)});
+					}
+				);
+			}
+			function postComment(text, feedid) {
+				disableBtn('b'+feedid);
+				$('#a'+feedid).mentionsInput('val', function(text) {
+					Visualforce.remoting.Manager.invokeAction(
+						'{!$RemoteAction.CommunityFeedController.postComment}',
+						feedid,
+						text,
+						function(result, event) {
+							var div = document.createElement('div');
+							div.innerHTML = result;
+							_.templateSettings.variable = 'rc';
+							var template = _.template($('#ttp21').html() + $('#ttp2').html());
+							var tt = JSON.parse(div.firstChild.nodeValue);
+							$('#d'+tt.feedId).before(template(tt));
+							enableBtn('b'+feedid);
+							$('#a'+tt.feedId).val('');
+						}
+					);
+				});
+			}
+			function focusComment(inid) {
+				$('#c'+inid).show();
+				$('#s'+inid).show();
+				$('#a'+inid).focus();
+				checkmi($('#a'+inid)[0]);
+			}
+			function disableBtn(inid,inm) {
+				$('#'+inid).attr('disabled','disabled').addClass('disabled');
+				if (inm==undefined) {
+					$('#'+inid).css('min-width',$('#'+inid).css('width'))
+				}
+				$('#'+inid+' span').hide();
+				$('#'+inid+' i').show();
+			}
+			function enableBtn(inid) {
+				$('#'+inid).removeAttr('disabled').removeClass('disabled');
+				$('#'+inid+' i').hide();
+				$('#'+inid+' span').show();
+			}
+			function inlAct(inpid,ins,ini) {
+				$('#ul'+inpid+' .'+ins).removeClass(ins).removeClass('active').addClass('fa-spinner fa-pulse').attr('name',ins);
+				Visualforce.remoting.Manager.invokeAction(
+					'{!$RemoteAction.CommunityFeedController.inlineAction}',
+					inpid,
+					ins,
+					ini,
+					function(result, event) {
+						var div = document.createElement('div');
+						div.innerHTML = result;
+						var tt = JSON.parse(div.firstChild.nodeValue);
+						if (tt.cname=='fa-times') {
+							$('#m'+tt.pid).remove();
+						}
+						else {
+							var nocl = 'inlAct(\''+tt.pid+'\',\''+tt.cname+'\',\''+tt.oid+'\');';
+							$('#ul'+tt.pid+' [name="'+tt.cname+'"]').removeClass('fa-spinner fa-pulse').addClass(tt.cname+tt.stl).attr('onclick',nocl);
+							if (tt.cname=='fa-thumbs-up') {
+								var dti = parseInt($('#m'+tt.pid+' .pull-left span').first().text());
+								$('#m'+tt.pid+' .pull-left span').first().text(tt.oid==''?(dti-1):(dti+1));
+							}
+						}
+					}
+				);
+			}
+			function initTextarea(element) {
+				$(element).mentionsInput({
+					onDataRequest:function (mode, query, callback) {
+						Visualforce.remoting.Manager.invokeAction(
+							'{!$RemoteAction.CommunityFeedController.getUsers}',
+							query,
+							function(result, event) {
+								var div = document.createElement('div');
+								div.innerHTML = result;
+								callback(JSON.parse(div.firstChild.nodeValue));
+							}
+						);
+					},
+					elastic: false
+				}).css('height','78px').focus();
+			}
+			function checkmi(element) {
+				if(!$(element).attr('data-mentions-input')) {
+					initTextarea(element);
+				}
+			}
+			function checkbtn(element,btnid) {
+				if (element.value.trim()=='') {
+					$(btnid).attr('disabled','disabled').addClass('disabled');
+				}
+				else if ($(btnid).attr('disabled')) {
+					$(btnid).removeAttr('disabled').removeClass('disabled');
+				}
+			}
+			var chataction = {loading:false};
+			function setActiveli(element) {
+				if (!chataction.loading) {
+					chataction.loading = true;
+					$('#palist a').removeClass('curr');
+					$(element).addClass('curr');
+					$(element).find('i').removeClass(element.name).addClass('fa-spinner fa-pulse');
+					Visualforce.remoting.Manager.invokeAction(
+						'{!$RemoteAction.CommunityFeedController.actionLayout}',
+						element.id,
+						function(result, event) {
+							var div = document.createElement('div');
+							div.innerHTML = result;
+							chataction.loading = false;
+							chataction.layout = JSON.parse(div.firstChild.nodeValue);
+							_.templateSettings.variable = 'rc';
+							var template = _.template($('#atp').html());
+							$('#postarea').html(template(chataction.layout));
+							var aname = $('#palist .fa-spinner').closest('a').attr('name');
+							$('#palist .fa-spinner').removeClass('fa-spinner fa-pulse').addClass(aname);
+						}
+					);
+				}
+			}
+		</script>
+	</apex:outputPanel>
+	<script>
+		function wrapnl(intext) {
+			return intext ? intext.replace(/\r\n/g, '<br />').replace(/[\r\n]/g, '<br />') : '';
+		}
+		/*sforce.connection.sessionId = '{!$Api.Session_ID}';*/
+	</script>
+</apex:component>

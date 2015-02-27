@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Follow</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>Define a library of Tags that will help categorize interests for the Community.  Tags can be associated to Community News, Events, Groups, and Contacts via separate junction objects.  This will allow the starter pack to recommend items to a Community user.</description>
+    <enableActivities>false</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>true</enableHistory>
+    <enableReports>true</enableReports>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <fields>
+        <fullName>Community_Theme__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <description>Represents the Theme of the Community Tag.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Represents the Theme of the Community Tag.</inlineHelpText>
+        <label>Community Theme</label>
+        <referenceTo>Community_Theme__c</referenceTo>
+        <relationshipLabel>Community Tags</relationshipLabel>
+        <relationshipName>Community_Tags</relationshipName>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Display_in_Wizard__c</fullName>
+        <defaultValue>true</defaultValue>
+        <description>Defines whether tags within this Theme should be visible to users during the profile registration wizard for the Community.</description>
+        <externalId>false</externalId>
+        <label>Display in Wizard</label>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Icon_Style__c</fullName>
+        <description>Describes the Icon style to be applied to these records in search results</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Describes the Icon style to be applied to these records in search results</inlineHelpText>
+        <label>Icon Style</label>
+        <length>150</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Tag_Theme_UniqueID__c</fullName>
+        <caseSensitive>false</caseSensitive>
+        <description>Coming Soon.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Coming Soon.</inlineHelpText>
+        <label>Tag-Theme UniqueID</label>
+        <length>255</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>true</unique>
+    </fields>
+    <fields>
+        <fullName>Theme_Name__c</fullName>
+        <externalId>false</externalId>
+        <formula>Community_Theme__r.Name</formula>
+        <label>Theme Name</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <label>Community Tag</label>
+    <listViews>
+        <fullName>All</fullName>
+        <columns>NAME</columns>
+        <columns>Community_Theme__c</columns>
+        <columns>Tag_Theme_UniqueID__c</columns>
+        <columns>CREATEDBY_USER</columns>
+        <columns>Icon_Style__c</columns>
+        <filterScope>Everything</filterScope>
+        <label>All</label>
+    </listViews>
+    <nameField>
+        <label>Community Tag Name</label>
+        <trackHistory>false</trackHistory>
+        <type>Text</type>
+    </nameField>
+    <pluralLabel>Community Tags</pluralLabel>
+    <searchLayouts/>
+    <sharingModel>ReadWrite</sharingModel>
+</CustomObject>

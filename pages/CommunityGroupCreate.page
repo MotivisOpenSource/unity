@@ -1,0 +1,63 @@
+<apex:page standardController="Community_Group_Control__c" extensions="CommunityGroupCreateController"  showHeader="false" sideBar="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false">
+<apex:composition template="{!$Site.Template}">
+<apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
+<apex:define name="body">
+	 <style>
+		a:hover {
+			background:#ffffff; /*BG color is a must for IE6*/
+			text-decoration:none;
+		} 
+		a.tooltip span {
+			display:none; 
+			padding:2px 3px; 
+			margin-left:8px; 
+			width:250px;
+		}
+		a.tooltip:hover span{
+			display:inline; 
+			position:absolute; 
+			background:#FFC; 
+			border:1px solid #cccccc; 
+			color:#000000;
+		}
+	</style>
+	<div class="row">
+		<apex:form styleClass="col-sm-12">
+			<apex:pageBlock >
+				<apex:pageMessages id="pageMessages"/>
+				<apex:pageBlockButtons >
+					<apex:commandButton action="{!doSubmit}" value="{!$Label.BTN_Submit}" styleClass="btn-u"/>
+					&nbsp;
+					<!-- <apex:commandButton action="{!doCancel}" value="{!$Label.BTN_Cancel}" styleClass="btn-u"/> -->
+					<apex:outputLink value="{!IF(ISBLANK($CurrentPage.parameters.retURL),$Page.CommunityGroups,$CurrentPage.parameters.retURL)}" styleClass="btn-u">{!$Label.BTN_Cancel}</apex:outputLink>
+					<!--apex:commandButton action="{!Cancel}" value="{!$Label.BTN_Cancel}"/-->
+				</apex:pageBlockButtons>
+				
+				<apex:pageBlockSection columns="1" collapsible="false" rendered="{!isContainsAccessible}">
+					<apex:repeat value="{!fieldset}" var="fs">
+						<apex:inputField value="{!CurrentGroup[fs.fieldPath]}" required="{!OR(fs.required, fs.dbrequired)}" rendered="{!AND($ObjectType.Community_Group_Control__c.fields[fs].Accessible, $ObjectType.Community_Group_Control__c.fields[fs].Createable)}"/>
+					</apex:repeat>
+					<apex:pageBlockSectionItem >
+						<apex:outputLabel value="{!$Label.BTN_ChooseFile}"/>
+						<apex:inputFile required="true" value="{!imageBody}" fileName="{!imageFileName}" contentType="{!imageContentType}" style="margin:5px 0;" onchange="preview(this);"/>
+					</apex:pageBlockSectionItem>
+					<apex:pageBlockSectionItem >
+						<apex:outputLabel value="{!$Label.LBL_Select_Tags}"/>
+						<c:CommunityTagSelector oId="{!CurrentGroup.Id}" oType="{!$ObjectType.Community_Group_Control_Tag__c.Name}" fName="{!$ObjectType.Community_Group_Control_Tag__c.Fields.Group_Control__c.Name}"/>
+					</apex:pageBlockSectionItem>
+				</apex:pageBlockSection>
+			</apex:pageBlock> 
+		</apex:form>
+	</div>
+</apex:define>
+<apex:define name="scripts">
+	<script>
+		var $F = jQuery.noConflict();
+
+		$F(document).ready(function() {
+
+		});
+	</script>
+</apex:define>
+</apex:composition>
+</apex:page>

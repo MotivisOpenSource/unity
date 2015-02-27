@@ -1,0 +1,80 @@
+<apex:page controller="CommunityEventController" action="{!initFromList}" showHeader="false" sideBar="false" standardStylesheets="true" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false">
+<apex:composition template="{!$Site.Template}">
+<apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
+<apex:define name="body">
+<apex:form >
+	<div class="breadcrumbs margin-bottom-10">
+		<div class="container">
+			<h1 class="pull-left">{!$ObjectType.Community_Events__c.Label}</h1>
+			<ul class="pull-right breadcrumb">
+				<li class="active"><a href="{!$Page.CommunityEventsList}">Events</a></li>
+			</ul>
+		</div>
+	</div>
+
+	<apex:outputPanel layout="block" styleClass="profile" id="form">
+		<div class="container content">
+			<div class="form-horizontal margin-bottom-10">
+				<div class="form-group">
+					<label for="inputEmail1" class="col-lg-9 control-label">{!$Label.LBL_Filter_by}:</label>
+					<div class="col-lg-3">
+						<apex:selectList id="fcf" value="{!CurrentFilter}" title="{!$Label.LBL_Filter_by}:" multiselect="false" size="1" onchange="filter();" styleClass="form-control">
+							<apex:selectOptions value="{!listView.FilterByList}"/>
+						</apex:selectList>
+						<apex:actionSupport event="onchange" action="{!initFromList}" rerender="form"/>
+					</div>
+				</div>
+			</div>
+			<div class="row text-center margin-bottom-20">
+				<apex:outputLink value="{!urlForNewEvent}" rendered="{!$ObjectType.Community_Events__c.createable}" styleClass="btn-u">Create Event</apex:outputLink>
+			</div>
+			<table class="table table-hover">
+				<tr>
+					<apex:repeat value="{!listView.QueryFields}" var="fs">
+						<th>{!$ObjectType.Community_Events__c.fields[fs].Label}</th>
+					</apex:repeat>
+					<th>Tags</th>
+				</tr>
+				<apex:repeat value="{!listView.itemsSetController.Records}" var="record">
+					<tr class="th-smpl">
+						<apex:repeat value="{!listView.QueryFields}" var="fs">
+							<td onclick="openEventPage('{!record.Id}');" style="cursor:pointer;"><apex:outputField value="{!record[fs]}"/></td>
+						</apex:repeat>
+						<td>
+							<ul class="list-unstyled blog-tags">
+								<apex:repeat value="{!tagsMap[record.Id]}" var="tagItem">
+									<apex:outputPanel layout="none" rendered="{!tagItem.Url != 'null'}"><li>
+										<a href="{!$Site.BaseUrl}{!tagItem.Url}" target="_blank">
+											<i class="fa fa-tags"></i>&nbsp;{!tagItem.Name}
+										</a>
+									</li></apex:outputPanel>
+								</apex:repeat>
+							</ul>
+						</td>
+					</tr>
+				</apex:repeat>
+				<script>
+					function openEventPage(inid) {
+						window.open('{!$Page.CommunityEventDetail}?id='+inid,'_self');
+					}
+				</script>
+			</table>
+			<ul class="pager">
+				<apex:outputPanel layout="none" rendered="{!listView.itemsSetController.HasPrevious}">
+					<li class="previous">
+						<apex:commandLink action="{!previousPage}" value="{!$Label.LBL_Previous}" rerender="form"/>
+					</li>
+				</apex:outputPanel>
+				<li><apex:outputText value="{!$Label.LBL_Page} {!listView.CurrentPagePositionString}"/></li>
+				<apex:outputPanel layout="none" rendered="{!listView.itemsSetController.HasNext}">
+					<li class="next">
+						<apex:commandLink action="{!nextPage}" value="{!$Label.LBL_Next}" rerender="form"/>
+					</li>
+				</apex:outputPanel>
+			</ul>
+		</div>
+	</apex:outputPanel>
+</apex:form>
+</apex:define>
+</apex:composition>
+</apex:page>

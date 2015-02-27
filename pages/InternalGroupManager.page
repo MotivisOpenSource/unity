@@ -1,0 +1,659 @@
+<apex:page showHeader="true" sidebar="false" controller="CommunityGroupManageController">
+	<apex:stylesheet value="/sCSS/32.0/sprites/1420068168000/Theme3/default/gc/groupProfilePage.css" />
+	<apex:stylesheet value="/sCSS/32.0/sprites/1420068168000/Theme3/default/base/common.css" />
+	<apex:stylesheet value="/sCSS/32.0/sprites/1420068168000/Theme3/default/base/groupProfilePage.css" />
+	<apex:stylesheet value="/sCSS/32.0/sprites/1420068168000/Theme3/default/base/extended.css" />
+	<apex:stylesheet value="/sCSS/32.0/sprites/1420068168000/Theme3/default/base/chatterExtended.css" />
+	<apex:stylesheet value="/sCSS/32.0/sprites/1420068168000/Theme3/default/base/zen-componentsCompatible.css" />
+	<style>
+		.th-smpl:hover { cursor:pointer; background-color:#eee; }
+		.m-back { background-color: rgba(0, 0, 0, 0.2); height: 100%; position:absolute; top: 0; width: 100%; z-index: 200; display: none; left: 0; }
+		.m-status { position:absolute; top:300px; left:48%; padding:10px; background-color:white; -moz-border-radius:6px; -webkit-border-radius:6px; border-radius:6px;}
+		.m-main { background: none repeat scroll 0 0 #FFFFFF; border: 1px solid #D3D3D3; border-radius: 4px 4px 4px 4px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); display: none;
+				left: 50%; margin-left: -250px; padding: 1em; position: absolute; top: 25%; width: 500px; z-index: 201; margin-top: -130px; max-width: 500px; }
+		.f-check { background: transparent url(/img/feeds/follow_sprite.png) no-repeat 0 -27px; width:15px; height:15px; display: inline-block; }
+		.f-man { background: transparent url(/img/feeds/follow_sprite.png) no-repeat 0 -105px; width:15px; height:15px; display: inline-block; }
+		.f-foll { background: transparent url(/img/feeds/follow_sprite.png) no-repeat 0 -54px; width:15px; height:15px; display: inline-block; }
+		.f-foll:hover { background: transparent url(/img/feeds/follow_sprite.png) no-repeat 0 -75px; }
+		.userProfilePage .centerContent { width:680px; }
+		.m-tbl { width:100%; border-collapse:collapse; }
+		.m-tbl .m-head { border-bottom:1px solid #BBB; background-color: #DFDFDF; }
+		.m-tbl .m-ftd { width:60px; }
+		.m-tbl td { height:50px; vertical-align: middle !important;}
+		.m-tbl th { height:25px; vertical-align: middle !important;}
+		.m-tbl .m-head img { margin-left:5px; padding-bottom:2px; }
+		.p-tbl { width:100%; margin-top:5px; }
+		.p-lbl { float:right; font-weight:bold; font-size:1.26em; }
+		.gc-feed ul { list-style-type:none; margin:0; padding:0; }
+		.gc-feed ul ul { border-bottom:1px solid #d3d3d3;} 
+		.gc-feed li { margin:0 0 8px; direction: ltr; list-style-position: outside; }
+		.gc-feed li li {padding: 1em; border: 1px solid #d3d3d3; border-radius: 4px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /*margin:0 0 8px;*/ background: white; }
+		.gc-feed .photo { position:absolute; width:50px; }
+		.gc-feed li .body { margin-left:60px; }
+		.gc-feed li .date { color:#8b8b8b; }
+		.gc-feed li .date a { font-weight:bold; text-decoration:none; cursor:default; }
+		.gc-feed li .date time { font-size:0.95em; }
+		.gc-feed li .feedText { font-size:1.0em; font-family:sans-serif; }
+		textarea#fcom, .c-text-lvl2 { resize: none; line-height: 15px; height: 25px; width: 98%; outline: none; overflow: auto; padding: 6px 5px 4px 5px; border: 1px solid #d5d7d8; -moz-border-radius: 5px;
+						-moz-box-shadow: 0 1px 1px #969696 inset; -webkit-border-radius: 5px; -webkit-box-shadow: 0 1px 1px #969696 inset; }
+		.gc-bdiv { height: 15px; padding: 5px 5px 10px; text-align: right; }
+		.button.b-plus {color: #4E4E4E; border: 1px solid #c3c3c3; border-color: #c3c3c3 #aaa #909090; font-size: .88em; font-weight: bold; text-decoration: none; -moz-border-radius: 3px; border-radius: 3px;
+						background: #f0f0f0; background: -moz-linear-gradient(#fff,#f0f0f0); background: -webkit-linear-gradient(#fff,#f0f0f0); background: -ms-linear-gradient(#fff,#f0f0f0); display:none; }
+		.p-mess:hover { background-color:#e3f3ff; border-color:#B6C2CC; cursor:pointer; }
+		.p-srch { padding:6px 5px 4px 22px; border:1px solid #d5d7d8; moz-border-radius: 5px; -moz-box-shadow: 0 1px 1px #969696 inset; -webkit-border-radius: 5px;
+						-webkit-box-shadow: 0 1px 1px #969696 inset; background-image: url("/img/func_icons/util/search16.png"); background-repeat: no-repeat; background-position: 3px 50%;
+						background-attachment: scroll; background-clip: border-box; background-origin: padding-box; background-size: auto auto;}
+	</style>
+	<!-- <script src="{!$Site.BaseUrl}/jslibrary/1418325280000/sfdc/ChatterGroupProfilePage.js"></script> -->
+	<script src="{!$Resource.CommunityResources}/js/jquery-1.11.2.min.js"></script>
+	<script src="{!$Resource.CommunityResources}/js/underscore/underscore-min.js"></script>
+	<script>
+		/*ON PAGE*/
+		var LBL_SHOW_MORE = 'Show More LBL TBD';
+		var LBL_HIDE_ALL = 'Hide All LBL TBD';
+		var LBL_ADD_COMMENT = 'Add Comment LBL TBD';
+		var LBL_STURL = '/img/loading32.gif';
+		var LBL_STURL_GRAY = '/img/loading32.gif';
+		var LBL_WRITE_MESS = 'Write a Message... LBL TBD';
+		var LBL_WRITE_COMMENT = 'Write a Comment... LBL TBD';
+		var LBL_SEARCH = 'Search... LBL TBD';
+		var SHOW_MESSAGES_PER_ITERATION = {!pageSize};
+		var GET_MESS_RA_STRING = '{!$RemoteAction.CommunityGroupManageController.getMessages}';
+		var ADD_COMMENT_RA_STRING = '{!$RemoteAction.CommunityGroupManageController.addCommentPM}';
+		var NEXT_MESS_RA_STRING = '{!$RemoteAction.CommunityGroupManageController.getNextMessages}';
+		var MS_PROC_RA_STRING = '{!$RemoteAction.CommunityGroupManageController.membership}';
+	</script>
+	<apex:pageMessages />
+	<apex:outputPanel layout="block" styleClass="userProfilePage">
+		<apex:outputPanel layout="block" styleClass="groupprofilepage">
+			<apex:outputPanel layout="block" styleClass="userProfileContainer">
+				<!--HEADER-->
+				<apex:outputPanel layout="block" styleClass="profileHeaderContent">
+					<apex:outputPanel layout="block" styleClass="chatterBreadcrumbs" html-role="navigation">
+						<apex:outputPanel styleClass="cxTailNode">
+							<apex:outputPanel styleClass="groupName">{!IF(!tinyGroup,$Label.LBL_Manage + ' ','')}{!control.Name}</apex:outputPanel>
+						</apex:outputPanel>
+					</apex:outputPanel>
+				</apex:outputPanel>
+				<!--HEADER-->
+				<!--LEFT-->
+				<apex:outputPanel layout="block" styleClass="leftContent">
+					<apex:outputPanel layout="block" id="photoSection" styleClass="photoSection hasPhotoLinks">
+						<apex:outputPanel styleClass="chatter-avatar chatter-avatarFull " title="{!control.Name} ({!control.Type__c})" rendered="{!!tinyGroup}">
+							<img src="{!$Site.Prefix}{!groupImageUrl}" alt="{!control.Name} ({!control.Type__c})" class="chatter-photo" title="{!control.Name} ({!control.Type__c})"/>
+							<img src="/s.gif" alt="" class="chatter-avatarStyle" title="" />
+						</apex:outputPanel>
+					</apex:outputPanel>
+					<apex:outputPanel layout="block" styleClass="groupAction profileSection">
+						<apex:outputPanel layout="block" id="backToGroup" styleClass="groupSettings groupActionItem">
+							<a id="retlink" href="{!urlForGroupReturn}" title="{!$Label.LBL_Return_to_Group}">
+								<span>{!$Label.LBL_Return_to_Group}</span>
+							</a>
+						</apex:outputPanel>
+						<apex:outputPanel layout="block" id="createEvent" styleClass="groupSettings groupActionItem" rendered="{!renderCreateEvent}">
+							<a href="{!urlForEvent}" title="{!$Label.BTN_Create_Event}">
+								<span>{!$Label.BTN_Create_Event}</span>
+							</a>
+						</apex:outputPanel>
+						<apex:outputPanel layout="block" id="editMembers" styleClass="groupSettings groupActionItem">
+							<a href="javascript:void(0);" title="{!$Label.LBL_Add_Remove_Members}" onclick="showMemberDialog(true,false);$F('[id$=memback]').show();">
+								<span>{!$Label.LBL_Add_Remove_Members}</span>
+							</a>
+						</apex:outputPanel>
+						<apex:outputPanel layout="block" id="editManagers" styleClass="groupSettings groupActionItem">
+							<a href="javascript:void(0);" title="{!$Label.LBL_Update_Managers}" onclick="showMemberDialog(false,true);$F('[id$=memback]').show();">
+								<span>{!$Label.LBL_Update_Managers}</span>
+							</a>
+						</apex:outputPanel>
+						<apex:outputPanel layout="block" id="editGroup" styleClass="groupSettings groupActionItem">
+							<a href="javascript:void(0);" title="{!$Label.LBL_Edit_Group}" onclick="editModeAction();$F('[id$=miback]').show();">
+								<span>{!$Label.LBL_Edit_Group}</span>
+							</a>
+						</apex:outputPanel>
+					</apex:outputPanel>
+				</apex:outputPanel>
+				<!--LEFT-->
+				<!--MAIN CONTENT-->
+				<apex:outputPanel layout="block" styleClass="mainContent">
+					<!--<apex:outputPanel layout="block" styleClass="lowerMainContent">-->
+						<!--RIGHT CONTENT-->
+						<!--CENTER CONTENT-->
+						<apex:outputPanel layout="block" styleClass="centerContent">
+							<apex:pageBlock >
+							<!--<apex:outputPanel layout="block" styleClass="lowerCenterContent">-->
+								<!-- CHATTER -->
+								<apex:pageBlockSection title="Feed LBL TBD" columns="1">
+								<!--<apex:outputPanel layout="block" styleClass="row">-->
+									<apex:outputPanel layout="none" id="newConversation">
+										<textarea id="fcom" class="c-text"/>
+										<script>
+											document.getElementById('fcom').placeholder = LBL_WRITE_MESS;
+										</script>
+										<div class="gc-bdiv">
+											<input id="fcombtn" class="button b-plus" type="button" value="Send Message" onclick="sendPrivateMessage();"/>
+										</div>
+										<apex:form >
+											<apex:actionFunction name="sendNewMess" action="{!sendNewMessage}" rerender="none" oncomplete="pullMessages();">
+												<apex:param name="commentId" assignTo="{!newComment}" value=""/>
+											</apex:actionFunction>
+											<apex:actionFunction name="pullMessages" action="{!initFeeds}" rerender="newConversation, chatterRender" oncomplete="sendMessComplete();"/>
+										</apex:form>
+										<span id="chmess">
+											<apex:outputPanel id="chatterRender" styleClass="gc-feed">
+												<apex:variable var="iter" value="{!0}"/>
+												<ul>
+													<apex:repeat value="{!messagesPage.CWList}" var="ms">
+														<li id="{!iter}pwrap" class="user-post project-comment {!IF(ms.Mode == '2','p-oli','')}">
+															<div id="{!iter}pstatus" style="display:none; text-align:center;">
+																<img src="/img/loading32.gif"/>
+															</div>
+															<ul id="{!iter}pmess">
+																<li class="user-post project-comment p-mess" onclick="selectMessages('{!iter}','{!ms.ConversationId}');">
+																	<img class="photo" src="{!ms.FotoUrl}" />
+																	<div class="body">
+																		<p class="date"><a href="#">{!ms.Name}</a>
+																			&nbsp;&nbsp;&nbsp;&nbsp;
+																			<time >
+																				<apex:outputText value="{!ms.CommentDateStr}"/>
+																			</time>
+																		</p>
+																		<pre class="feedText tuneText">{!ms.Comment}</pre>
+																	</div>
+																</li>
+															</ul>
+														</li>
+														<apex:variable var="iter" value="{!iter+1}"/>
+													</apex:repeat>
+												</ul>
+											</apex:outputPanel>
+										</span>
+									</apex:outputPanel>
+								</apex:pageBlockSection>
+								<!-- </apex:outputPanel> -->
+							<!-- </apex:outputPanel>-->
+							<!-- CHATTER -->
+							<!-- MEMBERS -->
+							
+							<apex:pageBlockSection title="{!$Label.LBL_Group_Members}" rendered="{!!tinyGroup}" columns="1">
+							<apex:form id="memlist" >
+								<table class="m-tbl">
+									<tr>
+										<th class="m-head">&nbsp;</th>
+										<th class="m-head">
+											<apex:outputPanel style="cursor: pointer;">
+												<apex:actionSupport event="onclick" action="{!members.column}" rerender="memlist">
+													<apex:param name="col" assignTo="{!members.columnSort}" value="{!1}" />
+												</apex:actionSupport>
+												{!$ObjectType.Contact.Fields.Name.Label}
+												<apex:image value="/img/colTitle_uparrow.gif" rendered="{!members.columnSort == 1 && members.ascSort}"/>
+												<apex:image value="/img/colTitle_downarrow.gif" rendered="{!members.columnSort == 1 && !members.ascSort}"/>
+											</apex:outputPanel>
+										</th>
+										<th class="m-head">{!$ObjectType.Contact.Fields.Primary_Role__c.Label}</th>
+									</tr>
+									<apex:repeat value="{!members.users}" var="mms">
+										<tr onclick="window.open('{!$Page.CommunityProfilePage}?id={!mms.id}','_self');" class="th-smpl">
+											<td class="m-ftd">
+												<apex:image url="{!mms.photourl}" height="45px"/>
+											</td>
+											<td>
+												{!mms.name}
+											</td>
+											<td>
+												{!mms.role}
+											</td>
+										</tr>
+									</apex:repeat>
+									<apex:outputPanel layout="none" rendered="{!members.showPagination}">
+										<tr>
+											<td>&nbsp;</td>
+											<td class="paginator">
+												<apex:outputPanel style="cursor: pointer;">
+													<apex:actionSupport event="onclick" action="{!members.firstPage}" rendered="{!members.hasPrevious}" rerender="memlist"/>
+													<apex:image value="/s.gif" styleClass="{!IF(members.hasPrevious,'first','firstoff')}"/>
+												</apex:outputPanel>
+												&nbsp;
+												<apex:outputPanel style="cursor: pointer;">
+													<apex:actionSupport event="onclick" action="{!members.previousPage}" rendered="{!members.hasPrevious}" rerender="memlist"/>
+													<apex:image value="/s.gif" styleClass="{!IF(members.hasPrevious,'prev','prevoff')}"/>
+													<apex:outputText value="{!$Label.LBL_Previous}" styleClass="{!IF(members.hasPrevious,'','prevNextLinks')}"/>
+												</apex:outputPanel>
+												&nbsp;&nbsp;
+												<apex:outputPanel style="cursor: pointer;">
+													<apex:actionSupport event="onclick" action="{!members.nextPage}" rendered="{!members.hasNext}" rerender="memlist"/>
+													<apex:outputText value="{!$Label.LBL_Next}" styleClass="{!IF(members.hasNext,'','prevNextLinks')}"/>
+													<apex:image value="/s.gif" styleClass="{!IF(members.hasNext,'next','nextoff')}"/>
+												</apex:outputPanel>
+												&nbsp;
+												<apex:outputPanel style="cursor: pointer;">
+													<apex:actionSupport event="onclick" action="{!members.lastPage}" rendered="{!members.hasNext}" rerender="memlist"/>
+													<apex:image value="/s.gif" styleClass="{!IF(members.hasNext,'last','lastoff')}"/>
+												</apex:outputPanel>
+											</td>
+											<td>
+												<apex:outputText value="{!$Label.LBL_Page} {!members.pageNumber} {!$Label.LBL_of} {!members.totalPages}"/>
+											</td>
+										</tr>
+									</apex:outputPanel>
+								</table>
+							</apex:form>
+							</apex:pageBlockSection>
+							<!-- MEMBERS -->
+							<!-- MANAGERS -->
+							<apex:pageBlockSection title="{!$Label.LBL_Group_Managers}" columns="1">
+							<apex:form id="manlist" >
+								<table class="m-tbl">
+								<tr>
+									<th class="m-head">&nbsp;</th>
+									<th class="m-head">
+										<apex:outputPanel style="cursor: pointer;">
+											<apex:actionSupport event="onclick" action="{!managers.column}" rerender="manlist">
+												<apex:param name="col" assignTo="{!managers.columnSort}" value="{!1}" />
+											</apex:actionSupport>
+											{!$ObjectType.Contact.Fields.Name.Label}
+											<apex:image value="/img/colTitle_uparrow.gif" rendered="{!managers.columnSort == 1 && managers.ascSort}"/>
+											<apex:image value="/img/colTitle_downarrow.gif" rendered="{!managers.columnSort == 1 && !managers.ascSort}"/>
+										</apex:outputPanel>
+									</th>
+									<th class="m-head">{!$ObjectType.Contact.Fields.Primary_Role__c.Label}</th>
+								</tr>
+									<apex:repeat value="{!managers.users}" var="mms">
+										<tr onclick="window.open('{!$Page.CommunityProfilePage}?id={!mms.id}','_self');" class="th-smpl">
+											<td class="m-ftd">
+												<apex:image url="{!mms.photourl}" height="50px"/>
+											</td>
+											<td>
+												{!mms.name}
+											</td>
+											<td>
+												{!mms.role}
+											</td>
+										</tr>
+									</apex:repeat>
+									<apex:outputPanel layout="none" rendered="{!managers.showPagination}">
+										<tr>
+											<td>&nbsp;</td>
+											<td class="paginator">
+												<apex:outputPanel style="cursor: pointer;">
+													<apex:actionSupport event="onclick" action="{!managers.firstPage}" rendered="{!managers.hasPrevious}" rerender="manlist"/>
+													<apex:image value="/s.gif" styleClass="{!IF(managers.hasPrevious,'first','firstoff')}"/>
+												</apex:outputPanel>
+												&nbsp;
+												<apex:outputPanel style="cursor: pointer;">
+													<apex:actionSupport event="onclick" action="{!managers.previousPage}" rendered="{!managers.hasPrevious}" rerender="manlist"/>
+													<apex:image value="/s.gif" styleClass="{!IF(managers.hasPrevious,'prev','prevoff')}"/>
+													<apex:outputText value="{!$Label.LBL_Previous}" styleClass="{!IF(managers.hasPrevious,'','prevNextLinks')}"/>
+												</apex:outputPanel>
+												&nbsp;&nbsp;
+												<apex:outputPanel style="cursor: pointer;">
+													<apex:actionSupport event="onclick" action="{!managers.nextPage}" rendered="{!managers.hasNext}" rerender="manlist"/>
+													<apex:outputText value="{!$Label.LBL_Next}" styleClass="{!IF(managers.hasNext,'','prevNextLinks')}"/>
+													<apex:image value="/s.gif" styleClass="{!IF(managers.hasNext,'next','nextoff')}"/>
+												</apex:outputPanel>
+												&nbsp;
+												<apex:outputPanel style="cursor: pointer;">
+													<apex:actionSupport event="onclick" action="{!managers.lastPage}" rendered="{!managers.hasNext}" rerender="manlist"/>
+													<apex:image value="/s.gif" styleClass="{!IF(managers.hasNext,'last','lastoff')}"/>
+												</apex:outputPanel>
+											</td>
+											<td>
+												<apex:outputText value="{!$Label.LBL_Page} {!managers.pageNumber} {!$Label.LBL_of} {!managers.totalPages}"/>
+											</td>
+										</tr>
+									</apex:outputPanel>
+								</table>
+							</apex:form>
+							</apex:pageBlockSection>
+							</apex:pageBlock>
+						</apex:outputPanel>
+						<apex:outputPanel layout="block" styleClass="clearingBox"></apex:outputPanel>
+						<!--CENTER CONTENT-->
+					</apex:outputPanel>
+				</apex:outputPanel>
+				<!--MAIN CONTENT-->
+			<!-- </apex:outputPanel>-->
+		</apex:outputPanel>
+	</apex:outputPanel>
+	<!-- MODAL CONTENT -->
+	<apex:outputPanel id="miback" layout="block" styleClass="m-back">
+		<apex:outputPanel layout="block" styleClass="m-status">
+			<apex:image url="/img/loading32.gif"/>
+		</apex:outputPanel>
+		<apex:outputPanel id="mimain">
+			<apex:outputPanel id="miin" layout="block" styleClass="m-main" rendered="{!editMode}">
+				<apex:form >
+					<apex:pageBlock >
+						<apex:pageBlockButtons >
+							<apex:commandButton action="{!submitAction}" value="{!$Label.BTN_Submit}" rerender="miback" onclick="$F('[id$=miin]').hide();"/>
+							<apex:commandButton action="{!cancelAction}" value="{!$Label.BTN_Cancel}" rerender="miback" onclick="$F('[id$=miin]').hide();"/>
+						</apex:pageBlockButtons>
+						<apex:pageBlockSection id="cgcpbs" columns="1" collapsible="false">
+							<apex:repeat value="{!$ObjectType.Community_Group_Control__c.FieldSets.EditGroup}" var="fs">
+								<apex:inputField value="{!control[fs.fieldPath]}" required="{!OR(fs.required, fs.dbrequired)}"/>
+							</apex:repeat>
+							<apex:inputField value="{!control['Description__c']}" />
+						</apex:pageBlockSection>
+					</apex:pageBlock>
+				</apex:form>
+			</apex:outputPanel>
+		</apex:outputPanel>
+	</apex:outputPanel>
+	<apex:outputPanel id="memback" layout="block" styleClass="m-back">
+		<apex:outputPanel layout="block" styleClass="m-status">
+			<apex:image url="/img/loading32.gif"/>
+		</apex:outputPanel>
+		<apex:outputPanel id="memmain">
+			<apex:outputPanel id="memin" layout="block" styleClass="m-main" rendered="{!memberMode || managerMode}">
+				<apex:form >
+					<apex:pageBlock >
+						<apex:inputText id="srchid" value="{!allusers.query}" onkeyup="searchAction(this);" styleClass="p-srch icon-search"/>
+						<script>
+							$F('[id$=srchid]').attr('placeholder',LBL_SEARCH);
+						</script>
+						<apex:actionStatus id="statusLoad">
+							<apex:facet name="start">
+								<img src="/img/loading32.gif" style="width:24px;position:fixed;margin-left:5px;"/>
+							</apex:facet>
+						</apex:actionStatus>
+						<apex:outputLabel value="{!IF(managerMode,$Label.LBL_Update_Managers,$Label.LBL_Add_Remove_Members)}" styleClass="p-lbl"/>
+						<apex:outputPanel id="allpb" layout="block" style="min-height:250px;">
+						<table class="p-tbl">
+							<apex:repeat value="{!allusers.users}" var="us">
+								<tr class="th-smpl">
+									<td onclick="window.open('{!$Page.CommunityProfilePage}?id={!us.id}','_self');">
+										<apex:image url="{!us.photourl}" height="50px"/>
+									</td>
+									<td onclick="window.open('{!$Page.CommunityProfilePage}?id={!us.id}','_self');">
+										{!us.name}
+									</td>
+									<td>
+										{!us.role}
+									</td>
+									<td id="me{!us.id}">
+										<apex:outputPanel layout="block" styleClass="owner" rendered="{!us.owner}">
+											<img class="check" src="/s.gif" alt=""/>
+											{!$Label.LBL_Owner}
+										</apex:outputPanel>
+										<apex:outputPanel layout="none" rendered="{!!us.owner}">
+											<apex:outputPanel id="apnl" layout="block" onclick="msproc(1,'{!us.id}');" styleClass="btn" style="padding:4px 3px;{!IF(us.member,'display:none;','')}">
+												{!$Label.LBL_Add}
+											</apex:outputPanel>
+											<apex:outputPanel id="mpnl" layout="block" styleClass="member" style="{!IF(us.member,'','display:none;')}">
+												<img class="f-check" src="/s.gif" alt=""/>
+												{!$Label.LBL_Member}
+												<apex:outputPanel rendered="{!memberMode}" styleClass="f-foll" onclick="msproc(2,'{!us.id}');"/>
+											</apex:outputPanel>
+										</apex:outputPanel>
+									</td>
+									<apex:outputPanel layout="none" rendered="{!managerMode}">
+										<td id="ma{!us.id}">
+											<apex:outputPanel layout="none" rendered="{!!us.owner}">
+												<apex:outputPanel id="mapnl" layout="block" onclick="msproc(3,'{!us.id}');" styleClass="btn" style="padding:4px 3px;{!IF(us.manager,'display:none;','')}">
+													{!$Label.LBL_Add_Manager}
+												</apex:outputPanel>
+												<apex:outputPanel id="mmpnl" layout="block" styleClass="member" style="{!IF(us.manager,'','display:none;')}">
+													<img class="f-man" src="/s.gif" alt=""/>
+													{!$Label.LBL_Manager}
+													<apex:outputPanel styleClass="f-foll" onclick="msproc(4,'{!us.id}');"/>
+												</apex:outputPanel>
+											</apex:outputPanel>
+										</td>
+									</apex:outputPanel>
+								</tr>
+							</apex:repeat>
+							<apex:outputPanel layout="none" rendered="{!allusers.showPagination}">
+								<tr>
+									<td>&nbsp;</td>
+									<td class="paginator">
+										<apex:outputPanel style="cursor: pointer;">
+											<apex:actionSupport event="onclick" action="{!allusers.firstPage}" rendered="{!allusers.hasPrevious}" rerender="allpb"/>
+											<apex:image value="/s.gif" styleClass="{!IF(allusers.hasPrevious,'first','firstoff')}"/>
+										</apex:outputPanel>
+										&nbsp;
+										<apex:outputPanel style="cursor: pointer;">
+											<apex:actionSupport event="onclick" action="{!allusers.previousPage}" rendered="{!allusers.hasPrevious}" rerender="allpb"/>
+											<apex:image value="/s.gif" styleClass="{!IF(allusers.hasPrevious,'prev','prevoff')}"/>
+											<apex:outputText value="{!$Label.LBL_Previous}" styleClass="{!IF(allusers.hasPrevious,'','prevNextLinks')}"/>
+										</apex:outputPanel>
+										&nbsp;&nbsp;
+										<apex:outputPanel style="cursor: pointer;">
+											<apex:actionSupport event="onclick" action="{!allusers.nextPage}" rendered="{!allusers.hasNext}" rerender="allpb"/>
+											<apex:outputText value="{!$Label.LBL_Next}" styleClass="{!IF(allusers.hasNext,'','prevNextLinks')}"/>
+											<apex:image value="/s.gif" styleClass="{!IF(allusers.hasNext,'next','nextoff')}"/>
+										</apex:outputPanel>
+										&nbsp;
+										<apex:outputPanel style="cursor: pointer;">
+											<apex:actionSupport event="onclick" action="{!allusers.lastPage}" rendered="{!allusers.hasNext}" rerender="allpb"/>
+											<apex:image value="/s.gif" styleClass="{!IF(allusers.hasNext,'last','lastoff')}"/>
+										</apex:outputPanel>
+									</td>
+									<td>
+										<apex:outputText value="{!$Label.LBL_Page} {!allusers.pageNumber} {!$Label.LBL_of} {!allusers.totalPages}"/>
+									</td>
+								</tr>
+							</apex:outputPanel>
+						</table>
+						</apex:outputPanel>
+					</apex:pageBlock>
+					<apex:commandButton action="{!msDone}" value="{!$Label.LBL_Done}" rerender="memback, memlist, manlist" onclick="$F('[id$=memin]').hide();" style="float:right;"/>
+					<apex:actionFunction action="{!allusers.init}" name="msinit" rerender="allpb" status="statusLoad"/>
+				</apex:form>
+				<script>
+					var searchAction = _.debounce(function(inthis) {
+						if (inthis.value.trim().length != 1) {
+							msinit();
+						}
+					}, 500);
+					function msproc(inm,inid) {
+						if(inm!=4||confirm('{!$Label.LBL_Confirm_Remove_Manager}')){
+							var sid = '#' + (inm<3?'me':'ma') + inid;
+							$F(sid+' [id$=pnl]').hide();
+							Visualforce.remoting.Manager.invokeAction(
+								MS_PROC_RA_STRING,
+								inid,
+								'{!control.Id}',
+								String(inm),
+								function(result, event) {
+									var temp = result.split(':');
+									if (temp[0] == 'ok') {
+										var nmode = Number(temp[1]);
+										var nid = '#' + (nmode<3?'me':'ma') + temp[2];
+										var act = (nmode==1||nmode==3)?'mpnl':'apnl';
+										$F(nid+' [id$='+act+']').show();
+									}
+								}
+							);
+						}
+					}
+				</script>
+			</apex:outputPanel>
+		</apex:outputPanel>
+	</apex:outputPanel>
+	<apex:form >
+		<apex:actionFunction action="{!editModeAction}" name="editModeAction" rerender="mimain" oncomplete="$F('[id$=miin]').show();"/>
+		<apex:actionFunction action="{!msShow}" name="showMemberDialog" rerender="memmain" oncomplete="$F('[id$=memin]').show();">
+			<apex:param name="memberMode" assignTo="{!memberMode}" value="" />
+			<apex:param name="managerMode" assignTo="{!managerMode}" value="" />
+		</apex:actionFunction>
+	</apex:form>
+	<script>
+		/*TO FILE*/
+		var $F = jQuery.noConflict();
+		$F(document).ready(function() {
+			$F('#fcom').keyup(processFields).focusin(animateHeightIn).focusout(animateHeightOut);
+		});
+		function animateHeightIn() {
+			if ($F(this).height() < 120) {
+				$F(this).animate({height: "120px"}, 500);
+				$F('#' + $F(this).attr('id') + 'btn').fadeIn(500);
+			}
+		}
+		function animateHeightOut() {
+			if ($F(this).val().length == 0) {
+				$F(this).animate({height: "25px"}, 500);
+				$F('#' + $F(this).attr('id') + 'btn').fadeOut(500);
+			}
+		}
+		function selectMessages(ini, incid) {
+			var hs = $F('#' + ini + 'pwrap').height();
+			$F('#' + ini + 'pstatus').height(hs-36).css('padding-top','' + (hs-28)/2 + 'px');
+			$F('#' + ini + 'pmess').hide();
+			$F('#' + ini + 'pstatus').show();
+			Visualforce.remoting.Manager.invokeAction(
+				GET_MESS_RA_STRING,
+				ini,
+				incid,
+				null,
+				function(result, event) {
+					var div = document.createElement('div');
+					div.innerHTML = result;
+					var decoded = div.firstChild.nodeValue;
+					var mdata = JSON.parse(div.firstChild.nodeValue);
+					var messsel = '#' + mdata.position + 'pmess';
+					var template = $F(messsel).children().first().clone();
+					$F(messsel).empty();
+					$F(template).removeAttr('onclick').removeClass('p-mess');
+					for (var i=0; i<mdata.messages.length; i++) {
+						$F(messsel).prepend(populateTemplate($F(template).clone(),mdata.messages[i]));
+					}
+					if (mdata.showMore) {
+						var smdiv = '<div id="'+ mdata.position +'smid" class="p-stat"><img src="'+ (mdata.feedStyle ? LBL_STURL_GRAY : LBL_STURL) +'"></img>';
+						smdiv += '<div id="'+ mdata.position +'controls">';
+						smdiv += '<a id="'+ mdata.position +'showMessages" href="javascript:void(0);" onclick="showMore(\''+ mdata.nextPageToken +'\',\''+ mdata.position +'\');">'+ LBL_SHOW_MORE +'</a>';
+						smdiv += '<span id="'+ mdata.position +'separator">&nbsp;&nbsp;|&nbsp;&nbsp;</span>';
+						smdiv += '<a id="'+ mdata.position +'hideMessages" href="javascript:void(0);" onclick="hideAll(\''+ mdata.position +'\');">'+ LBL_HIDE_ALL +'</a>';
+						smdiv += '</div>';
+						smdiv += '</div>';
+						$F(messsel).prepend(smdiv);
+					}
+					else if (mdata.messages.length > 1) {
+						var smdiv = '<div id="'+ mdata.position +'smid" class="p-stat">';
+						smdiv += '<div id="'+ mdata.position +'controls">';
+						smdiv += '<a id="'+ mdata.position +'showMessages" href="javascript:void(0);" onclick="showMoreLocal(\''+ mdata.position +'\');">'+ LBL_SHOW_MORE +'</a>';
+						smdiv += '<span id="'+ mdata.position +'separator">&nbsp;&nbsp;|&nbsp;&nbsp;</span>';
+						smdiv += '<a id="'+ mdata.position +'hideMessages" href="javascript:void(0);" onclick="hideAll(\''+ mdata.position +'\');">'+ LBL_HIDE_ALL +'</a>';
+						smdiv += '</div>';
+						smdiv += '</div>';
+						$F(messsel).prepend(smdiv);
+						$F('#'+ mdata.position +'showMessages').hide();
+						$F('#'+ mdata.position +'separator').hide();
+					}
+					$F('#' + mdata.position + 'pstatus').hide();
+					$F(messsel).append('<textarea id="' + mdata.position + 'intxt" class="c-text-lvl2" placeholder="'+ LBL_WRITE_COMMENT +'"></textarea>');
+					$F(messsel).append('<div class="gc-bdiv"><input id="'+mdata.position+'intxtbtn" class="button b-plus" type="button" value="'+ LBL_ADD_COMMENT +'" disabled="" onclick="addPrivateComment(\''+mdata.position+'\',\''+mdata.lmid+'\')"></div>');
+					$F('#' + mdata.position + 'intxt').keyup(processFields).focusin(animateHeightIn).focusout(animateHeightOut);
+					$F(messsel).fadeIn();
+				}
+			);
+		}
+		function processFields() {
+			if ($F(this).val().length > 0) {
+				$F('#' + $F(this).attr('id') + 'btn').removeAttr('disabled');
+			}
+			else {
+				$F('#' + $F(this).attr('id') + 'btn').attr('disabled','disabled');
+			}
+		}
+		function populateTemplate(inTemplate, inObj) {
+			$F(inTemplate).find('[src]').attr('src',inObj.FotoUrl);
+			$F(inTemplate).find('a').text(inObj.Name);
+			$F(inTemplate).find('time').text(inObj.CommentDateStr);
+			$F(inTemplate).find('pre').text(inObj.Comment);
+			return inTemplate;
+		}
+		function addPrivateComment(ini2, inlmid) {
+			$F('#' + ini2 + 'intxt').attr('disabled','disabled');
+			$F('#' + ini2 + 'intxtbtn').attr('disabled','disabled');
+			Visualforce.remoting.Manager.invokeAction(
+				ADD_COMMENT_RA_STRING,
+				ini2,
+				inlmid,
+				$F('#' + ini2 + 'intxt').val(),
+				function(result, event) {
+					var div = document.createElement('div');
+					div.innerHTML = result;
+					var decoded = div.firstChild.nodeValue;
+					var mdata = JSON.parse(div.firstChild.nodeValue);
+					var messsel2 = '#' + mdata.position + 'pmess';
+					var template2 = $F(messsel2 + ' li')[0];
+					var templatenew2 = $F(template2).clone();
+					$F(templatenew2).css('display','none');
+					$F('#' + mdata.position + 'intxt').removeAttr('disabled').val('').css('height','25px');
+					$F('#' + mdata.position + 'intxtbtn').hide();
+					$F(messsel2).find('[class*=user-post]').last().after(populateTemplate(templatenew2,mdata.messages[0]));
+					$F(messsel2).find('[class*=user-post]').last().fadeIn();
+				}
+			);
+		}
+		function sendPrivateMessage() {
+			$F('#chmess').hide();
+			$F('#allstatus').show();
+			$F('#fcom').attr('disabled','disabled');
+			$F('#fcombtn').attr('disabled','disabled');
+			sendNewMess($F('#fcom').val());
+		}
+		function sendMessComplete() {
+			$F('#fcom').val('');
+			$F('#fcom').removeAttr('disabled').css('height','25px');
+			$F('#fcombtn').removeAttr('disabled').hide();
+			$F('#allstatus').hide();
+			$F('#chmess').fadeIn();
+		}
+		function showMore(innpt,inp) {
+			if ($F('#'+ inp +'pmess').find('li:hidden').length == 0) {
+				$F('#'+inp+'controls').hide();
+				$F('#'+ inp +'smid img').show();
+				Visualforce.remoting.Manager.invokeAction(
+					NEXT_MESS_RA_STRING,
+					inp,
+					innpt,
+					function(result, event) {
+						var div = document.createElement('div');
+						div.innerHTML = result;
+						var decoded = div.firstChild.nodeValue;
+						var mdata = JSON.parse(div.firstChild.nodeValue);
+						var messsel = '#' + mdata.position + 'pmess';
+						var template = $F(messsel + ' li')[0];
+						for (var i=0; i<mdata.messages.length; i++) {
+							$F('#' + mdata.position +'smid').after(populateTemplate($F(template).clone(),mdata.messages[i]));
+						}
+						$F('#'+ mdata.position +'smid img').hide();
+						if (mdata.showMore) {
+							$F('#'+ inp +'controls').show();
+							$F('#'+ mdata.position +'showMessages').attr('onclick', 'showMore(\''+ mdata.nextPageToken +'\',\''+ mdata.position +'\');');
+						}
+						else {
+							$F('#'+inp+'controls').show();
+							$F('#'+ mdata.position +'showMessages').attr('onclick', 'showMoreLocal(\''+ inp +'\', false);').hide();
+							$F('#'+ mdata.position +'separator').hide();
+						}
+					}
+				);
+			}
+			else {
+				showMoreLocal(inp, true);
+			}
+		}
+		function hideAll(inp) {
+			$F('#'+ inp +'pmess').find('li').hide().last().show();
+			$F('#'+ inp +'showMessages').show();
+			$F('#'+ inp +'separator').hide();
+			$F('#'+ inp +'hideMessages').hide();
+		}
+		function showMoreLocal(inp, showMoreDB) {
+			var hiddenItems = $F('#'+ inp +'pmess').find('li:hidden').length;
+			if ($F('#'+ inp +'hideMessages').is(':hidden')) {
+				$F('#'+ inp +'separator').show();
+				$F('#'+ inp +'hideMessages').show();
+			}
+			var sliceStart = ((hiddenItems - SHOW_MESSAGES_PER_ITERATION) > 0) ? (hiddenItems - SHOW_MESSAGES_PER_ITERATION) : 0;
+			sliceStart = $F('#'+ inp +'pmess').find('li:visible').length == 1 && !(sliceStart == 0) ? sliceStart + 1 : sliceStart;
+			$F('#'+ inp +'pmess').find('li:hidden').slice(sliceStart, hiddenItems).show();
+			if ((hiddenItems - SHOW_MESSAGES_PER_ITERATION) <= 0 && !showMoreDB) {
+				$F('#'+ inp +'showMessages').hide();
+				$F('#'+ inp +'separator').hide();
+			}
+		}
+	</script>
+	<!-- MODAL CONTENT -->
+</apex:page>

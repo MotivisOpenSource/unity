@@ -1,0 +1,183 @@
+<apex:page controller="CommunityGroupsController" showHeader="false" sideBar="false" standardStylesheets="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false">
+    <apex:composition template="{!$Site.Template}">
+        <apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
+        <apex:define name="body">
+            <div class="profile" ng-app="GroupsApp" ng-controller="GroupsController">
+                <div class="container content">
+                    <div class="row">
+                        <!--LEFT-->
+                        <div class="col-md-3 md-margin-bottom-40">
+                            <c:CommunityUserPhoto />
+                            <c:CommunityFeedNavigation pn="5"/>
+                        </div>
+                        <!--LEFT-->
+                        <!--MIDDLE-->
+                        <div class="col-md-9">
+                            <div class="profile-body margin-bottom-20">
+                                <!--CENTER-->
+                                <!--QUICK SEARCH -->
+                                <div class="row margin-bottom-20">
+                                    <div class="col-md-6 ">
+                                        <div class="input-group">
+                                            <input ng-model="quickSearchQuery" class="form-control" placeholder="Type a Name..." value="" id="quickSearchInput" />
+                                            <span class="input-group-btn">
+                                                <button id="quickSearchButton" class="btn-u">
+                                                    <i class="fa fa-search"></i>
+                                                </button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 ">
+                                    </div>
+                                </div>
+                                <!--QUICK SEARCH -->
+                                <apex:outputPanel id="centerContent" layout="block">
+                                    <div class="tab-v1">
+                                        <ul class="nav nav-tabs">
+                                            <li class="{!IF(currentFilter=='all_groups', 'active', '')}"><a  href="{!$Page.CommunityGroups}?f=all_groups">{!$Label.BTN_All_Groups}</a></li>
+                                            <li class="{!IF(currentFilter=='my_groups', 'active', '')}"><a href="{!$Page.CommunityGroups}?f=my_groups" >{!$Label.BTN_My_Groups}</a></li>
+                                            <li class="{!IF(currentFilter=='recommended_groups', 'active', '')}"><a href="{!$Page.CommunityGroups}?f=recommended_groups">{!$Label.BTN_Recommended_Groups}</a></li>
+                                        </ul>
+                                        <div class="tab-content">
+                                            <div class="tab-pane active" id="groups">
+                                                <div class="table-search-v2">
+                                                    <!--RESULTS ROW -->
+                                                    <div class="row margin-bottom-20" ng-repeat="cg in chunkedGroups">
+                                                        <div class="col-sm-6 sm-margin-bottom-20"  ng-repeat="g in cg | quickSearch:this">
+                                                            <div class="profile-blog">
+                                                                <img class="rounded-x" ng-src="{!SitePrefix}{{ g.GroupPhotoUrl }}" src="/s.gif" alt="" />
+                                                                <div class="name-location">
+                                                                    <strong><a href="{!$Page.CommunityGroupDetailPage}?g={{ g.GroupId }}">{{ g.GroupName }}</a></strong>
+                                                                    <span><i class="fa fa-map-marker"></i>{{ g.GroupLastActivityDateFormatted }}</span>
+                                                                </div>
+                                                                <div class="clearfix margin-bottom-20"></div>    
+                                                                <p>{{ g.GroupDescription }}</p>
+                                                                <hr />
+                                                                <ul class="list-inline share-list">
+                                                                    <li><i class="fa fa-group"></i><a href="#">{{ g.GroupMembersCount }} Followers</a></li>
+                                                                    <li><i class="fa fa-share"></i><a href="#">Share</a></li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <button id="showMore" class="btn-u btn-u-default btn-block conversation_nav" ng-show="hasMore == true;" ng-disabled="hasMore == false;" ng-click="updateGroupsScope();">Show More...</button>
+                                                    </div>
+                                                    <!--RESULTS ROW -->
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </apex:outputPanel>
+                                <!--CENTER-->
+                            </div>
+                        </div>
+                        <!--MIDDLE-->
+                    </div>
+                </div>
+            </div>
+        </apex:define>
+        <apex:define name="scripts">
+            <script type="text/javascript" src="{!$Resource.CommunityResources}/js/underscore/underscore-min.js" ></script>
+            <script type="text/javascript" src="{!$Resource.CommunityResources}/js/angularjs/angular.min.js" ></script>
+            <script type="text/javascript">
+                var GroupsApp = angular.module('GroupsApp', []);
+                GroupsApp.filter('quickSearch', function() {
+                    return function(input, scope) {
+                        var searchWords = scope.quickSearchQuery.match(/(\w){2,}/g);
+                        if (searchWords) {
+                            var reText = '';
+                            for (var i = 0; i < searchWords.length; i++) {
+                                reText += '(?=.*'+searchWords[i]+')';
+                            }
+                            var re = new RegExp(reText, "ig");
+                            var output = [];
+                            for (var j = 0; j < input.length; j++) {
+                                if (input[j].GroupName.match(re) != null) {
+                                    output.push(input[j]);
+                                }
+                            }
+                            input = output;
+                        }
+                        return input;
+                    }
+                });
+                GroupsApp.factory('getGroups', ['$q', '$rootScope', function($q, $rootScope) {
+                    return function(limit, offset) {
+                        var deferred = $q.defer();
+                        if ($rootScope.getDataStatus != 'InProgress') {
+                            $rootScope.getDataStatus = 'InProgress';
+                            Visualforce.remoting.Manager.invokeAction(
+                                'CommunityGroupsController.getGroups',
+                                limit, offset, '{!$CurrentPage.parameters.f}',
+                                function(result, event) {
+                                    $rootScope.$apply(function() {
+                                        if (event.status) {
+                                            deferred.resolve(result);
+                                            $rootScope.getDataStatus = 'Finished';
+                                        } else {
+                                            deferred.reject(event);
+                                            $rootScope.getDataStatus = 'Finished';
+                                        }
+                                    })
+                                },
+                                { buffer: true, escape: true, timeout: 30000 }
+                            );
+                        } else {
+                            deferred = null;
+                            return null;
+                        }
+                        return deferred.promise;
+                    }
+                }]);
+                GroupsApp.controller('GroupsController', ['$scope', '$filter', 'getGroups', function($scope, $filter, getGroups) {
+                    $scope.quickSearchQuery = '';
+                    $scope.page = {
+                        pageSize: 2,
+                        recordsTotal: function() {
+                            return $scope.groups.length;
+                        },
+                        showMore: function() {
+                            console.log('next');
+                        }
+                    };
+                    $scope.hasMore = false;
+                    $scope.groups = [];
+
+                    $scope.updateGroupsScope = function () {
+                        var def = getGroups($scope.page.pageSize, $scope.page.recordsTotal());
+                        if (def != null) {
+                            $scope.inProgress = false;
+                            def.then(function(result) {
+                                    console.log(result);
+                                    $.each(result.Groups, function(i, item){
+                                        $scope.groups.push(item);
+                                    });
+                                    $scope.hasMore = result.TotalGroups - $scope.groups.length > 0;
+                                    $scope.chunkedGroups = $scope.chunk($scope.groups, 2);
+                                    if ($scope.inProgress == true) {
+                                        $scope.updateGroupsScope();
+                                    }
+                                },
+                                function(error){
+                                    console.log(error);
+                                }
+                            );
+                        } else {
+                            $scope.inProgress = true;
+                        }
+                    };
+                    $scope.updateGroupsScope();
+                    $scope.chunk = function(arr, size) {
+                        var newArr = [];
+                        for (var i=0; i<arr.length; i+=size) {
+                            newArr.push(arr.slice(i, i+size));
+                        }
+                        return newArr;
+                    }
+                }]);
+            </script>
+        </apex:define>
+    </apex:composition>
+</apex:page>

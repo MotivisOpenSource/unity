@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>*</members>
+        <name>ApexClass</name>
+    </types>
+    <types>
+        <members>*</members>
+        <name>ApexComponent</name>
+    </types>
+    <types>
+        <members>*</members>
+        <name>ApexPage</name>
+    </types>
+    <types>
+        <members>*</members>
+        <name>ApexTrigger</name>
+    </types>
+    <types>
+        <members>Account</members>
+        <members>Community_Event_Tag__c</members>
+        <members>Community_Events__c</members>
+        <members>Community_Group_Control_Tag__c</members>
+        <members>Community_Group_Control__c</members>
+        <members>Community_Group_Membership__c</members>
+        <members>Community_News_Tag__c</members>
+        <members>Community_News__c</members>
+        <members>Community_Profile_Tag__c</members>
+        <members>Community_Profile__c</members>
+        <members>Community_Resource_Tag__c</members>
+        <members>Community_Resource__c</members>
+        <members>Community_Settings__c</members>
+        <members>Community_Tag__c</members>
+        <members>Community_Theme__c</members>
+        <members>Contact</members>
+        <members>User</members>
+        <name>CustomObject</name>
+    </types>
+    <types>
+        <members>Admin</members>
+        <members>HVP Community</members>
+        <members>HVP Community Beta</members>
+        <members>Partner Community Login User</members>
+        <members>Partner Community User</members>
+        <members>Student Community Profile</members>
+        <name>Profile</name>
+    </types>
+    <types>
+        <members>*</members>
+        <name>StaticResource</name>
+    </types>
+    <version>31.0</version>
+</Package>

@@ -1,0 +1,348 @@
+<apex:page showHeader="false" sideBar="false" controller="CommunityGroupDetailPageController" standardStylesheets="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false">
+<apex:composition template="{!$Site.Template}">
+<apex:define name="title">Community University | {!CurrentGroup.GroupName}</apex:define>
+<apex:define name="body">
+
+	<!-- <apex:stylesheet value="/sCSS/32.0/sprites/1420068168000/Theme3/default/base/common.css" /> -->
+	<!-- <apex:stylesheet value="/sCSS/32.0/sprites/1420068168000/Theme3/default/base/groupProfilePage.css" /> -->
+	<!-- <apex:stylesheet value="/sCSS/32.0/sprites/1420068168000/Theme3/default/base/extended.css" /> -->
+	<!-- <apex:stylesheet value="/sCSS/32.0/sprites/1420068168000/Theme3/default/base/chatterExtended.css" /> -->
+	<apex:stylesheet value="/sCSS/32.0/sprites/1420068168000/Theme3/default/base/zen-componentsCompatible.css" />
+
+	 <!--// <script src="{!$Site.BaseUrl}/jslibrary/1418325280000/sfdc/ChatterGroupProfilePage.js"></script> -->
+
+	<style type="text/css">
+		.chatter-photo img {width:100%}
+		/*. h1, h2, h3, h5, h5, h6 {margin-bottom:0px}*/
+
+		#groupmembermodal { padding: 0 0 0 0; }
+		#groupmembertable { margin-bottom: 0; }
+
+		body.modal-open {
+			padding-right: 0 !important;
+			overflow: auto;
+		}
+		.leave-join-button {
+			float: right;
+		}
+
+		.group-detail {
+			margin-top: 7px;
+		}
+
+		.group-detail-section { 
+			display: flex;
+			background-color: transparent;
+			border-bottom: 1px solid #d7dbde;
+			margin-bottom: 4px;
+			padding-bottom: 3px;
+		}
+		.group-detail-title {
+			width: 100%;
+		}
+		.group-detail-title h1, h2, h3, h5, h5, h6 {
+			margin-bottom:0px;
+		}
+		.group-detail-more {
+			width: 14em;
+			text-align: right;
+			margin-top: 6px;
+			font-size: 0.9em;
+		}
+
+
+
+	</style>
+
+	<!--=== Breadcrumbs ===-->
+    <div class="breadcrumbs margin-bottom-10">
+        <div class="container">
+            <h1 class="pull-left">Group Detail: {!CurrentGroup.GroupName}</h1>
+            <ul class="pull-right breadcrumb">
+                <li><a href="{!$Page.CommunityFeed_MyFeed}">My Feed</a></li>
+                <li class="active"><a href="{!$Page.CommunityGroupDetailPage}?g={!CurrentGroup.GroupId}">{!CurrentGroup.GroupName}</a></li>
+                <!-- <li class="active">{!control.Name} Detail Page</li> -->
+            </ul>
+        </div><!--/container-->
+    </div><!--/breadcrumbs-->
+    <!--=== End Breadcrumbs ===-->
+
+	<!-- <div class="profile" ng-app="PeoplesApp" ng-controller="PeoplesController"> -->
+	<div class="profile">
+
+		<div class="container content">
+			<div class="row">
+
+				<!--Left Sidebar-->
+				<div class="col-md-3 md-margin-bottom-20">
+					<!--HEADER-->
+					<!-- <h2 class="heading-md">{!CurrentGroup.GroupName}</h2> -->
+					<!-- <h5 class="heading-md">{!CurrentGroup.GroupVisibility}</h5> -->
+					<!--HEADER-->
+					<div class="chatter-photo"><c:CommunityUserPhoto current="false" photoUrl="{!CurrentGroup.GroupPhotoUrl}" fmode="true"/></div>					
+					<c:CommunityFeedNavigation currentGroupId="{!CurrentGroup.GroupId}" />
+				</div>
+				<!--End Left Sidebar-->
+
+				<!-- Center -->
+				<div class="col-md-7 md-margin-bottom-20">
+					<div id="feed" class="profile-edit">
+						<c:CommunityFeed pid="{!CurrentGroup.GroupId}"/>
+					</div>
+				</div>
+				<!-- End Center -->
+
+				<!-- Right Sidebar-->
+				<div class="col-md-2 md-margin-bottom-20 profile-edit">
+					<apex:outputPanel layout="block" id="rightGroupContent" styleClass="rightContent">
+						<apex:outputPanel layout="block"  styleClass="groupmanagementlink groupmembership">
+							<apex:outputPanel layout="block"  styleClass="owner" rendered="{!CurrentGroup.CurrentMemberRole == 'Owner'}">
+								<img class="check" src="{!SitePrefix}/s.gif" alt="" />Owner
+							</apex:outputPanel>
+						<apex:form >
+							<apex:outputPanel rendered="{!isChatterGroup}">
+								<apex:outputPanel id="leave-this-group-button"  styleClass="btn btn-u btn-xs" onclick="confirmLeaveGroup();" title="Leave this group" style="{!IF(CurrentGroup.CurrentMemberRole == 'Member',  '', 'display:none;')}">
+									<span><i class="fa fa-check"></i>&nbsp;Member</span>
+								</apex:outputPanel>
+								<apex:actionFunction action="{!leaveGroup}" name="sfleavegroup" rerender="rightGroupContent" oncomplete="jQuery('[id$=leave-this-group-button]').hide(); jQuery('[id$=join-to-this-group-button]').show();"/>
+								<script>
+									function confirmLeaveGroup() {
+										if(confirm('Are you sure you want to leave this group?')) {
+											sfleavegroup();
+										}
+									}
+								</script>
+
+								<apex:outputPanel id="join-to-this-group-button" styleClass="btn btn-u btn-u-blue btn-xs" onclick="confirmjointToGroup();" title="{!$Label.BTN_Join}" style="{!IF(CurrentGroup.CurrentMemberRole == 'NotAMember', '', 'display:none;')}">
+									<span><i class="fa fa-plus-circle"></i>&nbsp;{!$Label.BTN_Join}</span>
+								</apex:outputPanel>
+								<apex:actionFunction action="{!jointToGroup}" name="sfjointogroup" rerender="rightGroupContent" oncomplete="jQuery('[id$=join-to-this-group-button]').hide(); jQuery('[id$=leave-this-group-button]').show();"/>
+								<script>
+									function confirmjointToGroup() {										
+										sfjointogroup();
+									}
+								</script>
+							</apex:outputPanel>
+						</apex:form>
+
+						</apex:outputPanel>
+
+
+						<div class="modal fade" id="newConversationModal" tabindex="-1" role="dialog" aria-labelledby="newConversationModalLabel" aria-hidden="true" style="display: none;">
+							<div class="modal-dialog">
+								<div class="modal-content sky-form">
+									<div class="modal-header">
+										<button aria-hidden="true" data-dismiss="modal" class="close" type="button">x</button>
+										<h4 id="newConversationModalLabel" class="modal-title">Group members</h4>
+									</div>
+
+									<div class="modal-body" id="groupmembermodal">
+										<table class="table table-hover" id="groupmembertable">
+											<apex:repeat value="{!CurrentGroup.Members}" var="member" id="membermodal">
+												<tr>
+													<td width="50px">
+														<a href="{!$Page.CommunityProfilePage}?id={!member.MemberId}">
+															<apex:image styleClass="rounded-x" style="margin-top: 0px; margin-bottom: 0px" url="{!member.MemberPhotoUrl}" width="50px" height="50px"/>
+														</a>
+													</td>
+													<td>
+														<div class="name-location">
+															<a href="{!$Page.CommunityProfilePage}?id={!member.MemberId}">
+																<strong>{!member.MemberName}</strong>
+															</a>
+															<apex:outputPanel layout="none" rendered="{!IF(member.MemberRole!=null, true, false)}">
+																<span>{!member.MemberRole}</span>
+															</apex:outputPanel>
+														</div>														
+													</td>
+													<td style="vertical-align: middle;">
+														<apex:outputPanel id="followingMembers">
+
+															<apex:outputPanel styleClass="leave-join-button" rendered="{!member.MemberIsFollowing == false && member.MemberId != CurrentUserId}">
+																<apex:form id="followMember">
+																	<apex:commandLink styleClass="btn btn-u" action="{!follow}" title="Follow this user to receive updates in your feed." reRender="followingMembers">
+																		<apex:param name="followUserId" value="{!member.MemberId}" assignTo="{!followUserId}"/>
+																		<span><i class="fa fa-plus-circle"></i>&nbsp;Follow</span>										
+																	</apex:commandLink>
+																</apex:form>
+																
+															</apex:outputPanel>
+															
+															<apex:outputPanel layout="block" styleClass="leave-join-button" rendered="{!member.MemberIsFollowing == true}">
+																<apex:form id="unfollowMember">
+																	<apex:commandLink styleClass="btn btn-u btn-u-blue" action="{!unfollow}" title="Stop following this user to stop receiving updates in your feed." reRender="followingMembers">
+																		<apex:param name="subscriptionId" value="{!member.SubscriptionId}" assignTo="{!subscriptionId}"/>
+																		<span><i class="fa fa-check"></i>&nbsp;Following</span>
+																	</apex:commandLink>
+																</apex:form>								
+															</apex:outputPanel>
+
+														</apex:outputPanel>
+													</td>
+												</tr>
+											</apex:repeat>
+
+											<!-- <div class="ps-scrollbar-x-rail" style="width: 848px; display: none; left: 0px; bottom: 3px;">
+												<div class="ps-scrollbar-x" style="left: 0px; width: 0px;"></div>
+											</div>
+											<div class="ps-scrollbar-y-rail" style="top: 0px; height: 320px; display: inherit; right: 3px;">
+												<div class="ps-scrollbar-y" style="top: 0px; height: 229px;"></div>
+											</div> --><!-- 
+											<apex:outputPanel layout="none" rendered="{!members.showPagination}">
+												<tr>
+													<td>&nbsp;</td>
+													<td class="">
+														<apex:outputPanel style="cursor: pointer;">
+															<apex:actionSupport event="onclick" action="{!members.firstPage}" rendered="{!members.hasPrevious}" rerender="memlist"/>
+															<apex:image value="/s.gif" styleClass="{!IF(members.hasPrevious,'first','firstoff')}"/>
+														</apex:outputPanel>
+														&nbsp;
+														<apex:outputPanel style="cursor: pointer;">
+															<apex:actionSupport event="onclick" action="{!members.previousPage}" rendered="{!members.hasPrevious}" rerender="memlist"/>
+															<apex:image value="/s.gif" styleClass="{!IF(members.hasPrevious,'prev','prevoff')}"/>
+															<apex:outputText value="{!$Label.LBL_Previous}" styleClass="{!IF(members.hasPrevious,'','prevNextLinks')}"/>
+														</apex:outputPanel>
+														&nbsp;&nbsp;
+														<apex:outputPanel style="cursor: pointer;">
+															<apex:actionSupport event="onclick" action="{!members.nextPage}" rendered="{!members.hasNext}" rerender="memlist"/>
+															<apex:outputText value="{!$Label.LBL_Next}" styleClass="{!IF(members.hasNext,'','prevNextLinks')}"/>
+															<apex:image value="/s.gif" styleClass="{!IF(members.hasNext,'next','nextoff')}"/>
+														</apex:outputPanel>
+														&nbsp;
+														<apex:outputPanel style="cursor: pointer;">
+															<apex:actionSupport event="onclick" action="{!members.lastPage}" rendered="{!members.hasNext}" rerender="memlist"/>
+															<apex:image value="/s.gif" styleClass="{!IF(members.hasNext,'last','lastoff')}"/>
+														</apex:outputPanel>
+													</td>
+													<td>
+														<apex:outputText value="{!$Label.LBL_Page} {!members.pageNumber} {!$Label.LBL_of} {!members.totalPages}"/>
+													</td>
+												</tr>
+											</apex:outputPanel> -->
+
+										</table>
+									</div>
+
+									<div class="modal-footer">
+										<button data-dismiss="modal" type="button" class="button btn-u-default" id="closeDialogButton" value="Close" title="Close">Close</button>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<apex:outputPanel layout="block" id="groupMembersPanel" styleClass="groupMembers thumbnailPanel profileSection ">
+							<apex:outputPanel layout="block" styleClass="group-detail">
+								<span class="group-detail-section">
+									<span class="group-detail-title">
+										<h5>{!$Label.LBL_Members}</h5>
+									</span>
+									<span class="group-detail-more">
+										<a href="#newConversationModal" role="button" data-toggle="modal">
+											<span id="moreGroupMembersLink">{!$Label.LBL_Show_All} ({!CurrentGroup.Members.size})</span>
+										</a>
+									</span>
+								</span>
+							</apex:outputPanel>
+
+							<apex:outputPanel layout="block">
+								<table class="thumbnailTable">
+									<tbody>
+										<tr>
+										<apex:variable value="{!1}" var="rowNum"/>
+										<apex:repeat value="{!CurrentGroup.Members}" var="member">
+											<td>
+												<a href="{!SitePrefix}/_ui/core/userprofile/UserProfilePage?u={!member.MemberId}" title="{!member.MemberName}">
+													<span class="chatter-avatar chatter-avatarWithIcon chatter-avatarMedium"
+														title="{!member.MemberName}{!IF(member.MemberRole != NULL, ' (' + member.MemberRole + ')', '')}">
+														<img src="{!member.MemberPhotoUrl}" alt="{!member.MemberName}{!IF(member.MemberRole != NULL, ' (' + member.MemberRole + ')', '')}" style="margin-bottom: 5px;" width="30" height="30" class="chatter-photo" title="{!member.MemberName}{!IF(member.MemberRole != NULL, ' (' + member.MemberRole + ')', '')}" />
+														<img src="{!SitePrefix}/s.gif" alt="" class="chatter-avatarStyle" title="" />
+														<apex:image value="{!SitePrefix}/s.gif" alt="" styleClass="chatter-photoInfoIcon chatter-ownerIcon" title="" rendered="{!(member.MemberRole != NULL) && (member.MemberRole == 'Owner')}"/>
+													</span>
+												</a>
+											</td>
+											<apex:outputText rendered="{! rowNum != 0 && MOD(rowNum,4) == 0 }" value="</tr><tr>" escape="false" />
+											<apex:variable var="rowNum" value="{!rowNum + 1}"/>
+										</apex:repeat>
+										</tr>
+									</tbody>
+								</table>
+							</apex:outputPanel>
+
+						</apex:outputPanel>
+						<!-- FROM SPEC: Remove the Group Files section for now, but replace it with the custom Upcoming  -->
+<!-- 						<apex:outputPanel layout="block" styleClass="recentFilesPanel profileSection" >
+							<apex:outputPanel rendered="false" layout="block"  styleClass="entityId">{!CurrentGroup.GroupId}</apex:outputPanel>
+							<apex:outputPanel layout="block" styleClass="group-detail">
+								<span class="group-detail-section">
+									<span class="group-detail-title">
+										<h5>{!$Label.LBL_Group_Files}</h5>
+									</span>
+									<span class="group-detail-more" style="{!IF(contentDocumentLinkList.size == 0, 'display:none;', '')}">
+										<a href="/_ui/core/chatter/content/GroupFileListPage?g={!CurrentGroup.GroupId}" role="button">
+											<span id="moreGroupMembersLink">{!$Label.LBL_Show_All} ({!contentDocumentLinkList.size})</span>
+										</a>
+									</span>
+								</span>
+							</apex:outputPanel>
+
+							<apex:outputPanel layout="block">
+								<apex:repeat value="{!contentDocumentLinkList}" var="Item">
+									<a href="{!SitePrefix}/{!Item.ContentDocument.Id}">{!Item.ContentDocument.Title}</a>
+								</apex:repeat>
+							</apex:outputPanel>
+							<apex:outputPanel layout="block" rendered="{!contentDocumentLinkList.size == 0}">
+								<apex:outputPanel layout="block" styleClass="panelEmptyContent" >
+									{!$Label.LBL_No_Files_Group}
+								</apex:outputPanel>
+							</apex:outputPanel>
+						</apex:outputPanel> -->
+
+						<apex:outputPanel layout="block" styleClass="upcomingEventsPanel profileSection">
+							<!-- <p>{!communityEventList}</p> -->
+							<apex:outputPanel layout="block" styleClass="group-detail">
+								<span class="group-detail-section">
+									<span class="group-detail-title">
+										<h5>{!$Label.LBL_Upcoming_Events}</h5>
+									</span>
+									<span class="group-detail-more" style="{!IF(communityEventList.size == 0, 'display:none;', '')}">
+										<a href="{!$Page.CommunityEventDetail}?g={!CurrentGroup.GroupId}" role="button">
+											<span id="moreGroupMembersLink">{!$Label.LBL_Show_All} ({!communityEventList.size})</span>
+										</a>
+									</span>
+								</span>
+							</apex:outputPanel>
+
+							<apex:outputPanel layout="block" rendered="{!communityEventList.size > 0}">
+								<apex:repeat value="{!communityEventList}" var="communityEventItem">
+									<i class="fa fa-calendar-o"></i>&nbsp;
+									<apex:outputText value="{0,date,MM'/'dd}">
+										<apex:param value="{!communityEventItem.Start__c}" /> 
+									</apex:outputText>
+									<a href="{!SitePrefix}/{!communityEventItem.Id}" target="_blank">
+										{!communityEventItem.Name__c}
+									</a>
+									<br/>
+								</apex:repeat>
+							</apex:outputPanel>
+							<apex:outputPanel layout="block">
+								<apex:outputPanel layout="block" styleClass="panelEmptyContent" rendered="{!communityEventList.size == 0}">
+									{!$Label.LBL_No_Upcoming_Events_Group}
+								</apex:outputPanel>
+							</apex:outputPanel>
+						</apex:outputPanel>
+					</apex:outputPanel>
+
+				</div>
+				<!-- End Right Sidebar-->
+
+			</div>
+			<!--/end row-->
+		</div>
+		<!--/container-->	
+	</div>
+</apex:define>
+
+
+
+</apex:composition>
+</apex:page>

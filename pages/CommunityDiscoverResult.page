@@ -1,0 +1,280 @@
+<apex:page controller="CommunityDiscoverController" showHeader="false" sideBar="false" standardStylesheets="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false">
+	<apex:composition template="{!$Site.Template}">
+		<apex:define name="title">Unify | Welcome...</apex:define>
+		<apex:define name="body">
+		<div class="profile">
+			<div class="container content paddingCategories" ng-app="DiscoverApp" ng-controller="DiscoverController">
+				<div class="headline"><h2>Results found for {!CurrentTag.Name}</h2></div>
+				<div style="text-align:center;font-size:+1em;">
+					<a href="#groupresults">Groups</a> ({!CurrentTag.Community_Tag_Group_Control__r.size}) | 
+					<a href="#newsresults">News</a> ({!CurrentTag.Community_Tag_News__r.size}) | 
+					<a href="#eventresults">Events</a> ({!CurrentTag.Events_Tag_Joins__r.size}) | 
+					<a href="#resourceresults">Resources</a> ({!CurrentTag.Resource_Tag_Joins__r.size})
+				</div>
+				<apex:outputPanel layout="none" rendered="{!CurrentTag != NULL}">
+
+					<div id="groupresults" ng-show="groups">
+						<div class="container content">
+							<div class="headline"><h3>Group results for {!CurrentTag.Name}</h3></div>
+							<ul class="row list-row margin-bottom-30" ng-repeat="cg in chunkedGroups">
+								<li class="col-md-4 md-margin-bottom-30" ng-repeat="g in cg">
+									<div class="profile-blog content-boxes-v3 block-grid-v1 rounded">
+										<img class="rounded-x" ng-src="{!SitePrefix}{{ g.GroupPhotoUrl }}" src="/s.gif" alt="" />
+										<div class="name-location">
+											<strong><a href="{!$Page.CommunityGroupDetailPage}?g={{ g.GroupId }}">{{ g.GroupName }}</a></strong>
+											<span><i class="fa fa-map-marker"></i>{{ g.GroupLastActivityDateFormatted }}</span>
+										</div>
+										<div class="clearfix margin-bottom-20"></div>
+										<p>{{ g.GroupDescription }}</p>
+										<hr />
+										<ul class="list-inline share-list">
+											<li><i class="fa fa-group"></i><a href="#">{{ g.GroupMembersCount }} Followers</a></li>
+											<li><i class="fa fa-share"></i><a href="#">Join</a></li>
+										</ul>
+									</div>
+								</li>
+							</ul>
+							<button id="showMoreGroups" class="btn-u btn-u-default btn-block conversation_nav" ng-show="hasMore == true;" ng-disabled="hasMoreGroups == false;" ng-click="updateGroupsScope();">Show More...</button>
+						</div>
+					</div>
+
+					<div id="eventsresults" ng-show="events">
+						<div class="container content">
+							<div class="headline">
+								<h3>Event results for {!CurrentTag.Name}</h3>
+								<a href="#results" title="Scroll Back to results">
+									<i class="icon-custom icon-sm fa fa-angle-up" style="border-color:white;"></i>
+								</a>
+							</div>
+							<div class="table-search-v2 margin-bottom-20">
+							    <div class="table-responsive">
+							        <table class="table table-hover">
+							            <tbody>
+							           		<tr ng-repeat="ev in events">
+							           			<td>
+							                    	<div class="date-formats">
+							                    		{{ ev.Start__c | date:"MMMM dd',' yyyy 'at' HH:mm"}}
+							                    	</div>
+								                </td>
+												<td class="td-width">
+													<h3><a href="{!SitePrefix}/{{ev.Id}}">{{ ev.Name__c }}</a></h3>
+													<p>{{ ev.Teaser__c }}</p>
+													<!--<small class="hex">
+														{{ ev.Start__c | date:"MMMM dd',' yyyy 'at' HH:mm"}}
+													</small>-->
+												</td>
+												<td>
+													<span class="label label-success">Read more...</span>
+												</td>
+											</tr>
+							            </tbody>
+							        </table>
+							    </div>
+							</div>
+						</div>
+					</div>
+
+					<div id="newsresults" ng-show="news">
+						
+						<div class="container content">
+							<div class="headline">
+								<h3>News results for {!CurrentTag.Name}</h3>
+								<a href="#results" title="Scroll Back to results">
+									<i class="icon-custom icon-sm fa fa-angle-up" style="border-color:white;"></i>
+								</a>
+							</div>
+							<div class="table-search-v2 margin-bottom-20">
+							    <div class="table-responsive">
+							        <table class="table table-hover">
+							            <tbody>
+							           		<tr ng-repeat="n in news">
+												<td>
+													<!--<apex:facet name="header">{!$ObjectType.Community_News__c.Fields.Image_Path__c.Label}</apex:facet>-->
+													<img class="rounded-x" ng-src="{!SitePrefix}{{ n.Image_Path__c }}" src="/s.gif" alt="" />
+												</td>
+												<td styleClass="td-width">
+													<!--<apex:facet name="header">{!$ObjectType.Community_News__c.Fields.Title__c.Label}</apex:facet>-->
+													<h3><a href="{!SitePrefix}/{{ n.Id }}">{{ n.Title__c}}</a></h3>
+													<p>{{ n.Teaser__c }}</p>
+													<small class="hex">
+														{{n.Entry_Date__c | date:'MMMM dd, yyyy'}}
+														<!--<apex:outputText value="{0,date,MMMM dd ',' yyyy 'at' HH:mm}">
+															<apex:param value="{!subTag.Community_News__r.Entry_Date__c}" /> 
+														</apex:outputText>-->
+													</small>
+												</td>
+												<td>
+													<span class="label label-success">Read more...</span>
+												</td>
+											</tr>
+							            </tbody>
+							        </table>
+							    </div>
+							</div>
+						</div>
+					</div>
+
+					<apex:outputPanel layout="none" rendered="{!IsResourcesRendered}">
+						<div class="panel panel-green margin-bottom-40">
+							<div class="panel-heading">
+								<h3 class="panel-title"><i class="fa fa-tasks"></i> {!$Label.LBL_Resources}</h3>
+							</div>
+							<div class="table-search-v2 margin-bottom-20">
+								<div class="table-responsive">
+									<!--<apex:dataTable value="{!CurrentTag.Resource_Tag_Joins__r}" var="subTag" styleClass="table table-hover">
+									</apex:dataTable>-->
+								</div>
+							</div>
+						</div>
+					</apex:outputPanel>
+				</apex:outputPanel>
+			</div>
+		</div>
+		</apex:define>
+		<apex:define name="scripts">
+			<script type="text/javascript" src="{!$Resource.CommunityResources}/js/underscore/underscore-min.js" ></script>
+			<script type="text/javascript" src="{!$Resource.CommunityResources}/js/angularjs/angular.min.js" ></script>
+			<script type="text/javascript">
+				var DiscoverApp = angular.module('DiscoverApp', []);
+				DiscoverApp.factory('getData', ['$q', '$rootScope', function($q, $rootScope) {
+					return function(action, limit, offset) {
+						var deferred = $q.defer();
+						if (!$rootScope.getDataStatus) {
+							$rootScope.getDataStatus = {};
+						}
+						if ($rootScope.getDataStatus[action] != 'InProgress') {
+							$rootScope.getDataStatus[action] = 'InProgress';
+							Visualforce.remoting.Manager.invokeAction(
+								action,
+								limit, offset, '{!$CurrentPage.parameters.t}',
+								function(result, event) {
+									$rootScope.$apply(function() {
+										if (event.status) {
+											deferred.resolve(result);
+											$rootScope.getDataStatus[action] = 'Finished';
+										} else {
+											deferred.reject(event);
+											$rootScope.getDataStatus[action] = 'Finished';
+										}
+									})
+								},
+								{ buffer: true, escape: true, timeout: 30000 }
+							);
+						} else {
+							deferred = null;
+							return null;
+						}
+						return deferred.promise;
+					}
+				}]);
+				
+				DiscoverApp.controller('DiscoverController', ['$scope', '$filter', 'getData', function($scope, $filter, getData) {
+					$scope.quickSearchQuery = '';
+					$scope.page = {
+						pageSize: 3,
+						recordsTotal: function() {
+							return $scope.groups.length;
+						},
+						showMore: function() {
+							console.log('next');
+						}
+					};
+					$scope.getDataStatus = {};
+					$scope.inProgress = {};
+
+					$scope.hasMoreGroups = false;
+					$scope.groups = [];
+					$scope.hasMoreEvents = false;
+					$scope.events = [];
+					$scope.hasMoreNews = false;
+					$scope.news = [];
+
+					$scope.updateGroupsScope = function () {
+						var action = 'CommunityDiscoverController.getGroups';
+						var def = getData(action, $scope.page.pageSize, $scope.page.recordsTotal());
+						if (def != null) {
+							$scope.inProgress[action] = false;
+							def.then(function(result) {
+									console.log(result);
+									$.each(result.Groups, function(i, item){
+										$scope.groups.push(item);
+									});
+									$scope.hasMoreGroups = result.TotalRecords - $scope.groups.length > 0;
+									$scope.chunkedGroups = $scope.chunk($scope.groups, $scope.page.pageSize);
+									if ($scope.inProgress[action] == true) {
+										$scope.updateGroupsScope();
+									}
+								},
+								function(error){
+									console.log(error);
+								}
+							);
+						} else {
+							$scope.inProgress[action] = true;
+						}
+					};
+					$scope.updateGroupsScope();
+
+					$scope.updateEventsScope = function () {
+						var action = 'CommunityDiscoverController.getEvents';
+						var def = getData(action, $scope.page.pageSize, $scope.page.recordsTotal());
+						if (def != null) {
+							$scope.inProgress[action] = false;
+							def.then(function(result) {
+									console.log(result);
+									$.each(result.Events, function(i, item){
+										$scope.events.push(item);
+									});
+									$scope.hasMoreEvents = result.TotalRecords - $scope.groups.length > 0;
+									if ($scope.inProgress == true) {
+										$scope.updateEventsScope();
+									}
+								},
+								function(error){
+									console.log(error);
+								}
+							);
+						} else {
+							$scope.inProgress[action] = true;
+						}
+					};
+					$scope.updateEventsScope();
+
+					$scope.updateNewsScope = function () {
+						var action = 'CommunityDiscoverController.getNews';
+						var def = getData(action, $scope.page.pageSize, $scope.page.recordsTotal());
+						if (def != null) {
+							$scope.inProgress[action] = false;
+							def.then(function(result) {
+									console.log(result);
+									$.each(result.News, function(i, item){
+										$scope.news.push(item);
+									});
+									$scope.hasMoreNews = result.TotalRecords - $scope.groups.length > 0;
+									if ($scope.inProgress[action] == true) {
+										$scope.updateNewsScope();
+									}
+								},
+								function(error){
+									console.log(error);
+								}
+							);
+						} else {
+							$scope.inProgress[action] = true;
+						}
+					};
+					$scope.updateNewsScope();
+
+
+					$scope.chunk = function(arr, size) {
+						var newArr = [];
+						for (var i=0; i<arr.length; i+=size) {
+							newArr.push(arr.slice(i, i+size));
+						}
+						return newArr;
+					}
+				}]);
+			</script>
+		</apex:define>
+	</apex:composition>
+</apex:page>

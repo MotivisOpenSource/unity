@@ -1,0 +1,81 @@
+<apex:component controller="CommunityFeedNavigationController" layout="none">
+<apex:attribute name="currentGroupId" description="Current Group Id" type="String" required="false"/>
+<apex:attribute name="returnToGroup" description="Return to group" type="Boolean" required="false" default="false"/>
+	<style>
+	a:hover {color: #72c02c;text-decoration: underline;}
+	ul li, ol li {margin-left: 0;}
+	</style>
+	<apex:attribute name="pn" type="String" required="false" default="1" description="panel number"/>
+	<ul class="list-group sidebar-nav-v1 margin-bottom-40" id="sidebar-nav-1">
+		<!-- <li class="list-group-item active" >
+			<a href="{!SitePrefix}/_ui/core/userprofile/UserProfilePage?u={!$User.Id}" class="text_user">
+			<i class="fa fa-user"></i>
+			{!$User.FirstName} {!$User.LastName}
+			</a>
+		</li>-->
+		<li class="list-group-item{!IF(pn=='1',' active','')}">
+			<a href="{!$Page.CommunityFeed_MyFeed}">
+				<i class="fa fa-comment"></i>
+				{!$Label.Feed_Nav_Feed}
+			</a>
+		</li>
+		<apex:outputPanel layout="none" rendered="{!showMessages}">
+			<li class="list-group-item{!IF(pn=='2',' active','')}">
+				<apex:outputPanel layout="none" rendered="{!MessageUnreadCount != NULL && MessageUnreadCount > 0}">
+					<span class="badge rounded badge-red">{!MessageUnreadCount}</span>
+				</apex:outputPanel>
+				<a href="{!$Page.CommunityFeed_MyMessages}">
+					<i class="fa fa-envelope"></i> 
+					{!$Label.Feed_Nav_Messages}
+				</a>
+			</li>
+		</apex:outputPanel>
+		<li class="list-group-item{!IF(pn=='3',' active','')}">
+			<a href="{!$Page.CommunityProfilePage}">
+				<i class="fa fa-gear"></i> 
+				Profile
+			</a>
+		</li>
+		<li class="list-group-item{!IF(pn=='4',' active','')}">
+			<a href="{!$Page.CommunityFeed_People}">
+				<i class="fa fa-user"></i>
+				{!$Label.Feed_Nav_People}
+			</a>
+			<!-- <ul class="show">
+					<li><a >{!$Label.Feed_Nav_RecentlyViewed}</a></li>
+				<li><a >{!$Label.Feed_Nav_WhoIFollow}</a></li>
+				<li><a >{!$Label.Feed_Nav_AllPeople}</a></li>
+			</ul>-->
+		</li>
+		<li class="list-group-item{!IF(pn=='5',' active','')}">
+			<a href="{!$Page.CommunityGroups}?f=all_groups" >
+				<i class="fa fa-users"></i>
+				{!$Label.Feed_Nav_Groups}
+			</a>
+		</li>
+		<!-- <apex:outputPanel layout="none" rendered="{!IF(currentGroupId==null, true, false)}">
+			<li class="list-group-item{!IF(pn=='6',' active','')}">
+				<a href="{!$Page.CommunityGroupManager}?g={!currentGroupId}" >
+					<i class="fa fa-comments"></i>
+					Group Manager
+				</a>
+			</li>
+		</apex:outputPanel> -->
+		<apex:outputPanel layout="none" rendered="{!IF(currentGroupId!=null && showGroupManager && returnToGroup, true, false)}">
+			<li class="list-group-item{!IF(pn=='6',' active','')}">
+				<a href="{!$Page.CommunityGroupDetailPage}?g={!currentGroupId}" >
+					<i class="fa fa-comments"></i>
+					Return to group
+				</a>
+			</li>
+		</apex:outputPanel>
+		<apex:outputPanel layout="none" rendered="{!IF(currentGroupId!=null && showGroupManager && !returnToGroup, true, false)}">
+			<li class="list-group-item{!IF(pn=='6',' active','')}">
+				<a href="{!$Page.CommunityGroupManager}?g={!currentGroupId}" >
+					<i class="fa fa-comments"></i>
+					Group Manager
+				</a>
+			</li>
+		</apex:outputPanel>
+	</ul>
+</apex:component>
