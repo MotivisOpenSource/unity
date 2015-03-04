@@ -30,8 +30,11 @@
 								<option value="e">{!$Label.LBL_Choose_from_Library}</option>
 							</select><br/>
 							<apex:inputFile id="cnif1f" value="{!imgBody}" fileName="{!imgFileName}" contentType="{!imgContentType}" style="display:none; margin:5px 0;" onchange="preview(this);"/>
-							<apex:outputPanel id="cnif1e" layout="block" onclick="prepareSelect();" styleClass="btn" style="padding:4px 3px; line-height:2.8; display:none;">
-								{!$Label.LBL_Choose_from_Library}
+							<apex:outputPanel id="cnif1e" layout="block" style="display:none;">
+								<br />
+								<a href="#chose_from_library_modal" class="btn-u" data-toggle="modal">{!$Label.LBL_Choose_from_Library}</a>
+								<br />
+								<br />
 							</apex:outputPanel>
 							<div id="iidf" style="height:200px; {!IF(ISBLANK(news.Image_Path__c),'display:none;','')}">
 								<apex:image id="preview_image" url="{!news.Image_Path__c}" height="200px"/>
@@ -49,6 +52,25 @@
 			</apex:pageBlock> 
 		</apex:form>
 	</div>
+	<div class="modal fade in" id="chose_from_library_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false" style="display:none;">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+					<h4 class="modal-title" id="myModalLabel">{!$Label.LBL_Select_Image}</h4>
+				</div>
+				<div class="modal-body">
+					<div id='libraryimagescontent'>
+					</div>
+					<div class="clearfix"></div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class='btn-u btn-u-default margin-right-10' data-dismiss="modal">{!$Label.BTN_Cancel}</button>
+					<button class='btn-u btn-u-primary' onclick='selectLibraryImage(); return false;' data-dismiss="modal">{!$Label.BTN_Select}</button>
+				</div>
+			</div>
+		</div>
+	</div>
 </apex:define>
 <apex:define name="scripts">
 	<script>
@@ -60,6 +82,7 @@
 			$F('#imsel1').find('option:first').attr('disabled','disabled');
 			$F('[id$=cnsp1]').show();
 
+			prepareSelect();
 		});
 
 		function checkprereq() {
@@ -70,8 +93,7 @@
 			$F('[id$=cnpbs1] textarea[id$=Content__c]').closest('tr').css('display',dstl);
 		}
 		var $imagesCache = [];
-		var $imagePartialUrl = "/servlet/servlet.ImageServer?oid={!$Organization.Id}&id=";
-		var $imagePrefix = '{!imgPrefix}';
+		var $imagePartialUrl = "{!imgPrefix}/servlet/servlet.ImageServer?oid={!$Organization.Id}&id=";
 		function checkimg() {
 			var ef = $F('#imsel1').val();
 			$F('[id*=cnif1]').hide();
@@ -94,52 +116,36 @@
 						}
 						else {
 							records.forEach(function(record) {
-								//console.log(record);
 								$imagesCache.push({id:$imagePartialUrl+record.get("Id"), name:record.get("Name")});
 							});
-							showLibraryImagePopup();
+							$selectedImagePath = null;
+							var $maindiv = $F('#libraryimagescontent');
+							var $rowDiv = $F('<div class="row" />');
+							$F.each( $imagesCache, function( key, value ) {
+								var $img = $F("<img src='' class='img-thumbnail imageselector' style='width: 80px;'/>");
+								$img.attr("src", value.id);
+								$img.data("imageNumber", key);
+								var $div = $F("<div class='col-md-2' />");
+								$div.append($img);
+								$rowDiv.append($div);
+								if ((key>0 && key%5 == 0) || $imagesCache.lenght-1 == key) {
+									$maindiv.append($rowDiv);
+									$rowDiv = $F('<div class="row" />');
+								}
+							});
 						}
 					}
 				);
-			} else {
-				showLibraryImagePopup();
 			}
 		}
 		var $selectedImagePath = null;
-		function selectLibraryImage(box) {
+		function selectLibraryImage() {
 			if ($selectedImagePath) {
 				var $imgPathField = $F('[id$=image_path_field]');
 				$imgPathField.val($selectedImagePath);
 				preview(null, $selectedImagePath);
-				box.hide();
 				$F('.imageselector').removeClass('selected');
 			}
-		}
-		function showLibraryImagePopup() {
-			$selectedImagePath = null;
-			var $div = $F('<div/>');
-			$F.each( $imagesCache, function( key, value ) {
-				var $img = $F("<img src='' style='margin:0 5px; width: 80px;'/>");
-				$img.attr("src", $imagePrefix + value.id);
-				var $wrapperDiv = $F("<div class='imageselector' style='float: left;'/>");
-				$wrapperDiv.data("imageNumber", key);
-				$wrapperDiv.append($img);
-				$div.append($wrapperDiv);
-			});
-			$div.append($F('<div style="clear:both;"/>'));
-			var did = "imagesfromlibrary"+Math.random();//dialog id
-			var box = new SimpleDialog(did, true);
-			parent.box = box;
-			box.setTitle("{!$Label.LBL_Select_Image}<a class='dialogClose' onclick='box.hide()'>Close</a>");
-			box.setHeader("");
-			box.createDialog();
-			box.setWidth(600);
-			box.setContentInnerHTML("<div id='libraryimagescontent'/>"/*$div.html()*/);
-			box.setupDefaultButtons();
-			var $div2 = $F('[id="'+did+'"]');
-			$div2.find('.middle .innerContent #libraryimagescontent').append($div);
-			$div2.find('.middle .innerContent').append("<div class='innerContent'><div style='float:right;'><button class='btn' onclick='box.hide(); return false;'>{!$Label.BTN_Cancel}</button><button class='btn' onclick='selectLibraryImage(box); return false;'>{!$Label.BTN_Select}</button></div></div>");
-			box.show();
 		}
 		$F(document).on('click', '.imageselector', function() {
 			//alert();

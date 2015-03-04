@@ -67,6 +67,61 @@ public with sharing class CommunityFeedController {
 	}
 
 	@RemoteAction
+	public static String postAction(String inParentId4, String inText4, Blob inFile, String inFileType, String inFileName) {
+		ChatterActionLayout layout = (ChatterActionLayout)JSON.deserialize(inText4,ChatterActionLayout.class);
+		String errField;
+		for (ChatterActionLayoutItem layoutItem : layout.items) {
+			if (layoutItem.required && String.isBlank(layoutItem.value)) {
+				errField = layoutItem.label;
+				break;
+			}
+		}
+		ConnectApi.FeedItemInput fei = new ConnectApi.FeedItemInput();
+		fei.subjectId = inParentId4;
+		fei.feedElementType = ConnectApi.FeedElementType.FeedItem;
+		String resultPage;
+		if (String.isNotBlank(errField)) {
+			resultPage = 'ERR"' + errField + '" is required';
+		} else if (layout.name == 'FeedItem.TextPost') {
+			resultPage = postFeed(inParentId4, layout.items[0].value);
+		}
+		else if (layout.name == 'FeedItem.ContentPost') {
+			
+		}
+		else if (layout.name == 'FeedItem.LinkPost') {
+			fei.capabilities = new ConnectApi.FeedElementCapabilitiesInput();
+			fei.capabilities.link = new ConnectApi.LinkCapabilityInput();
+			fei.capabilities.link.url = layout.items[0].value;
+			fei.capabilities.link.urlName = layout.items[1].value;
+			fei.body = werewolfText(layout.items[2].value);
+		}
+		else if (layout.name == 'FeedItem.PollPost') {
+			fei.capabilities = new ConnectApi.FeedElementCapabilitiesInput();
+			fei.capabilities.poll = new ConnectApi.PollCapabilityInput();
+			List<String> choices = new List<String>();
+			for ( Integer i = 1; i < layout.items.size(); i++) {
+
+				choices.add(layout.items[i].value);
+			}
+			fei.capabilities.poll.choices = choices;
+			fei.body = werewolfText(layout.items[0].value);
+		}
+		else {
+			
+		}
+
+		if (String.isBlank(resultPage) && fei.body != NULL) {
+			ConnectApi.BinaryInput bi = (inFile != NULL) ? new ConnectApi.BinaryInput(inFile, inFileType, inFileName) : NULL;
+			String newFeed2 = json.serialize(ConnectApi.ChatterFeeds.postFeedElement(Network.getNetworkId(), fei, bi));
+			FeedElementPage fepResult2 = new FeedElementPage();
+			fepResult2.elements = new List<FeedElement> { (FeedElement)JSON.deserialize(newFeed2,FeedElement.class) };
+			resultPage = json.serialize(fepResult2);
+		}
+
+		return resultPage;
+	}
+
+	@RemoteAction
 	public static String postComment(String inFeedId, String inCommentText) {
 		ConnectApi.CommentInput ci = new ConnectApi.CommentInput();
 		ci.body = werewolfText(inCommentText);
@@ -162,6 +217,12 @@ public with sharing class CommunityFeedController {
 			result = new InlineActionResult(inCname, '', inPid);
 		}
 		return json.serialize(result);
+	}
+
+	@RemoteAction
+	public static String voteOnPoll(Id pollId, Id choiceId, String inParentId, String inFeedType) {
+		ConnectApi.PollCapability poll = ConnectApi.ChatterFeeds.voteOnFeedElementPoll(Network.getNetworkId(), pollId, choiceId);
+		return feeds(inParentId, inFeedType, NULL);
 	}
 
 	private static ConnectApi.MessageBodyInput werewolfText(String intxt) {
@@ -261,6 +322,19 @@ public with sharing class CommunityFeedController {
 		public Comments comments { get; set; }
 		public Link link { get; set; }
 		public Moderation moderation { get; set; }
+		public Poll poll { get; set; }
+	}
+	public class Poll {
+        public String myChoiceId { get; set; }
+        public Integer totalVoteCount { get; set; }
+        public List<PollChoice> choices { get; set; }
+	}
+	public class PollChoice {
+		public String id { get; set; }
+		public Integer position { get; set; }
+		public String text { get; set; }
+		public Integer voteCount { get; set; }
+		public Decimal voteCountRatio { get; set; }
 	}
 
 	public class Comments {
@@ -400,26 +474,83 @@ public with sharing class CommunityFeedController {
 			type = 'group';
 		}
 	}
-
+	
 	private static List<List<String>> CHATTER_ACTIONS = new List<List<String>> {
-		new List<String> { 'Comment', 'FeedItem.TextPost', 'fa-comment'},
-		/*new List<String> { 'File', 'FeedItem.ContentPost', 'fa-file-o'},*/
-		new List<String> { 'Link', 'FeedItem.LinkPost', 'fa-link'}/*,
+		new List<String> { 'Post', 'FeedItem.TextPost', 'fa-comment'},
+		//new List<String> { 'File', 'FeedItem.ContentPost', 'fa-file-o'},
+		new List<String> { 'Link', 'FeedItem.LinkPost', 'fa-link'},
 		new List<String> { 'Poll', 'FeedItem.PollPost', 'fa-bar-chart'},
-		new List<String> { 'Create Event', 'Create_Event', 'fa-calendar'}*/
+		new List<String> { 'Create Event', 'Create_Event', 'fa-calendar'}
 	};
 
-	private static Map<String, String> ACTION_LAYOUT = new Map<String, String> {
-		'FeedItem.TextPost' => '{"name":"FeedItem.TextPost","items":[{"required":true,"ftype":"post"}]}',
-		'FeedItem.ContentPost' => '{label: "Link URL", fieldName: "", ftype: "input", value: "", required: true},{label: "", fieldName: "", ftype: "post", value: "", required: false},{label: "Link URL", fieldName: "", ftype: "input", value: "", required: true}',
-		'FeedItem.LinkPost' => '{"name":"FeedItem.LinkPost","items":[{"required":true,"label":"Link URL","ftype":"input"},{"label":"Link Name","ftype":"input"},{"ftype":"post"}],"beforeFields":true}',
-		'FeedItem.PollPost' => '{label: "Link URL", fieldName: "", ftype: "input", value: "", required: true},{label: "", fieldName: "", ftype: "post", value: "", required: false},{label: "Link URL", fieldName: "", ftype: "input", value: "", required: true}'
+	private static Map<String, ChatterActionLayout> ACTION_LAYOUT = new Map<String, ChatterActionLayout> {
+		'FeedItem.TextPost' => new ChatterActionLayout(
+			'FeedItem.TextPost', 
+			NULL, //object name
+			true, //before fields
+			new List<ChatterActionLayoutItem>{ 
+				new ChatterActionLayoutItem(NULL, NULL, 'post', NULL, true)
+			},
+			NULL, // after fields
+			NULL, //post
+			NULL //button text
+		),
+		'FeedItem.LinkPost' => new ChatterActionLayout(
+			'FeedItem.LinkPost', //name
+			NULL, //object name
+			true, //before fields
+			new List<ChatterActionLayoutItem>{ //items |LABEL|FIELD NAME|FIELD TYPE|VALUE|REQUIRED|
+				new ChatterActionLayoutItem('Link URL', NULL, 'input', NULL, true), 
+				new ChatterActionLayoutItem('Link Name', NULL, 'input', NULL, true), 
+				new ChatterActionLayoutItem(NULL, NULL, 'post', NULL, NULL)
+			},
+			NULL, // after fields
+			NULL, //post
+			NULL //button text
+		),
+		'FeedItem.ContentPost' => new ChatterActionLayout(
+			'FeedItem.ContentPost', //name
+			NULL, //object name
+			true, //before fields
+			new List<ChatterActionLayoutItem>{ //items |LABEL|FIELD NAME|FIELD TYPE|VALUE|REQUIRED|
+				new ChatterActionLayoutItem('Link URL', NULL, 'input', NULL, true), 
+				new ChatterActionLayoutItem('Link Name', NULL, 'input', NULL, true), 
+				new ChatterActionLayoutItem(NULL, NULL, 'post', NULL, NULL)
+			},
+			NULL, // after fields
+			NULL, //post
+			NULL //button text
+		),
+		'FeedItem.PollPost' => new ChatterActionLayout(
+			'FeedItem.PollPost', //name
+			NULL, //object name
+			false, //before fields
+			new List<ChatterActionLayoutItem>{ //items |LABEL|FIELD NAME|FIELD TYPE|VALUE|REQUIRED|
+				new ChatterActionLayoutItem(NULL, NULL, 'post', NULL, NULL, 'What would you like to ask?'),
+				new ChatterActionLayoutItem('Choice 1', NULL, 'input', NULL, true), 
+				new ChatterActionLayoutItem('Choice 2', NULL, 'input', NULL, true)
+			},
+			true, // after fields
+			NULL, //post
+			NULL //button text
+		)
 	};
+	private static Map<String, String> getAvailableQuickActions() {
+		Map<String, String> result = new Map<String, String>();
+		List<QuickAction.DescribeAvailableQuickActionResult> result2 = QuickAction.DescribeAvailableQuickActions('Global'); 
+		for (QuickAction.DescribeAvailableQuickActionResult qa : result2) {
+			result.put(qa.getLabel(), qa.getName());
+		}
+		return result;
+	}
 
 	public List<ChatterActionItem> getAvailableActions() {
+		Map<String, String> actionAvailable = getAvailableQuickActions();
 		List<ChatterActionItem> resultList = new List<ChatterActionItem>();
 		for (List<String> caa : CHATTER_ACTIONS) {
-			resultList.add(new ChatterActionItem(caa[0],caa[1],caa[2]));
+			if (actionAvailable.containsKey(caa[0])) {
+				resultList.add(new ChatterActionItem(caa[0],caa[1],caa[2]));
+			}
 		}
 		return resultList;
 	}
@@ -444,37 +575,103 @@ public with sharing class CommunityFeedController {
 		public Boolean afterFields { get { return afterFields == NULL ? false : afterFields; } set; }
 		public Boolean post { get { return post == NULL ? true : post; } set; }
 		public String btntxt { get { return btntxt == NULL ? 'Share' : btntxt; } set; }
+
+		public ChatterActionLayout(QuickAction.DescribeQuickActionResult inDqar) {
+			name = inDqar.getName();
+			objectName = inDqar.getTargetSobjectType();
+			post = false;
+			btntxt = 'Save';
+			beforeFields = true;
+			items = new List<ChatterActionLayoutItem>();
+			for (QuickAction.DescribeLayoutRow dlr : inDqar.getLayout().getLayoutRows()) {
+				ChatterActionLayoutItem cali = new ChatterActionLayoutItem();
+				for (QuickAction.DescribeLayoutItem dli : dlr.getLayoutItems()) {
+					List<QuickAction.DescribeLayoutComponent> dlc = dli.getLayoutComponents();
+					if (dlc != NULL && dlc.size() > 0 && dlc[0].type == 'Field') {
+						cali.label = dli.getLabel();
+						cali.fieldName = dlc[0].getValue();
+						cali.required = dli.isRequired();
+						LayoutComponent lc = (LayoutComponent)JSON.deserialize(JSON.serialize(dlc[0]),LayoutComponent.class);
+						cali.ftype = lc.getFieldType();
+						cali.inputtype = lc.getInputType();
+						cali.hasDatepicker = lc.getHasDatepicker();
+					}
+				}
+				items.add(cali);
+			}
+		}
+		public ChatterActionLayout(String n,  String obn, Boolean bf, List<ChatterActionLayoutItem> i, Boolean af, Boolean p, String bt) {
+			this.name = n;
+			this.objectName = obn;
+			this.beforeFields = bf;
+			this.items = i;
+			this.afterFields = af;
+			this.post = p;
+			this.btntxt = bt;
+		}
 	}
 
 	public class ChatterActionLayoutItem {
 		public String label { get { return label == NULL ? '' : label; } set; }
 		public String fieldName { get { return fieldName == NULL ? '' : fieldName; } set; }
 		public String ftype { get { return ftype == NULL ? 'text' : ftype; } set; }
+		public String inputtype { get { return inputtype == NULL ? 'input' : inputtype; } set; }
 		public String value { get { return value == NULL ? '' : value; } set; }
+		public String placeholder { get { return placeholder == NULL ? '' : placeholder; } set; }
 		public Boolean required { get { return required == NULL ? false : required; } set; }
+		public Boolean hasDatepicker { get; set; }
+
+		public ChatterActionLayoutItem(String l, String fn, String ft, String v, Boolean r) {
+			this.label = l;
+			this.fieldName = fn;
+			this.ftype = ft;
+			this.value = v;
+			this.required = r;
+		}
+		public ChatterActionLayoutItem(String l, String fn, String ft, String v, Boolean r, String plchldr) {
+			this.label = l;
+			this.fieldName = fn;
+			this.ftype = ft;
+			this.value = v;
+			this.required = r;
+			this.placeholder = plchldr;
+		}
+		public ChatterActionLayoutItem() {
+
+		}
 	}
+
+	public class LayoutComponent {
+		public LayoutComponentDetail details { get; set; }
+		public Boolean getHasDatepicker() { return (details.type=='datetime' || details.type == 'date'); }
+		public String getFieldType() { return !TYPE_TO_STYLE.containsKey(details.type) ? details.type : TYPE_TO_STYLE.get(details.type); }
+		public String getInputType() { return !TYPE_TO_INPUT.containsKey(details.type) ? 'input' : TYPE_TO_INPUT.get(details.type); }
+	}
+
+	public class LayoutComponentDetail {
+		public String type { get; set; }
+	}
+	private static Map<String, String> TYPE_TO_INPUT = new Map<String, String> {
+		'textarea' => 'textarea'
+	};
+	private static Map<String, String> TYPE_TO_STYLE = new Map<String, String> {
+		'string' => 'text',
+		'date' => 'text',
+		'datetime' => 'text'
+	};
 
 	@RemoteAction
 	public static String actionLayout(String name) {
-		/*ChatterActionLayout cal = new ChatterActionLayout();
-		cal.name = 'FeedItem.LinkPost';
-		cal.beforeFields = true;
-		cal.items = new List<ChatterActionLayoutItem>();
-		ChatterActionLayoutItem cali1 = new ChatterActionLayoutItem();
-		cali1.label = 'Link URL';
-		cali1.ftype = 'input';
-		cali1.required = true;
-		cal.items.add(cali1);
-		ChatterActionLayoutItem cali2 = new ChatterActionLayoutItem();
-		cali2.label = 'Link Name';
-		cali2.ftype = 'input';
-		cali2.required = true;
-		cal.items.add(cali2);
-		ChatterActionLayoutItem cali = new ChatterActionLayoutItem();
-		cali.ftype = 'post';
-		cal.items.add(cali);
-		System.debug(json.serialize(cal));
-		return name;*/
-		return JSON.serialize((ChatterActionLayout)JSON.deserialize(ACTION_LAYOUT.get(name),ChatterActionLayout.class));
+		ChatterActionLayout result;
+		if (ACTION_LAYOUT.containsKey(name)) {
+			result = ACTION_LAYOUT.get(name);
+		}
+		else {
+			List<QuickAction.DescribeQuickActionResult> dqar = QuickAction.describeQuickActions(new List<String> {name});
+			if (dqar.size() == 1) {
+				result = new ChatterActionLayout(dqar[0]);
+			}
+		}
+		return JSON.serialize(result);
 	}
 }

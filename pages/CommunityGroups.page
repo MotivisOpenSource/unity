@@ -28,6 +28,9 @@
                                         </div>
                                     </div>
                                     <div class="col-md-6 ">
+                                        <apex:outputPanel layout="none" rendered="{!$ObjectType.Community_Group_Control__c.createable}">
+                                            <a href="{!$Page.CommunityGroupCreate}" class="btn-u">{!$Label.BTN_Create_Group}</a>
+                                        </apex:outputPanel>
                                     </div>
                                 </div>
                                 <!--QUICK SEARCH -->

@@ -8,7 +8,7 @@
 	<!--<script type="text/javascript" src="{!$Resource.assets}/plugins/mentions/jquery.elastic.js" ></script-->
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/mentions/jquery.events.input.js" ></script>
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/sky-forms/version-2.0.1/js/jquery-ui.min.js"></script>
-	<!--<script type="text/javascript" src="{!$Resource.assets}/js/plugins/datepicker.js"></script-->
+	<!--<script type="text/javascript" src="{!$Resource.assets}/js/plugins/datepicker.js"></script>-->
 	<!--script src="/soap/ajax/31.0/connection.js" type="text/javascript"></script>
 	<script src="/soap/ajax/31.0/apex.js" type="text/javascript"></script-->
 	<style>
@@ -233,6 +233,31 @@ textarea.form-control {
 					</a>
 					<% } %>
 					<p><% print(wrapnl(p2.body.text)); %></p>
+					<% if (p2.capabilities.poll && p2.capabilities.poll.choices) { %>
+						<fieldset class="pollfieldset">
+							<ul class="pollchoices">
+								<% _.each(p2.capabilities.poll.choices, function(choice) { %>
+										<li>
+											<% if (p2.capabilities.poll.myChoiceId) {%>
+												<label for="<%=choice.id%>"></label>
+												<h3 class="heading-xs"><%=choice.text%> <span class="pull-right"><%=choice.voteCount%> (<%=choice.voteCountRatio*100%>%)</span></h3>
+												<div class="progress progress-u progress-sm">
+			                                        <div class="progress-bar progress-bar-u" role="progressbar" aria-valuenow="<%=choice.voteCountRatio*100%>" aria-valuemin="0" aria-valuemax="100" style="width: <%=choice.voteCountRatio*100%>%;">
+			                                        </div>
+			                                    </div>
+											<% } else { %>
+												<input type="radio" id="<%=choice.id%>" name="pollchoicesgroup__<%=p2.id%>"/>
+												<label for="<%=choice.id%>"><%=choice.text%></label>
+											<%}%>
+										</li>
+								<% }); %>
+							</ul>
+							<% if (!p2.capabilities.poll.myChoiceId) {%>
+								<input class="btn-u" type="button" value="Vote" title="Vote" onclick="vote(this);">
+							<%}%>
+							<span class="pollvotecount"><%=p2.capabilities.poll.totalVoteCount%> votes</span>
+						</fieldset>
+					<%} %>
 					<ul class="list-inline results-list pull-left">
 						<li><a href="javascript:void(0);"><span><%= p2.countLikes %></span> Likes</a></li>
 					</ul>
@@ -321,26 +346,35 @@ textarea.form-control {
 					<% if (rc.beforeFields) { %>
 				</div>
 					<% } %>
-					<textarea name="message" id="message" class="form-control share" onclick="checkmi(this);" onkeyup="checkbtn(this,'#mesbtn');"></textarea>
+					<textarea name="message" id="message" class="form-control share" onclick="checkmi(this);" onkeyup="checkbtn(this,'#mesbtn');" title="<%= ii.placeholder %>" placeholder="<%= ii.placeholder %>"></textarea>
 					<% if (rc.afterFields) { %>
 				<div class="sky-div-margin">		
 					<% } %>
 				<% } else {%>
 					<section>
 						<label class="label"><%= ii.label %></label> 
-						<label class="<%= ii.ftype %>">
-							<input type="text"/>
+						<label class="<%= ii.inputtype %>">
+							<% if (ii.inputtype == 'input') { %>
+								<input class="<%= ii.hasDatepicker ? 'datepicker' : '' %>" id="<%= ii.fieldName %>" name="<%= ii.fieldName %>" type="<%= (ii.ftype) ? ii.ftype : 'text' %>" required="<%= (ii.required) ? 'required' : 'false' %>" />
+							<% } else if (ii.inputtype == 'textarea') { %>
+								<textarea id="<%= ii.fieldName %>" name="<%= ii.fieldName %>" required="<%= (ii.required) ? 'required' : 'false' %>"></textarea>
+							<% } %>
 						</label>
 					</section>
 				<% } %>
 			<% }); %>
+			<% if (rc.name == 'FeedItem.PollPost') { %>
+				<a href="javascript: void(0);" title="Add more choices" id="polladdchoice" onclick="addPollChoiceInputElement(this);">
+					Add more choices
+				</a>
+			<% } %>
 			<% if (rc.afterFields) { %>
 				</div>
 			<% } %>
 			</div>
 			<% if (rc.post) { %>
 			<div class="text-right">
-				<button type="button" class="btn btn-u disabled" id="mesbtn" onclick="postFeed($('#message').val());" disabled="disabled">
+				<button type="button" class="btn btn-u disabled" id="mesbtn" onclick="postAction($('#message').val());" disabled="disabled">
 					<i class="fa fa-spinner fa-pulse" style="display:none;"></i>
 					<span><%= rc.btntxt %></span>
 				</button>
@@ -357,6 +391,14 @@ textarea.form-control {
 					nextText: '<i class="fa fa-angle-right"></i>'
 				});
 				/*TEMPORARY*/
+				$(document).on('focus', '.datepicker', function () {
+			        var $this = $(this);
+			        $this.datepicker({
+						dateFormat: 'dd.mm.yy',
+						prevText: '<i class="fa fa-angle-left"></i>',
+						nextText: '<i class="fa fa-angle-right"></i>'
+					});
+			    });
 			});
 			function loadFeeds(inpt) {
 				disableBtn('shmbtn',true);
@@ -393,6 +435,57 @@ textarea.form-control {
 							$('#cfcmp').prepend(template(tt));
 							enableBtn('mesbtn');
 							$('#message').val('');
+						}
+					);
+				});
+			}
+			function postAction(text) {
+				disableBtn('mesbtn');
+				$('#message').mentionsInput('val', function(text) {
+					
+					if (chataction.layout.name == 'FeedItem.LinkPost') {
+						chataction.layout.items[0].value = 'http://www.tut.by/';
+						chataction.layout.items[2].value = text;
+					} else if (chataction.layout.name == 'FeedItem.PollPost') {
+						
+						chataction.layout.items[0].value = $('#message').val();//QUESTION
+						var choices = $('#message').parent().parent().find('input[type=text]');
+						for (var i = 0; i <choices.length; i++ ) {
+							if (!chataction.layout.items[i+1]) {
+								chataction.layout.items[i+1] = {
+									fieldName: "",
+									ftype: "input",
+									label: "Choice "+ (i+1),
+									placeholder: "",
+									required: true,
+									value: ""
+								};
+							}
+							chataction.layout.items[i+1].value = choices[i].value;
+						}
+					}
+					Visualforce.remoting.Manager.invokeAction(
+						'{!$RemoteAction.CommunityFeedController.postAction}',
+						'{!parentId}',
+						JSON.stringify(chataction.layout),
+						null,
+						null,
+						null,
+						function(result, event) {
+							var div = document.createElement('div');
+							div.innerHTML = result;
+							var rm = div.firstChild.nodeValue;
+							if (rm.substring(0, 3) == "ERR") {
+								console.log(rm.substring(3, rm.length));
+							}
+							else {
+								_.templateSettings.variable = 'rc';
+								var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
+								var tt = JSON.parse(rm);
+								$('#cfcmp').prepend(template(tt));
+								$('#message').val('');
+							}
+							enableBtn('mesbtn');
 						}
 					);
 				});
@@ -526,6 +619,48 @@ textarea.form-control {
 							$('#postarea').html(template(chataction.layout));
 							var aname = $('#palist .fa-spinner').closest('a').attr('name');
 							$('#palist .fa-spinner').removeClass('fa-spinner fa-pulse').addClass(aname);
+						}
+					);
+				}
+			}
+			function addPollChoiceInputElement (t) {
+				var t_el = $(t);
+				var totalChoices = t_el.parent().find('input[type=text]');
+				var mkp = '<section><label class="label">Choice {0}</label><label class="input"><input type="text" /></label></section>';
+				var nextChoice = (totalChoices.length+1);
+				$(mkp.replace('{0}', nextChoice)).insertBefore(t_el);
+				nextChoice++;
+				if (nextChoice == 10) {
+					t_el.remove();
+				}
+			}
+			function vote (t) {
+				var t_el = $(t);
+				var choice = t_el.parent().find('input[type=radio]:checked');
+
+				if (choice) {
+					var cName = choice.attr('name');
+					var pollId = cName.substring(cName.indexOf('__')+2, cName.length);
+
+					t_el.parent().find('input[type=radio]:checked');
+
+					console.log(choice);
+					t_el.attr('disabled', true);
+
+					Visualforce.remoting.Manager.invokeAction(
+						'{!$RemoteAction.CommunityFeedController.voteOnPoll}',
+						pollId,
+						choice.attr('id'),
+						'{!parentId}',
+						'{!feedType}',
+						function(result, event) {
+							var div = document.createElement('div');
+							div.innerHTML = result;
+							_.templateSettings.variable = 'rc';
+							var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
+							var tt = JSON.parse(div.firstChild.nodeValue);
+							$('#cfcmp').prepend(template(tt));
+							t_el.removeAttr('disabled');
 						}
 					);
 				}
