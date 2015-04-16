@@ -1,0 +1,121 @@
+<apex:component >
+	<apex:includeScript value="/studentcommunity/jslibrary/1418325280000/sfdc/SfdcCore.js" />
+	<apex:includeScript value="/studentcommunity/jslibrary/1418325280000/sfdc/NetworksSettings.js" />
+	<!-- JS Global Compulsory -->
+	<!-- <script type="text/javascript" src="{!$Resource.assets}/plugins/jquery/jquery.min.js"></script> -->
+	<apex:includeScript value="{!$Resource.assets}/plugins/jquery/jquery.min.js"/>
+	<script type="text/javascript" src="{!$Resource.assets}/plugins/jquery/jquery-migrate.min.js"></script>
+	<script type="text/javascript" src="{!$Resource.assets}/plugins/bootstrap/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="{!$Resource.assets}/plugins/back-to-top.js"></script>
+	<!-- Scrollbar -->
+	<script src="{!$Resource.assets}/plugins/scrollbar/src/jquery.mousewheel.js"></script>
+	<script src="{!$Resource.assets}/plugins/scrollbar/src/perfect-scrollbar.js"></script>
+	<!-- JS Page Level -->
+	<script type="text/javascript" src="{!$Resource.assets}/js/app.js"></script>
+	<!-- JS Customization -->
+	<script type="text/javascript" src="{!$Resource.assets}/js/custom.js"></script>
+	<!-- JS Implementing Plugins -->
+	<script type="text/javascript">
+		if (!window.sfdcPage && window.GenericSfdcPage) {
+			window.sfdcPage = new GenericSfdcPage();
+		}
+		jQuery(document).ready(function() {
+			App.init();
+			function chatterAvatarComponentUploadIframeHandler(iDocument) {
+				var si = setInterval(function(){ 
+					var innerheight = iDocument.find('body').height();
+					$('#chatterAvatarComponentUploadDialogContentId').height(innerheight);
+					clearInterval(si);
+				}, 300);
+				
+				var stylesArray = [
+					"{!$Resource.assets}/plugins/bootstrap/css/bootstrap.min.css",
+					"{!$Resource.assets}/css/style.css",
+					"{!$Resource.assets}/plugins/line-icons/line-icons.css",
+					"{!$Resource.assets}/plugins/font-awesome/css/font-awesome.min.css",
+					"{!$Resource.assets}/plugins/scrollbar/src/perfect-scrollbar.css",
+					"{!$Resource.assets}/plugins/owl-carousel/owl-carousel/owl.carousel.css",
+					"{!$Resource.assets}/plugins/sky-forms/version-2.0.1/css/custom-sky-forms.css",
+					"{!$Resource.assets}/css/pages/blog_magazine.css",
+					"{!$Resource.assets}/css/pages/page_search.css",
+					"{!$Resource.assets}/css/pages/profile.css",
+					"{!$Resource.assets}/css/pages/app.css",
+					"{!$Resource.assets}/css/theme-colors/default.css",
+					"{!$Resource.assets}/css/custom.css"
+				];
+
+				$.each(stylesArray, function(i, j) {
+					var cssLink = '<link rel="stylesheet" href="{0}"/>'.replace('{0}', j);
+					iDocument.find('form').append(cssLink);
+				});
+
+				// iDocument.find('body').addClass('container');
+				iDocument.find('form[name*="uploadFileForm"]').css('padding-left', '15px');
+				iDocument.find('form[name*="uploadFileForm"]').css('padding-right', '15px');
+
+				iDocument.find('._fileSelect').removeClass().addClass('row');
+				iDocument.find('form').removeClass().addClass('sky-form');
+				iDocument.find('.uploadButtonPanel').find('input[type=button][value=Cancel]').removeClass().addClass('btn-u btn-u-default').on('click', function(){
+					$('#chatterAvatarComponentUploadDialog').modal('hide');
+				}).removeAttr("onclick");
+				$('<span> </span>').insertBefore(iDocument.find('.uploadButtonPanel').find('input[type=button][value=Cancel]'));
+				iDocument.find('.uploadButtonPanel').find('.btn').removeClass().addClass('btn-u');
+			}
+			$(document).on('click', '.chatter-photoupload-pencil-icon', function () {
+				$("#chatterAvatarComponentUploadDialogContentId").on("load", function () {
+					$('#chatterAvatarComponentUploadDialogContentId').css('height', 'auto');
+					$('#chatterAvatarComponentUploadDialog').modal('show');
+					chatterAvatarComponentUploadIframeHandler($('#chatterAvatarComponentUploadDialogContentId').contents());
+				});
+			});
+		});
+	</script>
+
+	<!--[if lt IE 9]>
+		<script src="{!$Resource.assets}/plugins/respond.js"></script>
+		<script src="{!$Resource.assets}/plugins/html5shiv.js"></script>
+		<script src="{!$Resource.assets}/js/plugins/placeholder-IE-fixes.js"></script>
+	<![endif]-->
+
+	<!-- For Background Image -->
+	<script type="text/javascript" src="{!$Resource.assets}/plugins/backstretch/jquery.backstretch.min.js"></script>
+	<script>
+		jQuery(document).ready(function ($) {
+			"use strict";
+			$('.contentHolder').perfectScrollbar();
+		});
+	</script>
+	<apex:outputText id="bgiid" value="{!$Setup.Community_Template_Settings__c.Background_ImageID__c}" style="display:none;"/>
+	<apex:outputPanel layout="none" rendered="{!!ISBLANK($Setup.Community_Template_Settings__c.Background_ImageID__c)}">
+		<script type="text/javascript">
+			jQuery.backstretch([
+				'{!$Site.Prefix}/servlet/servlet.ImageServer?oid={!$Organization.Id}&id=' + jQuery('[id$=bgiid]').text()
+			]);
+		</script>
+	</apex:outputPanel>
+	<!-- End For Background Image -->
+
+	<!-- CHATTER PHOTO UPLOAD DIALOG -->
+	<div class="modal fade" id="chatterAvatarComponentUploadDialog" aria-live="assertive" role="dialog" tabindex="-1" aria-labelledby="chatterAvatarComponentUploadDialogLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content sky-form">
+				<div class="modal-header">
+					<button aria-hidden="true" data-dismiss="modal" class="close" type="button">&times;</button>
+					<h4 id="chatterAvatarComponentUploadDialogLabel" class="modal-title">Upload Profile Photo</h4>
+				</div>
+				<div class="modal-body">
+					<div class="row" id="chatterAvatarComponentUploadDialogContent">
+						<h2 id="chatterAvatarComponentUploadDialogHeader"></h2>
+						<div id="chatterAvatarComponentUploadDialogInner"></div>
+					</div>
+				</div>
+				<div class="modal-footer" style="display:none;">
+					<label style="display:none;" for="chatterAvatarComponentUploadDialogBlurCatch">'&nbsp;'</label>
+					<input id="chatterAvatarComponentUploadDialogBlurCatch" style="width:2px;height:2px;position:absolute;border:0;margin:0;padding:0;background:none;outline:none;z-index:-1;cursor:none;" type="text"/>
+					<div class="bottomLeft"></div>
+				</div>
+			  </div>
+		</div>
+	</div>
+	<!-- CHATTER PHOTO UPLOAD DIALOG -->
+</apex:component>

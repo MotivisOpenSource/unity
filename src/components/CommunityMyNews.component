@@ -1,0 +1,28 @@
+<apex:component controller="CommunityHomeComponentController">
+<div class="magazine-news">
+	<div class="headline"><h2><i class="fa fa-newspaper-o"></i>{!$Label.LBL_My_News}</h2></div>
+	<div class="row">
+		<apex:repeat value="{!MyNews}" var="mn">
+		<div class="col-md-6">
+			<div class="magazine-news-img">
+				<a href="{!$Page.CommunityNewsDetail}?id={!mn.id}"><img class="img-responsive" src="{!$Site.Prefix}{!mn.imageUrl}" alt=""/></a>
+				<apex:outputPanel rendered="{!mn.useTag}" styleClass="magazine-badge {!mn.tagStyle}">
+					{!mn.tag}
+				</apex:outputPanel>
+			</div>
+			<h3><a href="{!$Page.CommunityNewsDetail}?id={!mn.id}">{!mn.title}</a></h3>
+			<div class="by-author">
+				<!-- <strong>By Brian Peddle</strong>-->
+				<span>{!mn.entryDate}</span>
+			</div> 
+			<p>{!mn.teaser}</p>
+		</div>
+		</apex:repeat>
+	</div>
+	<div class="row">
+		<div class="col-md-12">
+			<button class="btn-u btn-u-blue" type="button" onclick="window.open('{!$Page.CommunityNews}','_self');"><i class="fa fa-plus"></i>&nbsp;{!$Label.LBL_Read_More_News}</button> 
+		</div>
+	</div>	
+</div>
+</apex:component>

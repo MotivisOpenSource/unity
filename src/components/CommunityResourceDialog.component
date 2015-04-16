@@ -1,0 +1,96 @@
+<apex:component >
+<apex:attribute name="lt" type="String" required="true" description="Link Text" />
+<apex:attribute name="fb" type="Blob" required="true" description="File Blob" />
+<apex:attribute name="ft" type="String" required="true" description="File Type" />
+<apex:attribute name="fn" type="String" required="true" description="File Name" />
+<apex:attribute name="cm" type="Boolean" required="false" default="false" description="Create Mode" />
+<div class="modal fade" id="uploadResourceDialog" aria-live="assertive" role="dialog" tabindex="-1" aria-labelledby="uploadResourceDialogLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<style>
+			.icon { font-size:2.4em; border: 2px solid #777; width: 48px; height: 48px; padding-top: 6px;}
+			.icon:hover { color:#72c02c; border-color:#72c02c; }
+		</style>
+		<div class="modal-content">
+			<div class="modal-header">
+				<button id="closemodal" aria-hidden="true" data-dismiss="modal" class="close" type="button">&times;</button>
+				<h4 id="uploadResourceDialogLabel" class="modal-title">{!$Label.BTN_Upload_Resource}</h4>
+			</div>
+			<div class="modal-body sky-form">
+				<div id="upd1" class="row" style="margin-bottom:20px">
+					<div class="col-md-3"></div>
+					<div class="col-md-3 text-center">
+						<a href="javascript:;" onclick="showSection('updl');">
+							<i class="expand-list rounded-x fa fa-link icon"></i>
+						</a>
+						<div>{!$ObjectType.Community_Resource__c.Fields.Link__c.label}</div>
+					</div>
+					<div class="col-md-3 text-center">
+						<a href="javascript:;" onclick="showSection('updf');">
+							<i class="expand-list rounded-x fa fa-file-o icon"></i>
+						</a>
+						<div>{!$Label.LBL_Upload_File}</div>
+					</div>
+					<div class="col-md-3"></div>
+				</div>
+				<section id="updf" style="display:none;">
+					<label class="label">{!$Label.LBL_Upload_File}</label>
+					<label for="file" class="input input-file">
+						<div class="button">
+							<apex:inputFile id="updfit265" value="{!fb}" fileName="{!fn}" contentType="{!ft}" onchange="this.parentNode.nextSibling.value = this.files[0].name"/>
+							Browse
+						</div><input id="fit265" type="text"/>
+						<div class="note note-error">{!$Label.LBL_File_Upload_Size_Limit}.</div>
+					</label>
+				</section>
+				<section id="updl" style="display:none;">
+					<label class="label">{!$ObjectType.Community_Resource__c.Fields.Link__c.label}</label>
+					<label class="input">
+						<i class="icon-append fa fa-link"></i>
+						<apex:inputText id="updlit265" value="{!lt}"/>
+					</label>
+				</section>
+			</div>
+			<div id="updb" class="modal-footer" style="display:none;">
+				<button type="button" class="btn-u btn-u-default" onclick="cancelDialog();return false;" data-dismiss="modal">{!$Label.BTN_Cancel}</button>
+				<button type="button" class="btn-u" onclick="submitDialog();return false;">{!$Label.BTN_Save}</button>
+			</div>
+			<script>
+				function showSection(sid) {
+					$('#upd1').hide();
+					$('#'+sid).show();
+					$('#updb').show();
+					$('[id$='+sid+'it265]').attr('required','required');
+				}
+				function cancelDialog() {
+					$('section[id*=upd]').hide();
+					$('#updb').hide();
+					$('#upd1').show();
+					$('#rf265').remove();
+					$('label.state-error').removeClass('state-error');
+					$('[id$=it265]').removeAttr('required').val('');
+					return false;
+				}
+				function submitDialog() {
+					var rd = $('[id$=it265][required=required]').val();
+					if (rd.trim() == '') {
+						if ($('label.state-error').length == 0) {
+							$('[id$=it265][required=required]').closest('label').addClass('state-error');
+							$('[id$=it265][required=required]').closest('section').append('<div id="rf265" class="note note-error">This is a required field.</div>');
+						}
+					}
+					else if ({!cm}) {
+						$('#rf265').remove();
+						$('label.state-error').removeClass('state-error');
+						$('#closemodal').click();
+						$('#reslname').text(rd);
+						$('#reserr').remove();
+					}
+					else {
+						submitResource();
+					}
+				}
+			</script>
+		</div>
+	</div>
+</div>
+</apex:component>

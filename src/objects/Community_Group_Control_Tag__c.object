@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Follow</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <deprecated>false</deprecated>
+    <description>This object allows tags to be associated with a Group Control record.</description>
+    <enableActivities>false</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>false</enableHistory>
+    <enableReports>true</enableReports>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <fields>
+        <fullName>Community_Tag__c</fullName>
+        <deprecated>false</deprecated>
+        <description>This defines the Tag that is being associated to the Group Control</description>
+        <externalId>false</externalId>
+        <label>Community Tag</label>
+        <referenceTo>Community_Tag__c</referenceTo>
+        <relationshipLabel>Group Items Tagged</relationshipLabel>
+        <relationshipName>Community_GroupItems_Tagged</relationshipName>
+        <relationshipOrder>1</relationshipOrder>
+        <reparentableMasterDetail>false</reparentableMasterDetail>
+        <trackTrending>false</trackTrending>
+        <type>MasterDetail</type>
+        <writeRequiresMasterRead>false</writeRequiresMasterRead>
+    </fields>
+    <fields>
+        <fullName>Group_Control__c</fullName>
+        <deprecated>false</deprecated>
+        <description>This field defines the Group that tags will be associated with</description>
+        <externalId>false</externalId>
+        <label>Group Control</label>
+        <referenceTo>Community_Group_Control__c</referenceTo>
+        <relationshipLabel>Group Tags</relationshipLabel>
+        <relationshipName>Community_Group_Tags</relationshipName>
+        <relationshipOrder>0</relationshipOrder>
+        <reparentableMasterDetail>false</reparentableMasterDetail>
+        <trackTrending>false</trackTrending>
+        <type>MasterDetail</type>
+        <writeRequiresMasterRead>false</writeRequiresMasterRead>
+    </fields>
+    <fields>
+        <fullName>Group_Discoverable__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Indicates if the related Group item is discoverable to all Community User&apos;s.</description>
+        <externalId>false</externalId>
+        <formula>Group_Control__r.Discoverable__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>Indicates if the related Group item is discoverable to all Community User&apos;s.</inlineHelpText>
+        <label>Group Discoverable</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Group_Status__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Represents the Status of the related Group item.</description>
+        <externalId>false</externalId>
+        <formula>TEXT( Group_Control__r.Status__c )</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>Status of the related Group item.</inlineHelpText>
+        <label>Group Status</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Group_Tag_SF_ID__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Represents the 18 digit unique Salesforce ID.</description>
+        <externalId>false</externalId>
+        <formula>CASESAFEID(Id)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>Represents the 18 digit unique Salesforce ID.</inlineHelpText>
+        <label>Group Tag SF ID</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Group_Type__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Represents the Group Type of the related Group item.</description>
+        <externalId>false</externalId>
+        <formula>TEXT( Group_Control__r.Type__c )</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>Title of the related Group.</inlineHelpText>
+        <label>Group Type</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Theme__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Represents the Name of the Theme related to the Tag.</description>
+        <externalId>false</externalId>
+        <formula>HYPERLINK(&quot;/&quot;&amp;&quot;Community_Tag__r.Community_Theme__r.Id&quot;,  Community_Tag__r.Community_Theme__r.Name  ,&apos;_self&apos;)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>Represents the Name of the Theme related to the Tag.</inlineHelpText>
+        <label>Theme</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <label>Community Group Control Tag</label>
+    <nameField>
+        <displayFormat>CGCT-{yy}{mm}{0}</displayFormat>
+        <label>Community Group Control Tag Name</label>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>Community Group Control Tags</pluralLabel>
+    <searchLayouts>
+        <excludedStandardButtons>New</excludedStandardButtons>
+        <excludedStandardButtons>ChangeOwner</excludedStandardButtons>
+        <excludedStandardButtons>Accept</excludedStandardButtons>
+        <lookupDialogsAdditionalFields>Community_Tag__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>Theme__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>Group_Control__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>CREATED_DATE</lookupDialogsAdditionalFields>
+        <lookupPhoneDialogsAdditionalFields>Community_Tag__c</lookupPhoneDialogsAdditionalFields>
+        <lookupPhoneDialogsAdditionalFields>Theme__c</lookupPhoneDialogsAdditionalFields>
+        <lookupPhoneDialogsAdditionalFields>Group_Control__c</lookupPhoneDialogsAdditionalFields>
+        <lookupPhoneDialogsAdditionalFields>CREATED_DATE</lookupPhoneDialogsAdditionalFields>
+        <searchFilterFields>Community_Tag__c</searchFilterFields>
+        <searchFilterFields>Theme__c</searchFilterFields>
+        <searchFilterFields>Group_Control__c</searchFilterFields>
+        <searchFilterFields>CREATED_DATE</searchFilterFields>
+    </searchLayouts>
+    <sharingModel>ControlledByParent</sharingModel>
+</CustomObject>

@@ -1,0 +1,163 @@
+<apex:component controller="CommunityMenuController">
+<style>
+ul li, ol li {
+    margin-left:0;
+}
+.without-menu {
+    height: 95px !important;
+}
+</style>
+
+<apex:outputPanel rendered="{!redirectToRegTerms}">
+    <script type="text/javascript">
+        (function() {
+            window.location.href = '{!CommunityRegTerms_Page}';
+        })();
+    </script>
+</apex:outputPanel>
+
+<div class="header-v1 header-sticky {!IF(isRegTermsPage, 'without-menu', '')}" >
+<!-- Topbar -->
+    <div class="topbar-v1" style="{!IF(isRegTermsPage, 'display:none;', '')}">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <ul class="list-inline top-v1-contacts">
+                        <li>
+                            <i class="fa fa-thumb-tack"></i> {!$Label.LBL_News_Alert}: {!Alert}
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <ul class="list-inline top-v1-data">
+                        <li><a href="{!$Page.CommunityHome}"><i class="fa fa-home"></i></a></li>
+                        <!--i><a href="#" data-placement="bottom" data-toggle="tooltip" class="hp tooltips" data-original-title="Set Home Page"><i class="fa fa-bookmark"></i></a></li-->
+                        <li><a href="/"><i class="fa fa-question"></i> Help</a></li>
+                        <li><a href="{!$Page.CommunityProfilePage}"><i class="fa fa-user"></i> {!$Label.LBL_My_Account}</a></li>
+                        <li><a href="{!$Site.Prefix}/secur/logout.jsp"><i class="fa fa-sign-out"></i> {!$Label.LBL_Logout}</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Topbar -->
+
+    <!-- Navbar -->
+    <div class="navbar navbar-default mega-menu" role="navigation">
+        <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="fa fa-bars"></span>
+                </button>                
+                <apex:outputPanel styleClass="item active" rendered="{!!ISBLANK($Setup.Community_Template_Settings__c.Header_Logo_ImageID__c)}">
+                        <img alt="Logo" src="{!$Site.Prefix}/servlet/servlet.ImageServer?oid={!$Organization.Id}&id={!$Setup.Community_Template_Settings__c.Header_Logo_ImageID__c}"/>
+                </apex:outputPanel>                
+                <!--
+                <a class="navbar-brand" href="{!$Page.CommunityHome}">
+                    <img id="logo-header" src="{!$Resource.assets}/img/community-u.png" alt="Logo"/>
+                </a>
+                -->
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse navbar-responsive-collapse" style="{!IF(isRegTermsPage, 'display:none;', '')}">
+                <ul class="nav navbar-nav">
+                    <!-- Home class="active" -->
+                    <li>
+                        <a href="{!$Page.CommunityFeed_MyFeed}">{!$Label.NAV_MyFeed}</a>
+                    </li>
+                    <!-- End Home -->
+                    <!-- Discover -->
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            {!$Label.NAV_Discover}
+                        </a>
+                        <ul class="dropdown-menu">
+                            <!-- Prefiltered Search -->
+                            <li><a href="{!$Page.CommunityDiscover}">All</a></li>
+                            <li><a href="{!$Page.CommunityFeed_People}">People</a></li>
+                            <li><a href="{!$Page.CommunityGroups}?f=all_groups">Groups</a></li>
+                            <!--<li><a href="{!$Page.CommunityHome}">Resources</a></li>-->
+                            <!-- End Prefiltered Search -->
+                        </ul>
+                    </li>
+                    <!-- Discover -->
+                    <!-- Blog -->
+                    <li >
+                        <a href="{!$Page.CommunityNews}">
+                            {!$Label.NAV_News}
+                        </a>
+                    </li>
+                    <!-- End Blog -->
+                    <!-- Contacts -->
+                    <li >
+                        <a href="{!$Page.CommunityEventsList}">
+                            {!$Label.NAV_Events}
+                        </a>
+                    </li>
+                    <!-- End Contacts -->
+
+                    <!-- Contacts -->
+                    <li >
+                        <a href="{!$Page.CommunityResources}">
+                            {!$Label.NAV_Resources}
+                        </a>
+                    </li>
+                    <!-- End Contacts -->
+                    <!-- Links -->
+                <apex:outputPanel layout="none" rendered="{!LinkItems.size>0}">   
+                    <li class="dropdown">
+                        <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" hidden="{!LinkItems.size>0}">
+                            {!$Label.NAV_Links}
+                        </a>
+                        <ul class="dropdown-menu" target="_blank">
+                            <apex:repeat value="{!LinkItems}" var="link">
+                                <li><a href="{!link.Link}" target="_blank">{!link.Name}</a></li>
+                            </apex:repeat>
+                        </ul>
+                    </li>
+                </apex:outputPanel>
+
+                    <!-- End Links -->
+                    <!-- Search Block -->
+                    <li>
+                        <i class="search fa search-btn fa-search"></i>
+                        <div class="search-open" style="display: none;">
+                            <div class="input-group animated fadeInDown">
+                                <input id="menusearch" type="text" class="form-control" placeholder="Search" value="{!$CurrentPage.parameters.s}"/>
+                                <span class="input-group-btn">
+                                    <button class="btn-u" type="button" onclick="menuSearch();">Go</button>
+                                </span>
+                                <script>
+                                    $(document).ready(function(){
+                                        var alertNews = '{!Alert}';
+                                        if(!alertNews){
+                                            $("li").first().hide();
+                                        }
+                                    });
+                                    $(document).on('keyup', '#menusearch', function(event) {
+                                        event.preventDefault();
+                                        if (event.keyCode == 13) {
+                                            menuSearch();
+                                        }
+                                    });
+                                    function menuSearch() {
+                                        if ($('#menusearch').val().length > 1) {
+                                            window.open("{!IF(CONTAINS($CurrentPage.URL,'CommunityNews'),$Page.CommunityNews,IF(CONTAINS($CurrentPage.URL,'CommunityEvent'), $Page.CommunityEventsList, $Page.CommunitySearch))}?s=" + encodeURIComponent($('#menusearch').val()), '_self');
+                                        }
+                                        return false;
+                                    }
+                                </script>
+                            </div>
+                        </div>
+                    </li>
+                    <!-- End Search Block -->
+                </ul>
+            </div><!--/navbar-collapse-->
+        </div>
+    </div>
+    <!-- End Navbar -->
+</div>
+</apex:component>

@@ -1,0 +1,331 @@
+<apex:page controller="CommunitySearchController" showHeader="false" sideBar="false" standardStylesheets="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false">
+	<apex:composition template="{!$Site.Template}">
+		<apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
+		<apex:define name="body">
+		<div class="profile">
+			<div class="container content paddingCategories" >
+				<div class="headline"><h2>Results found for {!FilterName}</h2></div>
+				<div style="text-align:center;font-size:+1em;">
+					<apex:outputPanel layout="none" rendered="{!mode == 'discover' || mode == 'search'}">
+						<a href="#groupresults">Groups</a>({!groups.totalRecords})&nbsp;|&nbsp;
+						<a href="#newsresults">News</a>({!news.totalRecords})&nbsp;|&nbsp;
+						<a href="#eventsresults">Events</a> ({!events.totalRecords})&nbsp;|&nbsp;
+						<a href="#resourceresults">Resources</a> ({!resources.totalRecords})
+					</apex:outputPanel>
+				</div>
+				<apex:outputPanel layout="none" rendered="{!mode != 'none'}">
+
+					<div id="groupresults" >
+						<apex:outputPanel id="gsect" layout="block" styleClass="container content" rendered="{!mode == 'discover' || mode == 'search'}">
+							<div class="headline"><h3>Group results for {!FilterName}</h3></div>
+						<apex:outputPanel layout="block" styleClass="text-center" rendered="{!groups.showPagination}">
+								<ul class="pagination">
+									<apex:repeat value="{!groups.pagination}" var="pg">
+										<apex:outputPanel layout="none" rendered="{!pg[2] == 'active'}">
+											<li class="active"><a href="javascript:;"><apex:outputText value="{!pg[0]}" escape="false"/></a></li>
+										</apex:outputPanel>
+										<apex:outputPanel layout="none" rendered="{!pg[2] != 'active'}">
+											<li><a href="javascript:;" onclick="setGroupsPage('{!pg[1]}')"><apex:outputText value="{!pg[0]}" escape="false"/></a></li>
+										</apex:outputPanel>
+									</apex:repeat>
+								</ul>
+							</apex:outputPanel>
+							<ul class="list-row margin-bottom-30">
+								<apex:repeat value="{!groups.groupsList}" var="g">
+								<li class="col-md-4 md-margin-bottom-30">
+									<div class="profile-blog tag-box-v3 block-grid-v1 rounded">
+										<img class="rounded-x" src="{!g.GroupPhotoUrl}" alt="" />
+										<div class="name-location">
+											<strong><a href="{!$Page.CommunityGroupDetailPage}?g={!g.GroupId}">{!g.GroupName}</a></strong>
+											<span><i class="fa fa-map-marker"></i>{!g.GroupLastActivityDateFormatted}</span>
+										</div>
+										<div class="clearfix margin-bottom-20"></div>
+										<p>{!g.GroupDescription}</p>
+										<hr />
+										<ul class="list-inline share-list" >
+											<li><i class="fa fa-group"></i><a href="#">{!g.GroupMembersCount} Followers</a></li>
+											<!--li style="padding-left: 5px;"><i class="fa fa-share"></i><a href="#">Share</a></li-->
+											<li id="leave-this-group-button-member-{!g.GroupId}" style="{!IF(g.CurrentMemberRole == 'Standard', 'padding-left: 5px;', 'display:none;padding-left: 5px;')}">
+												<a  class="btn-u" onclick="leaveGroup('{!g.GroupId}', '{!g.CurrentMemberRole}', '{!g.NotAMemberStatus}');" style="margin-left:3px;">
+													<span><i class="fa fa-check" style="color:#FFFFFF;"></i>&nbsp;{!$Label.LBL_Member}</span>
+												</a>
+											</li>
+											<li style="{!IF(g.CurrentMemberRole == 'Owner',  '', 'display:none;')}" >
+												<a  class="btn-u" style="margin-left:3px;">
+													<span><i class="fa fa-star" style="color:#FFFFFF;"></i>&nbsp;{!$Label.LBL_Owner}</span>
+												</a>
+											</li>
+											<li id="leave-this-group-button-manage-{!g.GroupId}" style="{!IF(g.CurrentMemberRole == 'Admin',  '', 'display:none;')}" >
+												<a  class="btn-u" style="margin-left:3px;" onclick="leaveGroup('{!g.GroupId}', '{!g.CurrentMemberRole}', '{!g.NotAMemberStatus}');" >
+													<span><i class="fa fa-star-half-o" style="color:#FFFFFF;"></i>&nbsp;{!$Label.LBL_Manager}</span>
+												</a>
+											</li>
+											<li id="leave-this-group-button-join-{!g.GroupId}" style="{!IF(g.CurrentMemberRole == 'NotAMember' && g.NotAMemberStatus == 'Join', '', 'display:none;')}" >
+												<a class="btn btn-u btn-u-blue btn-xs" onclick="jointToGroup('{!g.GroupId}');">
+													<i class="fa fa-plus-circle" style="color:#FFFFFF;"></i>&nbsp;{!$Label.BTN_Join}
+												</a>
+											</li>
+											<li id="leave-this-group-button-requested-{!g.GroupId}" style="{!IF(g.CurrentMemberRole == 'NotAMember' && g.NotAMemberStatus == 'Requested',  '', 'display:none;')}" >
+												<a class="btn btn-u btn-u-orange btn-xs" onclick="cancelRequestToJoin('{!g.GroupId}');">
+													<i class="fa fa-times-circle" style="color:#FFFFFF;"></i>&nbsp;{!$Label.LBL_Requested}
+												</a>
+											</li>
+											<li id="leave-this-group-button-RequestToJoin-{!g.GroupId}" style="{!IF(g.CurrentMemberRole == 'NotAMember' && g.NotAMemberStatus == 'RequestToJoin',  '', 'display:none;')}" >
+												<a class="btn btn-u btn-u-blue btn-xs" onclick="requestToJoin('{!g.GroupId}');">
+													<i class="fa fa-plus-circle" style="color:#FFFFFF;"></i>&nbsp;{!$Label.LBL_RequestToJoin}
+												</a>
+											</li>
+										</ul>
+									</div>
+								</li>
+								</apex:repeat>
+
+
+							</ul>
+						</apex:outputPanel>
+						<apex:form >
+							<apex:actionFunction name="setGroupsPage" rerender="gsect">
+								<apex:param name="groupPageNum" assignTo="{!groupPageNum}" value=""/>
+							</apex:actionFunction>
+						</apex:form>
+					</div>
+
+					<div id="eventsresults">
+						<apex:outputPanel id="esect" layout="block" styleClass="container content" rendered="{!mode == 'discover' || mode == 'search'}">
+							<div class="headline">
+								<h3>Event results for {!FilterName}</h3>
+								<a href="javascript:;" title="Scroll Back to results" onclick="$('div#topcontrol').click();">
+									<i class="icon-custom icon-sm fa fa-angle-up" style="border-color:white;"></i>
+								</a>
+							</div>
+							<apex:outputPanel layout="block" styleClass="text-center" rendered="{!events.showPagination}">
+								<ul class="pagination">
+									<apex:repeat value="{!events.pagination}" var="pg">
+										<apex:outputPanel layout="none" rendered="{!pg[2] == 'active'}">
+											<li class="active"><a href="javascript:;"><apex:outputText value="{!pg[0]}" escape="false"/></a></li>
+										</apex:outputPanel>
+										<apex:outputPanel layout="none" rendered="{!pg[2] != 'active'}">
+											<li><a href="javascript:;" onclick="setEventsPage('{!pg[1]}')"><apex:outputText value="{!pg[0]}" escape="false"/></a></li>
+										</apex:outputPanel>
+									</apex:repeat>
+								</ul>
+							</apex:outputPanel>
+							<div class="table-search-v2 margin-bottom-20">
+								<div class="table-responsive">
+									<table class="row table table-hover">
+										<tbody>
+											<apex:repeat value="{!events.results}" var="ev">
+											<tr>
+												<td style="width:200px;">
+													<div class="date-formats">
+														{!ev.fdate}
+													</div>
+												</td>
+												<td>
+													<h3><a href="{!ev.detailUrl}">{!ev.title}</a></h3>
+													<p><apex:outputText value="{!ev.teaser}" escape="false"/></p>
+												</td>
+												<!--td>
+													<span class="label label-success">Read more...</span>
+												</td-->
+											</tr>
+											</apex:repeat>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</apex:outputPanel>
+						<apex:form >
+							<apex:actionFunction name="setEventsPage" rerender="esect">
+								<apex:param name="eventPageNum" assignTo="{!eventPageNum}" value=""/>
+							</apex:actionFunction>
+						</apex:form>
+					</div>
+
+					<div id="newsresults">
+						<apex:outputPanel id="nsect" layout="block" styleClass="container content" rendered="{!mode == 'discover' || mode == 'search'}">
+							<div class="headline">
+								<h3>News results for {!FilterName}</h3>
+								<a href="javascript:;" title="Scroll Back to results" onclick="$('div#topcontrol').click();">
+									<i class="icon-custom icon-sm fa fa-angle-up" style="border-color:white;"></i>
+								</a>
+							</div>
+							<apex:outputPanel layout="block" styleClass="text-center" rendered="{!news.showPagination}">
+								<ul class="pagination">
+									<apex:repeat value="{!news.pagination}" var="pg">
+										<apex:outputPanel layout="none" rendered="{!pg[2] == 'active'}">
+											<li class="active"><a href="javascript:;"><apex:outputText value="{!pg[0]}" escape="false"/></a></li>
+										</apex:outputPanel>
+										<apex:outputPanel layout="none" rendered="{!pg[2] != 'active'}">
+											<li><a href="javascript:;" onclick="setNewsPage('{!pg[1]}')"><apex:outputText value="{!pg[0]}" escape="false"/></a></li>
+										</apex:outputPanel>
+									</apex:repeat>
+								</ul>
+							</apex:outputPanel>
+							<div class="table-search-v2 margin-bottom-20">
+								<div class="table-responsive">
+									<table class="row table table-hover">
+										<tbody>
+											<apex:repeat value="{!news.results}" var="nw">
+											<tr>
+												<td style="width:90px;">
+													<img class="rounded-x" src="{!nw.imagePath}" alt="" />
+												</td>
+												<td styleClass="td-width">
+													<h3><a href="{!nw.detailUrl}">{!nw.title}</a></h3>
+													<p><apex:outputText value="{!nw.teaser}" escape="false"/></p>
+													<small class="hex">
+														{!nw.fdate}
+													</small>
+												</td>
+												<!--td>
+													<span class="label label-success">Read more...</span>
+												</td-->
+											</tr>
+											</apex:repeat>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</apex:outputPanel>
+						<apex:form >
+							<apex:actionFunction name="setNewsPage" rerender="nsect">
+								<apex:param name="newsPage" assignTo="{!newsPageNum}" value=""/>
+							</apex:actionFunction>
+						</apex:form>
+					</div>
+
+					<div id="resourceresults">
+						<style>
+							.table i.icon { font-size: 1.8em; border: 2px solid #777; width: 36px; }
+						</style>
+						<apex:outputPanel id="rsect" layout="block" styleClass="container content">
+							<div class="headline">
+								<h3>Resources results for {!FilterName}</h3>
+								<a href="javascript:;" title="Scroll Back to results" onclick="$('div#topcontrol').click();">
+									<i class="icon-custom icon-sm fa fa-angle-up" style="border-color:white;"></i>
+								</a>
+							</div>
+							<apex:outputPanel layout="block" styleClass="text-center" rendered="{!resources.showPagination}">
+								<ul class="pagination">
+									<apex:repeat value="{!resources.pagination}" var="pg">
+										<apex:outputPanel layout="none" rendered="{!pg[2] == 'active'}">
+											<li class="active"><a href="javascript:;"><apex:outputText value="{!pg[0]}" escape="false"/></a></li>
+										</apex:outputPanel>
+										<apex:outputPanel layout="none" rendered="{!pg[2] != 'active'}">
+											<li><a href="javascript:;" onclick="setResourcesPage('{!pg[1]}')"><apex:outputText value="{!pg[0]}" escape="false"/></a></li>
+										</apex:outputPanel>
+									</apex:repeat>
+								</ul>
+							</apex:outputPanel>
+							<div class="table-search-v2 margin-bottom-20">
+								<div class="table-responsive">
+									<table class="row table table-hover">
+										<tbody>
+											<apex:repeat value="{!resources.results}" var="rs">
+											<tr>
+												<td styleClass="td-width">
+													<a href="{!rs.detailUrl}" style="text-decoration:none;">
+														<h3>{!rs.title}</h3>
+														<p><apex:outputText value="{!rs.teaser}" escape="false"/></p>
+													</a>
+												</td>
+												<td>
+													<a href="{!rs.linkUrl}" target="_blank" title="{!rs.fdate}">
+														<i class="expand-list rounded-x fa {!rs.imagePath} icon"></i>
+													</a>
+												</td>
+											</tr>
+											</apex:repeat>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</apex:outputPanel>
+						<apex:form >
+							<apex:actionFunction name="setResourcesPage" rerender="rsect">
+								<apex:param name="resourcePageNum" assignTo="{!resourcePageNum}" value=""/>
+							</apex:actionFunction>
+						</apex:form>
+					</div>
+				</apex:outputPanel>
+			</div>
+		</div>
+		</apex:define>
+		<apex:define name="scripts">
+			<script type="text/javascript">
+
+				function leaveGroup(groupId, CurrentMemberRole, NotAMemberStatus) {
+					if(confirm('Are you sure you want to leave this group?')) {
+						Visualforce.remoting.Manager.invokeAction(
+							'CommunitySearchController.leaveGroup',
+							groupId,
+							function(result, event) {
+							},
+							{ buffer: true, escape: true, timeout: 30000 }
+						);
+
+						if (CurrentMemberRole == 'Admin') {
+							jQuery('[id$=leave-this-group-button-manage-' + groupId + ']').hide();
+							jQuery('[id$=leave-this-group-button-RequestToJoin-' + groupId + ']').show();
+						}
+						else if (CurrentMemberRole == 'NotAMember' && NotAMemberStatus == 'RequestToJoin') {
+							jQuery('[id$=leave-this-group-button-manage-' + groupId + ']').hide();
+							jQuery('[id$=leave-this-group-button-RequestToJoin-' + groupId + ']').show();
+						}
+
+						else if (CurrentMemberRole == 'Standard') {
+							jQuery('[id$=leave-this-group-button-member-' + groupId + ']').hide();
+							jQuery('[id$=leave-this-group-button-join-' + groupId + ']').show();
+						}
+						else if (CurrentMemberRole == 'NotAMember' && NotAMemberStatus == 'Join') {
+							jQuery('[id$=leave-this-group-button-member-' + groupId + ']').hide();
+							jQuery('[id$=leave-this-group-button-join-' + groupId + ']').show();
+						}
+
+					}
+				};
+
+				function jointToGroup(groupId) {
+					Visualforce.remoting.Manager.invokeAction(
+						'CommunitySearchController.jointToGroup',
+						groupId,
+						function(result, event) {
+						},
+						{ buffer: true, escape: true, timeout: 30000 }
+					);
+					jQuery('[id$=leave-this-group-button-join-' + groupId + ']').hide();
+					jQuery('[id$=leave-this-group-button-member-' + groupId + ']').show();
+					console.log('[id$=leave-this-group-button-member-' + groupId + ']');
+				};
+
+				function cancelRequestToJoin(groupId) {
+					if(confirm('{!$Label.LBL_CancelRequest_Message}')) {
+						Visualforce.remoting.Manager.invokeAction(
+							'CommunitySearchController.calcelRequestToJoin',
+							groupId,
+							function(result, event) {
+							},
+							{ buffer: true, escape: true, timeout: 30000 }
+						);
+						jQuery('[id$=leave-this-group-button-requested-' + groupId + ']').hide();
+						jQuery('[id$=leave-this-group-button-RequestToJoin-' + groupId + ']').show();
+					}
+				};
+
+				function requestToJoin(groupId) {
+					Visualforce.remoting.Manager.invokeAction(
+						'CommunitySearchController.requestToJoin',
+						groupId,
+						function(result, event) {
+						},
+						{ buffer: true, escape: true, timeout: 30000 }
+					);
+					jQuery('[id$=leave-this-group-button-RequestToJoin-' + groupId + ']').hide();
+					jQuery('[id$=leave-this-group-button-requested-' + groupId + ']').show();
+				};
+
+			</script>
+		</apex:define>
+	</apex:composition>
+</apex:page>

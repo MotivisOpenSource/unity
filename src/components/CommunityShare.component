@@ -1,0 +1,96 @@
+<apex:component controller="CommunityShareController" allowDml="true">
+	<apex:attribute name="sO" type="SObject" assignTo="{!sobj}" required="true" description="Parent Object" />
+	<style>
+		.m-status {
+			color: white;
+			top: 40%;
+			position: absolute;
+			font-size: 6em;
+			margin-top: -38px;
+			left: 50%;
+			margin-left: -38px;
+		}
+	</style>
+	<button class="btn-u" data-toggle="modal" data-target="#shareModal" title="{!$Label.BTN_Rechat}" onclick="loadGroupSuggestions();return false;">{!$Label.BTN_Rechat}</button>
+
+	<div class="modal fade in" id="shareModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false" style="display:none;">
+		<i class="fa fa-spinner fa-pulse m-status"></i>
+		<div id="shareModalDialog" class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+					<h4 class="modal-title" id="myModalLabel">{!$Label.BTN_Rechat}</h4>
+				</div>
+				<div class="modal-body">
+					<apex:outputPanel id="messageArea">
+						<apex:outputPanel id="messageAreaIn" layout="block" styleClass="alert alert-danger fade in" rendered="{!hasMessage}">
+							<strong>Oh snap!</strong>&nbsp;{!message}
+						</apex:outputPanel>
+					</apex:outputPanel>
+					<div action="" class="sky-form">
+						<fieldset>
+							<section>
+								<apex:outputLabel value="{!$Label.LBL_Share_Link_Url}"/>
+								<label class="input">
+									<apex:inputText value="{!shareLinkUrl}"/>
+								</label>
+							</section>
+							<section>
+								<apex:outputLabel value="{!$Label.LBL_Share_Link_Name}"/>
+								<label class="input">
+									<apex:inputText value="{!shareLinkName}"/>
+								</label>
+							</section>
+							<section>
+								<label class="textarea">
+									<apex:inputTextarea id="commentArea" value="{!shareComment}" style="width:100%;"/>
+								</label>
+							</section>
+							<section>
+								<apex:outputLabel value="{!$Label.LBL_Share_To_A_Group}"/>
+								<label class="input">
+									<apex:inputText id="inGroup" value="{!shareGroup}"/>
+									<datalist id="list"></datalist>
+								</label>
+							</section>
+						</fieldset>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn-u btn-u-default margin-right-10" data-dismiss="modal">Close</button>
+					<apex:commandButton id="shBtn" action="{!share}" value="{!$Label.BTN_Share}" onclick="$('#shareModalDialog').hide();" rerender="messageArea" oncomplete="completeShare();" styleClass="btn-u btn-u-primary"/>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script>
+		$("[id$=commentArea]").attr('placeholder','{!$Label.LBL_Link_InputBox}');
+		$("[id$=inGroup]").attr('list','list');
+
+		function completeShare() {
+			if ($("[id$=messageAreaIn]").length > 0) {
+				$('#shareModalDialog').show();
+			}
+			else {
+				$('#shareModal').modal('hide');
+			}
+		}
+
+		function loadGroupSuggestions() {
+			if ($('#list').children().length == 0) {
+				Visualforce.remoting.Manager.invokeAction(
+					'{!$RemoteAction.CommunityShareController.getGroups}',
+					'',
+					function(result, event) {
+						var div = document.createElement('div');
+						div.innerHTML = result;
+						$('#list').html(div.firstChild.nodeValue);
+					}
+				);
+			}
+			$('#shareModalDialog').show();
+			$("[id$=messageAreaIn]").remove();
+			$("[id$=inGroup]").val('');
+		}
+	</script>
+</apex:component>

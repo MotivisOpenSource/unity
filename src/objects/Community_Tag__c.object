@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Follow</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <deprecated>false</deprecated>
+    <description>Define a library of Tags that will help categorize interests for the Community.  Tags can be associated to Community News, Events, Groups, and Contacts via separate junction objects.  This will allow the starter pack to recommend items to a Community user.</description>
+    <enableActivities>false</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>true</enableHistory>
+    <enableReports>true</enableReports>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <fields>
+        <fullName>Community_Theme__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <description>Represents the Theme of the Community Tag.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Represents the Theme of the Community Tag.</inlineHelpText>
+        <label>Community Theme</label>
+        <referenceTo>Community_Theme__c</referenceTo>
+        <relationshipLabel>Community Tags</relationshipLabel>
+        <relationshipName>Community_Tags</relationshipName>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Icon_Style__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Describes the Icon style to be applied to these records in search results</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Describes the Icon style to be applied to these records in search results</inlineHelpText>
+        <label>Icon Style</label>
+        <length>150</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Tag_SF_ID__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Represents the 18 digit unique Salesforce ID.</description>
+        <externalId>false</externalId>
+        <formula>CASESAFEID(Id)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>Represents the 18 digit unique Salesforce ID.</inlineHelpText>
+        <label>Tag SF ID</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Tag_Theme_UniqueID__c</fullName>
+        <caseSensitive>false</caseSensitive>
+        <deprecated>false</deprecated>
+        <description>Coming Soon.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Coming Soon.</inlineHelpText>
+        <label>Tag-Theme UniqueID</label>
+        <length>255</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>true</unique>
+    </fields>
+    <fields>
+        <fullName>Theme_Name__c</fullName>
+        <deprecated>false</deprecated>
+        <description>the name of the theme the tag is associated with</description>
+        <externalId>false</externalId>
+        <formula>Community_Theme__r.Name</formula>
+        <label>Theme Name</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Theme_Type__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Represents the Theme Type of the Theme related to the Tag.</description>
+        <externalId>false</externalId>
+        <formula>TEXT(Community_Theme__r.Theme_Type__c)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>Represents the Theme Type of the Theme related to the Tag.</inlineHelpText>
+        <label>Theme Type</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <label>Community Tag</label>
+    <listViews>
+        <fullName>All</fullName>
+        <columns>NAME</columns>
+        <columns>Community_Theme__c</columns>
+        <columns>Theme_Type__c</columns>
+        <columns>CREATEDBY_USER</columns>
+        <filterScope>Everything</filterScope>
+        <label>All</label>
+        <language>en_US</language>
+    </listViews>
+    <listViews>
+        <fullName>All_Tags</fullName>
+        <columns>Community_Theme__c</columns>
+        <columns>NAME</columns>
+        <columns>Theme_Type__c</columns>
+        <columns>Icon_Style__c</columns>
+        <columns>CREATEDBY_USER</columns>
+        <columns>CREATED_DATE</columns>
+        <filterScope>Everything</filterScope>
+        <label>All Tags</label>
+        <language>en_US</language>
+    </listViews>
+    <listViews>
+        <fullName>Interest_Tags</fullName>
+        <columns>Community_Theme__c</columns>
+        <columns>NAME</columns>
+        <columns>Icon_Style__c</columns>
+        <columns>CREATEDBY_USER</columns>
+        <columns>CREATED_DATE</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Theme_Type__c</field>
+            <operation>equals</operation>
+            <value>Interest</value>
+        </filters>
+        <label>Interest Tags</label>
+        <language>en_US</language>
+    </listViews>
+    <listViews>
+        <fullName>Resource_Tags</fullName>
+        <columns>Community_Theme__c</columns>
+        <columns>NAME</columns>
+        <columns>Icon_Style__c</columns>
+        <columns>CREATEDBY_USER</columns>
+        <columns>CREATED_DATE</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Theme_Type__c</field>
+            <operation>equals</operation>
+            <value>Resource</value>
+        </filters>
+        <label>Resource Tags</label>
+        <language>en_US</language>
+    </listViews>
+    <listViews>
+        <fullName>System_Tags</fullName>
+        <columns>Community_Theme__c</columns>
+        <columns>NAME</columns>
+        <columns>Icon_Style__c</columns>
+        <columns>CREATEDBY_USER</columns>
+        <columns>CREATED_DATE</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Theme_Type__c</field>
+            <operation>equals</operation>
+            <value>System</value>
+        </filters>
+        <label>System Tags</label>
+        <language>en_US</language>
+    </listViews>
+    <nameField>
+        <label>Community Tag Name</label>
+        <trackHistory>false</trackHistory>
+        <type>Text</type>
+    </nameField>
+    <pluralLabel>Community Tags</pluralLabel>
+    <searchLayouts>
+        <customTabListAdditionalFields>Community_Theme__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Icon_Style__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>CREATED_DATE</customTabListAdditionalFields>
+        <excludedStandardButtons>ChangeOwner</excludedStandardButtons>
+        <excludedStandardButtons>Accept</excludedStandardButtons>
+        <lookupDialogsAdditionalFields>Community_Theme__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>Theme_Type__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>CREATED_DATE</lookupDialogsAdditionalFields>
+        <searchFilterFields>Community_Theme__c</searchFilterFields>
+        <searchFilterFields>NAME</searchFilterFields>
+        <searchFilterFields>Icon_Style__c</searchFilterFields>
+        <searchFilterFields>CREATED_DATE</searchFilterFields>
+        <searchResultsAdditionalFields>Community_Theme__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Icon_Style__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>CREATED_DATE</searchResultsAdditionalFields>
+    </searchLayouts>
+    <sharingModel>ReadWrite</sharingModel>
+</CustomObject>

@@ -1,0 +1,642 @@
+<apex:page controller="CommunityFeed_MyMessagesController" showHeader="false" sideBar="false" standardStylesheets="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false">
+	<apex:composition template="{!$Site.Template}">
+		<apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
+		<apex:define name="body">
+			<apex:form >
+				<apex:actionFunction action="{!goToConversation}" name="goToConversation" rerender="centerContent" status="doSearchConversationsWaitingStatus" oncomplete="initPrivateConversation();">
+					<apex:param name="conversationId" assignTo="{!SelectedConversationId}" value="" />
+				</apex:actionFunction>
+				<apex:actionFunction action="{!goToConversation}" name="refreshConversation" rerender="centerContent" status="showMoreMessagesWaitingStatus" oncomplete="initPrivateConversation();">
+					<apex:param name="conversationId" assignTo="{!SelectedConversationId}" value="" />
+				</apex:actionFunction>
+				<apex:actionFunction action="{!loadOlderMessages}" name="loadOlderMessages" rerender="messageListContainer" status="showMoreMessagesWaitingStatus" oncomplete="initScrollbars();">
+					<apex:param name="conversationId" assignTo="{!SelectedConversationId}" value="" />
+					<apex:param name="nextPageToken" assignTo="{!SelectedPageToken}" value="" />
+				</apex:actionFunction>
+				<apex:actionFunction action="{!doSearchMessages}" name="doSearchMessages" rerender="centerContent" status="doSearchMessagesWaitingStatus" oncomplete="initScrollbars();">
+					<apex:param name="searchQuery" assignTo="{!SearchQuery}" value="" />
+				</apex:actionFunction>
+				<apex:actionFunction action="{!doSearchConversations}" name="doSearchConversations" rerender="centerContent" status="doSearchConversationsWaitingStatus">
+					<apex:param name="searchQuery" assignTo="{!SearchQuery}" value="" />
+				</apex:actionFunction>
+				<apex:actionFunction action="{!showMoreConversations}" name="showMoreConversations" rerender="centerContent" status="showMoreConversationsWaitingStatus">
+					<apex:param name="searchQuery" assignTo="{!SearchQuery}" value="" />
+					<apex:param name="token" assignTo="{!SelectedPageToken}" value="" />
+				</apex:actionFunction>
+			</apex:form>
+			<div class="profile">
+				<div class="container content">
+					<!-- PAGE HEADER -->
+					<!--<apex:outputPanel styleClass="headline" layout="block">
+						<h1 class="pageTitle">{!$Label.Messages_PageTitle}</h1>
+						<apex:outputPanel styleClass="headerRightContent">
+						</apex:outputPanel>
+					</apex:outputPanel>-->
+					<!-- PAGE HEADER -->
+					<div class="row">
+						<!--LEFT-->
+						<div class="col-md-3 md-margin-bottom-40">
+							<c:CommunityUserPhoto />
+							<c:CommunityFeedNavigation pn="2" />
+						</div>
+						<!--LEFT-->
+						<!--MIDDLE-->
+						<div class="col-md-9">
+							<div class="profile-body">
+								<!--CENTER-->
+								<apex:outputPanel styleClass="panel panel-profile" id="centerContent" layout="block">
+									<!--CONVERSATIONS LIST-->
+									<apex:outputPanel layout="none" rendered="{!SelectedConversationId == NULL}">
+										<!--MESSAGES SEARCH BAR-->
+										<div class="panel-heading overflow-h">
+											<div class="row">
+												<div class="row">
+													<div class="col-md-12">
+														<div class="row">
+															<div class="col-md-7">
+																<div class="input-group">
+																	<input class="form-control" placeholder="{!$Label.LBL_SearchAllMessages}" value="{!SearchQuery}" id="messageSearchInput" maxlength="80"/>
+																	<span class="input-group-btn">
+																		<!--<apex:actionStatus id="doSearchConversationsWaitingStatus" layout="block">
+																			<apex:facet name="stop">
+																				<button id="messageSearchButton" class="btn-u" onclick="doSearchConversations($(MESSAGES_QUICK_FIND_INPUT).val() ? $(MESSAGES_QUICK_FIND_INPUT).val() : null);">
+																			<i class="fa fa-search"></i>
+																		</button>
+																			</apex:facet>
+																			<apex:facet name="start">
+																				<div class="btn-u btn-block">
+																					<img src="/img/loading.gif" class="waitingImage" title="Please Wait..." /><span class="waitingDescription">Loading...</span>
+																				</div>
+																			</apex:facet>
+																		</apex:actionStatus>-->
+																		<button type="button" class="btn btn-u" id="messageSearchButton" onclick="doSearchConversations($(MESSAGES_QUICK_FIND_INPUT).val() ? $(MESSAGES_QUICK_FIND_INPUT).val() : null);">
+																			<i class="fa fa-spinner fa-pulse" style="display:none;"></i>
+																			<i class="fa fa-search"></i>
+																		</button>
+																		<apex:actionStatus id="doSearchConversationsWaitingStatus" onstart="searchStatusBtn();"/>
+																	</span>
+																</div>
+															</div>
+															<div class="col-md-5">
+																<!--onclick="newMessageHandler();"-->
+																<button class="btn-u" data-toggle="modal" data-target="#newConversationModal" title="{!$Label.BTN_New_Message}">{!$Label.BTN_New_Message}</button>
+															</div>
+														</div>
+													</div>
+													<div class="col-md-6">
+													</div>
+												</div>
+											</div>
+										</div>
+										<!--MESSAGES SEARCH BAR-->
+										<div class="panel-body">
+											<apex:outputPanel layout="block" rendered="{!Conversations.size == 0}">
+												<p>We can't find any messages with <strong>"{!SearchQuery}"</strong>.</p>
+												Search Tips
+												<ul>
+													<li>Check the spelling of your search term.</li>
+													<li>Your search term must have 2 or more characters.</li>
+												</ul>
+											</apex:outputPanel>
+											<apex:repeat value="{!Conversations}" var="conversation">
+												<div  class="media media-v2 conversation {!IF(NOT(conversation.IsRead), 'unread', 'replied')}" onclick="goToConversation('{!conversation.ConversationId}');">
+													<a class="pull-left" style="position: relative;" href="#">
+														<img src="{!conversation.LatestMessage.Sender.MemberPhotoUrl}" alt="{!conversation.LatestMessage.Sender.MemberName}" width="45" height="45" class="media-object rounded-x" title="{!conversation.LatestMessage.Sender.MemberName}" />
+														<apex:outputPanel layout="none" rendered="{!NOT(conversation.IsRead)}">
+															<i class="fa fa-wechat indicator" />
+														</apex:outputPanel>
+													</a>
+													<div class="media-body">
+														<h4 class="media-heading">
+															<strong><a href="javascript:goToConversation('{!conversation.ConversationId}');">{!conversation.ConversationRecipients}</a></strong>
+															<small><apex:outputText value="{!conversation.LatestMessage.SentDateFormatted}" /></small>
+														</h4>
+														<p>{!conversation.LatestMessage.MessageBody.Text}</p>
+													</div>
+												</div>
+											</apex:repeat>
+											<apex:actionStatus id="showMoreConversationsWaitingStatus" layout="block">
+												<apex:facet name="stop">
+													<apex:outputPanel id="showMoreConversationsLink" layout="block" rendered="{!NextPageToken != NULL}">
+														<button data-next-token="{!NextPageToken}" class="btn-u btn-u-default btn-block conversation_nav">Show more...</button>
+													</apex:outputPanel>
+												</apex:facet>
+												<apex:facet name="start">
+													<div class="btn-u btn-u-default btn-block">
+														<img src="/img/loading.gif" class="waitingImage" title="Please Wait..." /><span class="waitingDescription">Loading...</span>
+													</div>
+												</apex:facet>
+											</apex:actionStatus>
+										</div>
+									</apex:outputPanel>
+									<!--CONVERSATIONS LIST-->
+
+									<!--SINGLE CONVERSATION-->
+									<apex:outputPanel layout="none" rendered="{!SelectedConversationId != NULL}">
+										<div class="panel-heading overflow-h">
+											<div class="row">
+												<h2>
+													<a href="{!$Page.CommunityFeed_MyMessages}" title="My Messages" class="showInbox">My Messages</a>&nbsp;<i class="fa fa-angle-right"></i>
+													with&nbsp;{!CurrentConversation.ConversationRecipients}
+												</h2>
+											</div>
+										</div>
+
+										<!--MESSAGES SEARCH BAR-->
+										<div class="panel-heading overflow-h">
+											<div class="row">
+												<div class="row">
+													<div class="col-md-6">
+														<div class="row">
+															<div class="col-md-7">
+																<div class="input-group">
+																	<input class="form-control" placeholder="{!$Label.LBL_SearchAllMessages}" value="{!SearchQuery}" id="messageSearchInput" maxlength="80"/>
+																	<span class="input-group-btn">
+																		<apex:actionStatus id="doSearchMessagesWaitingStatus" layout="block">
+																			<apex:facet name="stop">
+																				<button id="messageSearchButton" class="btn-u" onclick="doSearchMessages($(MESSAGES_QUICK_FIND_INPUT).val() ? $(MESSAGES_QUICK_FIND_INPUT).val() : null);">
+																					<i class="fa fa-search"></i>
+																				</button>
+																			</apex:facet>
+																			<apex:facet name="start">
+																				<div class="btn-u btn-block">
+																					<img src="/img/loading.gif" class="waitingImage" title="Please Wait..." /><span class="waitingDescription">Loading...</span>
+																				</div>
+																			</apex:facet>
+																		</apex:actionStatus>
+																	</span>
+																</div>
+															</div>
+															<div class="col-md-5">
+															</div>
+														</div>
+													</div>
+													<div class="col-md-6">
+														<div class="row">
+															<div class="col-md-12">
+																<!--<div class="pull-right">
+																	<button class="btn-u">Newer&nbsp;<i class="fa fa-angle-left"></i></button>
+																	<button class="btn-u">Older&nbsp;<i class="fa fa-angle-right"></i></button>
+																</div>-->
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+										<!--MESSAGES SEARCH BAR-->
+
+										<div class="panel-body">
+											<apex:outputPanel layout="none" rendered="{!CurrentConversation.Messages.size == 0}">
+												<p>We can't find any messages with <strong>"{!SearchQuery}"</strong>.</p>
+												Search Tips
+												<ul>
+													<li>Check the spelling of your search term.</li>
+													<li>Your search term must have 2 or more characters.</li>
+												</ul>
+											</apex:outputPanel>
+											<apex:outputPanel styleClass="messageList" id="messageListContainer" layout="block" rendered="{!CurrentConversation.Messages.size > 0}">
+												<ul id="messageContainer" class="list-unstyled contentHolder margin-bottom-20 ps-container">
+													<apex:outputPanel layout="none" rendered="{!CurrentConversation.NextPageToken != NULL}">
+														<li id="showMoreContainer">
+															<apex:actionStatus id="showMoreMessagesWaitingStatus" layout="block">
+																<apex:facet name="start">
+																	<img src="/img/loading.gif" class="waitingImage" title="Please Wait..." />
+																	<span class="waitingDescription">Loading...</span>
+																</apex:facet>
+																<apex:facet name="stop">
+																	<apex:outputPanel id="showMoreLink" layout="block">
+																		<a href="javascript:loadOlderMessages('{!CurrentConversation.ConversationId}', '{!CurrentConversation.NextPageToken}');" class="btn-u btn-u-default btn-block">Show older messages.</a>
+																	</apex:outputPanel>
+																</apex:facet>
+															</apex:actionStatus>
+														</li>
+													</apex:outputPanel>
+													<apex:repeat value="{!CurrentConversation.Messages}" var="message">
+														<li class="notification">
+															<div class="media media-v2">
+																<div class="pull-left">
+																	<img src="{!message.Sender.MemberPhotoUrl}" alt="{!message.Sender.MemberName}" width="45" height="45" class="media-object rounded-x" title="{!message.Sender.MemberName}" />
+																</div>
+																<div class="media-body">
+																	<h4 class="media-heading">
+																		<strong><a href="{!$Page.CommunityProfilePage}?id={!message.Sender.MemberId}" title="{!message.Sender.MemberName}">{!message.Sender.MemberName} {!message.Sender.MemberRole} {!message.Sender.MemberContactRole}</a></strong>
+																		<small><apex:outputText value="{!message.SentDateFormatted}" /></small>
+																	</h4>
+																	<p>{!message.MessageBody.Text}</p>
+																</div>
+															</div>
+														</li>
+													</apex:repeat>
+												</ul>
+											</apex:outputPanel>
+										</div>
+										<apex:outputPanel styleClass="panel-footer  overflow-h" id="streamReplyInputContainer" layout="block">
+											<div class="row">
+												<div class="sky-form">
+													<fieldset>
+														<section>
+															<label class="label">Write a reply...</label>
+															<label class="textarea">
+																<i class="icon-append fa fa-comment"></i>
+																<textarea name="replyBody" id="replyBody" placeholder="Write a reply..."></textarea><!--rows="4"-->
+																<div id="replyErrorMessage" class="note note-error" style="display:none;">Error: Your message can't have more than 10,000 characters.</div>
+															</label>
+														</section>
+														<div class="pull-right">
+															<div class="pull-right">
+																<span>&nbsp;</span>
+																<button  class="button state-disabled" type="button" onclick="replyButtonHandler('{!CurrentConversation.ConversationId}', '{!IF(CurrentConversation.Messages.size>0, CurrentConversation.Messages[CurrentConversation.Messages.size-1].MessageId+'', '')}')" id="sendReplyButton"  title="Reply" disabled="disabled" >
+																	Reply
+																</button>
+															</div>
+														</div>
+													</fieldset>
+												</div>
+											</div>
+										</apex:outputPanel>
+									</apex:outputPanel>
+									<!--SINGLE CONVERSATION-->
+								</apex:outputPanel>
+								<!--CENTER-->
+							</div>
+						</div>
+						<!--MIDDLE-->
+					</div>
+				</div>
+				<div class="modal fade" id="newConversationModal" tabindex="-1" role="dialog" aria-labelledby="newConversationModalLabel" aria-hidden="true" style="display: none;">
+					<div class="modal-dialog">
+						<div class="modal-content sky-form">
+							<div class="modal-header">
+								<button aria-hidden="true" data-dismiss="modal" class="close" type="button">&times;</button>
+								<h4 id="newConversationModalLabel" class="modal-title">Send a Message</h4>
+							</div>
+							<div class="modal-body">
+								<div class="row">
+									<div class="col-md-12">
+										<div class="form-group">
+											<label for="recipientInputBox">To</label>
+											<div class="clearfix">
+												<ul class="typeahead-choices clearfix" id="recipientsContainer">
+													<li class="search-field">
+														<input type="text" class="form-control" id="recipientInputBox" name="recipientInputBox" placeholder="To..." autocomplete="off"/>
+													</li>
+												</ul>
+											</div>
+											<div id="recipientsFullMessage" class="has-error" style="display:none;">
+												<span class="help-block">Error: You cant select more than 9 recipients.</span>
+												<span class="help-block">Tip: To have conversations with more than a few people, try using a group.</span>
+											</div>
+										</div>
+										<div class="form-group">
+											<label for="message">Message</label>
+											<textarea name="message" class="form-control" id="newConversationMessageBody" placeholder="Message..."></textarea>
+											<span id="messageMaxErrorMessage" class="has-error" style="display:none;">
+												<p class="help-block">Error: Your message cant have more than 10,000 characters.</p>
+											</span>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="modal-footer">
+								<button data-dismiss="modal" type="button" class="button btn-u-default" id="closeDialogButton" value="Cancel" title="Cancel">Cancel</button>
+								<button type="button" class="button state-disabled" id="newConversationButton" title="Send" disabled="disabled">Send</button>
+							</div>
+						  </div>
+					</div>
+				</div>
+			</div>
+		</apex:define>
+		<apex:define name="scripts">
+			<!--<apex:includeScript value="{!$Resource.CommunityResources}/js/jquery-1.11.2.min.js" />-->
+			<script type="text/javascript" src="{!$Resource.CommunityResources}/js/Typeahead/typeahead.bundle.custom.js" ></script>
+			<script type="text/javascript" src="{!$Resource.CommunityResources}/js/underscore/underscore-min.js" ></script>
+
+			<script type="text/template" id="messageRowTemplate">
+				<li class="messageRow">
+					<div class="messagePhoto">
+						<span class="chatter-avatarRegular chatter-avatar" title="<%= message.Sender.MemberName}">
+							<img src="<%= message.Sender.MemberPhotoUrl %>" alt="<%= message.Sender.MemberName %>" width="45" height="45" class="chatter-photo" title="<%= message.Sender.MemberName %>" />
+							<img src="/s.gif" alt="" class="chatter-avatarStyle" title="" />
+						</span>
+					</div>
+					<div class="messageTimestamp">
+						<div class="streamTimestamp">
+							<%= message.SentDateFormatted %>
+						</div>
+					</div>
+					<div class="messageContent">
+						<div class="messageSender">
+							<a href="{!$Page.CommunityProfilePage}?id=<%= message.Sender.MemberId %>" title="<%= message.Sender.MemberName %>"><%= message.Sender.MemberName %></a>
+						</div>
+						<div class="messageBody"><%= message.MessageBody.Text %></div>
+					</div>
+					<div class="clearingBox" layout="block"></div>
+				</li>
+			</script>
+			<script type="text/template" id="suggestionTemplate">
+                <img class="rounded-x" src="<%= MemberPhotoUrl %>" alt="<%= MemberName %>">
+                <div class="overflow-h">
+                    <span><strong><%= MemberName %></strong></span>
+                </div>    
+			</script>
+			<script type="text/template" id="suggestionSelectedTemplate">
+				<li class="search-choice item_<%= member.MemberId %>" data-member="<%= member.MemberId %>">
+					<span><%= member.MemberName %></span>
+					<button class="close tt-close" type="button" data-member="<%= member.MemberId %>">&times;</button>
+				</li>
+			</script>
+
+			<script type="text/javascript">
+				var RECIPIENTS_LIMIT = 9;
+				var REPLY_TEXT_LIMIT = 10000;
+				var REPLY_BODY_ELEMENT = '#replyBody';
+				var REPLY_SEND_BUTTON_ELEMENT = '#sendReplyButton';
+				var REPLY_ERROR_MESSAGE_ELEMENT = '#replyErrorMessage';
+				var MESSAGE_CONTAINER_ELEMENT = '#messageContainer';
+				var MESSAGES_QUICK_FIND_INPUT = '#messageSearchInput';
+				var MESSAGES_PER_PAGE = {!MessagesPerPage};
+				var RECIPIENT_INPUT_BOX = '#recipientInputBox';
+				var RECIPIENTS_CONTAINER = '#recipientsContainer';
+
+				var BTN_DISABLED_CLASS= 'state-disabled';
+
+				$(document).ready(function() {
+					$(document).on('keyup', REPLY_BODY_ELEMENT, function(event) {
+						event.preventDefault();
+						messageValidationHandler (REPLY_BODY_ELEMENT, REPLY_ERROR_MESSAGE_ELEMENT, BTN_DISABLED_CLASS, REPLY_SEND_BUTTON_ELEMENT, REPLY_TEXT_LIMIT);
+					});
+					$(document).on('keyup', '#newConversationMessageBody', function(event) {
+						event.preventDefault();
+						messageValidationHandler('#newConversationMessageBody', '#messageMaxErrorMessage', BTN_DISABLED_CLASS, '#newConversationButton', REPLY_TEXT_LIMIT);
+					});
+					initScrollbars();
+					newConversationHandler();
+
+					$(document).on('click', '.conversation_nav', function(event) {
+						event.preventDefault();
+						var pt = $(this).data('nextToken');
+						showMoreConversations($(MESSAGES_QUICK_FIND_INPUT).val(), pt);
+					});
+
+					$(document).on('click', '.tt-close', function(event) {
+						var memberId = $(this).data('member');
+						$(this).parent().remove();
+						$(RECIPIENT_INPUT_BOX).val('');
+						newConversationValidationHandler('#newConversationButton', BTN_DISABLED_CLASS);
+					});
+					/*$(RECIPIENT_INPUT_BOX).focusout(function(event) {
+						//alert(1111);
+						$(this).val('');
+					});*/
+					$(document).on('click', '#newConversationButton', function(event) {
+						/*var replyLoader = $("span[id$=replyLoading\\.start]");
+						replyLoader.show();*/
+
+						var replyMessage = $('#newConversationMessageBody').val();
+						var recipients = [];
+						$.each($('li.search-choice'), function(i, item) {
+							recipients.push($(item).data('member'));
+						})
+
+						Visualforce.remoting.Manager.invokeAction(
+							'{!$RemoteAction.CommunityFeed_MyMessagesController.sendMessage}',
+							replyMessage,
+							recipients.join(),
+							function(result, event) {
+								goToConversation(result);
+								//replyLoader.hide();
+								$('#newConversationModal').modal('hide');
+								$('li.search-choice').remove();
+								$('#newConversationMessageBody').val('');
+								messageValidationHandler('#newConversationMessageBody', '#messageMaxErrorMessage', BTN_DISABLED_CLASS, '#newConversationButton', REPLY_TEXT_LIMIT);
+							}
+						);
+					});
+				});
+				function newConversationValidationHandler(btn, disabled_cls ) {
+					var elements = $('li.search-choice');
+					var limitError = $('#recipientsFullMessage');
+					if (elements.length == RECIPIENTS_LIMIT) {
+						limitError.show();
+						$('li.search-field').hide();
+					} else {
+						limitError.hide();
+						$('li.search-field').show();
+					}
+					if (elements.length == 0) {
+						$(btn).addClass(disabled_cls).attr('disabled', 'disabled');
+					} else {
+						$(btn).removeClass(disabled_cls).removeAttr('disabled');
+					}
+					messageValidationHandler('#newConversationMessageBody', '#messageMaxErrorMessage', disabled_cls, btn, REPLY_TEXT_LIMIT);
+				}
+				function messageValidationHandler (el, err_el, disabled_cls, btn, txt_lim) {
+					var replyText = $(el).val();
+					console.log(replyText && replyText.length < txt_lim);
+					console.log(replyText && replyText.length > txt_lim && !$(err_el).is(':visible'));
+					console.log(!replyText);
+					if (replyText && replyText.length < txt_lim) {
+						if ($(err_el).is(':visible')) {
+							$(err_el).hide();
+						}
+						$(btn).removeClass(disabled_cls).removeAttr('disabled');
+					}
+					else if (replyText && replyText.length > txt_lim && !$(err_el).is(':visible')) {
+						$(err_el).show();
+						$(btn).addClass(disabled_cls).attr('disabled', 'disabled');
+					} else if (!replyText) {
+						$(btn).addClass(disabled_cls).attr('disabled', 'disabled');
+					}
+				}
+				function initScrollbars () {
+					$('.contentHolder').perfectScrollbar();
+				}
+				function messagesContainerHeightHandler() {
+					var h = document.documentElement.clientHeight - $(MESSAGE_CONTAINER_ELEMENT).position().top - $(MESSAGE_CONTAINER_ELEMENT).height();
+					$(MESSAGE_CONTAINER_ELEMENT).css('max-height', h);
+					$(MESSAGE_CONTAINER_ELEMENT).scrollTop($(MESSAGE_CONTAINER_ELEMENT).height());
+				}
+				function initPrivateConversation() {
+					initScrollbars();
+
+					$(REPLY_BODY_ELEMENT).focus(function(){
+						$(this).animate({height:'94px'});
+					});
+
+					$(REPLY_BODY_ELEMENT).blur(function(){
+						$(this).animate({height:'56px'});
+					});
+					messagesContainerHeightHandler();
+				}
+				function replyButtonHandler(conversationId, lastMessageId) {
+					var replyLoader = $("div[id$=replyLoading\\.start]");
+					replyLoader.show();
+					var replyMessage = $(REPLY_BODY_ELEMENT).val();
+					Visualforce.remoting.Manager.invokeAction(
+						'{!$RemoteAction.CommunityFeed_MyMessagesController.postMessage}',
+						conversationId,
+						replyMessage,
+						lastMessageId,
+						function(result, event) {
+							refreshConversation(conversationId);
+							replyLoader.hide();
+							/*var messagesContainer = $(MESSAGE_CONTAINER_ELEMENT);
+							var templateElement = $(MESSAGE_CONTAINER_ELEMENT + ' li.messageRow')[0];
+							for (var i = 0, j = result.length; i < j; i++) {
+								messagesContainer.append(messageTemplateHandler(templateElement, result[i]));
+							};
+							$(REPLY_BODY_ELEMENT).val('');
+							$(REPLY_SEND_BUTTON_ELEMENT).addClass('zen-disabledBtn').attr('disabled', 'disabled');*/
+						}
+					);
+				}
+
+				function messageTemplateHandler(el, message) {
+					return _.template($('#messageRowTemplate').html(), {message: message});
+				}
+				function newConversationHandler() {
+					function loadRecipients(query, process) {
+						Visualforce.remoting.Manager.invokeAction(
+							'{!$RemoteAction.CommunityFeed_MyMessagesController.searchUsers}',
+							query,
+							function(result, event) {
+								window.suggestedRecipients = [];
+								$.each( result, function( key, value ) {
+								  suggestedRecipients.push(value);
+								});
+								process(suggestedRecipients);
+							}
+						);
+					}
+					window.lazyLoad = _.debounce(loadRecipients, 300);
+					//UNDERSCORE CONFIG
+					var suggestedTemplate = $('#suggestionTemplate').html();
+					var suggestionSelectedTemplate = $('#suggestionSelectedTemplate').html();
+
+					//UNDERSCORE CONFIG
+					function ttHandler(event, memberData, name) {
+						var alreadyAdded = $('li.search-choice.item_'+memberData.MemberId);
+						if (alreadyAdded.length == 0) {
+							$(RECIPIENTS_CONTAINER).prepend(_.template(suggestionSelectedTemplate)({ member: memberData}));
+						}
+						$(this).val('');
+						newConversationValidationHandler('#newConversationButton', BTN_DISABLED_CLASS);
+					}
+					var recipientInput = $(RECIPIENT_INPUT_BOX);
+					recipientInput.typeahead({
+							hint: true, 
+							highlight: true,
+							minLength: 1
+						},
+						{
+							name: 'suggestedRecipients',
+							displayKey: 'MemberName',
+							source: function (query, process) {
+								lazyLoad(query, process);
+							},
+							templates: {
+								empty: [
+								  '<span><strong>Ooops! Nothing found.</strong></span>',
+								].join('\n'),
+								suggestion: _.template(suggestedTemplate)
+							}
+						}
+					).bind('typeahead:selected', function(event, memberData, name) {
+						ttHandler(event, memberData, name);
+					}).bind('typeahead:closed', function() {$(RECIPIENT_INPUT_BOX).val('');});
+				}
+				function searchStatusBtn() {
+					$('#messageSearchButton').attr('disabled','disabled').addClass('disabled');
+					$('#messageSearchButton .fa-search').hide();
+					$('#messageSearchButton .fa-spinner').show();
+				}
+			</script>
+			<style type="text/css">
+				.media.conversation:hover {
+					background: #e5f6d5;
+				}
+				.profile .panel-heading {
+					background-color: #f7f7f7;
+				}
+				.typeahead-choices {
+					position: relative;
+					margin: 0;
+					padding: 0;
+					width: 100%;
+					height: auto !important;
+					height: 1%;
+					border: 1px solid #aaa;
+					background-color: #fff;
+					background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(1%, #eeeeee), color-stop(15%, #ffffff));
+					background-image: -webkit-linear-gradient(#eeeeee 1%, #ffffff 15%);
+					background-image: -moz-linear-gradient(#eeeeee 1%, #ffffff 15%);
+					background-image: -o-linear-gradient(#eeeeee 1%, #ffffff 15%);
+					background-image: linear-gradient(#eeeeee 1%, #ffffff 15%);
+					cursor: text;
+				}
+				.typeahead-choices li.search-choice {
+					position: relative;
+					margin: 4px 2px 3px;
+					padding: 2px 3px;
+					border: 1px solid #aaa;
+					max-width: 100%;
+					border-radius: 3px;
+					background-color: #eeeeee;
+					background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(20%, #f4f4f4), color-stop(50%, #f0f0f0), color-stop(52%, #e8e8e8), color-stop(100%, #eeeeee));
+					background-image: -webkit-linear-gradient(#f4f4f4 20%, #f0f0f0 50%, #e8e8e8 52%, #eeeeee 100%);
+					background-image: -moz-linear-gradient(#f4f4f4 20%, #f0f0f0 50%, #e8e8e8 52%, #eeeeee 100%);
+					background-image: -o-linear-gradient(#f4f4f4 20%, #f0f0f0 50%, #e8e8e8 52%, #eeeeee 100%);
+					background-image: linear-gradient(#f4f4f4 20%, #f0f0f0 50%, #e8e8e8 52%, #eeeeee 100%);
+					background-size: 100% 19px;
+					background-repeat: repeat-x;
+					background-clip: padding-box;
+					box-shadow: 0 0 2px white inset, 0 1px 0 rgba(0, 0, 0, 0.05);
+					color: #333;
+					cursor: default;
+					float: left;
+				}
+				.typeahead-choices li.search-field {
+					float: left;
+				}
+				.typeahead-choices li {
+					list-style: none;
+				}
+				.typeahead-choices .notification:hover {
+					background: #eee;
+					cursor: pointer;
+				}
+				.tt-dropdown-menu {
+					width: 410px;
+					left: 69px;
+					top: 43px;
+					z-index: 200;
+					height: auto;
+				}
+				.tt-dataset-suggestedRecipients {
+					padding: 0 0;
+					display: block;
+					position: absolute;
+					border: 1px solid #7d7d84;
+					background: #fff;
+					width: 27em;
+					z-index: 90;
+				}
+				.tt-input {
+					border: none;
+				}
+				.conversation { cursor: pointer;}
+				.conversation.unread .indicator {
+					position: absolute;
+					right: 0;
+					top: 0;
+				}
+				.conversation.unread p {
+					font-weight: bold;
+				}
+
+			</style>
+		</apex:define>
+
+	</apex:composition>
+</apex:page>
