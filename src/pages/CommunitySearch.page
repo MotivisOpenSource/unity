@@ -258,7 +258,7 @@
 				function leaveGroup(groupId, CurrentMemberRole, NotAMemberStatus) {
 					if(confirm('Are you sure you want to leave this group?')) {
 						Visualforce.remoting.Manager.invokeAction(
-							'CommunitySearchController.leaveGroup',
+							'{!$RemoteAction.CommunitySearchController.leaveGroup}',
 							groupId,
 							function(result, event) {
 							},
@@ -288,7 +288,7 @@
 
 				function jointToGroup(groupId) {
 					Visualforce.remoting.Manager.invokeAction(
-						'CommunitySearchController.jointToGroup',
+						'{!$RemoteAction.CommunitySearchController.jointToGroup}',
 						groupId,
 						function(result, event) {
 						},
@@ -302,7 +302,7 @@
 				function cancelRequestToJoin(groupId) {
 					if(confirm('{!$Label.LBL_CancelRequest_Message}')) {
 						Visualforce.remoting.Manager.invokeAction(
-							'CommunitySearchController.calcelRequestToJoin',
+							'{!$RemoteAction.CommunitySearchController.calcelRequestToJoin}',
 							groupId,
 							function(result, event) {
 							},
@@ -315,7 +315,7 @@
 
 				function requestToJoin(groupId) {
 					Visualforce.remoting.Manager.invokeAction(
-						'CommunitySearchController.requestToJoin',
+						'{!$RemoteAction.CommunitySearchController.requestToJoin}',
 						groupId,
 						function(result, event) {
 						},

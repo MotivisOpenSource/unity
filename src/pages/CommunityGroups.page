@@ -216,7 +216,7 @@
 					$scope.confirmLeaveGroup = function(groupId) {
 						if(confirm('{!$Label.LBL_LeaveGroup_Message}')) {
 							Visualforce.remoting.Manager.invokeAction(
-								'CommunityGroupsController.leaveGroup',
+								'{!$RemoteAction.CommunityGroupsController.leaveGroup}',
 								groupId,
 								function(result, event) {
 
@@ -242,7 +242,7 @@
 
 					$scope.confirmjointToGroup = function(groupId) {
 						Visualforce.remoting.Manager.invokeAction(
-							'CommunityGroupsController.jointToGroup',
+							'{!$RemoteAction.CommunityGroupsController.jointToGroup}',
 							groupId,
 							function(result, event) {
 							},
@@ -258,7 +258,7 @@
 
 					$scope.requestToJoin = function(groupId) {
 						Visualforce.remoting.Manager.invokeAction(
-							'CommunityGroupsController.requestToJoin',
+							'{!$RemoteAction.CommunityGroupsController.requestToJoin}',
 							groupId,
 							function(result, event) {
 							},
@@ -276,7 +276,7 @@
 					$scope.calcelRequestToJoin = function(groupId) {
 						if(confirm('{!$Label.LBL_CancelRequest_Message}')) {
 							Visualforce.remoting.Manager.invokeAction(
-								'CommunityGroupsController.calcelRequestToJoin',
+								'{!$RemoteAction.CommunityGroupsController.calcelRequestToJoin}',
 								groupId,
 								function(result, event) {
 								},
