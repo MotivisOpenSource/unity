@@ -12,7 +12,7 @@
 			<apex:pageBlockButtons >
 				<button type="button" class="btn-u" onclick="submitResource();return false;">{!$Label.BTN_Submit}</button>
 				&nbsp;
-				<apex:outputLink value="{!IF(ISBLANK($CurrentPage.parameters.retURL),$Page.CommunityResources,$CurrentPage.parameters.retURL)}" styleClass="btn-u">{!$Label.BTN_Cancel}</apex:outputLink>
+				<apex:outputLink value="{!IF(ISBLANK($CurrentPage.parameters.retURL),$Page.CommunityResources,JSENCODE($CurrentPage.parameters.retURL))}" styleClass="btn-u">{!$Label.BTN_Cancel}</apex:outputLink>
 			</apex:pageBlockButtons>
 			<apex:pageBlockSection id="crpbs1" columns="1" collapsible="false">
 				<apex:repeat value="{!fieldset}" var="fs">

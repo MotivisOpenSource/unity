@@ -42,45 +42,59 @@
 										<div class="clearfix margin-bottom-20"></div>
 										<p>{!g.GroupDescription}</p>
 										<hr />
-										<ul class="list-inline share-list" >
-											<li><i class="fa fa-group"></i><a href="#">{!g.GroupMembersCount} Followers</a></li>
+										<ul id="gr{!g.GroupId}" class="list-inline share-list" >
+											<li><i class="fa fa-group"></i><span name="folc">{!g.GroupMembersCount}</span>&nbsp;Followers</li>
 											<!--li style="padding-left: 5px;"><i class="fa fa-share"></i><a href="#">Share</a></li-->
-											<li id="leave-this-group-button-member-{!g.GroupId}" style="{!IF(g.CurrentMemberRole == 'Standard', 'padding-left: 5px;', 'display:none;padding-left: 5px;')}">
-												<a  class="btn-u" onclick="leaveGroup('{!g.GroupId}', '{!g.CurrentMemberRole}', '{!g.NotAMemberStatus}');" style="margin-left:3px;">
-													<span><i class="fa fa-check" style="color:#FFFFFF;"></i>&nbsp;{!$Label.LBL_Member}</span>
-												</a>
-											</li>
-											<li style="{!IF(g.CurrentMemberRole == 'Owner',  '', 'display:none;')}" >
-												<a  class="btn-u" style="margin-left:3px;">
-													<span><i class="fa fa-star" style="color:#FFFFFF;"></i>&nbsp;{!$Label.LBL_Owner}</span>
-												</a>
-											</li>
-											<li id="leave-this-group-button-manage-{!g.GroupId}" style="{!IF(g.CurrentMemberRole == 'Admin',  '', 'display:none;')}" >
-												<a  class="btn-u" style="margin-left:3px;" onclick="leaveGroup('{!g.GroupId}', '{!g.CurrentMemberRole}', '{!g.NotAMemberStatus}');" >
-													<span><i class="fa fa-star-half-o" style="color:#FFFFFF;"></i>&nbsp;{!$Label.LBL_Manager}</span>
-												</a>
-											</li>
-											<li id="leave-this-group-button-join-{!g.GroupId}" style="{!IF(g.CurrentMemberRole == 'NotAMember' && g.NotAMemberStatus == 'Join', '', 'display:none;')}" >
-												<a class="btn btn-u btn-u-blue btn-xs" onclick="jointToGroup('{!g.GroupId}');">
-													<i class="fa fa-plus-circle" style="color:#FFFFFF;"></i>&nbsp;{!$Label.BTN_Join}
-												</a>
-											</li>
-											<li id="leave-this-group-button-requested-{!g.GroupId}" style="{!IF(g.CurrentMemberRole == 'NotAMember' && g.NotAMemberStatus == 'Requested',  '', 'display:none;')}" >
-												<a class="btn btn-u btn-u-orange btn-xs" onclick="cancelRequestToJoin('{!g.GroupId}');">
-													<i class="fa fa-times-circle" style="color:#FFFFFF;"></i>&nbsp;{!$Label.LBL_Requested}
-												</a>
-											</li>
-											<li id="leave-this-group-button-RequestToJoin-{!g.GroupId}" style="{!IF(g.CurrentMemberRole == 'NotAMember' && g.NotAMemberStatus == 'RequestToJoin',  '', 'display:none;')}" >
-												<a class="btn btn-u btn-u-blue btn-xs" onclick="requestToJoin('{!g.GroupId}');">
-													<i class="fa fa-plus-circle" style="color:#FFFFFF;"></i>&nbsp;{!$Label.LBL_RequestToJoin}
-												</a>
-											</li>
+											<apex:outputLink value="javascript:;" onclick="chckabtn('2','{!g.GroupId}');" styleClass="btn-u pull-right" rendered="{!g.CurrentMemberRole == 'Standard'}">
+												<i class="fa fa-check"></i>&nbsp;{!$Label.LBL_Member}
+											</apex:outputLink>
+											<apex:outputLink value="javascript:;" onclick="chckabtn('4','{!g.GroupId}');" styleClass="btn-u pull-right" rendered="{!g.CurrentMemberRole == 'Admin'}">
+												<i class="fa fa-star-half-o"></i>&nbsp;{!$Label.LBL_Manager}
+											</apex:outputLink>
+											<apex:outputLink value="javascript:;" onclick="chckabtn('1','{!g.GroupId}');" styleClass="btn-u btn-u-blue pull-right" rendered="{!g.CurrentMemberRole == 'NotAMember' && g.NotAMemberStatus == 'Join'}">
+												<i class="fa fa-plus-circle"></i>&nbsp;{!$Label.BTN_Join}
+											</apex:outputLink>
+											<apex:outputLink value="javascript:;" onclick="chckabtn('5','{!g.GroupId}');" styleClass="btn-u btn-u-blue pull-right" rendered="{!g.CurrentMemberRole == 'NotAMember' && g.NotAMemberStatus == 'RequestToJoin'}">
+												<i class="fa fa-plus-circle"></i>&nbsp;{!$Label.LBL_RequestToJoin}
+											</apex:outputLink>
+											<apex:outputLink value="javascript:;" onclick="chckabtn('6','{!g.GroupId}');" styleClass="btn-u btn-u-orange pull-right" rendered="{!g.CurrentMemberRole == 'NotAMember' && g.NotAMemberStatus == 'Requested'}">
+												<i class="fa fa-times-circle"></i>&nbsp;{!$Label.LBL_Requested}
+											</apex:outputLink>
+											<apex:outputLink value="javascript:;" onclick="chckabtn('0','{!g.GroupId}');" styleClass="btn-u pull-right" rendered="{!g.CurrentMemberRole == 'Owner'}">
+												<i class="fa fa-star"></i>&nbsp;{!$Label.LBL_Owner}
+											</apex:outputLink>
 										</ul>
 									</div>
 								</li>
 								</apex:repeat>
-
-
+								<script>
+									function chckabtn(a,gid) {
+										if (a != '0') {
+											var fa = true;
+											if (a == '2' || a == '4') {
+												fa = confirm('{!$Label.LBL_LeaveGroup_Message}');
+											}
+											else if (a == '6') {
+												fa = confirm('{!$Label.LBL_CancelRequest_Message}');
+											}
+											if (fa) {
+												$('#gr' + gid + ' a i').attr('class','fa fa-spinner fa-pulse');
+												Visualforce.remoting.Manager.invokeAction(
+													'{!$RemoteAction.CommunitySearchController.membershipGroup}',
+													$('#gr' + gid + ' [name=folc]').text(),
+													gid,
+													a,
+													function(result, event) {
+														var ihtml = '<li><i class="fa fa-group"></i><span name="folc">'+result.memberCount+'</span>&nbsp;Followers</li>';
+														ihtml += '<a href="javascript:;" onclick="chckabtn(\''+result.action+'\',\''+result.groupId+'\');" class="btn-u '+result.btnStyle+' pull-right">';
+														ihtml += '<i class="fa '+result.btnIcon+'"></i>&nbsp;'+result.btnLabel+'</a>';
+														$('#gr' + gid).html(ihtml);
+													}
+												);
+											}
+										}
+									}
+								</script>
 							</ul>
 						</apex:outputPanel>
 						<apex:form >
@@ -251,81 +265,6 @@
 				</apex:outputPanel>
 			</div>
 		</div>
-		</apex:define>
-		<apex:define name="scripts">
-			<script type="text/javascript">
-
-				function leaveGroup(groupId, CurrentMemberRole, NotAMemberStatus) {
-					if(confirm('Are you sure you want to leave this group?')) {
-						Visualforce.remoting.Manager.invokeAction(
-							'{!$RemoteAction.CommunitySearchController.leaveGroup}',
-							groupId,
-							function(result, event) {
-							},
-							{ buffer: true, escape: true, timeout: 30000 }
-						);
-
-						if (CurrentMemberRole == 'Admin') {
-							jQuery('[id$=leave-this-group-button-manage-' + groupId + ']').hide();
-							jQuery('[id$=leave-this-group-button-RequestToJoin-' + groupId + ']').show();
-						}
-						else if (CurrentMemberRole == 'NotAMember' && NotAMemberStatus == 'RequestToJoin') {
-							jQuery('[id$=leave-this-group-button-manage-' + groupId + ']').hide();
-							jQuery('[id$=leave-this-group-button-RequestToJoin-' + groupId + ']').show();
-						}
-
-						else if (CurrentMemberRole == 'Standard') {
-							jQuery('[id$=leave-this-group-button-member-' + groupId + ']').hide();
-							jQuery('[id$=leave-this-group-button-join-' + groupId + ']').show();
-						}
-						else if (CurrentMemberRole == 'NotAMember' && NotAMemberStatus == 'Join') {
-							jQuery('[id$=leave-this-group-button-member-' + groupId + ']').hide();
-							jQuery('[id$=leave-this-group-button-join-' + groupId + ']').show();
-						}
-
-					}
-				};
-
-				function jointToGroup(groupId) {
-					Visualforce.remoting.Manager.invokeAction(
-						'{!$RemoteAction.CommunitySearchController.jointToGroup}',
-						groupId,
-						function(result, event) {
-						},
-						{ buffer: true, escape: true, timeout: 30000 }
-					);
-					jQuery('[id$=leave-this-group-button-join-' + groupId + ']').hide();
-					jQuery('[id$=leave-this-group-button-member-' + groupId + ']').show();
-					console.log('[id$=leave-this-group-button-member-' + groupId + ']');
-				};
-
-				function cancelRequestToJoin(groupId) {
-					if(confirm('{!$Label.LBL_CancelRequest_Message}')) {
-						Visualforce.remoting.Manager.invokeAction(
-							'{!$RemoteAction.CommunitySearchController.calcelRequestToJoin}',
-							groupId,
-							function(result, event) {
-							},
-							{ buffer: true, escape: true, timeout: 30000 }
-						);
-						jQuery('[id$=leave-this-group-button-requested-' + groupId + ']').hide();
-						jQuery('[id$=leave-this-group-button-RequestToJoin-' + groupId + ']').show();
-					}
-				};
-
-				function requestToJoin(groupId) {
-					Visualforce.remoting.Manager.invokeAction(
-						'{!$RemoteAction.CommunitySearchController.requestToJoin}',
-						groupId,
-						function(result, event) {
-						},
-						{ buffer: true, escape: true, timeout: 30000 }
-					);
-					jQuery('[id$=leave-this-group-button-RequestToJoin-' + groupId + ']').hide();
-					jQuery('[id$=leave-this-group-button-requested-' + groupId + ']').show();
-				};
-
-			</script>
 		</apex:define>
 	</apex:composition>
 </apex:page>

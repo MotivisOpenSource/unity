@@ -3,21 +3,6 @@ public with sharing class CommunityNewsController {
 	public class CommunityNewsException extends Exception {}
 
 	// -- common variables --
-	public String imgPrefix {
-		get {
-			if (imgPrefix == NULL) {
-				imgPrefix = '';
-				Id nId = Network.getNetworkId();
-				if (nId != NULL) {
-					Network nRec = [SELECT UrlPathPrefix FROM Network WHERE Id = :nId];
-					imgPrefix = '/' + nRec.UrlPathPrefix;
-				}
-			}
-			return imgPrefix;
-		}
-		set;
-	}
-
 	private ApexPages.StandardController stdctrl;
 	@TestVisible private String mode;
 
@@ -118,6 +103,14 @@ public with sharing class CommunityNewsController {
 		else {
 			news.Entry_Date__c = Datetime.now();
 		}
+	}
+
+	public String getPostedStr() {
+		return Label.LBL_Posted + ' ' + news.Entry_Date__c.format('MM/dd/yyyy');
+	}
+
+	public String getNewsImage() {
+		return String.isBlank(news.Image_Path__c) ? NULL : CommunityUtils.checkUrl(news.Image_Path__c);
 	}
 
 	public PageReference cancel() {
@@ -225,21 +218,20 @@ public with sharing class CommunityNewsController {
 
 	// LIST SECTION
 	// -- variables --
-	public List<Community_News__c> newsPage { get;set; }
+	public List<List<NewsItem>> newsPage { get;set; }
 	public Integer newsPageNumber { get;set; }
 	public Integer newsPagesTotal { get;set; }
 	public Boolean newsHasNext { get;set; }
 	public Boolean newsHasPrevious { get;set; }
 	public Map<String, List<Tag>> tagsMap { get; set; }
 
-	private Integer NEWS_PAGE_SIZE = 25;
+	private Integer NEWS_PAGE_SIZE = 16;
 	private String TAGS_FILTER_NAME = 't';
 
 	// -- methods --
 	private void initList() {
-		List<String> communityNewsIdList = new List<String>();
-
-		String nQuery = 'SELECT Id, Image_Path__c, Title__c, Teaser__c FROM Community_News__c';
+		//List<String> communityNewsIdList = new List<String>();
+		String nQuery = 'SELECT Id, Image_Path__c, Title__c, Teaser__c, Entry_Date__c FROM Community_News__c';
 		nQuery += ' WHERE Entry_Date__c <= TODAY AND Expiration_Date__c > TODAY AND Alert__c = false';
 		Set<Id> cnIds = new Set<Id>();
 		try {
@@ -266,12 +258,20 @@ public with sharing class CommunityNewsController {
 		newsHasPrevious = newsPageNumber > 1;
 		Integer startCopyInterval = newsPageNumber > 1 ? ((newsPageNumber - 1) * NEWS_PAGE_SIZE) : 0;
 		Integer endCopyInterval = (nqlSize <= (startCopyInterval + NEWS_PAGE_SIZE)) ? nqlSize : (startCopyInterval + NEWS_PAGE_SIZE);
-		newsPage = new List<Community_News__c>();
+		newsPage = new List<List<NewsItem>>();
+		Integer divider = 1;
+		List<NewsItem> dividedList = new List<NewsItem>();
 		for (Integer ii = startCopyInterval; ii < endCopyInterval; ii++) {
-			newsPage.add(nQueryList[ii]);
-			communityNewsIdList.add(nQueryList[ii].Id);
+			if (divider == 5) {
+				newsPage.add(dividedList);
+				dividedList = new List<NewsItem>();
+				divider = 1;
+			}
+			dividedList.add(new NewsItem(nQueryList[ii]));
+			divider++;
+			//communityNewsIdList.add(nQueryList[ii].Id);
 		}
-		tagsMap = getTags(Page.CommunityNews.getUrl(), communityNewsIdList);
+		//tagsMap = getTags(Page.CommunityNews.getUrl(), communityNewsIdList);
 	}
 
 	public void newsNextPage() {
@@ -352,5 +352,21 @@ public with sharing class CommunityNewsController {
 	public class Tag {
 		public String Url { get; set; }
 		public String Name { get; set; }
+	}
+
+	public class NewsItem {
+		public String id { get; set; }
+		public String title { get; set; }
+		public String teaser { get; set; }
+		public String imgurl { get; set; }
+		public String posted { get; set; }
+
+		public NewsItem(Community_News__c inn) {
+			id = inn.Id;
+			title = inn.Title__c;
+			teaser = inn.Teaser__c;
+			imgurl = CommunityUtils.checkUrl(inn.Image_Path__c);
+			posted = Label.LBL_Posted + ' ' + inn.Entry_Date__c.format('MM/dd/yyyy');
+		}
 	}
 }

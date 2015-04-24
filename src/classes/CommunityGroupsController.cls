@@ -368,7 +368,7 @@ public without sharing class CommunityGroupsController {
 			currentChatterGroupId = communityGroupControllList[0].Id;
 		}
 
-		CommunityGroupManageController.membership(UserInfo.getUserId(), currentChatterGroupId, '2'); //remove member
+		CommunityUtils.membership(UserInfo.getUserId(), currentChatterGroupId, '2'); //remove member
 		return true;
 	}
 
@@ -385,27 +385,19 @@ public without sharing class CommunityGroupsController {
 			currentChatterGroupId = communityGroupControllList[0].Id;
 		}
 
-		CommunityGroupManageController.membership(UserInfo.getUserId(), currentChatterGroupId, '1'); //add member
+		CommunityUtils.membership(UserInfo.getUserId(), currentChatterGroupId, '1'); //add member
 		return true;
 	}
 
 	@RemoteAction
 	public static Boolean requestToJoin(String currentChatterGroupId) {
-
-		Boolean result = false;
-
-		result = CommunityUtils.createGroupMemberRequest(currentChatterGroupId, UserInfo.getUserId());
-
-		return result;
+		CommunityUtils.membership(UserInfo.getUserId(), currentChatterGroupId, '5');
+		return true;
 	}
 
 	@RemoteAction
 	public static Boolean calcelRequestToJoin(String currentChatterGroupId) {
-
-		Boolean result = false;
-
-		result = CommunityUtils.deleteGroupMemberRequest(currentChatterGroupId, UserInfo.getUserId());
-
+		CommunityUtils.membership(UserInfo.getUserId(), currentChatterGroupId, '6');
 		return true;
 	}
 

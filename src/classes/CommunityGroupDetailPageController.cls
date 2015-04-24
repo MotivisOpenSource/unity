@@ -4,7 +4,6 @@ public without sharing class CommunityGroupDetailPageController {
 	public CollaborationGroup chatterGroup { get; set; }
 
 	private ConnectApi.GroupMembershipType groupRole;
-	public CommunityGroupManageController.MemberPage members { get; set; }
 
 	// CONSTRUCTOR
 	public CommunityGroupDetailPageController() {
@@ -13,31 +12,19 @@ public without sharing class CommunityGroupDetailPageController {
 			chatterGroup = [SELECT Id, FullPhotoUrl, CollaborationType FROM CollaborationGroup WHERE Id = :control.Chatter_Group_ID__c];
 			groupRole = ConnectApi.ChatterGroups.getGroup(Network.getNetworkId(), chatterGroup.Id).MyRole;
 		}
-		members = new CommunityGroupManageController.MemberPage('members', (chatterGroup == NULL ? NULL : chatterGroup.Id), control);
+	}
+
+	public CommunityGroupManageController.MemberPage getMembers() {
+		return new CommunityGroupManageController.MemberPage('members', (chatterGroup == NULL ? NULL : chatterGroup.Id), control);
+	}
+
+	public Boolean getHideFeedComponent() {
+		return control.Type__c == 'Private' && (groupRole == ConnectApi.GroupMembershipType.NotAMember || groupRole == ConnectApi.GroupMembershipType.NotAMemberPrivateRequested);
 	}
 
 	public String groupMode { get; set; }
 	public void performGroupMembershipAction() {
-		if (groupMode == '1') {
-			CommunityUtils.membership(UserInfo.getUserId(), control.Id, '2'); //remove member
-			groupRole = ConnectApi.GroupMembershipType.NotAMember;
-		}
-		else if (groupMode == '2') {
-			CommunityUtils.membership(UserInfo.getUserId(), control.Id, '2'); //remove member
-			groupRole = ConnectApi.GroupMembershipType.NotAMember;
-		}
-		else if (groupMode == '3') {
-			CommunityUtils.membership(UserInfo.getUserId(), control.Id, '1');
-			groupRole = ConnectApi.GroupMembershipType.StandardMember;
-		}
-		else if (groupMode == '4') {
-			CommunityUtils.createGroupMemberRequest(chatterGroup.Id, UserInfo.getUserId());
-			groupRole = ConnectApi.GroupMembershipType.NotAMemberPrivateRequested;
-		}
-		else if (groupMode == '5') {
-			CommunityUtils.deleteGroupMemberRequest(chatterGroup.Id, UserInfo.getUserId());
-			groupRole = ConnectApi.GroupMembershipType.NotAMember;
-		}
+		groupRole = CommunityUtils.membership(UserInfo.getUserId(), control.Id, groupMode);
 	}
 
 	@RemoteAction
@@ -55,51 +42,8 @@ public without sharing class CommunityGroupDetailPageController {
 		return '';
 	}
 
-	public GroupAction getActionButton() {
-		GroupAction ga = new GroupAction();
-		if (groupRole == ConnectApi.GroupMembershipType.GroupOwner) {
-			ga.btnLabel = Label.LBL_Owner;
-			ga.btnIcon = 'fa-star';
-			ga.title = '';
-			ga.action = '0';
-			ga.btnStyle = '';
-		}
-		else if (groupRole == ConnectApi.GroupMembershipType.GroupManager) {
-			ga.btnLabel = Label.LBL_Manager;
-			ga.btnIcon = 'fa-star-half-o';
-			ga.title = Label.LBL_Leave_Group;
-			ga.action = '1';
-			ga.btnStyle = '';
-		}
-		else if (groupRole == ConnectApi.GroupMembershipType.StandardMember) {
-			ga.btnLabel = Label.LBL_Member;
-			ga.btnIcon = 'fa-check';
-			ga.title = Label.LBL_Leave_Group;
-			ga.action = '2';
-			ga.btnStyle = '';
-		}
-		else if (groupRole == ConnectApi.GroupMembershipType.NotAMember) {
-			if (chatterGroup.CollaborationType == 'Public') {
-				ga.btnLabel = Label.BTN_Join;
-				ga.title = Label.BTN_Join;
-				ga.action = '3';
-			}
-			else {
-				ga.btnLabel = Label.LBL_RequestToJoin;
-				ga.title = Label.LBL_RequestToJoin;
-				ga.action = '4';
-			}
-			ga.btnStyle = ' btn-u-blue';
-			ga.btnIcon = 'fa-plus-circle';
-		}
-		else if (groupRole == ConnectApi.GroupMembershipType.NotAMemberPrivateRequested) {
-			ga.btnLabel = Label.LBL_Requested;
-			ga.btnIcon = 'fa-times-circle';
-			ga.title = Label.LBL_Leave_Group;
-			ga.action = '5';
-			ga.btnStyle = ' btn-u-orange';
-		}
-		return ga;
+	public CommunityUtils.GroupAction getActionButton() {
+		return CommunityUtils.getActionButton(groupRole, chatterGroup.CollaborationType == 'Public');
 	}
 
 	public List<GroupEvent> getEvents() {
@@ -149,14 +93,6 @@ public without sharing class CommunityGroupDetailPageController {
 			name = ince.Name__c;
 			ftime = ince.Start__c == NULL ? '' : ince.Start__c.format();
 		}
-	}
-
-	public class GroupAction {
-		public String btnLabel { get; set; }
-		public String btnIcon { get; set; }
-		public String title { get; set; }
-		public String action { get; set; }
-		public String btnStyle { get; set; }
 	}
 
 		public static void test1() {

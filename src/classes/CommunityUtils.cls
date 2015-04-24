@@ -32,70 +32,6 @@ public class CommunityUtils {
 		return Result;
 	}
 
-	public static Boolean createGroupMemberRequest(String ChatterGroupId, String UserId) {
-
-		Boolean Result = false;
-		List<CollaborationGroupMemberRequest> GroupMemberRequestList = new List<CollaborationGroupMemberRequest>();
-
-		if (!String.isBlank(ChatterGroupId) && !String.isBlank(UserId)) {
-			GroupMemberRequestList = [
-				SELECT Id
-				FROM CollaborationGroupMemberRequest
-				WHERE CollaborationGroupID =: ChatterGroupId
-				AND RequesterID =: UserId
-				AND Status = 'Pending'
-				LIMIT 1
-			];
-		}
-
-		if (!GroupMemberRequestList.isEmpty()) {
-			Result = true;
-		}
-		else {
-			try {
-				CollaborationGroupMemberRequest GroupMemberRequest = new CollaborationGroupMemberRequest();
-				GroupMemberRequest.CollaborationGroupID = ChatterGroupId;
-				GroupMemberRequest.RequesterID = UserId;
-				insert GroupMemberRequest;
-				Result = true;
-			}
-			catch(exception e) {
-				Result = false;
-			}
-		}
-
-		return Result;
-	}
-
-	public static Boolean deleteGroupMemberRequest(String ChatterGroupId, String UserId) {
-
-		Boolean Result = false;
-		List<CollaborationGroupMemberRequest> GroupMemberRequestList = new List<CollaborationGroupMemberRequest>();
-
-		if (!String.isBlank(ChatterGroupId) && !String.isBlank(UserId)) {
-			GroupMemberRequestList = [
-				SELECT Id
-				FROM CollaborationGroupMemberRequest
-				WHERE CollaborationGroupID =: ChatterGroupId
-				AND RequesterID =: UserId
-				AND Status = 'Pending'
-				LIMIT 1
-			];
-		}
-
-		if (!GroupMemberRequestList.isEmpty()) {
-			try {
-				delete GroupMemberRequestList;
-				Result = true;
-			}
-			catch(exception e) {
-				Result = false;
-			}
-		}
-
-		return Result;
-	}
-
 	public static Boolean canCreateGroup() {
 		Boolean canCreateGroup = [SELECT PermissionsChatterOwnGroups FROM Profile WHERE Id =: UserInfo.getProfileId()].PermissionsChatterOwnGroups;
 		if (canCreateGroup != true) {
@@ -109,49 +45,173 @@ public class CommunityUtils {
 		return canCreateGroup;
 	}
 
-	/*
-		inUserId - user to proccess
-		inGroupContolId - group control to reference
-		inMode:
-			1 - add member
-			2 - remove member
-			3 - add manager
-			4 - remove manager
-	*/
-	public static String membership(String inUserId, String inGroupContolId, String inMode) {
+	// inUserId - user to proccess
+	// inGroupContolId - group control to reference
+	// inMode - action mode
+	public static ConnectApi.GroupMembershipType membership(String inUserId, String inGroupContolId, String inMode) {
+		ConnectApi.GroupMembershipType resultType;
 		Integer inmm = Integer.valueOf(inMode);
 		Community_Group_Control__c cgc = [SELECT Id, Chatter_Group_ID__c FROM Community_Group_Control__c WHERE Id =:inGroupContolId];
+		List<CollaborationGroupMember> cgmList = [SELECT Id, CollaborationRole FROM CollaborationGroupMember WHERE MemberId =:inUserId AND CollaborationGroupId =:cgc.Chatter_Group_ID__c];
+		// 1 - Create Chatter Group Member
+		// 2 - Delete Chatter Group Member
 		if (inmm < 3) {
-			List<CollaborationGroupMember> cgmList = [SELECT Id FROM CollaborationGroupMember WHERE MemberId =:inUserId AND CollaborationGroupId =:cgc.Chatter_Group_ID__c];
 			if (inmm == 2) {
 				delete cgmList;
+				resultType = ConnectApi.GroupMembershipType.NotAMember;
 			}
 			else if (cgmList.size() == 0) {
-				NetworkMember nm = [SELECT Id, DefaultGroupNotificationFrequency FROM NetworkMember WHERE MemberId = :UserInfo.getUserId() AND NetworkId = :Network.getNetworkId()];
+				NetworkMember nm = [SELECT Id, DefaultGroupNotificationFrequency FROM NetworkMember WHERE MemberId = :inUserId AND NetworkId = :Network.getNetworkId()];
 				insert new CollaborationGroupMember(MemberId = inUserId, CollaborationGroupId = cgc.Chatter_Group_ID__c, NotificationFrequency = nm.DefaultGroupNotificationFrequency);
+				resultType = ConnectApi.GroupMembershipType.StandardMember;
 			}
 		}
-		else {
+		// 3 - Create Group Manager
+		// 4 - Delete Group Manager
+		else if (inmm < 5) {
 			List<Community_Group_Manager__c> cgmList2 = [SELECT Id FROM Community_Group_Manager__c WHERE Group_Manager_User__c =:inUserId AND Group_Control__c =:cgc.Id];
 			List<EntitySubscription> esList2 = [SELECT Id FROM EntitySubscription WHERE ParentId = :cgc.Id AND SubscriberId = :inUserId];
 			if (inmm == 4) {
 				delete cgmList2;
 				delete esList2;
+				if (cgmList.size() > 0 && cgmList[0].CollaborationRole == 'Admin') {
+					cgmList[0].CollaborationRole = 'Standard';
+					update cgmList;
+				}
+				resultType = ConnectApi.GroupMembershipType.StandardMember;
 			}
 			else {
+				if (cgmList.size() == 0) {
+					NetworkMember nm = [SELECT Id, DefaultGroupNotificationFrequency FROM NetworkMember WHERE MemberId = :inUserId AND NetworkId = :Network.getNetworkId()];
+					insert new CollaborationGroupMember(MemberId = inUserId, CollaborationGroupId = cgc.Chatter_Group_ID__c, NotificationFrequency = nm.DefaultGroupNotificationFrequency);
+				}
+				else if (cgmList[0].CollaborationRole == 'Standard') {
+					cgmList[0].CollaborationRole = 'Admin';
+					update cgmList;
+				}
 				if (cgmList2.size() == 0) {
 					insert new Community_Group_Manager__c(Group_Manager_User__c = inUserId, Group_Control__c = cgc.Id);
 				}
 				if (esList2.size() == 0) {
 					insert new EntitySubscription(ParentId = cgc.Id, SubscriberId = inUserId, NetworkId = Network.getNetworkId());
 				}
+				resultType = ConnectApi.GroupMembershipType.GroupManager;
 			}
 		}
-		return 'ok:' + inMode + ':' + inUserId;
+		// 5 - Create Join Private Group Request
+		// 6 - Delete Join Private Group Request
+		else {
+			List<CollaborationGroupMemberRequest> cgmrList = [SELECT Id FROM CollaborationGroupMemberRequest WHERE CollaborationGroupId =:cgc.Chatter_Group_ID__c AND RequesterId =:inUserId AND Status = 'Pending'];
+			if (inmm == 6) {
+				delete cgmrList;
+				resultType = ConnectApi.GroupMembershipType.NotAMember;
+			}
+			else {
+				if (cgmList.size() == 0 && cgmrList.size() == 0) {
+					insert new CollaborationGroupMemberRequest(CollaborationGroupId = cgc.Chatter_Group_ID__c, RequesterId = inUserId);
+				}
+				resultType = ConnectApi.GroupMembershipType.NotAMemberPrivateRequested;
+			}
+		}
+		return resultType;
 	}
 
 	public static String getPackagePrefix() {
 		return CommunityUtils.class.getName().substringBefore('CommunityUtils').replace('.','__');
+	}
+
+	public static void subscriberUser(Id memberId, Boolean isSubscribe) {
+		if (!isSubscribe) {
+			List<EntitySubscription> followings = [
+				Select SubscriberId, ParentId, IsDeleted, Id, CreatedDate, CreatedById
+				From EntitySubscription
+				WHERE SubscriberId =:Userinfo.getUserId()
+				AND ParentId = :memberId
+				LIMIT 1
+			];
+			if (!followings.isEmpty()) {
+				ConnectApi.Chatter.deleteSubscription(Network.getNetworkId(), followings[0].Id);
+			}
+		} else if (isSubscribe) {
+			ConnectApi.ChatterUsers.follow(Network.getNetworkId(), 'me', memberId);
+		}
+	}
+
+	public static GroupAction getActionButton(ConnectApi.GroupMembershipType groupRole, Boolean publicGroup) {
+		GroupAction ga = new GroupAction();
+		if (groupRole == ConnectApi.GroupMembershipType.GroupOwner) {
+			ga.btnLabel = Label.LBL_Owner;
+			ga.btnIcon = 'fa-star';
+			ga.title = '';
+			ga.action = '0';
+			ga.btnStyle = '';
+		}
+		else if (groupRole == ConnectApi.GroupMembershipType.GroupManager) {
+			ga.btnLabel = Label.LBL_Manager;
+			ga.btnIcon = 'fa-star-half-o';
+			ga.title = Label.LBL_Leave_Group;
+			ga.action = '4';
+			ga.btnStyle = '';
+		}
+		else if (groupRole == ConnectApi.GroupMembershipType.StandardMember) {
+			ga.btnLabel = Label.LBL_Member;
+			ga.btnIcon = 'fa-check';
+			ga.title = Label.LBL_Leave_Group;
+			ga.action = '2';
+			ga.btnStyle = '';
+		}
+		else if (groupRole == ConnectApi.GroupMembershipType.NotAMember) {
+			if (publicGroup) {
+				ga.btnLabel = Label.BTN_Join;
+				ga.title = Label.BTN_Join;
+				ga.action = '1';
+			}
+			else {
+				ga.btnLabel = Label.LBL_RequestToJoin;
+				ga.title = Label.LBL_RequestToJoin;
+				ga.action = '5';
+			}
+			ga.btnStyle = ' btn-u-blue';
+			ga.btnIcon = 'fa-plus-circle';
+		}
+		else if (groupRole == ConnectApi.GroupMembershipType.NotAMemberPrivateRequested) {
+			ga.btnLabel = Label.LBL_Requested;
+			ga.btnIcon = 'fa-times-circle';
+			ga.title = Label.LBL_Leave_Group;
+			ga.action = '6';
+			ga.btnStyle = ' btn-u-orange';
+		}
+		return ga;
+	}
+
+	private static String noImgUrl;
+	public static String checkUrl(String inUrl) {
+		if (String.isBlank(inUrl)) {
+			if (noImgUrl == NULL) {
+				String ns = getPackagePrefix();
+				List<StaticResource> srList = [SELECT SystemModstamp FROM StaticResource WHERE Name = 'assets' AND NamespacePrefix = :ns.replace('__','')];
+				noImgUrl = (srList.size() == 0)
+							? ''
+							: ('/resource/' + srList[0].SystemModstamp.getTime() +'/' + ns + 'assets/img/demo.jpg');
+			}
+			inUrl = noImgUrl;
+		}
+		if (String.isNotBlank(Site.getPathPrefix()) && !inUrl.startsWith(Site.getPathPrefix())) {
+			inUrl = Site.getPathPrefix() + inUrl;
+		}
+		return inUrl;
+	}
+
+	//wrapper classes
+
+	public class GroupAction {
+		public String btnLabel { get; set; }
+		public String btnIcon { get; set; }
+		public String title { get; set; }
+		public String action { get; set; }
+		public String btnStyle { get; set; }
+		public String groupId { get; set; }
+		public String memberCount { get; set; }
 	}
 
 	public static void test1() {

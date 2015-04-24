@@ -1,4 +1,10 @@
 <apex:page standardController="Community_News__c" extensions="CommunityNewsController" action="{!initFromEdit}" showHeader="false" sideBar="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false">
+
+<script src="{!$Resource.CommunityResources}/js/underscore/underscore-min.js"></script>
+<script type="text/javascript" src="{!$Resource.assets}/plugins/sky-forms/version-2.0.1/js/jquery-ui.min.js"></script>
+<apex:stylesheet value="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.css" />
+<script type="text/javascript" src="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.js"></script>
+
 <apex:composition template="{!$Site.Template}">
 <apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
 <apex:define name="body">
@@ -14,7 +20,7 @@
 				<apex:pageBlockButtons >
 					<apex:commandButton action="{!Submit}" value="{!$Label.BTN_Submit}" styleClass="btn-u"/>
 					&nbsp;
-					<apex:outputLink value="{!IF(ISBLANK($CurrentPage.parameters.retURL),$Page.CommunityNews,$CurrentPage.parameters.retURL)}" styleClass="btn-u">{!$Label.BTN_Cancel}</apex:outputLink>
+					<apex:outputLink value="{!IF(ISBLANK($CurrentPage.parameters.retURL),$Page.CommunityNews,JSENCODE($CurrentPage.parameters.retURL))}" styleClass="btn-u">{!$Label.BTN_Cancel}</apex:outputLink>
 					<!--apex:commandButton action="{!Cancel}" value="{!$Label.BTN_Cancel}"/-->
 				</apex:pageBlockButtons>
 				<apex:pageBlockSection id="cnpbs1" columns="1" collapsible="false">
@@ -93,7 +99,7 @@
 			$F('[id$=cnpbs1] textarea[id$=Content__c]').closest('tr').css('display',dstl);
 		}
 		var $imagesCache = [];
-		var $imagePartialUrl = "{!imgPrefix}/servlet/servlet.ImageServer?oid={!$Organization.Id}&id=";
+		var $imagePartialUrl = "{!$Site.Prefix}/servlet/servlet.ImageServer?oid={!$Organization.Id}&id=";
 		function checkimg() {
 			var ef = $F('#imsel1').val();
 			$F('[id*=cnif1]').hide();
@@ -186,6 +192,26 @@
 					.height(120)*/;
 			};
 			$F('#iidf').show();
+		}
+
+		var dateElements = $(".dateInput input");
+	
+		_.each(dateElements, function(e){
+			e.className = "validate-datetimepicker";
+			e.removeAttribute("onfocus");
+			
+		});
+
+		if(jQuery('.validate-datetimepicker')) {
+			var currentdate = new Date(); 
+			var datetime = (currentdate.getMonth()+1) + '/' + currentdate.getDate() + '/' + currentdate.getFullYear() + ' ' + currentdate.getHours() + ":"  + currentdate.getMinutes();
+			$('.validate-datetimepicker').datetimepicker({
+				minDate:datetime,
+				format:'m/d/Y h:i A',
+				formatTime:'h:i A',
+				formatDate:'m/d/Y',
+				step:30
+			});
 		}
 	</script>
 </apex:define>

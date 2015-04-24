@@ -41,7 +41,7 @@ public with sharing class CommunitySearchController {
 		for (String chr : new List<String> {'\\','~','!','&','^','-','+','|','[',']','{','}',':','\''}) {
 			inq = inq.replace(chr,'\\'+chr);
 		}
-		return inq;
+		return String.escapeSingleQuotes(inq);
 	}
 
 	private static Map<String,String> SOQL_FILTER = new Map<String,String> {
@@ -61,7 +61,7 @@ public with sharing class CommunitySearchController {
 		catch(Exception e) {}
 		if (validated) {
 			List<String> parts = SOQL_FILTER.get(sobj).split(':;:');
-			String soqlStr = 'SELECT ' + parts[0] + parts[1] + ' AND Community_Tag__c =\'' + tagId + '\'';
+			String soqlStr = 'SELECT ' + parts[0] + parts[1] + ' AND Community_Tag__c =\'' + String.escapeSingleQuotes(tagId) + '\'';
 			for (sObject soItem : Database.query(soqlStr)) {
 				results.add((Id)soItem.get(parts[0]));
 			}
@@ -215,14 +215,10 @@ public with sharing class CommunitySearchController {
 		'txt' => 'fa-file-text-o', 'png' => 'fa-file-image-o', 'gif' => 'fa-file-image-o', 'jpeg' => 'fa-file-image-o',
 		'jpg' => 'fa-file-image-o', 'bmp' => 'fa-file-image-o'
 	};
-
+/*
 	private static String communityPrefix;
-	public static String checkUrl(String inUrl) {
+	public static String CommunityUtils.checkUrl(String inUrl) {
 		if (communityPrefix == NULL) {
-			/*communityPrefix = '';
-			if (Network.getNetworkId() != NULL) {
-				communityPrefix = '/' + [SELECT UrlPathPrefix FROM Network WHERE Id = :Network.getNetworkId()].UrlPathPrefix;
-			}*/
 			communityPrefix = Site.getPathPrefix();
 		}
 		if (inUrl != NULL && String.isNotBlank(communityPrefix) && !inUrl.startsWith(communityPrefix)) {
@@ -230,61 +226,24 @@ public with sharing class CommunitySearchController {
 		}
 		return inUrl;
 	}
-
+*/
 	@RemoteAction
-	public static Boolean leaveGroup(String currentChatterGroupId) {
-
-		List<Community_Group_Control__c> communityGroupControllList = [
-			SELECT Id, Chatter_Group_ID__c
-			FROM Community_Group_Control__c
-			WHERE Chatter_Group_ID__c =: currentChatterGroupId
-			LIMIT 1
-		];
-		if (!communityGroupControllList.isEmpty()) {
-			currentChatterGroupId = communityGroupControllList[0].Id;
+	public static CommunityUtils.GroupAction membershipGroup(String mc, String grId, String action) {
+		CommunityUtils.GroupAction resultAction;
+		List<Community_Group_Control__c> cgcList = [SELECT Id, Type__c FROM Community_Group_Control__c WHERE Chatter_Group_ID__c = :grId];
+		if (action != '3' && cgcList.size() > 0) {
+			ConnectApi.GroupMembershipType ngr = CommunityUtils.membership(UserInfo.getUserId(), cgcList[0].Id, action);
+			resultAction = CommunityUtils.getActionButton(ngr, cgcList[0].Type__c == 'Public');
+			resultAction.groupId = grId;
+			Integer gi = Integer.valueOf(mc);
+			resultAction.memberCount = String.valueOf(
+				ngr == ConnectApi.GroupMembershipType.NotAMember
+				? gi - 1
+				: (ngr == ConnectApi.GroupMembershipType.StandardMember ? gi + 1 : gi)
+			);
 		}
-
-		CommunityGroupManageController.membership(UserInfo.getUserId(), currentChatterGroupId, '2'); //remove member
-		return true;
+		return resultAction;
 	}
-
-	@RemoteAction
-	public static Boolean jointToGroup(String currentChatterGroupId) {
-
-		List<Community_Group_Control__c> communityGroupControllList = [
-			SELECT Id, Chatter_Group_ID__c
-			FROM Community_Group_Control__c
-			WHERE Chatter_Group_ID__c =: currentChatterGroupId
-			LIMIT 1
-		];
-		if (!communityGroupControllList.isEmpty()) {
-			currentChatterGroupId = communityGroupControllList[0].Id;
-		}
-
-		CommunityGroupManageController.membership(UserInfo.getUserId(), currentChatterGroupId, '1'); //add member
-		return true;
-	}
-
-	@RemoteAction
-	public static Boolean requestToJoin(String currentChatterGroupId) {
-
-		Boolean result = false;
-
-		result = CommunityUtils.createGroupMemberRequest(currentChatterGroupId, UserInfo.getUserId());
-
-		return result;
-	}
-
-	@RemoteAction
-	public static Boolean calcelRequestToJoin(String currentChatterGroupId) {
-
-		Boolean result = false;
-
-		result = CommunityUtils.deleteGroupMemberRequest(currentChatterGroupId, UserInfo.getUserId());
-
-		return true;
-	}
-
 
 	public class SearchItem {
 		public Boolean showPagination { get; set; }
@@ -321,11 +280,11 @@ public with sharing class CommunitySearchController {
 			results = new List<SearchResult>();
 			for (Integer ii = startCopyInterval; ii < endCopyInterval; ii++) {
 				SearchResult sr = new SearchResult();
-				sr.imagePath = checkUrl(inNews[ii].Image_Path__c);
+				sr.imagePath = CommunityUtils.checkUrl(inNews[ii].Image_Path__c);
 				sr.title = inNews[ii].Title__c;
 				sr.teaser = inNews[ii].Teaser__c;
 				sr.fdate = inNews[ii].Entry_Date__c != NULL ? inNews[ii].Entry_Date__c.format('MMMM dd, yyyy') : '';
-				sr.detailUrl = checkUrl('/' + inNews[ii].Id);
+				sr.detailUrl = CommunityUtils.checkUrl('/' + inNews[ii].Id);
 				results.add(sr);
 			}
 			tunePagination(inPageNumber, pageSize);
@@ -342,7 +301,7 @@ public with sharing class CommunitySearchController {
 				sr.title = inEvents[ii].Name__c;
 				sr.teaser = inEvents[ii].Teaser__c;
 				sr.fdate = inEvents[ii].Start__c != NULL ? inEvents[ii].Start__c.format('MMMM dd, yyyy') : '';
-				sr.detailUrl = checkUrl('/' + inEvents[ii].Id);
+				sr.detailUrl = CommunityUtils.checkUrl('/' + inEvents[ii].Id);
 				results.add(sr);
 			}
 			tunePagination(inPageNumber, pageSize);
@@ -364,7 +323,7 @@ public with sharing class CommunitySearchController {
 					sr.fdate = 'Link';
 				}
 				else if (inResources[ii].NotesAndAttachments.size() > 0) {
-					sr.linkUrl = checkUrl('/servlet/servlet.FileDownload?file=' + inResources[ii].NotesAndAttachments[0].Id);
+					sr.linkUrl = CommunityUtils.checkUrl('/servlet/servlet.FileDownload?file=' + inResources[ii].NotesAndAttachments[0].Id);
 					String[] parts = inResources[ii].NotesAndAttachments[0].Title.split('\\.');
 					String ext = parts[parts.size() - 1].toLowerCase();
 					sr.imagePath = !AWESOME_FILE_TYPES.containsKey(ext) ? 'fa-file-o' : AWESOME_FILE_TYPES.get(ext);
@@ -375,7 +334,7 @@ public with sharing class CommunitySearchController {
 					sr.imagePath = 'fa-file-o';
 					sr.fdate = 'Empty Resource';
 				}
-				sr.detailUrl = checkUrl(Page.CommunityResourceDetail.getUrl().replace('/apex','') + '?id=' + inResources[ii].Id);
+				sr.detailUrl = CommunityUtils.checkUrl(Page.CommunityResourceDetail.getUrl().replace('/apex','') + '?id=' + inResources[ii].Id);
 				results.add(sr);
 			}
 			tunePagination(inPageNumber, pageSize);

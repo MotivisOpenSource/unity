@@ -6,48 +6,49 @@
 		<div class="container">
 			<h1 class="pull-left">{!$ObjectType.Community_News__c.Label}</h1>
 			<ul class="pull-right breadcrumb">
-				<li class="active"><a href="{!$Page.CommunityNews}">News</a></li>
+				<li class="active">{!$Label.LBL_News}</li>
 			</ul>
 		</div>
 	</div>
 	<apex:outputPanel layout="block" styleClass="profile" id="form">
 		<div class="container content">
-			<div class="row text-center margin-bottom-20">
-				<apex:form >
+			<div class="row margin-bottom-10">
+				<div class="col-md-6 text-left">
+					<h4>{!$Label.LBL_Current_News_Title}</h4>
+				</div>
+				<div class="col-md-6 text-right">
+					<apex:form >
+						<apex:outputLink value="{!urlForNewNews}" rendered="{!$ObjectType.Community_News__c.createable}" styleClass="btn-u">Create News</apex:outputLink>
+					</apex:form>
+				</div>
+			</div>
+			<!--div class="headline">
+				<h4>{!$Label.LBL_Current_News_Title}</h4>
+				<apex:form styleClass="pull-right">
 					<apex:outputLink value="{!urlForNewNews}" rendered="{!$ObjectType.Community_News__c.createable}" styleClass="btn-u">Create News</apex:outputLink>
 				</apex:form>
-			</div>
-			<table class="table table-hover">
-				<apex:repeat value="{!newsPage}" var="np">
-					<tr class="th-smpl">
-						<td onclick="openNewsPage('{!np.Id}');" style="cursor:pointer;">
-							<apex:image url="{!np.Image_Path__c}" height="50px"/>
-						</td>
-						<td onclick="openNewsPage('{!np.Id}');" style="cursor:pointer;">
-							<apex:outputField value="{!np.Title__c}"/>
-						</td>
-						<td onclick="openNewsPage('{!np.Id}');" style="cursor:pointer;">
-							<apex:outputField value="{!np.Teaser__c}"/>
-						</td>
-						<td>
-							<ul class="list-unstyled blog-tags">
-								<apex:repeat value="{!tagsMap[np.Id]}" var="tagItem">
-									<apex:outputPanel layout="none" rendered="{!tagItem.Url != 'null'}"><li>
-										<a href="{!$Site.BaseUrl}{!tagItem.Url}" target="_blank">
-											<i class="fa fa-tags"></i>&nbsp;{!tagItem.Name}
-										</a>
-									</li></apex:outputPanel>
-								</apex:repeat>
-							</ul>
-						</td>
-					</tr>
-				</apex:repeat>
-				<script>
-					function openNewsPage(inid) {
-						window.open('{!$Page.CommunityNewsDetail}?id='+inid,'_self');
-					}
-				</script>
-			</table>
+			</div-->
+			<apex:repeat value="{!newsPage}" var="np">
+				<div class="row">
+					<apex:repeat value="{!np}" var="npRow">
+						<div class="col-md-3 col-sm-6">
+							<div class="thumbnails thumbnail-style thumbnail-kenburn">
+								<div class="thumbnail-img">
+									<div class="overflow-hidden">
+										<img class="img-responsive" src="{!npRow.imgurl}" alt=""/>
+									</div>
+									<a class="btn-more hover-effect" href="{!$Page.CommunityNewsDetail}?id={!npRow.id}">{!$Label.LBL_Read_More}</a>
+								</div>
+								<div class="caption">
+									<h3><a class="hover-effect" href="{!$Page.CommunityNewsDetail}?id={!npRow.id}">{!npRow.title}</a></h3>
+									<h6>{!npRow.posted}</h6>
+									<p>{!npRow.teaser}</p>
+								</div>
+							</div>
+						</div>
+					</apex:repeat>
+				</div>
+			</apex:repeat>
 			<apex:form >
 				<ul class="pager">
 					<apex:outputPanel layout="none" rendered="{!newsHasPrevious}">
@@ -70,22 +71,6 @@
 				</ul>
 			</apex:form>
 		</div>
-		<!-- script src='/soap/ajax/31.0/connection.js' type='text/javascript'></script><script src='/soap/ajax/31.0/apex.js' type='text/javascript'></script>
-		<script>
-			function readCookie(name) {
-			    var nameEQ = name + "=";
-			    var ca = document.cookie.split(';');
-			    for(var i=0;i < ca.length;i++) {
-			        var c = ca[i];
-			        while (c.charAt(0)==' ') c = c.substring(1,c.length);
-			        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
-			    }
-			    return null;
-			}
-			console.log('{!$Api.Session_ID}\n'+readCookie('sid'));
-			/*$('body').append("");*/
-			sforce.connection.sessionId = '{!$Api.Session_ID}';
-		</script-->
 	</apex:outputPanel>
 </apex:define>
 </apex:composition>

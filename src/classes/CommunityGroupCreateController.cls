@@ -46,7 +46,7 @@ public with sharing class CommunityGroupCreateController {
 	}
 
 	public String getEmptyGroupPhotoUrl() {
-		return CommunitySearchController.checkUrl('/profilephoto/0F9/F');
+		return CommunityUtils.checkUrl('/profilephoto/0F9/F');
 	}
 
 	public PageReference doSubmit() {

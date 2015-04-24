@@ -82,12 +82,13 @@ public with sharing class CommunityProfilePageController {
 			String section2 = Label.LBL_Contact;
 			// select contact with field from fieldset
 			overviewTab = new List<FieldSection>();
+			String rtName = currentProfile.RecordType.Name.replace('/','');
 			Map<String, FieldSection> tabMap = new Map<String, FieldSection>();
 			for (Schema.FieldSet fsItem : SObjectType.Community_Profile__c.FieldSets.getMap().values()) {
 				String fsLabel = fsItem.getLabel();
 				if (fsLabel.contains(':')) {
 					String[] parts = fsLabel.split(':');
-					if (parts.size() == 3 && parts[0] == currentProfile.RecordType.Name && parts[2].isNumeric()) {
+					if (parts.size() == 3 && parts[0] == rtName && parts[2].isNumeric()) {
 						Integer sNum = Integer.valueOf(parts[2]);
 						Boolean notAdded = true;
 						for (Integer ii = 0; ii < overviewTab.size(); ii++) {
@@ -477,5 +478,20 @@ public with sharing class CommunityProfilePageController {
 			wdStyle = inu.DefaultGroupNotificationFrequency == 'W' ? ' fa fa-dot-circle-o' : '';
 			nStyle = inu.DefaultGroupNotificationFrequency == 'N' ? ' fa fa-dot-circle-o' : '';
 		}
+	}
+	
+	public Boolean getIsSubscribe() { 
+	    List<EntitySubscription> followings = [
+				Select SubscriberId, ParentId, IsDeleted, Id, CreatedDate, CreatedById
+				From EntitySubscription
+				WHERE SubscriberId =:Userinfo.getUserId()
+				AND ParentId = :currentUserId
+				LIMIT 1
+			];
+		return (followings.isEmpty())?false:true;
+	}
+
+	public void subscribeUser(){ 
+	    CommunityUtils.subscriberUser(currentUserId,!getIsSubscribe());
 	}
 }

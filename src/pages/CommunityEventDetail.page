@@ -3,9 +3,8 @@
 <apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
 <apex:define name="body">
 	<style>
-		.sky-form .dl-horizontal hr {
-			margin:6px 0;
-		}
+		.sky-form .dl-horizontal hr { margin:6px 0; }
+		body.modal-open { padding-right: 0 !important; overflow: auto; }
 	</style>
 	<div class="breadcrumbs margin-bottom-10">
 		<div class="container">

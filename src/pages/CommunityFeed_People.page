@@ -34,11 +34,11 @@
 									<!--QUICK SEARCH -->
 									<div class="tab-v1">
 										<ul class="nav nav-tabs">
-											<li class="{!IF($CurrentPage.parameters.tab==NULL || $CurrentPage.parameters.tab=='all_people' || $CurrentPage.parameters.tab!='people_i_follow', 'active', '')}" ng-click="page.goToFirst();"><a  href="{!$Page.CommunityFeed_People}?tab=all_people">All People</a></li>
+											<li class="{!IF(ISBLANK($CurrentPage.parameters.tab) || $CurrentPage.parameters.tab=='all_people' || $CurrentPage.parameters.tab!='people_i_follow', 'active', '')}" ng-click="page.goToFirst();"><a  href="{!$Page.CommunityFeed_People}?tab=all_people">All People</a></li>
 											<li class="{!IF($CurrentPage.parameters.tab=='people_i_follow', 'active', '')}" ng-click="page.goToFirst();"><a href="{!$Page.CommunityFeed_People}?tab=people_i_follow" >People I Follow</a></li>
 										</ul>
 										<div class="tab-content">
-											<apex:outputPanel layout="none" rendered="{!IF($CurrentPage.parameters.tab==NULL || $CurrentPage.parameters.tab=='all_people' || $CurrentPage.parameters.tab!='people_i_follow', true, false)}">
+											<apex:outputPanel layout="none" rendered="{!IF(ISBLANK($CurrentPage.parameters.tab) || $CurrentPage.parameters.tab=='all_people' || $CurrentPage.parameters.tab!='people_i_follow', true, false)}">
 												<div class="tab-pane active" id="all_people_tab">
 													<div class="col-md-12">
 														<div class="media media-v2" ng-repeat="p in allPeople | quickSearch:this | startFrom:page.startFrom() | limitTo:page.pageSize">

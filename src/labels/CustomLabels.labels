@@ -533,6 +533,13 @@
         <value>Tags</value>
     </labels>
     <labels>
+        <fullName>LBL_Current_News_Title</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Current News Title</shortDescription>
+        <value>Current News Articles</value>
+    </labels>
+    <labels>
         <fullName>LBL_Delete</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -610,6 +617,13 @@
         <value>Done</value>
     </labels>
     <labels>
+        <fullName>LBL_ERR_Help_Link</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL ERR Help Link</shortDescription>
+        <value>You can only have one active resource designated as a Help Link</value>
+    </labels>
+    <labels>
         <fullName>LBL_ERR_Quick_Link</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -671,6 +685,13 @@
         <protected>false</protected>
         <shortDescription>LBL Every Post</shortDescription>
         <value>Every Post</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Featured_News_Title</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Featured News Title</shortDescription>
+        <value>Featured News Articles</value>
     </labels>
     <labels>
         <fullName>LBL_Feed</fullName>
@@ -1121,6 +1142,13 @@
         <value>Next</value>
     </labels>
     <labels>
+        <fullName>LBL_NoUsersFound</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL NoUsersFound</shortDescription>
+        <value>No Users have been found.</value>
+    </labels>
+    <labels>
         <fullName>LBL_No_Files_Group</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -1268,6 +1296,13 @@
         <value>Type your message here…</value>
     </labels>
     <labels>
+        <fullName>LBL_Posted</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Posted</shortDescription>
+        <value>Posted</value>
+    </labels>
+    <labels>
         <fullName>LBL_PostsLikes_Title</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -1280,6 +1315,13 @@
         <protected>true</protected>
         <shortDescription>LBL Previous</shortDescription>
         <value>Previous</value>
+    </labels>
+    <labels>
+        <fullName>LBL_PrivateGroup</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL PrivateGroup</shortDescription>
+        <value>Group is private</value>
     </labels>
     <labels>
         <fullName>LBL_ProfilePosts</fullName>
@@ -1489,6 +1531,20 @@
         <protected>true</protected>
         <shortDescription>Label Shares a post I made</shortDescription>
         <value>Shares a post I made</value>
+    </labels>
+    <labels>
+        <fullName>LBL_ShowManagersOnly</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL ShowManagersOnly</shortDescription>
+        <value>Show Managers Only</value>
+    </labels>
+    <labels>
+        <fullName>LBL_ShowMembersOnly</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL ShowMembersOnly</shortDescription>
+        <value>Show Members Only</value>
     </labels>
     <labels>
         <fullName>LBL_Show_All</fullName>

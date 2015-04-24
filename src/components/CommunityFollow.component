@@ -22,6 +22,7 @@
 			<button id="fbtns" class="btn-u btn-u-blue" onclick="fme(this);return false;">
 				<i class="fa fa-check"></i>
 				<i class="fa fa-spinner fa-pulse" style="display:none;"></i>
+				&nbsp;{!$Label.BTN_Following}
 			</button>
 		</apex:outputPanel>
 	</apex:outputPanel>

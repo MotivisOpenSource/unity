@@ -31,21 +31,8 @@ public with sharing class CommunityFeed_PeopleController {
 
 	@RemoteAction
 	public static Boolean subscriberAction(Id memberId, Boolean isSubscribe) {
-		if (!isSubscribe) {
-			List<EntitySubscription> followings = [
-				Select SubscriberId, ParentId, IsDeleted, Id, CreatedDate, CreatedById
-				From EntitySubscription
-				WHERE SubscriberId =:Userinfo.getUserId()
-				AND ParentId = :memberId
-				LIMIT 1
-			];
-			if (!followings.isEmpty()) {
-				ConnectApi.Chatter.deleteSubscription(Network.getNetworkId(), followings[0].Id);
-			}
-		} else if (isSubscribe) {
-			ConnectApi.ChatterUsers.follow(Network.getNetworkId(), 'me', memberId);
-		}
-		return true;
+	    CommunityUtils.subscriberUser(memberId,isSubscribe);
+        return true;
 	}
 
 	public class UserItem {

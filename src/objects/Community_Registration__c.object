@@ -19,7 +19,7 @@
     </fields>
     <fields>
         <fullName>Disable_Interest__c</fullName>
-        <defaultValue>false</defaultValue>
+        <defaultValue>true</defaultValue>
         <deprecated>false</deprecated>
         <description>When selected, the Registration process will NOT include the Interests registration page.</description>
         <externalId>false</externalId>

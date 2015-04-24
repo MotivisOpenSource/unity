@@ -49,7 +49,8 @@ global with sharing class CommunityShareController {
 					LinkUrl = cprefix + shareLinkUrl,
 					Title = shareLinkName,
 					ParentId = cgrec[0].Id,
-					NetworkScope = cgrec[0].NetworkId
+					NetworkScope = cgrec[0].NetworkId,
+					Body = shareComment
 				);
 				hasMessage = false;
 			}

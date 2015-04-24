@@ -5,7 +5,7 @@
 	<style>
 		.profile-edit .headline { margin-bottom: 15px; }
 		.profile-edit .blog-photos li img { width: 36px; height: 36px; }
-		.modal-open { padding-right: 0px !important; }
+		body.modal-open { padding-right: 0 !important; overflow: auto; }
 	</style>
 
 	<!--=== Breadcrumbs ===-->
@@ -35,13 +35,16 @@
 				<!-- Center -->
 				<div class="col-md-7 md-margin-bottom-20">
 					<div id="feed" class="profile-edit">
-						<c:CommunityFeed pid="{!chatterGroup.Id}"/>
+						<c:CommunityFeed pid="{!chatterGroup.Id}" rendered="{!!HideFeedComponent}"/>
+						<apex:outputPanel layout="block" styleClass="alert alert-danger fade in" rendered="{!HideFeedComponent}">
+							<i class="fa fa-exclamation-triangle"></i>&nbsp;&nbsp;{!$Label.LBL_PrivateGroup}
+						</apex:outputPanel>
 					</div>
 				</div>
 				<!-- End Center -->
 
 				<!-- Right Sidebar-->
-				<div class="col-md-2 md-margin-bottom-20 profile-edit">
+				<apex:outputPanel id="rightpanel" layout="block" styleClass="col-md-2 md-margin-bottom-20 profile-edit">
 					<apex:form >
 						<apex:outputPanel id="btnaction">
 							<button type="button" class="btn btn-u{!ActionButton.btnStyle} btn-xs" onclick="chckabtn('{!ActionButton.action}');return false;" title="{!ActionButton.title}">
@@ -53,10 +56,10 @@
 							function chckabtn(a) {
 								if (a != '0') {
 									var fa = true;
-									if (a == '1' || a == '2') {
+									if (a == '2' || a == '4') {
 										fa = confirm('{!$Label.LBL_LeaveGroup_Message}');
 									}
-									else if (a == '5') {
+									else if (a == '6') {
 										fa = confirm('{!$Label.LBL_CancelRequest_Message}');
 									}
 									if (fa) {
@@ -66,7 +69,7 @@
 								}
 							}
 						</script>
-						<apex:actionFunction action="{!performGroupMembershipAction}" name="pgmsha" rerender="btnaction, crevlink">
+						<apex:actionFunction action="{!performGroupMembershipAction}" name="pgmsha" rerender="rightpanel">
 							<apex:param name="par" assignTo="{!groupMode}" value=""/>
 						</apex:actionFunction>
 					</apex:form>
@@ -87,7 +90,7 @@
 					</div>
 					<div class="blog-twitter">
 						<div class="headline"><h4>{!$Label.LBL_Upcoming_Events}</h4></div>
-						<apex:outputPanel id="crevlink" layout="block" styleClass="margin-bottom-5">
+						<apex:outputPanel layout="block" styleClass="margin-bottom-5">
 							<apex:outputLink value="{!UrlForCreateEvent}" rendered="{!showCreateEvent}">{!$Label.BTN_Create_Event}</apex:outputLink>
 						</apex:outputPanel>
 						<apex:repeat value="{!Events}" var="ev">
@@ -100,7 +103,7 @@
 							<p>{!$Label.LBL_No_Upcoming_Events_Group}</p>
 						</apex:outputPanel>
 					</div>
-				</div>
+				</apex:outputPanel>
 				<!-- End Right Sidebar-->
 			</apex:outputPanel>
 			<!--/end row-->
@@ -112,7 +115,14 @@
 			<apex:form id="memlist" styleClass="modal-content sky-form">
 				<div class="modal-header">
 					<button aria-hidden="true" data-dismiss="modal" class="close" type="button">&times;</button>
-					<h4 id="newConversationModalLabel" class="modal-title">{!$Label.LBL_Group_Members}</h4>
+					<h4 id="newConversationModalLabel" class="modal-title">
+						{!$Label.LBL_Group_Members}
+						<apex:actionStatus id="statusLoad">
+							<apex:facet name="start">
+								&nbsp;<i class="fa fa-spinner fa-pulse"></i>
+							</apex:facet>
+						</apex:actionStatus>
+					</h4>
 				</div>
 				<div class="modal-body" id="groupmembermodal">
 					<table class="table table-hover" id="groupmembertable">
@@ -147,59 +157,49 @@
 								</td>
 							</tr>
 						</apex:repeat>
-						<script>
-							function toogleFollowing(inid) {
-								Visualforce.remoting.Manager.invokeAction(
-									'{!$RemoteAction.CommunityGroupDetailPageController.toggleSubscriber}',
-									inid,
-									function(result, event) {}
-								);
-								if ($('#' + inid + '.btn-u-blue').length == 0) {
-									$('#' + inid).addClass('btn-u-blue').html('<i class="fa fa-check"></i>&nbsp;{!$Label.BTN_Following}');
-									$('#' + inid + ' i').attr('class','fa fa-check');
-								}
-								else {
-									$('#' + inid).removeClass('btn-u-blue').html('<i class="fa fa-plus-circle"></i>&nbsp;{!$Label.LBL_Follow}');
-								}
-							}
-						</script>
-						<apex:outputPanel layout="none" rendered="{!members.showPagination}">
-							<tr>
-								<td>&nbsp;</td>
-								<td class="">
-									<apex:outputPanel style="cursor: pointer;">
-										<apex:actionSupport event="onclick" action="{!members.firstPage}" rendered="{!members.hasPrevious}" rerender="memlist"/>
-										<apex:image value="/s.gif" styleClass="{!IF(members.hasPrevious,'first','firstoff')}"/>
-									</apex:outputPanel>
-									&nbsp;
-									<apex:outputPanel style="cursor: pointer;">
-										<apex:actionSupport event="onclick" action="{!members.previousPage}" rendered="{!members.hasPrevious}" rerender="memlist"/>
-										<apex:image value="/s.gif" styleClass="{!IF(members.hasPrevious,'prev','prevoff')}"/>
-										<apex:outputText value="{!$Label.LBL_Previous}" styleClass="{!IF(members.hasPrevious,'','prevNextLinks')}"/>
-									</apex:outputPanel>
-									&nbsp;&nbsp;
-									<apex:outputPanel style="cursor: pointer;">
-										<apex:actionSupport event="onclick" action="{!members.nextPage}" rendered="{!members.hasNext}" rerender="memlist"/>
-										<apex:outputText value="{!$Label.LBL_Next}" styleClass="{!IF(members.hasNext,'','prevNextLinks')}"/>
-										<apex:image value="/s.gif" styleClass="{!IF(members.hasNext,'next','nextoff')}"/>
-									</apex:outputPanel>
-									&nbsp;
-									<apex:outputPanel style="cursor: pointer;">
-										<apex:actionSupport event="onclick" action="{!members.lastPage}" rendered="{!members.hasNext}" rerender="memlist"/>
-										<apex:image value="/s.gif" styleClass="{!IF(members.hasNext,'last','lastoff')}"/>
-									</apex:outputPanel>
-								</td>
-								<td>
-									<apex:outputText value="{!$Label.LBL_Page} {!members.pageNumber} {!$Label.LBL_of} {!members.totalPages}"/>
-								</td>
-							</tr>
-						</apex:outputPanel>
 					</table>
+					<apex:outputPanel layout="none" rendered="{!members.showPagination}">
+						<ul class="pager">
+							<apex:outputPanel layout="none" rendered="{!members.hasPrevious}">
+								<li class="previous">
+									<apex:commandLink action="{!members.firstPage}" value="{!$Label.LBL_First}" rerender="memlist" status="statusLoad"/>
+								</li>
+								<li class="previous">
+									<apex:commandLink action="{!members.previousPage}" value="{!$Label.LBL_Previous}" rerender="memlist" styleClass="margin-left-5" status="statusLoad"/>
+								</li>
+							</apex:outputPanel>
+							<li><apex:outputText value="{!$Label.LBL_Page} {!members.pageNumber} {!$Label.LBL_of} {!members.totalPages}"/></li>
+							<apex:outputPanel layout="none" rendered="{!members.hasNext}">
+								<li class="next">
+									<apex:commandLink action="{!members.lastPage}" value="{!$Label.LBL_Last}" rerender="memlist" styleClass="margin-left-5" status="statusLoad"/>
+								</li>
+								<li class="next">
+									<apex:commandLink action="{!members.nextPage}" value="{!$Label.LBL_Next}" rerender="memlist" status="statusLoad"/>
+								</li>
+							</apex:outputPanel>
+						</ul>
+					</apex:outputPanel>
 				</div>
 				<div class="modal-footer">
 					<button data-dismiss="modal" type="button" class="button btn-u-default" id="closeDialogButton" value="Close" title="Close">Close</button>
 				</div>
 			</apex:form>
+			<script>
+				function toogleFollowing(inid) {
+					Visualforce.remoting.Manager.invokeAction(
+						'{!$RemoteAction.CommunityGroupDetailPageController.toggleSubscriber}',
+						inid,
+						function(result, event) {}
+					);
+					if ($('#' + inid + '.btn-u-blue').length == 0) {
+						$('#' + inid).addClass('btn-u-blue').html('<i class="fa fa-check"></i>&nbsp;{!$Label.BTN_Following}');
+						$('#' + inid + ' i').attr('class','fa fa-check');
+					}
+					else {
+						$('#' + inid).removeClass('btn-u-blue').html('<i class="fa fa-plus-circle"></i>&nbsp;{!$Label.LBL_Follow}');
+					}
+				}
+			</script>
 		</div>
 	</div>
 </apex:define>

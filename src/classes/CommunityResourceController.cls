@@ -52,7 +52,7 @@ public with sharing class CommunityResourceController {
 		resource = (Community_Resource__c)stdctrl.getRecord();
 		if (resource.Id != NULL) {
 			Set<String> collectedFields = new Set<String> {
-				'Id', 'Name', 'Resource_Name__c', 'Link__c', 'Primary_Tag__c', 'Primary_Tag__r.Community_Theme__r.Name', 'Primary_Tag__r.Name', 'Quick_Link__c',
+				'Id', 'Name', 'Resource_Name__c', 'Link__c', 'Primary_Tag__c', 'Primary_Tag__r.Community_Theme__r.Name', 'Primary_Tag__r.Name', 'Quick_Link__c', 'Help_Link__c',
 				'(SELECT Id, IsNote, Title FROM NotesAndAttachments WHERE IsNote = false ORDER BY CreatedDate DESC LIMIT 1)'
 					};
 			String pp = CommunityUtils.getPackagePrefix();
@@ -95,7 +95,7 @@ public with sharing class CommunityResourceController {
 			ext = !CommunitySearchController.AWESOME_FILE_TYPES.containsKey(ext) ? 'fa-file-o' : CommunitySearchController.AWESOME_FILE_TYPES.get(ext);
 			resultList = new List<String> {
 					resource.NotesAndAttachments[0].Title,
-					CommunitySearchController.checkUrl('/servlet/servlet.FileDownload?file=' + resource.NotesAndAttachments[0].Id),
+					CommunityUtils.checkUrl('/servlet/servlet.FileDownload?file=' + resource.NotesAndAttachments[0].Id),
 					ext
 						};
 		}
@@ -153,50 +153,38 @@ public with sharing class CommunityResourceController {
 
 	public PageReference saveResource() {
 		PageReference pr;
-		Boolean validated = true;
 		if (resource.Primary_Tag__c != NULL) {
 			resource.Primary_Tag__c = String.isBlank(String.valueOf(resource.Primary_Tag__c)) ? NULL : resource.Primary_Tag__c;
 		}
-		if (mode == 'edit' && resource.Quick_Link__c != true && String.isBlank(resource.Primary_Tag__c)) {
-			ApexPages.addmessage(new Apexpages.Message(ApexPages.Severity.ERROR,'Primary Tag: You must enter a value'));
-			validated = false;
-		}
-		if (mode == 'edit' && resource.Quick_Link__c == true && (String.isBlank(resource.Name) || resource.Name.length() > 20)) {
-			ApexPages.addmessage(new Apexpages.Message(ApexPages.Severity.ERROR,Label.LBL_ERR_Quick_Link));
-			validated = false;
-		}
 		try {
-			if (validated) {
-				if (String.isNotBlank(linkText)) {
-					resource.Link__c = (!linkText.startsWith('http://') && !linkText.startsWith('https://')) ? ('http://' + linkText) : linkText;
-					upsert resource;
-				}
-				else if (imgBody != NULL && String.isNotBlank(imgFileName)) {
-					resource.Link__c = NULL;
-					upsert resource;
-					Attachment aTemp = new Attachment(Name=imgFileName, Body=imgBody, ParentId=resource.Id, ContentType=imgContentType);
-					insert aTemp;
-				}
-				else {
-					upsert resource;
-				}
-				if (mode == 'edit') {
-					String tagsIdsString = ApexPages.currentPage().getParameters().get(TAGS_INPUT_NAME);
-					CommunityTagSelectorController ctsc = new CommunityTagSelectorController();
-					ctsc.objectId = resource.Id;
-					ctsc.objectType = Community_Resource_Tag__c.getSObjectType().getDescribe().getName();
-					ctsc.filterName = Community_Resource_Tag__c.Resource__c.getDescribe().getName();
-					ctsc.saveTags(tagsIdsString);
-				}
-				pr = Page.CommunityResourceDetail;
-				pr.getParameters().put('id', resource.Id);
-				pr.setRedirect(true);
+			if (String.isNotBlank(linkText)) {
+				resource.Link__c = (!linkText.startsWith('http://') && !linkText.startsWith('https://')) ? ('http://' + linkText) : linkText;
+				upsert resource;
 			}
+			else if (imgBody != NULL && String.isNotBlank(imgFileName)) {
+				resource.Link__c = NULL;
+				upsert resource;
+				Attachment aTemp = new Attachment(Name=imgFileName, Body=imgBody, ParentId=resource.Id, ContentType=imgContentType);
+				insert aTemp;
+			}
+			else {
+				upsert resource;
+			}
+			if (mode == 'edit') {
+				String tagsIdsString = ApexPages.currentPage().getParameters().get(TAGS_INPUT_NAME);
+				CommunityTagSelectorController ctsc = new CommunityTagSelectorController();
+				ctsc.objectId = resource.Id;
+				ctsc.objectType = Community_Resource_Tag__c.getSObjectType().getDescribe().getName();
+				ctsc.filterName = Community_Resource_Tag__c.Resource__c.getDescribe().getName();
+				ctsc.saveTags(tagsIdsString);
+			}
+			pr = Page.CommunityResourceDetail;
+			pr.getParameters().put('id', resource.Id);
+			pr.setRedirect(true);
 		}
 		catch (Exception e) {
 			ApexPages.addMessages(e);
 		}
 		return pr;
 	}
-			
 }

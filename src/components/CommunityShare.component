@@ -32,13 +32,13 @@
 							<section>
 								<apex:outputLabel value="{!$Label.LBL_Share_Link_Url}"/>
 								<label class="input">
-									<apex:inputText value="{!shareLinkUrl}"/>
+									<apex:inputText value="{!shareLinkUrl}" disabled="true"/>
 								</label>
 							</section>
 							<section>
 								<apex:outputLabel value="{!$Label.LBL_Share_Link_Name}"/>
 								<label class="input">
-									<apex:inputText value="{!shareLinkName}"/>
+									<apex:inputText value="{!shareLinkName}" disabled="true"/>
 								</label>
 							</section>
 							<section>

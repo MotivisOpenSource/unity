@@ -304,7 +304,7 @@ global without sharing class CommunityFeedController {
 			// Define a record for the quick action to create
 			Schema.SObjectType targetType = Schema.getGlobalDescribe().get(layout.objectName);
 			sObject sObj = targetType.newSObject();
-System.debug('layout.objectName = '+layout.objectName);
+			String namespacePrefix = layout.objectName.split('__').size() > 2 ? layout.objectName.split('__')[0]+'__' : '';
 
 			Map<String, Schema.DescribeFieldResult> sObjectFields = getSobjectFieldsDescribe(new List<String> { layout.objectName }).get(layout.objectName);
 
@@ -332,18 +332,15 @@ System.debug('layout.objectName = '+layout.objectName);
 			if(res.isSuccess()){
 				//resultPage = postFeed(inParentId4, res.getIds()[0]);
 				if (layout.name == 'Create_Event') {
-System.debug('layout.name = '+layout.name);
-
 					fei.capabilities = new ConnectApi.FeedElementCapabilitiesInput();
 					fei.capabilities.link = new ConnectApi.LinkCapabilityInput();
 					fei.capabilities.link.url = prepareUrl(Page.CommunityEventDetail.getUrl()) + '?id=' + res.getId();
 					//fei.capabilities.link.url = prepareUrl(Page.CommunityEventDetail.getUrl()) + '?id=' + res.getIds()[0];
 					for(ChatterActionLayoutItem item : layout.items) {
-System.debug('item.fieldName = '+item.fieldName);						
-						if(item.fieldName == 'Name__c') {
+						if(item.fieldName == namespacePrefix + 'Name__c') {
 							fei.capabilities.link.urlName = item.value;
 						}
-						else if(item.fieldName == 'Description__c') {
+						else if(item.fieldName == namespacePrefix + 'Description__c') {
 							fei.body = werewolfText(item.value);
 						}
 					}
@@ -357,8 +354,6 @@ System.debug('item.fieldName = '+item.fieldName);
 
 
 		}
-System.debug('String.isBlank(resultPage) = '+String.isBlank(resultPage));
-System.debug('fei.body = '+fei.body);
 		if (String.isBlank(resultPage) && fei.body != NULL) {
 			//Blob inFileBlob = Blob.valueOf(inFile);
 			ConnectApi.BinaryInput bi = null;
@@ -381,7 +376,6 @@ System.debug('fei.body = '+fei.body);
 			
 			}else{
 				String newFeedInsert = json.serialize(ConnectApi.ChatterFeeds.postFeedElement(Network.getNetworkId(),fei,null));
-system.debug('newFeedInsert = '+newFeedInsert);				
 				FeedElementPage fepResult = new FeedElementPage();
 				fepResult.elements = new List<FeedElement> { (FeedElement)JSON.deserialize(newFeedInsert,FeedElement.class) };
 				fepResult = initialRoles(fepResult);
@@ -763,7 +757,7 @@ system.debug('newFeedInsert = '+newFeedInsert);
 		public MentionUser(Community_Group_Control__c incgc) {
 			id = incgc.Chatter_Group_ID__c;
 			name = incgc.Name;
-			avatar = CommunitySearchController.checkUrl('/profilephoto/0F9/F');
+			avatar = CommunityUtils.checkUrl('/profilephoto/0F9/F');
 			type = 'group';
 		}
 	}

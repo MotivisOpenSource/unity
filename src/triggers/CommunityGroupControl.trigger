@@ -1,6 +1,6 @@
-trigger CommunityGroupControl on Community_Group_Control__c (before insert, after insert) {
+trigger CommunityGroupControl on Community_Group_Control__c (before insert, after insert, after update) {
 
-	if (Trigger.isBefore) {
+	if (Trigger.isBefore && Trigger.isInsert) {
 		Boolean validationPassed = true;
 		Map<Id, CollaborationGroup> newChatterGroupsByGCid = new Map<Id, CollaborationGroup>();
 		Map<String, Community_Group_Control__c> checkUniqueNamesMap = new Map<String, Community_Group_Control__c>();
@@ -51,7 +51,7 @@ trigger CommunityGroupControl on Community_Group_Control__c (before insert, afte
 		}
 	}
 
-	if (Trigger.isAfter) {
+	if (Trigger.isAfter && Trigger.isInsert) {
 		Map<Id, Id> GroupControlIdByChatterGroupId = new Map<Id, Id>();
 		for (Community_Group_Control__c cgcItem : Trigger.new) {
 			if (cgcItem.Chatter_Group_ID__c != NULL) {
@@ -75,6 +75,39 @@ trigger CommunityGroupControl on Community_Group_Control__c (before insert, afte
 			if (membersCommunityGroup.size() > 0) {
 				insert membersCommunityGroup;
 			}
+		}
+	}
+
+	if (Trigger.isAfter && Trigger.isUpdate) {
+		Boolean validationPassed2 = true;
+		Map<String, Community_Group_Control__c> checkUniqueNamesMap2 = new Map<String, Community_Group_Control__c>();
+		Map<String,String> changedCollaborationType = new Map<String,String>();
+		Set<Id> excludeCurrentGroupControls = new Set<Id>();
+		for (Community_Group_Control__c cgcItem2 : Trigger.new) {
+			if (cgcItem2.Name != Trigger.oldMap.get(cgcItem2.Id).Name) {
+				if (checkUniqueNamesMap2.containsKey(cgcItem2.Name)) {
+					cgcItem2.addError(Label.ERR_Dup_Group_Name);
+					validationPassed2 = false;
+				}
+				checkUniqueNamesMap2.put(cgcItem2.Name, cgcItem2);
+				excludeCurrentGroupControls.add(cgcItem2.Id);
+			}
+			if (cgcItem2.Type__c != Trigger.oldMap.get(cgcItem2.Id).Type__c && cgcItem2.Chatter_Group_ID__c != NULL) {
+				changedCollaborationType.put(cgcItem2.Chatter_Group_ID__c, cgcItem2.Type__c);
+			}
+		}
+		if (validationPassed2 && checkUniqueNamesMap2.size() > 0) {
+			for (Community_Group_Control__c cgcItem3 : [SELECT Name FROM Community_Group_Control__c WHERE Name IN :checkUniqueNamesMap2.keySet() AND Id NOT IN :excludeCurrentGroupControls]) {
+				checkUniqueNamesMap2.get(cgcItem3.Name).addError(Label.ERR_Dup_Group_Name);
+				validationPassed2 = false;
+			}
+		}
+		if (validationPassed2 && changedCollaborationType.size() > 0) {
+			List<CollaborationGroup> cgList = [SELECT Id, CollaborationType FROM CollaborationGroup WHERE Id IN :changedCollaborationType.keySet()];
+			for (CollaborationGroup cgItem : cgList) {
+				cgItem.CollaborationType = changedCollaborationType.get(cgItem.Id);
+			}
+			update cgList;
 		}
 	}
 }

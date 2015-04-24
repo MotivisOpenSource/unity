@@ -24,7 +24,7 @@
 			</div>
 			<div class="col-sm-6 text-right" style="padding-right:25px;">
 				<button id="sbtbtn" class="btn-u" type="button" style="opacity:{!IF(disabledNext,'0.65','1')};" onclick="cksbmbtn();">{!$Label.LBL_Next}</button>&nbsp;
-				<apex:outputLink value="{!IF(ISBLANK($CurrentPage.parameters.retURL),$Page.CommunityGroups+'?f=all_groups',$CurrentPage.parameters.retURL)}" styleClass="btn-u" rendered="{!step == 1}">{!$Label.BTN_Cancel}</apex:outputLink>
+				<apex:outputLink value="{!IF(ISBLANK($CurrentPage.parameters.retURL),$Page.CommunityGroups+'?f=all_groups',JSENCODE($CurrentPage.parameters.retURL))}" styleClass="btn-u" rendered="{!step == 1}">{!$Label.BTN_Cancel}</apex:outputLink>
 				<apex:commandButton action="{!cancel}" value="{!$Label.BTN_Cancel}" styleClass="btn-u" rendered="{!step != 1}"/>
 				<apex:outputPanel layout="none" rendered="{!disabledNext}">
 					<script>

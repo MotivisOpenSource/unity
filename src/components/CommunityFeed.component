@@ -540,7 +540,6 @@ textarea.form-control {
 					inpt,
 					function(result, event) {
 						var div = document.createElement('div');
-						// console.log(result);
 						div.innerHTML = result;
 						_.templateSettings.variable = 'rc';
 						var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
@@ -717,6 +716,7 @@ textarea.form-control {
 									            console.log("Failure " + result);
 									        }
 									        refreshFeed();
+									        setActiveli();
 									    },
 									    onFailure : function(error, source)
 									    {
@@ -752,6 +752,7 @@ textarea.form-control {
 					$("form[name='postform']").data('validator').showErrors(); 
 					enableBtn('mesbtn');
 				}
+				
 			}
 			function sendPostAction (jsontext, infilebstr, infiletype, infilename) {
 				Visualforce.remoting.timeout = 120000;
@@ -786,6 +787,7 @@ textarea.form-control {
 						if(!postFile) enableBtn('mesbtn');
 					}
 				);
+				setActiveli();
 			}
 			function getComments(feedid, token) {
 				Visualforce.remoting.Manager.invokeAction(
@@ -900,7 +902,7 @@ textarea.form-control {
 			}
 			var chataction = {loading:false};
 			function setActiveli(element) {
-				if(!element) element = $("#palist a.curr").get(0); 
+				if(!element) element = $("#palist a").get(0); 
 				if (!chataction.loading) {
 					$('#postform-error').hide();	
 					chataction.loading = true;
@@ -1005,6 +1007,7 @@ textarea.form-control {
 						}
 					);
 				}
+				setActiveli();
 			}
 
 			function refreshFeed() {
@@ -1015,7 +1018,6 @@ textarea.form-control {
 					'',
 					function(result, event) {
 						var div = document.createElement('div');
-						// console.log(result);
 						div.innerHTML = result;
 						_.templateSettings.variable = 'rc';
 						var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
@@ -1024,6 +1026,7 @@ textarea.form-control {
 						$('#cfcmp').prepend(template(tt));
 					}
 				);
+				
 				
 			}
 
@@ -1097,13 +1100,6 @@ textarea.form-control {
 			function fileSizeIEC(a,b,c,d,e){
 				return (b=Math,c=b.log,d=1024,e=c(a)/c(d)|0,a/b.pow(d,e)).toFixed(0)+' '+(e?'KMGTPEZY'[--e]+'B':'Bytes')
 			}
-			$(document).ready(function() {
-				if($("form[name='postform']")[0]) {
-					initValidator();
-				}
-				
-				setActiveli();
-			});
 		</script>
 	</apex:outputPanel>
 	<script>
@@ -1111,5 +1107,13 @@ textarea.form-control {
 			return intext ? intext.replace(/\r\n/g, '<br />').replace(/[\r\n]/g, '<br />') : '';
 		}
 		/*sforce.connection.sessionId = '{!$Api.Session_ID}';*/
+		$(document).ready(function() {
+			if($("form[name='postform']")[0]) {
+				initValidator();
+				setActiveli();
+			}
+			
+			
+		});
 	</script>
 </apex:component>

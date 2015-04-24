@@ -82,6 +82,11 @@
             <isFieldManaged>false</isFieldManaged>
             <isRequired>false</isRequired>
         </availableFields>
+        <availableFields>
+            <field>Primary__c</field>
+            <isFieldManaged>false</isFieldManaged>
+            <isRequired>false</isRequired>
+        </availableFields>
         <description>Faculty/Staff Community Profile (when RecordType = &apos;Faculty/Staff&apos;)</description>
         <displayedFields>
             <field>Email__c</field>
@@ -92,6 +97,11 @@
     </fieldSets>
     <fieldSets>
         <fullName>Student_About_Me_1</fullName>
+        <availableFields>
+            <field>Contact__r.Email</field>
+            <isFieldManaged>false</isFieldManaged>
+            <isRequired>false</isRequired>
+        </availableFields>
         <description>Student Community Profile (when RecordType = &apos;Student&apos;)</description>
         <displayedFields>
             <field>Email__c</field>

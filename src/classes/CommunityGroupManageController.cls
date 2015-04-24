@@ -66,9 +66,14 @@ public without sharing class CommunityGroupManageController {
 	}
 
 	public void submitAction() {
-		update control;
-		control = pullGroupControlRecord(true);
-		editMode = false;
+		try {
+			update control;
+			control = pullGroupControlRecord(true);
+			editMode = false;
+		}
+		catch (Exception e) {
+			ApexPages.addMessages(e);
+		}
 	}
 
 	public void cancelAction() {
@@ -104,11 +109,13 @@ public without sharing class CommunityGroupManageController {
 
 	public Boolean memberMode { get { return memberMode == NULL ? false : memberMode; } set; }
 	public Boolean managerMode { get { return managerMode == NULL ? false : managerMode; } set; }
+	public Boolean showOnlyMode { get { return showOnlyMode == NULL ? false : showOnlyMode; } set; }
 	public MemberPage allusers { get;set; }
 
 	public void msShow() {
 		Id tempChGroup = chatterGroup == NULL ? NULL : chatterGroup.Id;
-		allusers = new MemberPage('all', tempChGroup, control);
+		String determineMode = managerMode ? (showOnlyMode ? 'managers' : 'members') : (showOnlyMode ? 'members' : 'all');
+		allusers = new MemberPage(determineMode, tempChGroup, control);
 	}
 
 	public void msDone() {
@@ -118,9 +125,20 @@ public without sharing class CommunityGroupManageController {
 		init();
 	}
 
+	private static Map<Integer,String> BTN_MAP = new Map<Integer,String> {
+		1 => '2:;: btn-u-blue:;:fa-check:;:' + Label.LBL_Member,
+		2 => '1:;: :;:fa-plus-circle:;:' +Label.LBL_Add,
+		3 => '4:;: :;:fa-star-half-o:;:' + Label.LBL_Manager,
+		4 => '3:;: btn-u-blue:;:fa-check:;:' + Label.LBL_Member
+	};
+
 	@RemoteAction
-	public static String membership(String inUserId, String inGroupContolId, String inMode) {
-		return CommunityUtils.membership(inUserId, inGroupContolId, inMode);
+	public static String membership(String inUserId, String inGroupContolId, Integer inMode) {
+		CommunityUtils.membership(inUserId, inGroupContolId, String.valueOf(inMode));
+		List<String> parts = BTN_MAP.get(inMode).split(':;:');
+		String resultHtml = '<button class="btn-u' + parts[1] + '" onclick="msproc(' + parts[0] + ',\'' + inUserId + '\');return false;">';
+		resultHtml += '<i class="fa ' + parts[2] + '"></i>&nbsp;' + parts[3] + '</button>';
+		return resultHtml + '-;-' + inUserId;
 	}
 
 	public String urlForGroupReturn {
@@ -157,7 +175,7 @@ public without sharing class CommunityGroupManageController {
 
 	public String groupImageUrl {
 		get {
-			return chatterGroup.FullPhotoUrl == NULL ? CommunitySearchController.checkUrl('/profilephoto/0F9/F') : chatterGroup.FullPhotoUrl;
+			return chatterGroup.FullPhotoUrl == NULL ? CommunityUtils.checkUrl('/profilephoto/0F9/F') : chatterGroup.FullPhotoUrl;
 		}
 	}
 
@@ -202,8 +220,8 @@ public without sharing class CommunityGroupManageController {
 		public Boolean hasPrevious { get;set; }
 		public Boolean showPagination { get;set; }
 		public String query { get;set; }
-		public Integer columnSort { get {return columnSort == NULL ? 0 : columnSort;}set; }
-		public Boolean ascSort { get {return ascSort == NULL ? false : ascSort;}set; }
+		public Integer columnSort { get {return columnSort == NULL ? 1 : columnSort;}set; }
+		public Boolean ascSort { get {return ascSort == NULL ? true : ascSort;}set; }
 		private Integer prevCol;
 		private String mode;
 		private Id gIdChatter;
@@ -226,7 +244,7 @@ public without sharing class CommunityGroupManageController {
 			if (allMode) {
 				String mQuery = 'SELECT Id, Name, ContactId, City, Country, Community_Contact_ID__c, SmallPhotoUrl FROM User WHERE (ContactId != NULL OR Community_Contact_ID__c != NULL) AND isActive = true';
 				if (String.isNotBlank(query)) {
-					mQuery += ' AND (FirstName LIKE \'' + query + '%\' OR LastName LIKE \'' + query + '%\')';
+					mQuery += ' AND (FirstName LIKE \'' + String.escapeSingleQuotes(query) + '%\' OR LastName LIKE \'' + String.escapeSingleQuotes(query) + '%\')';
 				}
 				if (columnSort > 0) {
 					List<String> orderList = new List<String> {'','Name'};
@@ -238,7 +256,7 @@ public without sharing class CommunityGroupManageController {
 				String mQuery2 = 'SELECT MemberId, Member.Name, Member.Id, Member.ContactId, Member.City, Member.Country, Member.Community_Contact_ID__c, Member.SmallPhotoUrl FROM CollaborationGroupMember';
 				mQuery2 += ' WHERE CollaborationGroupId =\'' + gIdChatter + '\' AND (Member.ContactId != NULL OR Member.Community_Contact_ID__c != NULL) AND Member.isActive = true';
 				if (String.isNotBlank(query)) {
-					mQuery2 += ' AND (Member.FirstName LIKE \'' + query + '%\' OR Member.LastName LIKE \'' + query + '%\')';
+					mQuery2 += ' AND (Member.FirstName LIKE \'' + String.escapeSingleQuotes(query) + '%\' OR Member.LastName LIKE \'' + String.escapeSingleQuotes(query) + '%\')';
 				}
 				if (columnSort > 0) {
 					List<String> orderList = new List<String> {'','Member.Name'};
@@ -253,7 +271,7 @@ public without sharing class CommunityGroupManageController {
 				String mQuery3 = 'SELECT Group_Manager_User__c, Group_Manager_User__r.Id, Group_Manager_User__r.Name, Group_Manager_User__r.ContactId, Group_Manager_User__r.City, Group_Manager_User__r.Country, Group_Manager_User__r.Community_Contact_ID__c, Group_Manager_User__r.SmallPhotoUrl FROM Community_Group_Manager__c';
 				mQuery3 += ' WHERE Group_Control__c =\'' + gIdControl + '\' AND (Group_Manager_User__r.ContactId != NULL OR Group_Manager_User__r.Community_Contact_ID__c != NULL) AND Group_Manager_User__r.isActive = true';
 				if (String.isNotBlank(query)) {
-					mQuery3 += ' AND (Group_Manager_User__r.FirstName LIKE \'' + query + '%\' OR Group_Manager_User__r.LastName LIKE \'' + query + '%\')';
+					mQuery3 += ' AND (Group_Manager_User__r.FirstName LIKE \'' + String.escapeSingleQuotes(query) + '%\' OR Group_Manager_User__r.LastName LIKE \'' + String.escapeSingleQuotes(query) + '%\')';
 				}
 				if (columnSort > 0) {
 					List<String> orderList = new List<String> {'','Group_Manager_User__r.Name'};
@@ -312,7 +330,7 @@ public without sharing class CommunityGroupManageController {
 		}
 
 		public void column() {
-			ascSort = (prevCol == NULL || columnSort != prevCol) ? true : !ascSort;
+			ascSort = (prevCol != NULL && columnSort != prevCol) ? true : !ascSort;
 			prevCol = columnSort;
 			init();
 		}
@@ -333,7 +351,7 @@ public without sharing class CommunityGroupManageController {
 		}
 
 		public void firstPage() {
-			pageNumber = 0;
+			pageNumber = 1;
 			init();
 		}
 	}

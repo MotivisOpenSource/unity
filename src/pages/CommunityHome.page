@@ -56,8 +56,7 @@
                 </div>
                 <!-- End Magazine Slider -->
             </div>
-        </div>  
-
+    </div>
         <div class="row magazine-page margin-bottom-10"> 
             <!-- Begin Content -->
             <div class="col-md-9">
@@ -78,9 +77,15 @@
 
             <!-- Begin Sidebar -->
             <div class="col-md-3" >
-                <div class="profile">
-                <div class="headline"><h2><i class="fa fa-bell-o"></i> Notifications</h2></div>
-                <ul id="scrollbar5" class="list-unstyled contentHolder margin-bottom-20 ps-container">
+                <!--<div class="profile">
+                <div class="headline"><h2><i class="fa fa-bell-o"></i> Notifications</h2></div>-->
+                <c:CommunityHomeNotifications />
+                <!--<ul id="scrollbar5" class="list-unstyled contentHolder margin-bottom-20 ps-container">
+                    
+
+                    <c:CommunityHomeNotifications />
+                    
+
                     <li class="notification">
                         <i class="icon-custom icon-sm rounded-x icon-bg-red icon-line icon-envelope"></i>
                         <div class="overflow-h">
@@ -131,7 +136,7 @@
                     </div>
                 </ul>
                 <button type="button" class="btn-u btn-u-default btn-u-sm btn-block">Load More</button>
-                </div>
+                </div>-->
                 <!--End Notification-->
                 
                 <!-- Social Icons ->
@@ -193,6 +198,7 @@
         </div>
     </div><!--/container-->  
     <!-- End Content Part -->
+   
 </apex:define>
 </apex:composition>
 </apex:page>

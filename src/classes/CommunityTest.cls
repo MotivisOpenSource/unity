@@ -40,11 +40,10 @@ private class CommunityTest {
 		cnc3.initFromView();
 		cnc3.mode = 'view';
 		cnc3.init();
-		String tst = cnc3.imgPrefix;
 		cnc3.cancel();
 		cnc3.edit();
 		Boolean b = cnc3.allowComments;
-		tst = cnc3.urlForEditNews;
+		String tst = cnc3.urlForEditNews;
 		tst = cnc3.urlForNewNews;
 		tst = cnc3.urlForCloneNews;
 

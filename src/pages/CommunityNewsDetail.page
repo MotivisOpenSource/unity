@@ -2,38 +2,45 @@
 <apex:composition template="{!$Site.Template}">
 <apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
 <apex:define name="body">
+	<style type="text/css">
+		body.modal-open { padding-right: 0 !important; overflow: auto; }
+	</style>
 	<div class="breadcrumbs margin-bottom-10">
 		<div class="container">
 			<h1 class="pull-left">{!$ObjectType.Community_News__c.Label}</h1>
 			<ul class="pull-right breadcrumb">
-				<li><a href="{!$Page.CommunityNews}">News</a></li>
-				<li class="active"><a href="{!$Page.CommunityNewsDetail}?id={!news.Id}">{!news.Title__c}</a></li>
+				<li><a href="{!$Page.CommunityNews}">{!$Label.LBL_News}</a></li>
+				<li class="active">{!news.Title__c}</li>
 			</ul>
 		</div>
 	</div>
 	<div class="profile">
 		<div class="container content">
-			<div class="row text-center margin-bottom-20">
-				<apex:form id="theform">
-					<c:CommunityFollow parentId="{!news.Id}"/>
-					<c:CommunityShare sO="{!news}"/>
-					<apex:outputLink value="{!urlForEditNews}" styleClass="btn-u" rendered="{!$ObjectType.Community_News__c.Updateable}">{!$Label.BTN_Edit}</apex:outputLink>
-					<apex:outputPanel layout="none" rendered="{!$ObjectType.Community_News__c.Updateable && $ObjectType.Community_News__c.Createable}">&nbsp;</apex:outputPanel>
-					<apex:outputLink value="{!urlForCloneNews}" styleClass="btn-u" rendered="{!$ObjectType.Community_News__c.Createable}">{!$Label.BTN_Clone}</apex:outputLink>
-				</apex:form>
-			</div>
-			<div class="row">
-				<div class="col-sm-4">
-					<apex:image url="{!news.Image_Path__c}" styleClass="img-responsive margin-bottom-20"/>
+			<div class="row margin-bottom-10">
+				<div class="col-md-6 text-left">
+					<h2>{!news.Title__c}</h2>
+					<h6>{!PostedStr}</h6>
 				</div>
-				<div class="col-sm-8">
-					<apex:variable var="colspanCount" value="{!1}"/>
-					<apex:repeat value="{!fieldset}" var="fs">
-						<apex:outputField value="{!news[fs.fieldPath]}"/><br/>
-					</apex:repeat>
+				<div class="col-md-6">
+					<apex:form id="theform" style="float:right;">
+						<c:CommunityFollow parentId="{!news.Id}"/>
+						<c:CommunityShare sO="{!news}"/>
+						<apex:outputLink value="{!urlForEditNews}" styleClass="btn-u" rendered="{!$ObjectType.Community_News__c.Updateable}">{!$Label.BTN_Edit}</apex:outputLink>
+						<apex:outputPanel layout="none" rendered="{!$ObjectType.Community_News__c.Updateable && $ObjectType.Community_News__c.Createable}">&nbsp;</apex:outputPanel>
+						<apex:outputLink value="{!urlForCloneNews}" styleClass="btn-u" rendered="{!$ObjectType.Community_News__c.Createable}">{!$Label.BTN_Clone}</apex:outputLink>
+					</apex:form>
 				</div>
 			</div>
-			<div class="row">
+			<apex:outputPanel layout="block" styleClass="row margin-bottom-20" style="max-height:300px;overflow:hidden;" rendered="{!!ISBLANK(NewsImage)}">
+				<img class="img-responsive full-width" src="{!NewsImage}" alt=""/>
+			</apex:outputPanel>
+			<!--apex:outputPanel layout="block" styleClass="row text-center margin-bottom-20" rendered="{!ISBLANK(NewsImage)}" style="background:#f8f8f8; padding:20px;">
+				<i class="fa fa-newspaper-o fa-5x"></i>
+			</apex:outputPanel-->
+			<div class="margin-bottom-30">
+				<apex:outputText value="{!news.Content__c}" escape="false"/>
+			</div>
+			<div class="row margin-bottom-20">
 				<div class="col-sm-12">
 					<c:CommunityTagDisplay oId="{!news.Id}" oType="{!$ObjectType.Community_News_Tag__c.Name}" fName="{!$ObjectType.Community_News_Tag__c.Fields.Community_News__c.Name}"/>
 				</div>
@@ -47,41 +54,6 @@
 			</apex:outputPanel>
 		</div>
 	</div>
-	<!--apex:pageMessages id="pageMessages"/>
-	<table>
-		<tr>
-			<td colspan="2">
-				<apex:form id="theform">
-					<c:CommunityFollow parentId="{!news.Id}"/>
-					<c:CommunityShare sO="{!news}"/>
-					<apex:commandButton value="{!$Label.BTN_Edit}" action="{!edit}" rendered="{!$ObjectType.Community_News__c.Updateable}"/>
-				</apex:form>
-			</td>
-		</tr>
-		<tr>
-			<td rowspan="{!rowspanCount}">
-				<apex:image url="{!news.Image_Path__c}"/>
-			</td>
-			<td style="height:1px;">
-				&nbsp;
-			</td>
-		</tr>
-		<apex:variable var="colspanCount" value="{!1}"/>
-		<apex:repeat value="{!fieldset}" var="fs">
-			<apex:outputPanel layout="none" rendered="{!fs.fieldPath == 'Content__c'}">
-				<apex:variable var="colspanCount" value="{!2}"/>
-			</apex:outputPanel>
-			<tr>
-				<td colspan="{!colspanCount}">
-					<apex:outputField value="{!news[fs.fieldPath]}"/>
-				</td>
-			</tr>
-		</apex:repeat>
-		<td>
-			<c:CommunityTagDisplay oId="{!news.Id}" oType="{!$ObjectType.Community_News_Tag__c.Name}" fName="{!$ObjectType.Community_News_Tag__c.Fields.Community_News__c.Name}"/>
-		</td>
-	</table-->
-
 </apex:define>
 </apex:composition>
 </apex:page>

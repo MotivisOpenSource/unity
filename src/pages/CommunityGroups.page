@@ -148,7 +148,7 @@
 							$rootScope.getDataStatus = 'InProgress';
 							Visualforce.remoting.Manager.invokeAction(
 								'{!$RemoteAction.CommunityGroupsController.getGroups}',
-								limit, offset, '{!$CurrentPage.parameters.f}',
+								limit, offset, '{!JSENCODE($CurrentPage.parameters.f)}',
 								function(result, event) {
 									$rootScope.$apply(function() {
 										if (event.status) {
@@ -233,6 +233,7 @@
 									else if(item.CurrentMemberRole == 'Standard') {
 										item.CurrentMemberRole = 'NotAMember';
 										item.NotAMemberStatus = 'Join';
+										item.GroupMembersCount--;
 									}
 								}
 							});
@@ -250,6 +251,7 @@
 						);
 						$.each($scope.groups, function(i, item){
 							if (item.GroupId == groupId) {
+								item.GroupMembersCount++;
 								item.CurrentMemberRole = 'Standard';
 							}
 						});

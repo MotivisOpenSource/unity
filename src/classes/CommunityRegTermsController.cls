@@ -192,12 +192,13 @@ public with sharing class CommunityRegTermsController {
 			profileView = new ProfileTab(currentCProfile, true);
 			// select contact with field from fieldset
 			overviewTab = new List<FieldSection>();
+			String rtName = currentCProfile.RecordType.Name.replace('/','');
 			Map<String, FieldSection> tabMap = new Map<String, FieldSection>();
 			for (Schema.FieldSet fsItem : SObjectType.Community_Profile__c.FieldSets.getMap().values()) {
 				String fsLabel = fsItem.getLabel();
 				if (fsLabel.contains(':')) {
 					String[] parts = fsLabel.split(':');
-					if (parts.size() == 3 && parts[0] == currentCProfile.RecordType.Name && parts[2].isNumeric()) {
+					if (parts.size() == 3 && parts[0] == rtName && parts[2].isNumeric()) {
 						Integer sNum = Integer.valueOf(parts[2]);
 						Boolean notAdded = true;
 						for (Integer ii = 0; ii < overviewTab.size(); ii++) {

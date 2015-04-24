@@ -48,10 +48,11 @@ public with sharing class CommunityMenuController {
 		return newsList.isEmpty() ? '' : newsList[0].Teaser__c;
 	}
 
+	public String getHelpLink() {
+		List<Community_Resource__c> helpList = [SELECT Id, Link__c FROM Community_Resource__c WHERE Status__c = 'Active' AND Help_Link__c = true AND Link__c != NULL];
+		return (helpList.size() > 0 && String.isNotBlank(helpList[0].Link__c)) ? helpList[0].Link__c : NULL;
+	}
 
-	
-	
-	
 	// -- variables -- lists for wrapper class --
 	public static List<LinkItem> LinkItems {
 		get {

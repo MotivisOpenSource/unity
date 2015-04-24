@@ -5,8 +5,8 @@ public with sharing class CommunityFeed_MyMessagesController {
 	private final Integer MESSAGES_PER_PAGE = 10;
 	public Integer MessagesPerPage { get {return this.MESSAGES_PER_PAGE;} private set;}
 
-	public final String SearchQueryUrlParam = ApexPages.currentPage().getParameters().get(this.SEARCH_STRING);
-	public final String ConversationIdUrlParam = ApexPages.currentPage().getParameters().get(this.CONVERSATION_ID);
+	public final String SearchQueryUrlParam =  ApexPages.currentPage() != null ? ApexPages.currentPage().getParameters().get(this.SEARCH_STRING) : null;
+	public final String ConversationIdUrlParam = ApexPages.currentPage() != null ? ApexPages.currentPage().getParameters().get(this.CONVERSATION_ID) : null;
 
 	public List<ChatterConversation> Conversations { get; set; }
 	public ChatterConversation CurrentConversation { get; set; }
@@ -38,19 +38,25 @@ public with sharing class CommunityFeed_MyMessagesController {
 	public CommunityFeed_MyMessagesController() {
 		//ApexPages.currentPage().getHeaders().put('X-Frame-Options', 'GOFORIT');
 		this.Conversations = new List<ChatterConversation>();
-		if (!String.isBlank(this.SearchQueryUrlParam)) {
-			this.SearchQuery = this.SearchQueryUrlParam;
+		if(ApexPages.currentPage() != null && ApexPages.currentPage().getParameters().get('c') != null){
+			SelectedConversationId = ApexPages.currentPage().getParameters().get('c');
+			goToConversation();
+		}else{
+			if (!String.isBlank(this.SearchQueryUrlParam)) {
+				this.SearchQuery = this.SearchQueryUrlParam;
+			}
+			doSearchConversations();
 		}
-		doSearchConversations();
+		
 	}
 
 	public void goToConversation() {
 		this.SearchQuery = NULL;
 		if (!String.isBlank(SelectedConversationId)) {
 			this.CurrentConversation = getConversation(this.SelectedConversationId, NULL, this.MESSAGES_PER_PAGE);
-			if (this.CurrentConversation != NULL) {
+			/*if (this.CurrentConversation != NULL) {
 				markConversationRead(this.CurrentConversation.ConversationId, true);
-			}
+			}*/
 		} else {
 			this.Conversations = getConversations(NULL, NULL, this.MESSAGES_PER_PAGE);
 		}
@@ -114,7 +120,12 @@ public with sharing class CommunityFeed_MyMessagesController {
 		ConnectApi.ChatterConversation conversation = ConnectApi.ChatterMessages.searchConversation(Network.getNetworkId(), conversationId, pageToken, meesagesPerPage, query);//ConnectApi.ChatterMessages.getConversation(conversationId);
 		return new ChatterConversation(conversation);
 	}
+	public void markConversationRead(){
+		markConversationRead(this.CurrentConversation.ConversationId, true);
+	}
+
 	public void markConversationRead(String conversationId, Boolean isRead) {
+	System.debug('markConversationRead');	
 		ConnectApi.ChatterMessages.markConversationRead(conversationId, isRead);
 	}
 	/*public void searchUsers(String query) {

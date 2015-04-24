@@ -3,10 +3,13 @@
 		<apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
 		<apex:define name="body">
 			<apex:form >
-				<apex:actionFunction action="{!goToConversation}" name="goToConversation" rerender="centerContent" status="doSearchConversationsWaitingStatus" oncomplete="initPrivateConversation();">
+				<apex:actionFunction action="{!goToConversation}" name="goToConversation" rerender="centerContent" status="doSearchConversationsWaitingStatus" oncomplete="initPrivateConversation(); markConversationReadToTrue();">
 					<apex:param name="conversationId" assignTo="{!SelectedConversationId}" value="" />
 				</apex:actionFunction>
-				<apex:actionFunction action="{!goToConversation}" name="refreshConversation" rerender="centerContent" status="showMoreMessagesWaitingStatus" oncomplete="initPrivateConversation();">
+				<apex:actionFunction action="{!goToConversation}" name="refreshConversation" rerender="centerContent" status="showMoreMessagesWaitingStatus" oncomplete="initPrivateConversation(); markConversationReadToTrue();">
+					<apex:param name="conversationId" assignTo="{!SelectedConversationId}" value="" />
+				</apex:actionFunction>
+				<apex:actionFunction action="{!markConversationRead}" name="markConversationRead" rerender="centerContent" oncomplete="initScrollbars();">
 					<apex:param name="conversationId" assignTo="{!SelectedConversationId}" value="" />
 				</apex:actionFunction>
 				<apex:actionFunction action="{!loadOlderMessages}" name="loadOlderMessages" rerender="messageListContainer" status="showMoreMessagesWaitingStatus" oncomplete="initScrollbars();">
@@ -362,6 +365,9 @@
 				var BTN_DISABLED_CLASS= 'state-disabled';
 
 				$(document).ready(function() {
+					
+					markConversationReadToTrue();
+
 					$(document).on('keyup', REPLY_BODY_ELEMENT, function(event) {
 						event.preventDefault();
 						messageValidationHandler (REPLY_BODY_ELEMENT, REPLY_ERROR_MESSAGE_ELEMENT, BTN_DISABLED_CLASS, REPLY_SEND_BUTTON_ELEMENT, REPLY_TEXT_LIMIT);
@@ -414,6 +420,14 @@
 						);
 					});
 				});
+
+				function markConversationReadToTrue(){
+					if(document.location.href.search("c=") > 0){
+						var conversationId = document.location.href.split("c=")[1];
+						markConversationRead(conversationId);
+					}
+				}
+
 				function newConversationValidationHandler(btn, disabled_cls ) {
 					var elements = $('li.search-choice');
 					var limitError = $('#recipientsFullMessage');
