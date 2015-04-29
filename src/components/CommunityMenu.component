@@ -11,7 +11,7 @@ ul li, ol li {
 <apex:outputPanel rendered="{!redirectToRegTerms}">
 	<script type="text/javascript">
 		(function() {
-			window.location.href = '{!CommunityRegTerms_Page}';
+			window.location.href = '{!$Page.CommunityRegTerms}';
 		})();
 	</script>
 </apex:outputPanel>

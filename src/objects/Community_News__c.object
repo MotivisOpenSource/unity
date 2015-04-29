@@ -159,6 +159,11 @@
             <isRequired>false</isRequired>
         </availableFields>
         <availableFields>
+            <field>Entry_Date__c</field>
+            <isFieldManaged>false</isFieldManaged>
+            <isRequired>false</isRequired>
+        </availableFields>
+        <availableFields>
             <field>Expiration_Date__c</field>
             <isFieldManaged>false</isFieldManaged>
             <isRequired>false</isRequired>
@@ -173,17 +178,12 @@
             <isFieldManaged>false</isFieldManaged>
             <isRequired>false</isRequired>
         </availableFields>
-        <description>View Details Page of Community News record.</description>
-        <displayedFields>
+        <availableFields>
             <field>Title__c</field>
             <isFieldManaged>false</isFieldManaged>
             <isRequired>false</isRequired>
-        </displayedFields>
-        <displayedFields>
-            <field>Entry_Date__c</field>
-            <isFieldManaged>false</isFieldManaged>
-            <isRequired>false</isRequired>
-        </displayedFields>
+        </availableFields>
+        <description>View Details Page of Community News record.</description>
         <displayedFields>
             <field>Teaser__c</field>
             <isFieldManaged>false</isFieldManaged>

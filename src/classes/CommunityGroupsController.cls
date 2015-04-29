@@ -391,12 +391,30 @@ public without sharing class CommunityGroupsController {
 
 	@RemoteAction
 	public static Boolean requestToJoin(String currentChatterGroupId) {
+		List<Community_Group_Control__c> communityGroupControllList = [
+			SELECT Id, Chatter_Group_ID__c
+			FROM Community_Group_Control__c
+			WHERE Chatter_Group_ID__c =: currentChatterGroupId
+			LIMIT 1
+		];
+		if (!communityGroupControllList.isEmpty()) {
+			currentChatterGroupId = communityGroupControllList[0].Id;
+		}
 		CommunityUtils.membership(UserInfo.getUserId(), currentChatterGroupId, '5');
 		return true;
 	}
 
 	@RemoteAction
 	public static Boolean calcelRequestToJoin(String currentChatterGroupId) {
+		List<Community_Group_Control__c> communityGroupControllList = [
+			SELECT Id, Chatter_Group_ID__c
+			FROM Community_Group_Control__c
+			WHERE Chatter_Group_ID__c =: currentChatterGroupId
+			LIMIT 1
+		];
+		if (!communityGroupControllList.isEmpty()) {
+			currentChatterGroupId = communityGroupControllList[0].Id;
+		}
 		CommunityUtils.membership(UserInfo.getUserId(), currentChatterGroupId, '6');
 		return true;
 	}

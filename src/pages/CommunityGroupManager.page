@@ -123,14 +123,20 @@
 							<!-- MEMBERS -->
 							<div id="members" class="profile-edit tab-pane fade}">
 								<div class="row">
-									<div class="col-md-6">
+									<div class="col-md-8">
 										<h2 class="heading-md">{!$Label.LBL_ManagerGroupMembers}</h2>
 									</div>
-									<div class="col-md-6 text-right">
-										<a href="#newConversationModal" role="button" data-toggle="modal" title="{!$Label.LBL_Add_Remove_Members}" onclick="showMemberDialog(true,false);$('[id$=memin]').hide();">
+									<apex:outputPanel id="memreqlinks" layout="block" styleClass="col-md-4 text-center">
+										<a href="#newConversationModal" role="button" data-toggle="modal" title="{!$Label.LBL_Add_Remove_Members}" onclick="showMemberDialog(true,false,false);$('[id$=memin]').hide();">
 											<span><i class="fa fa-user-plus"></i>&nbsp;{!$Label.LBL_Add_Remove_Members}</span>
 										</a>
-									</div>
+										<apex:outputPanel layout="none" rendered="{!RequestCount > 0}">
+											<br/>
+											<a href="#newConversationModal" role="button" data-toggle="modal" onclick="showMemberDialog(false,false,true);$('[id$=memin]').hide();" style="color:#e9b605;font-weight:bold;">
+												<span><i class="fa fa-cart-plus"></i>&nbsp;{!RequestCount}&nbsp;{!$Label.LBL_Pending}</span>
+											</a>
+										</apex:outputPanel>
+									</apex:outputPanel>
 								</div>
 								<apex:form id="memlist">
 									<div id="scrollbar1" class="panel-body">
@@ -203,11 +209,11 @@
 							<!-- MANAGERS -->
 							<div id="managers" class="profile-edit tab-pane fade in active}">
 								<div class="row">
-									<div class="col-md-6">
+									<div class="col-md-8">
 										<h2 class="heading-md">{!$Label.LBL_MangeGroupManagers}</h2>
 									</div>
-									<div class="col-md-6 text-right">
-										<a href="#newConversationModal" role="button" data-toggle="modal" title="{!$Label.LBL_Update_Managers}" onclick="showMemberDialog(false,true);$('[id$=memin]').hide();">
+									<div class="col-md-4 text-center">
+										<a href="#newConversationModal" role="button" data-toggle="modal" title="{!$Label.LBL_Update_Managers}" onclick="showMemberDialog(false,true,false);$('[id$=memin]').hide();">
 											<span><i class="fa fa-user-plus"></i>&nbsp;{!$Label.LBL_Update_Managers}</span>
 										</a>
 									</div>
@@ -338,7 +344,7 @@
 				<div class="modal-header">
 					<button aria-hidden="true" data-dismiss="modal" class="close" type="button" onclick="doneAction();return false;">&times;</button>
 					<h4 id="newConversationModalLabel" class="modal-title">
-						{!IF(managerMode,$Label.LBL_Update_Managers,$Label.LBL_Add_Remove_Members)}
+						{!MemberModalTitle}
 						<apex:actionStatus id="statusLoad">
 							<apex:facet name="start">
 								&nbsp;<i class="fa fa-spinner fa-pulse"></i>
@@ -347,7 +353,7 @@
 					</h4>
 				</div>
 				<div class="modal-body" style="min-height:400px;">
-					<apex:outputPanel id="memin" layout="block" rendered="{!!memberMode || !managerMode}">
+					<apex:outputPanel id="memin" layout="block" rendered="{!memberMode || managerMode || requestMode}">
 						<apex:form >
 							<section>
 								<label class="input">
@@ -355,14 +361,16 @@
 									<apex:inputText id="srchid" value="{!allusers.query}" html-placeholder="{!$Label.LBL_SearchByName}" onkeyup="searchAction(this);"/>
 								</label>
 							</section>
-							<section>
-								<label class="checkbox">
-									<apex:inputCheckbox value="{!showOnlyMode}">
-										<apex:actionSupport event="onchange" action="{!msShow}" rerender="allpb" status="statusLoad"/>
-									</apex:inputCheckbox>
-									<i></i>{!IF(memberMode,$Label.LBL_ShowMembersOnly,$Label.LBL_ShowManagersOnly)}
-								</label>
-							</section>
+							<apex:outputPanel layout="none" rendered="{!memberMode || managerMode}">
+								<section>
+									<label class="checkbox">
+										<apex:inputCheckbox value="{!showOnlyMode}">
+											<apex:actionSupport event="onchange" action="{!msShow}" rerender="allpb" status="statusLoad"/>
+										</apex:inputCheckbox>
+										<i></i>{!IF(memberMode,$Label.LBL_ShowMembersOnly,$Label.LBL_ShowManagersOnly)}
+									</label>
+								</section>
+							</apex:outputPanel>
 							<apex:outputPanel id="allpb" layout="block">
 								<apex:outputPanel layout="block" styleClass="alert alert-warning fade in" rendered="{!allusers.users.size == 0}">
 									<i class="fa fa-exclamation-triangle"></i>&nbsp;&nbsp;{!$Label.LBL_NoUsersFound}
@@ -377,7 +385,7 @@
 												<div><strong>{!us.name}</strong></div>
 												<div>{!us.role}</div>
 											</td>
-											<td id="cell{!us.id}" class="text-right" style="width:150px;">
+											<td id="cell{!us.id}" class="text-right">
 												<apex:outputPanel layout="block" rendered="{!us.owner}">
 													<button class="btn btn-default" type="button">
 														<i class="fa fa-star" ></i>&nbsp;{!$Label.LBL_Owner}
@@ -401,6 +409,14 @@
 												<apex:outputPanel layout="none" rendered="{!!us.owner && managerMode && us.manager}">
 													<button class="btn-u" onclick="msproc(4,'{!us.id}');return false;" type="button">
 														<i class="fa fa-star-half-o" ></i>&nbsp;{!$Label.LBL_Manager}
+													</button>
+												</apex:outputPanel>
+												<apex:outputPanel layout="none" rendered="{!requestMode}">
+													<button class="btn-u" onclick="msproc(7,'{!us.id}');return false;" type="button">
+														<i class="fa fa-plus-circle" ></i>&nbsp;{!$Label.BTN_Accept}
+													</button>
+													<button class="btn-u btn-u-red" onclick="msproc(8,'{!us.id}');return false;" type="button">
+														<i class="fa fa-times-circle" ></i>&nbsp;{!$Label.BTN_Decline}
 													</button>
 												</apex:outputPanel>
 											</td>
@@ -439,7 +455,13 @@
 							}, 500);
 							function msproc(inm,inid) {
 								if(inm!=4||confirm('{!$Label.LBL_Confirm_Remove_Manager}')) {
-									$('#cell' + inid + ' i').attr('class','fa fa-spinner fa-pulse');
+									if (inm<7) {
+										$('#cell' + inid + ' i').attr('class','fa fa-spinner fa-pulse');
+									}
+									else {
+										$('#cell'+inid+' .btn-u').removeAttr('onclick');
+										$('#cell'+inid+' i.'+((inm==7)?'fa-plus-circle':'fa-times-circle')).attr('class','fa fa-spinner fa-pulse');
+									}
 									Visualforce.remoting.Manager.invokeAction(
 										MS_PROC_RA_STRING,
 										inid,
@@ -464,10 +486,11 @@
 		</div>
 	</div>
 	<apex:form >
-		<apex:actionFunction action="{!msDone}" name="doneAction" rerender="memlist,manlist"/>
+		<apex:actionFunction action="{!msDone}" name="doneAction" rerender="memlist,manlist,memreqlinks"/>
 		<apex:actionFunction action="{!msShow}" name="showMemberDialog" rerender="memback" status="statusLoad">
 			<apex:param name="memberMode" assignTo="{!memberMode}" value="" />
 			<apex:param name="managerMode" assignTo="{!managerMode}" value="" />
+			<apex:param name="requestMode" assignTo="{!requestMode}" value="" />
 		</apex:actionFunction>
 	</apex:form>
 	<script>

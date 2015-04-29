@@ -1,6 +1,7 @@
 public with sharing class CommunityRegTermsController {
 
 	public Boolean allOk { get;set; }
+	public String notOkMessage { get;set; }
 	public Community_Profile__c profileEdited { get;set; }
 	public List<FieldSection> overviewTab { get;set; }
 	public ProfileTab profileView { get;set; }
@@ -51,76 +52,61 @@ public with sharing class CommunityRegTermsController {
 	}
 
 	public CommunityRegTermsController() {
-		registrationDisabled = registrationSetting.Disable_Registration__c;
-		allOk = true;
-		wizardSteps = new List<String>();
-		completedSteps = new List<Boolean>();
+		try {
+			registrationDisabled = registrationSetting.Disable_Registration__c;
+			allOk = true;
+			wizardSteps = new List<String>();
+			completedSteps = new List<Boolean>();
 
+			currentUser = [SELECT Id, Name, ContactId, FullPhotoUrl, Community_Contact_ID__c, Completed_Registration_Date__c, Terms_of_Use__c FROM User WHERE Id =: UserInfo.getUserId() LIMIT 1];
+			currentContact = [
+				SELECT Id, Primary_Community_Profile__c, Reg_General_Info_Completed__c, Reg_Interests_Completed__c, Reg_Picture_Completed__c,
+					Reg_Completed__c, Reg_T_C_Completed__c
+				FROM Contact WHERE Id = :currentUser.ContactId OR Id = :currentUser.Community_Contact_ID__c LIMIT 1
+					];
 
+			currentCProfile = [SELECT Id, Name, Primary__c, RecordType.Name FROM Community_Profile__c WHERE Id = :currentContact.Primary_Community_Profile__c ORDER BY CreatedDate DESC LIMIT 1];
 
-		currentUser = [SELECT Id, Name, ContactId, FullPhotoUrl, Community_Contact_ID__c, Completed_Registration_Date__c, Terms_of_Use__c FROM User WHERE Id =: UserInfo.getUserId() LIMIT 1];
-		currentContact = [SELECT Id, Primary_Community_Profile__c, Reg_General_Info_Completed__c, Reg_Interests_Completed__c, Reg_Picture_Completed__c, Reg_Completed__c, Reg_T_C_Completed__c FROM Contact WHERE Id =: currentUser.ContactId OR Id =: currentUser.Community_Contact_ID__c LIMIT 1];
-		currentCProfile = [SELECT Id, Name, Primary__c, RecordType.Name FROM Community_Profile__c WHERE Id =: currentContact.Primary_Community_Profile__c AND Primary__c = true ORDER BY CreatedDate DESC LIMIT 1];
+			List<Community_Admins__c> admins = [SELECT Id, Terms_Body__c, Terms_Published_Date__c, Terms_Archived_Date__c, Terms_Req_New_Signature__c FROM Community_Admins__c WHERE RecordType.Name = 'Community Terms' AND Terms_Status__c = 'Published' ORDER BY Terms_Published_Date__c DESC LIMIT 1];
+			termsConditionsText = (admins.size() != 0) ? admins[0].Terms_Body__c : '';	
 
-		List<Community_Admins__c> admins = [SELECT Id, Terms_Body__c, Terms_Published_Date__c, Terms_Archived_Date__c, Terms_Req_New_Signature__c FROM Community_Admins__c WHERE RecordType.Name = 'Community Terms' AND Terms_Status__c = 'Published' ORDER BY Terms_Published_Date__c DESC LIMIT 1];
-		termsConditionsText = (admins.size() != 0) ? admins[0].Terms_Body__c : '';	
-		
-		
-
-		initProfile();
-		wizardSteps.add('GenInfo');
-		if(currentContact.Reg_General_Info_Completed__c != null) {
-			completedSteps.add(true);
-		}
-		else {
-			completedSteps.add(false);
-		}
+			initProfile();
+			wizardSteps.add('GenInfo');
+			completedSteps.add(currentContact.Reg_General_Info_Completed__c != NULL);
 	
-		if(!registrationSetting.Disable_Interest__c) {
-			initInterests();
-			wizardSteps.add('Interests');
-			if(currentContact.Reg_Interests_Completed__c != null){
-				completedSteps.add(true);
+			if (registrationSetting.Disable_Interest__c != true ) {
+				initInterests();
+				wizardSteps.add('Interests');
+				completedSteps.add(currentContact.Reg_Interests_Completed__c != NULL);
 			}
-			else {
-				completedSteps.add(false);
+
+			if(!registrationSetting.Disable_Picture_Upload__c) {
+				wizardSteps.add('ProfilePicture');
+				completedSteps.add(currentContact.Reg_Picture_Completed__c != NULL);
 			}
+	
+			if(!registrationSetting.Disable_T_C__c) {
+				wizardSteps.add('Terms');
+				Boolean tuCompleted = (currentUser.Terms_of_Use__c > registrationSetting.T_C_Published_Current_Date__c || currentContact.Reg_T_C_Completed__c > registrationSetting.T_C_Published_Current_Date__c);
+				termsIsChecked = tuCompleted;
+				completedSteps.add(tuCompleted);
+			}
+
+			wizardStepsLength = wizardSteps.size();
+			//if(wizardSteps.size() == null) {
+			//	PageReference pageRef = Page.CommunityHome;
+			//}
+
+			Map<String, String> pageParams = ApexPages.currentPage().getParameters();
+			String stepStr = (String.isNotBlank(pageParams.get('step'))) ? pageParams.get('step') : '';
+			Integer tmpIndex = getItemIndexFromWizardSteps(stepStr, wizardSteps);
+			currentWizardStepIndex = tmpIndex > -1 ? tmpIndex : 0;
+			currentWizardStep = wizardSteps[currentWizardStepIndex];
 		}
-		if(!registrationSetting.Disable_Picture_Upload__c) {
-			wizardSteps.add('ProfilePicture');
-			if(currentContact.Reg_Picture_Completed__c != null){
-				completedSteps.add(true);
-			}
-			else {
-				completedSteps.add(false);
-			}
+		catch(Exception e) {
+			allOk = false;
+			notOkMessage = e.getMessage();
 		}
-
-		if(!registrationSetting.Disable_T_C__c) {
-			wizardSteps.add('Terms');
-			if(currentUser.Terms_of_Use__c > registrationSetting.T_C_Published_Current_Date__c || currentContact.Reg_T_C_Completed__c > registrationSetting.T_C_Published_Current_Date__c) {
-				termsIsChecked = true;
-				completedSteps.add(true);
-			}
-			else {
-				completedSteps.add(false);
-				termsIsChecked = false;
-			}
-		}
-
-		wizardStepsLength = wizardSteps.size();
-		//if(wizardSteps.size() == null) {
-		//	PageReference pageRef = Page.CommunityHome;
-		//}
-
-
-
-		Map<String, String> pageParams = ApexPages.currentPage().getParameters();
-		String stepStr = (String.isNotBlank(pageParams.get('step'))) ? pageParams.get('step') : '';
-		Integer tmpIndex = getItemIndexFromWizardSteps(stepStr, wizardSteps);
-		
-		currentWizardStepIndex = tmpIndex > -1 ? tmpIndex : 0;
-		currentWizardStep = wizardSteps[currentWizardStepIndex];
 	}
 
 
@@ -178,60 +164,54 @@ public with sharing class CommunityRegTermsController {
 		if(clickedStepIndex < wizardSteps.size()) {
 			currentWizardStep = wizardSteps[clickedStepIndex];
 			currentWizardStepIndex = clickedStepIndex;
-		}		
-	}	
+		}
+	}
+
 	public void previousStep() {
 		if(currentWizardStepIndex > 0) {
 			currentWizardStepIndex = currentWizardStepIndex - 1;
-			currentWizardStep = wizardSteps[currentWizardStepIndex];			
-		}		
-	}	
+			currentWizardStep = wizardSteps[currentWizardStepIndex];
+		}
+	}
 
 	public void initProfile() {
-		try {
-			profileView = new ProfileTab(currentCProfile, true);
-			// select contact with field from fieldset
-			overviewTab = new List<FieldSection>();
-			String rtName = currentCProfile.RecordType.Name.replace('/','');
-			Map<String, FieldSection> tabMap = new Map<String, FieldSection>();
-			for (Schema.FieldSet fsItem : SObjectType.Community_Profile__c.FieldSets.getMap().values()) {
-				String fsLabel = fsItem.getLabel();
-				if (fsLabel.contains(':')) {
-					String[] parts = fsLabel.split(':');
-					if (parts.size() == 3 && parts[0] == rtName && parts[2].isNumeric()) {
-						Integer sNum = Integer.valueOf(parts[2]);
-						Boolean notAdded = true;
-						for (Integer ii = 0; ii < overviewTab.size(); ii++) {
-							if (overviewTab[ii].sectionOrder >= sNum) {
-								overviewTab.add(ii, new FieldSection(fsItem, parts[1], sNum));
-								//overviewTab.add(ii, new FieldSection(fsItem, 'LBL_' + parts[1], sNum));
-
-								notAdded = false;
-								break;
-							}
+		profileView = new ProfileTab(currentCProfile, true);
+		// select contact with field from fieldset
+		overviewTab = new List<FieldSection>();
+		String rtName = currentCProfile.RecordType.Name.replace('/','');
+		Map<String, FieldSection> tabMap = new Map<String, FieldSection>();
+		for (Schema.FieldSet fsItem : SObjectType.Community_Profile__c.FieldSets.getMap().values()) {
+			String fsLabel = fsItem.getLabel();
+			if (fsLabel.contains(':')) {
+				String[] parts = fsLabel.split(':');
+				if (parts.size() == 3 && parts[0] == rtName && parts[2].isNumeric()) {
+					Integer sNum = Integer.valueOf(parts[2]);
+					Boolean notAdded = true;
+					for (Integer ii = 0; ii < overviewTab.size(); ii++) {
+						if (overviewTab[ii].sectionOrder >= sNum) {
+							overviewTab.add(ii, new FieldSection(fsItem, parts[1], sNum));
+							//overviewTab.add(ii, new FieldSection(fsItem, 'LBL_' + parts[1], sNum));
+							notAdded = false;
+							break;
 						}
-						if (notAdded) {
-							overviewTab.add(new FieldSection(fsItem, parts[1], sNum));
-							//overviewTab.add(new FieldSection(fsItem, 'LBL_' + parts[1], sNum));
-
-						}
+					}
+					if (notAdded) {
+						overviewTab.add(new FieldSection(fsItem, parts[1], sNum));
+						//overviewTab.add(new FieldSection(fsItem, 'LBL_' + parts[1], sNum));
 					}
 				}
 			}
-			Set<String> profileFields = new Set<String> {'Id', 'Name', 'Contact__r.Name'};
-			for (FieldSection fs2 : overviewTab) {
-				for (FieldItem fi2 : fs2.fi) {
-					profileFields.add(fi2.name);
-				}
+		}
+		Set<String> profileFields = new Set<String> {'Id', 'Name', 'Contact__r.Name'};
+		for (FieldSection fs2 : overviewTab) {
+			for (FieldItem fi2 : fs2.fi) {
+				profileFields.add(fi2.name);
 			}
-			List<String> fieldList = new List<String>();
-			fieldList.addAll(profileFields);
-			profileEdited = Database.query('SELECT ' + String.join(fieldList, ', ') + ' FROM Community_Profile__c WHERE Id =\'' + currentCProfile.Id + '\'');
-			FullPhotoUrl =  (currentUser.FullPhotoUrl != null && String.isNotEmpty(currentUser.FullPhotoUrl)) ? currentUser.FullPhotoUrl : '/profilephoto/005/F';
 		}
-		catch (Exception e) {
-			allOk = false;
-		}
+		List<String> fieldList = new List<String>();
+		fieldList.addAll(profileFields);
+		profileEdited = Database.query('SELECT ' + String.join(fieldList, ', ') + ' FROM Community_Profile__c WHERE Id =\'' + currentCProfile.Id + '\'');
+		FullPhotoUrl =  (currentUser.FullPhotoUrl != null && String.isNotEmpty(currentUser.FullPhotoUrl)) ? currentUser.FullPhotoUrl : '/profilephoto/005/F';
 	}
 
 	public void saveProfile() {
@@ -265,7 +245,7 @@ public with sharing class CommunityRegTermsController {
 	}
 
 	public PageReference completeCurrentStep() {
-		Boolean allStepsCompleted = true;
+		PageReference pageRef;
 		try {
 			if (currentWizardStep == 'GenInfo') {
 				currentContact.Reg_General_Info_Completed__c = Datetime.now();
@@ -285,15 +265,24 @@ public with sharing class CommunityRegTermsController {
 				currentUser.Terms_of_Use__c = Datetime.now();
 				currentContact.Reg_T_C_Completed__c = Datetime.now();
 			}
-			
+			Integer counter = 0;
+			Integer uncompletedStep;
 			for(Boolean item : completedSteps) {
-				if(!item) {
-					allStepsCompleted = false;
+				if (!item && uncompletedStep == NULL) {
+					uncompletedStep = counter;
 				}
+				counter++;
 			}
-			if(allStepsCompleted) {
+			if(uncompletedStep == NULL) {
 				currentContact.Reg_Completed__c = Datetime.now();
 				currentUser.Completed_Registration_Date__c = Datetime.now();
+				pageRef = Page.CommunityHome;
+			}
+			else {
+				currentWizardStepIndex = uncompletedStep;
+				currentWizardStep = wizardSteps[currentWizardStepIndex];
+				/*pageRef = Page.CommunityRegTerms;
+				pageRef.getParameters().put('step', wizardSteps[currentWizardStepIndex]);*/
 			}
 			update currentContact;
 			update currentUser;
@@ -301,24 +290,9 @@ public with sharing class CommunityRegTermsController {
 		catch (Exception e) {
 			ApexPages.addMessages(e);
 		}
-
-		PageReference pageRef;		
-		 
-		if(allStepsCompleted && currentWizardStepIndex + 1 == wizardSteps.size()) {
-			pageRef = Page.CommunityHome;
-		}
-		else if(currentWizardStepIndex + 1 < wizardSteps.size()) { 
-			currentWizardStepIndex += 1;
-			currentWizardStep = wizardSteps[currentWizardStepIndex];
-			pageRef = Page.CommunityRegTerms;
-			pageRef.getParameters().put('step', wizardSteps[currentWizardStepIndex]);
-		}
-		else {
-			pageRef = null;	
-		}
 		return pageRef;	
 	}
-	
+
 	//remote actions
 	@RemoteAction
 	public static String toggle(String inid, Boolean sel) {

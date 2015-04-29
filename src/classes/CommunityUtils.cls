@@ -100,7 +100,7 @@ public class CommunityUtils {
 		}
 		// 5 - Create Join Private Group Request
 		// 6 - Delete Join Private Group Request
-		else {
+		else if (inmm < 7) {
 			List<CollaborationGroupMemberRequest> cgmrList = [SELECT Id FROM CollaborationGroupMemberRequest WHERE CollaborationGroupId =:cgc.Chatter_Group_ID__c AND RequesterId =:inUserId AND Status = 'Pending'];
 			if (inmm == 6) {
 				delete cgmrList;
@@ -113,7 +113,31 @@ public class CommunityUtils {
 				resultType = ConnectApi.GroupMembershipType.NotAMemberPrivateRequested;
 			}
 		}
+		// 7 - Accept Join Private Group Request
+		// 8 - Decline Join Private Group Request
+		else {
+			List<CollaborationGroupMemberRequest> cgmrList = [SELECT Id, Status FROM CollaborationGroupMemberRequest WHERE CollaborationGroupId =:cgc.Chatter_Group_ID__c AND RequesterId =:inUserId AND Status = 'Pending'];
+			if (inmm == 8) {
+				cgmrList[0].Status = 'Declined';
+				update cgmrList;
+				resultType = ConnectApi.GroupMembershipType.NotAMember;
+			}
+			else {
+				cgmrList[0].Status = 'Accepted';
+				update cgmrList;
+				resultType = ConnectApi.GroupMembershipType.StandardMember;
+			}
+		}
 		return resultType;
+	}
+
+	public static Integer getRequestJoinGroupCount(Id chatterGroupId) {
+		Integer result = 0;
+		if (chatterGroupId != NULL) {
+			List<CollaborationGroupMemberRequest> cgmrList = [SELECT Id FROM CollaborationGroupMemberRequest WHERE CollaborationGroupId =:chatterGroupId AND Status = 'Pending'];
+			result = cgmrList.size();
+		}
+		return result;
 	}
 
 	public static String getPackagePrefix() {
@@ -200,6 +224,75 @@ public class CommunityUtils {
 			inUrl = Site.getPathPrefix() + inUrl;
 		}
 		return inUrl;
+	}
+
+	public static Boolean checkNewsOverlapInterval(String uCondition, Datetime uStart, Datetime uEnd) {
+		String uQuery = 'SELECT Id FROM Community_News__c WHERE ' + uCondition;
+		if (uStart != NULL || uEnd != NULL) {
+			uQuery += ' AND ((Entry_Date__c = NULL AND Expiration_Date__c = NULL) OR (';
+			if (uStart != NULL && uEnd != NULL) {
+				uQuery += '((Entry_Date__c = NULL OR Entry_Date__c <= :uStart) AND Expiration_Date__c >= :uStart)';
+				uQuery += ' OR ((Expiration_Date__c = NULL OR Expiration_Date__c >= :uEnd) AND Entry_Date__c <= :uEnd)';
+			}
+			else if (uStart != NULL) {
+				uQuery += 'Expiration_Date__c = NULL OR Expiration_Date__c >= :uStart';
+			}
+			else {
+				uQuery += 'Entry_Date__c = NULL OR Entry_Date__c <= :uEnd';
+			}
+			uQuery += '))';
+		}
+		List<Community_News__c> checkList = Database.query(uQuery);
+		return checkList.size() > 0;
+	}
+
+	public static void checkPrimaryProfile(Map<Id,String> inMap) {
+		Map<String,Community_Profile__c> modifiedProfilesMap = new Map<String,Community_Profile__c>();
+		Map<String,Community_Profile__c> existingProfilesMap = new Map<String,Community_Profile__c>();
+		for (Community_Profile__c cpItem : [SELECT Id, Primary__c, RecordType.Name, Contact__c FROM Community_Profile__c WHERE Contact__c IN :inMap.keySet()]) {
+			String newRole = inMap.get(cpItem.Contact__c);
+			String profileKey = cpItem.Contact__c + cpItem.RecordType.Name;
+			if (cpItem.RecordType.Name == newRole && cpItem.Primary__c != true) {
+				cpItem.Primary__c = true;
+				modifiedProfilesMap.put(profileKey, cpItem);
+			}
+			else if (cpItem.RecordType.Name != newRole && cpItem.Primary__c == true) {
+				cpItem.Primary__c = false;
+				modifiedProfilesMap.put(profileKey, cpItem);
+			}
+			existingProfilesMap.put(profileKey, cpItem);
+		}
+
+		Map<String,Schema.RecordTypeInfo> profileNameToRecordTypeMap = Schema.SObjectType.Community_Profile__c.getRecordTypeInfosByName();
+		List<Contact> cList = [SELECT Id, Primary_Community_Profile__c, Primary_Role__c FROM Contact WHERE Id IN :inMap.keySet()];
+		for (Contact cItem : cList) {
+			String newRole2 = inMap.get(cItem.Id);
+			String profileKey2 = cItem.Id + newRole2;
+			if (!existingProfilesMap.containsKey(profileKey2)) {
+				Community_Profile__c cpTemp = new Community_Profile__c(Contact__c = cItem.Id, Primary__c = true, RecordTypeId = profileNameToRecordTypeMap.get(newRole2).getRecordTypeId());
+				modifiedProfilesMap.put(profileKey2, cpTemp);
+				existingProfilesMap.put(profileKey2, cpTemp);
+			}
+		}
+
+		if (modifiedProfilesMap.size() > 0) {
+			upsert modifiedProfilesMap.values();
+		}
+
+		List<Contact> modifiedContacts = new List<Contact>();
+		for (Contact cItem2 : cList) {
+			String newRole3 = inMap.get(cItem2.Id);
+			Id currentProfileId = existingProfilesMap.get(cItem2.Id + newRole3).Id;
+			if (cItem2.Primary_Role__c != newRole3 || cItem2.Primary_Community_Profile__c != currentProfileId) {
+				cItem2.Primary_Role__c = newRole3;
+				cItem2.Primary_Community_Profile__c = currentProfileId;
+				modifiedContacts.add(cItem2);
+			}
+		}
+
+		if (modifiedContacts.size() > 0) {
+			update modifiedContacts;
+		}
 	}
 
 	//wrapper classes

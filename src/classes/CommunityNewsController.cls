@@ -33,7 +33,8 @@ public with sharing class CommunityNewsController {
 			pr.setRedirect(true);
 		}
 		else {
-			mode = 'view';
+			String modeParam = ApexPages.currentPage().getParameters().get('mode');
+			mode = (String.isNotBlank(modeParam) && modeParam == 'preview') ? 'preview' : 'view';
 			init();
 		}
 		return pr;
@@ -51,23 +52,71 @@ public with sharing class CommunityNewsController {
 	public Blob imgBody { get;set; }
 	public String imgFileName { get;set; }
 	public String imgContentType { get;set; }
-	public Integer rowspanCount { get;set; }
+	//public Integer rowspanCount { get;set; }
 
 	private String TAGS_INPUT_NAME = 'tags';
+	private String TEMPORARY_UPDATE_NAME = 'TEMPORARY_UPDATE';
 
 	// -- methods --
 	@TestVisible private void init() {
 		news = (Community_News__c)stdctrl.getRecord();
-		if (news.Id != NULL) {
-			Set<String> collectedFields = new Set<String> {
-					'Id', 'Name', 'Image_Path__c', 'Title__c', 'Teaser__c', 'Content__c', 'URL__c', 'Allow_Comments__c', 'Comment_Expiration_Date__c',
-					'Make_Entry_Sticky__c', 'Entry_Date__c', 'Expiration_Date__c', 'Type__c', 'Content__c'
-						};
+		Boolean recordPulled = false;
+		if (news.Id == NULL) {
+			if (ApexPages.currentPage().getParameters().get('cloneId') != NULL) {
+				try {
+					Id cloneId = Id.valueOf(ApexPages.currentPage().getParameters().get('cloneId'));
+					String cquery = '';
+					String csep = 'SELECT ';
+					for (Schema.FieldSetMember cf : fieldset) {
+						cquery += csep + cf.getFieldPath();
+						csep = ', ';
+					}
+					cquery += ' FROM Community_News__c WHERE Id = \'' + cloneId + '\'';
+					Community_News__c cnews = Database.query(cquery);
+					for (Schema.FieldSetMember cf2 : fieldset) {
+						String fName = cf2.getFieldPath();
+						news.put(fName, cnews.get(fName));
+					}
+				}
+				catch (Exception e) {
+					ApexPages.addMessages(e);
+				}
+			}
+			else {
+				news.Entry_Date__c = Datetime.now();
+			}
+			recordPulled = true;
+		}
+
+		if (!recordPulled && mode != 'view') {
+			List<Attachment> attList = [SELECT Body FROM Attachment WHERE ParentId = :news.Id AND Name = :TEMPORARY_UPDATE_NAME];
+			if (attList.size() > 0) {
+				mode = SObjectType.Community_News__c.isUpdateable() ? mode : 'view';
+				if (mode != 'view') {
+					Community_News__c restoredNews = (Community_News__c)JSON.deserialize(attList[0].Body.toString(), Community_News__c.class);
+					restoredNews.Id = news.Id;
+					news = restoredNews;
+					recordPulled = true;
+				}
+			}
+			else if (!SObjectType.Community_News__c.isCreateable() && mode == 'preview') {
+				mode = 'view';
+			}
+		}
+
+		if (!recordPulled) {
+			List<String> fieldList = new List<String> {
+				'Id', 'Name', 'Image_Path__c', 'Title__c', 'Teaser__c', 'Content__c', 'URL__c', 'Allow_Comments__c', 'Comment_Expiration_Date__c',
+				'Make_Entry_Sticky__c', 'Entry_Date__c', 'Expiration_Date__c', 'Type__c', 'Content__c'
+			};
 			String pp = CommunityUtils.getPackagePrefix();
 			Boolean isPP = String.isNotBlank(pp);
+			Set<String> collectedFields = new Set<String>();
+			for (String fieldItem : fieldList) {
+				collectedFields.add((isPP && fieldItem.endsWith('__c')) ? (pp + fieldItem) : fieldItem);
+			}
 			for (Schema.FieldSetMember f : fieldset) {
-				String tempFieldName = isPP ? f.getFieldPath().replace(pp,'') : f.getFieldPath();
-				collectedFields.add(tempFieldName);
+				collectedFields.add(f.getFieldPath());
 			}
 			String query = '';
 			String sep = 'SELECT ';
@@ -80,29 +129,15 @@ public with sharing class CommunityNewsController {
 			query += ' FROM Community_News__c WHERE Id = \'' + news.Id + '\'';
 			news = Database.query(query);
 		}
-		else if (ApexPages.currentPage().getParameters().get('cloneId') != NULL) {
-			try {
-				Id cloneId = Id.valueOf(ApexPages.currentPage().getParameters().get('cloneId'));
-				String cquery = '';
-				String csep = 'SELECT ';
-				for (Schema.FieldSetMember cf : fieldset) {
-					cquery += csep + cf.getFieldPath();
-					csep = ', ';
-				}
-				cquery += ' FROM Community_News__c WHERE Id = \'' + cloneId + '\'';
-				Community_News__c cnews = Database.query(cquery);
-				for (Schema.FieldSetMember cf2 : fieldset) {
-					String fName = cf2.getFieldPath();
-					news.put(fName, cnews.get(fName));
-				}
-			}
-			catch (Exception e) {
-				ApexPages.addMessages(e);
-			}
+	}
+
+	private Boolean clearUpdateTemporaryFiles() {
+		List<Attachment> purgeList = [SELECT Id FROM Attachment WHERE ParentId = :news.Id AND Name = :TEMPORARY_UPDATE_NAME];
+		Boolean recordFound = purgeList.size() > 0;
+		if (recordFound) {
+			delete purgeList;
 		}
-		else {
-			news.Entry_Date__c = Datetime.now();
-		}
+		return recordFound;
 	}
 
 	public String getPostedStr() {
@@ -113,16 +148,16 @@ public with sharing class CommunityNewsController {
 		return String.isBlank(news.Image_Path__c) ? NULL : CommunityUtils.checkUrl(news.Image_Path__c);
 	}
 
-	public PageReference cancel() {
-		return stdctrl.cancel();
-	}
-
 	public PageReference edit() {
 		return stdctrl.edit();
 	}
 
-	public PageReference submit() {
+	public PageReference submitFirstStep() {
+		PageReference pr;
 		try {
+			clearUpdateTemporaryFiles();
+			Boolean noSaveMode = news.Id != NULL;
+			Savepoint sp = noSaveMode ? Database.setSavepoint() : NULL;
 			Community_Settings__c cs = Community_Settings__c.getInstance();
 			if (news.Make_Entry_Sticky__c == true && cs != NULL && cs.News_Max_Sticky__c != NULL) {
 				Datetime startDate = news.Entry_Date__c;
@@ -142,11 +177,27 @@ public with sharing class CommunityNewsController {
 				news.Content__c = NULL;
 			}
 			upsert news;
+			if (noSaveMode) {
+				Database.rollback(sp);
+			}
 			if (imgBody != NULL && String.isNotBlank(imgFileName)) {
+				List<Attachment> purgeImageFiles = [SELECT Id FROM Attachment WHERE ParentId = :news.Id AND Name LIKE 'Thumbnail_%'];
+				if (purgeImageFiles.size() > 0) {
+					delete purgeImageFiles;
+				}
 				Attachment aTemp = new Attachment(Name='Thumbnail_' + imgFileName, Body=imgBody, ParentId=news.Id, ContentType=imgContentType);
 				insert aTemp;
 				news.Image_Path__c = '/servlet/servlet.FileDownload?file=' + aTemp.Id;
-				update news;
+				if (!noSaveMode) {
+					update news;
+				}
+			}
+			if (noSaveMode) {
+				insert new Attachment(
+					Name = TEMPORARY_UPDATE_NAME,
+					Body = Blob.valueOf(JSON.serialize(news)),
+					ParentId = news.Id
+				);
 			}
 			String tagsIdsString = ApexPages.currentPage().getParameters().get(TAGS_INPUT_NAME);
 			CommunityTagSelectorController ctsc = new CommunityTagSelectorController();
@@ -154,12 +205,39 @@ public with sharing class CommunityNewsController {
 			ctsc.objectType = Community_News_Tag__c.getSObjectType().getDescribe().getName();
 			ctsc.filterName = Community_News_Tag__c.Community_News__c.getDescribe().getName();
 			ctsc.saveTags(tagsIdsString);
-			return stdctrl.cancel();
+			pr = Page.CommunityNewsDetail;
+			pr.setRedirect(true);
+			pr.getParameters().put('id', news.Id);
+			pr.getParameters().put('mode', 'preview');
+			String retUrlParam = ApexPages.currentPage().getParameters().get('retURL');
+			if (String.isNotBlank(retUrlParam)) {
+				pr.getParameters().put('retURL', retUrlParam);
+			}
 		}
 		catch (Exception e) {
 			ApexPages.addMessages(e);
 		}
-		return NULL;
+		return pr;
+	}
+
+	public PageReference submitSecondStep() {
+		update news;
+		clearUpdateTemporaryFiles();
+		PageReference pr = Page.CommunityNewsDetail;
+		pr.setRedirect(true);
+		pr.getParameters().put('id', news.Id);
+		return pr;
+	}
+
+	public PageReference cancel() {
+		if (!clearUpdateTemporaryFiles() && news.Id != NULL) {
+			delete news;
+		}
+		PageReference pr;
+		String retUrlParam = ApexPages.currentPage().getParameters().get('retURL');
+		pr = String.isBlank(retUrlParam) ? Page.CommunityNews : new PageReference(retUrlParam);
+		pr.setRedirect(true);
+		return pr;
 	}
 
 	public List<Schema.FieldSetMember> fieldset {
@@ -169,22 +247,31 @@ public with sharing class CommunityNewsController {
 				resultList = SObjectType.Community_News__c.FieldSets.EditNews.getFields();
 			}
 			else {
-				resultList = new List<Schema.FieldSetMember>();
+				resultList = SObjectType.Community_News__c.FieldSets.ViewNews.getFields();
+				/*resultList = new List<Schema.FieldSetMember>();
 				rowspanCount = 0;
 				Boolean contentFieldNotFound = true;
 				for (Schema.FieldSetMember f2 : SObjectType.Community_News__c.FieldSets.ViewNews.getFields()) {
 					resultList.add(f2);
 					rowspanCount += contentFieldNotFound ? 1 : 0;
 					contentFieldNotFound = contentFieldNotFound && f2.getFieldPath() != 'Content__c';
-				}
+				}*/
 			}
 			return resultList;
 		}
 	}
 
+	public Boolean previewMode {
+		get {
+			return mode == 'preview';
+		}
+	}
+
 	public Boolean allowComments {
 		get {
-			return news.Allow_Comments__c == true && (news.Comment_Expiration_Date__c == NULL || news.Comment_Expiration_Date__c > Datetime.now());
+			return !previewMode
+					&& news.Allow_Comments__c == true
+					&& (news.Comment_Expiration_Date__c == NULL || news.Comment_Expiration_Date__c > Datetime.now());
 		}
 	}
 
@@ -209,6 +296,17 @@ public with sharing class CommunityNewsController {
 			return prepareUrl(Page.CommunityNewsEdit.getUrl())
 					+ '?cloneId=' + news.Id + '&retURL='
 					+ EncodingUtil.urlEncode(prepareUrl(Page.CommunityNewsDetail.getUrl()) + '?id=' + news.Id, 'UTF-8');
+		}
+	}
+
+	public String urlForBackToNewsEdit {
+		get {
+			String resultUrl = prepareUrl(Page.CommunityNewsEdit.getUrl()) + '?id=' + news.Id + '&mode=preview';
+			String retUrlParam2 = ApexPages.currentPage().getParameters().get('retURL');
+			if (String.isNotBlank(retUrlParam2)) {
+				resultUrl += '&retURL=' + EncodingUtil.urlEncode(retUrlParam2, 'UTF-8');
+			}
+			return resultUrl;
 		}
 	}
 

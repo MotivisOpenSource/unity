@@ -78,16 +78,16 @@
     <fieldSets>
         <fullName>FacultyStaffProfile</fullName>
         <availableFields>
-            <field>Advisor__c</field>
-            <isFieldManaged>false</isFieldManaged>
-            <isRequired>false</isRequired>
-        </availableFields>
-        <availableFields>
             <field>Primary__c</field>
             <isFieldManaged>false</isFieldManaged>
             <isRequired>false</isRequired>
         </availableFields>
         <description>Faculty/Staff Community Profile (when RecordType = &apos;Faculty/Staff&apos;)</description>
+        <displayedFields>
+            <field>Advisor__c</field>
+            <isFieldManaged>false</isFieldManaged>
+            <isRequired>false</isRequired>
+        </displayedFields>
         <displayedFields>
             <field>Email__c</field>
             <isFieldManaged>false</isFieldManaged>

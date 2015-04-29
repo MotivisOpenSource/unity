@@ -6,6 +6,14 @@ global with sharing class CommunityShareController {
 	public String shareGroup { get;set; }
 	public Boolean hasMessage { get { return hasMessage == NULL ? false : hasMessage; } set; }
 	public String message { get; set; }
+	public Boolean showShareButton { 
+		get{
+			Community_Settings__c cs = [SELECT Disable_Share__c FROM Community_Settings__c Limit 1];
+			System.debug(cs.Disable_Share__c);
+			if(cs.Disable_Share__c) return false;
+			return true;
+		}
+		set; }
 
 	public SObject sobj {
 		get;
@@ -28,42 +36,99 @@ global with sharing class CommunityShareController {
 		}
 	}
 
-	public PageReference share() {
+	//remote actions
+	@RemoteAction
+	global static String shareForGroups(String idsGroups, String shareComment, String shareLinkName, String sobjId) {
+		
+		List<String> groupsIds = idsGroups.split(',');
+		String shareLinkUrl;
+		String message;
+		String obj = String.valueOf(((Id)sobjId).getSObjectType());
+		obj = obj.split('__').size() > 2 ? obj.split('__')[1] : obj.split('__')[0];
+		if(obj.equalsIgnoreCase('Community_Events')){
+			shareLinkUrl = Page.CommunityEventDetail.getUrl().replace('/apex/','') + '?id=' + sobjId;
+			shareLinkName = shareLinkName;
+		}else {
+			shareLinkUrl = Page.CommunityNewsDetail.getUrl().replace('/apex/','') + '?id=' +  sobjId;
+			shareLinkName = shareLinkName;
+		}
+
 		try {
 			Set<String> gcSet2 = new Set<String>();
-			for (Community_Group_Control__c cgc2 : [SELECT Chatter_Group_ID__c FROM Community_Group_Control__c WHERE Chatter_Group_ID__c != NULL AND Status__c = 'Approved']) {
+			for (Community_Group_Control__c cgc2 : [SELECT Chatter_Group_ID__c 
+													FROM Community_Group_Control__c 
+													WHERE Chatter_Group_ID__c IN :groupsIds 
+													AND Status__c = 'Approved']) {
 				gcSet2.add(cgc2.Chatter_Group_ID__c);
 			}
 			List<CollaborationGroup> cgrec = [
 				SELECT Id, NetworkId
 				FROM CollaborationGroup
-				WHERE Name = :shareGroup AND NetworkId = :Network.getNetworkId() AND Id IN :gcSet2
+				WHERE NetworkId = :Network.getNetworkId() AND Id IN :gcSet2
 					];
-			if (cgrec.size() == 1) {
+			if (!cgrec.isEmpty()) {
+				
+				List<FeedItem> shareFeeds = new List<FeedItem>();
+
 				String cprefix = '/apex/';
 				if (cgrec[0].NetworkId != NULL) {
 					Network nRec = [SELECT UrlPathPrefix FROM Network WHERE Id = :cgrec[0].NetworkId];
 					cprefix = '/' + nRec.UrlPathPrefix + '/';
 				}
-				insert new FeedItem (
-					LinkUrl = cprefix + shareLinkUrl,
-					Title = shareLinkName,
-					ParentId = cgrec[0].Id,
-					NetworkScope = cgrec[0].NetworkId,
-					Body = shareComment
-				);
-				hasMessage = false;
+				for(CollaborationGroup gr : cgrec){
+					shareFeeds.add(
+						new FeedItem (
+									LinkUrl = cprefix + shareLinkUrl,
+									Title = shareLinkName,
+									ParentId = gr.Id,
+									NetworkScope = gr.NetworkId,
+									Body = shareComment	)
+					);
+
+				}
+				insert shareFeeds;
+				message	= 'SUCCESS';
 			}
 			else {
-				hasMessage = true;
-				message = 'Something wrong with group name';
+				message = 'ERR Something wrong with group name';
 			}
 		}
 		catch(Exception e) {
-			hasMessage = true;
-			message = e.getMessage();
+			message = 'ERR '+e.getMessage();
+			return message;
 		}
-		return NULL;
+		return message;
+	}
+	
+	@RemoteAction
+	global static String getAvailableGroups(){
+		Map<String, String> tagsIdAndName = new Map<String, String>();
+		
+		List<Community_Tag__c> tags = [SELECT Id, Name, Theme_Name__c FROM Community_Tag__c limit 10000];
+		for(Community_Tag__c tag : tags){
+			tagsIdAndName.put(tag.Id, tag.Theme_Name__c);
+		}
+
+		Set<String> tagsIds = tagsIdAndName.keySet();
+		List<Community_Group_Control__c> availibleGroups = [SELECT Chatter_Group_ID__c, Name
+															FROM Community_Group_Control__c
+															WHERE Id IN (SELECT Group_Control__c FROM Community_Group_Control_Tag__c
+																		WHERE Community_Tag__c IN :tagsIds)]; 
+		System.debug('AvailibleGroups ==> '+AvailibleGroups);
+		System.debug('AvailibleGroups.size() ==> '+AvailibleGroups.size());
+
+		List<TagsForGroup> result = new List<TagsForGroup>();
+		List<GroupFinderWrapper> resultGr = new List<GroupFinderWrapper>();
+		for(Community_Group_Control__c availibleGroup : availibleGroups){
+			System.debug('availibleGroup.Name ==> '+availibleGroup.Name);
+			System.debug('availibleGroup.Chatter_Group_ID__c ==> '+availibleGroup.Chatter_Group_ID__c);
+
+			resultGr.add(new GroupFinderWrapper(availibleGroup.Name, availibleGroup.Chatter_Group_ID__c));
+			
+		}
+		result.add(new TagsForGroup('a07o0000003HpumAAC', 'Sport', resultGr));
+		System.debug('result ==> '+result);
+		return JSON.serialize(result);
 	}
 
 	//remote actions
@@ -80,7 +145,43 @@ global with sharing class CommunityShareController {
 		return result;
 	}
 
-		public static void test1() {
+	@RemoteAction
+	global static String getGroupsSelector(String query){
+		List<GroupFinderWrapper> result = new List<GroupFinderWrapper>();
+		Set<String> gcSet = new Set<String>();
+		for (Community_Group_Control__c cgc : [SELECT Chatter_Group_ID__c FROM Community_Group_Control__c WHERE Chatter_Group_ID__c != NULL AND Status__c = 'Approved']) {
+			gcSet.add(cgc.Chatter_Group_ID__c);
+		}
+		for (CollaborationGroup cg : [SELECT Id, Name FROM CollaborationGroup WHERE Id IN :gcSet AND NetworkId = :Network.getNetworkId()]) {
+			result.add(new GroupFinderWrapper(cg.Name, cg.Id));
+		}
+		return JSON.serialize(result);
+	}
+
+	public class TagsForGroup{
+		public List<GroupFinderWrapper> wrapperGroup {get; set;}
+		public Id id { get; set; }
+		public String TagName {get; set;}
+
+		TagsForGroup(Id tagId, String tagN, List<GroupFinderWrapper> gfw){
+			this.TagName = tagN;
+			this.id = tagId;
+			this.wrapperGroup = gfw;
+		}
+	}
+
+	public class GroupFinderWrapper{
+		public String name { get; set; }
+		public Id id { get; set;}
+
+		GroupFinderWrapper(String name, Id id){
+			this.name = name;
+			this.id = id;
+		}
+
+	}
+
+	public static void test1() {
 		Integer i = 0;
 		i++;
 		i++;

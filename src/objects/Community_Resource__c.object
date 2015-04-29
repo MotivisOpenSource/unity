@@ -400,6 +400,7 @@
         <columns>Primary_Tag__c</columns>
         <columns>Sort__c</columns>
         <columns>Quick_Link__c</columns>
+        <columns>Help_Link__c</columns>
         <columns>Link__c</columns>
         <columns>CREATED_DATE</columns>
         <columns>LAST_UPDATE</columns>

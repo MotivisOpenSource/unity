@@ -18,7 +18,7 @@
 					<div id="groupresults" >
 						<apex:outputPanel id="gsect" layout="block" styleClass="container content" rendered="{!mode == 'discover' || mode == 'search'}">
 							<div class="headline"><h3>Group results for {!FilterName}</h3></div>
-						<apex:outputPanel layout="block" styleClass="text-center" rendered="{!groups.showPagination}">
+							<apex:outputPanel layout="block" styleClass="text-center" rendered="{!groups.showPagination}">
 								<ul class="pagination">
 									<apex:repeat value="{!groups.pagination}" var="pg">
 										<apex:outputPanel layout="none" rendered="{!pg[2] == 'active'}">
@@ -67,36 +67,36 @@
 									</div>
 								</li>
 								</apex:repeat>
-								<script>
-									function chckabtn(a,gid) {
-										if (a != '0') {
-											var fa = true;
-											if (a == '2' || a == '4') {
-												fa = confirm('{!$Label.LBL_LeaveGroup_Message}');
-											}
-											else if (a == '6') {
-												fa = confirm('{!$Label.LBL_CancelRequest_Message}');
-											}
-											if (fa) {
-												$('#gr' + gid + ' a i').attr('class','fa fa-spinner fa-pulse');
-												Visualforce.remoting.Manager.invokeAction(
-													'{!$RemoteAction.CommunitySearchController.membershipGroup}',
-													$('#gr' + gid + ' [name=folc]').text(),
-													gid,
-													a,
-													function(result, event) {
-														var ihtml = '<li><i class="fa fa-group"></i><span name="folc">'+result.memberCount+'</span>&nbsp;Followers</li>';
-														ihtml += '<a href="javascript:;" onclick="chckabtn(\''+result.action+'\',\''+result.groupId+'\');" class="btn-u '+result.btnStyle+' pull-right">';
-														ihtml += '<i class="fa '+result.btnIcon+'"></i>&nbsp;'+result.btnLabel+'</a>';
-														$('#gr' + gid).html(ihtml);
-													}
-												);
-											}
-										}
-									}
-								</script>
 							</ul>
 						</apex:outputPanel>
+						<script>
+							function chckabtn(a,gid) {
+								if (a != '0') {
+									var fa = true;
+									if (a == '2' || a == '4') {
+										fa = confirm('{!$Label.LBL_LeaveGroup_Message}');
+									}
+									else if (a == '6') {
+										fa = confirm('{!$Label.LBL_CancelRequest_Message}');
+									}
+									if (fa) {
+										$('#gr' + gid + ' a i').attr('class','fa fa-spinner fa-pulse');
+										Visualforce.remoting.Manager.invokeAction(
+											'{!$RemoteAction.CommunitySearchController.membershipGroup}',
+											$('#gr' + gid + ' [name=folc]').text(),
+											gid,
+											a,
+											function(result, event) {
+												var ihtml = '<li><i class="fa fa-group"></i><span name="folc">'+result.memberCount+'</span>&nbsp;Followers</li>';
+												ihtml += '<a href="javascript:;" onclick="chckabtn(\''+result.action+'\',\''+result.groupId+'\');" class="btn-u '+result.btnStyle+' pull-right">';
+												ihtml += '<i class="fa '+result.btnIcon+'"></i>&nbsp;'+result.btnLabel+'</a>';
+												$('#gr' + gid).html(ihtml);
+											}
+										);
+									}
+								}
+							}
+						</script>
 						<apex:form >
 							<apex:actionFunction name="setGroupsPage" rerender="gsect">
 								<apex:param name="groupPageNum" assignTo="{!groupPageNum}" value=""/>

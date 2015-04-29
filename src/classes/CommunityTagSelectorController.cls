@@ -61,14 +61,11 @@ global with sharing class CommunityTagSelectorController {
 
 	private static List<Community_Tag__c> getTagsLocal(String q, String themeType) {
 		String tagQuery = 'SELECT Id, Name, Community_Theme__c, Community_Theme__r.Name FROM Community_Tag__c WHERE Community_Theme__r.Theme_Type__c = \'' + themeType + '\'';
-		/*tagQuery += ' AND Community_Theme__c != NULL';*/
 		if (q != NULL) {
 			List<String> queries = q.split(',');
-			tagQuery += ' AND Name LIKE \'%' + queries.get(queries.size()-1).trim() + '%\'';
+			String tQuery = queries.get(queries.size()-1).trim();
+			tagQuery += ' AND (Name LIKE \'%' + tQuery + '%\' OR Community_Theme__r.Name LIKE \'%' + tQuery + '%\')';
 		}
-		/*if (ot == 'Community_Resource_Tag__c') {
-			tagQuery += ' AND Community_Theme__r.Theme_Type__c  = \'Resource\'';
-		}*/
 		tagQuery += ' ORDER BY Community_Theme__r.Name, Name';
 		return database.query(tagQuery);
 	}

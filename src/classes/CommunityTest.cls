@@ -19,14 +19,14 @@ private class CommunityTest {
 		cnc.news.Type__c = 'External';
 		cnc.news.Teaser__c='';
 		cnc.news.Content__c='<div>test</div>';
-		cnc.submit();
+		cnc.submitFirstStep();
 		cnc.news.Type__c = 'Internal';
 		cnc.news.Title__c='t';
 		cnc.news.Teaser__c='t';
 		cnc.news.Make_Entry_Sticky__c = true;
 		cnc.news.Entry_Date__c=Datetime.now();
 		cnc.news.Expiration_Date__c=Datetime.now().addDays(1);
-		cnc.submit();
+		cnc.submitFirstStep();
 
 		CommunityNewsController cnc2 = new CommunityNewsController(new ApexPages.StandardController(cnc.news));
 		cnc2.initFromEdit();

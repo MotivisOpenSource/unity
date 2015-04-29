@@ -8,21 +8,24 @@
 <apex:composition template="{!$Site.Template}">
 <apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
 <apex:define name="body">
-	<!-- style>
-		.imageselector.selected{
-			border: dashed 1px red;
-		}
-	</style-->
+	<style>
+		.row .bPageBlock { border-top:3px solid #72c02c; }
+	</style>
 	<div class="row">
 		<apex:form id="cnsp1" style="display:none;" styleClass="col-sm-12">
+			<div class="row margin-bottom-10">
+				<div class="col-md-6 text-left" style="padding-left:35px;">
+					<h2>{!$Label.BTN_Create_News}</h2>
+				</div>
+				<div class="col-md-6 text-right" style="padding-right:25px;">
+					<apex:commandButton action="{!submitFirstStep}" value="{!$Label.LBL_Next}" styleClass="btn-u"/>
+					&nbsp;
+					<apex:outputLink value="{!IF(ISBLANK($CurrentPage.parameters.retURL),$Page.CommunityNews,JSENCODE($CurrentPage.parameters.retURL))}" rendered="{!ISBLANK(news.Id)}" styleClass="btn-u">{!$Label.BTN_Cancel}</apex:outputLink>
+					<apex:commandButton action="{!cancel}" value="{!$Label.BTN_Cancel}" styleClass="btn-u" immediate="true" rendered="{!!ISBLANK(news.Id)}"/>
+				</div>
+			</div>
 			<apex:pageBlock >
 				<apex:pageMessages id="pageMessages"/>
-				<apex:pageBlockButtons >
-					<apex:commandButton action="{!Submit}" value="{!$Label.BTN_Submit}" styleClass="btn-u"/>
-					&nbsp;
-					<apex:outputLink value="{!IF(ISBLANK($CurrentPage.parameters.retURL),$Page.CommunityNews,JSENCODE($CurrentPage.parameters.retURL))}" styleClass="btn-u">{!$Label.BTN_Cancel}</apex:outputLink>
-					<!--apex:commandButton action="{!Cancel}" value="{!$Label.BTN_Cancel}"/-->
-				</apex:pageBlockButtons>
 				<apex:pageBlockSection id="cnpbs1" columns="1" collapsible="false">
 					<apex:repeat value="{!fieldset}" var="fs">
 						<apex:inputField value="{!news[fs.fieldPath]}" required="{!OR(fs.required, fs.dbrequired)}"/>

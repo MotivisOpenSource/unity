@@ -1,38 +1,24 @@
 public with sharing class CommunityMenuController {
 
-	
-	/**
-	*	Method returned CommunityRegTerms page name
-	*	@return String - returns page url (Site/Community prefix + Page URL)
-	*/
-	public static String CommunityRegTerms_Page {
-		get {
-			CommunityRegTerms_Page = Site.getPathPrefix() + Page.CommunityRegTerms.getUrl();
-			return CommunityRegTerms_Page;
+	private static Boolean currentPage(String urlToCompare) {
+		String currentPageName = ApexPages.currentPage().getUrl().replace('/apex','');
+		urlToCompare = urlToCompare.replace('/apex','');
+		String pp = CommunityUtils.getPackagePrefix();
+		if (String.isNotBlank(pp)) {
+			urlToCompare = urlToCompare.replace(pp, '');
+			currentPageName = currentPageName.replace(pp, '');
 		}
-		private set;
+		return currentPageName.containsIgnoreCase(urlToCompare);
 	}
 
-
-	public static Boolean redirectToRegTerms {
-		get {
-			return !isRegTermsPage && CommunityRegTermsController.checkRegistrationAndTC(null, UserInfo.getUserId()) != 0;
-		}
-		set;
+	public static Boolean getRedirectToRegTerms() {
+		return 	!currentPage(Page.CommunityRegTerms.getUrl()) 
+				&& !currentPage(Page.Community404.getUrl())
+				&& CommunityRegTermsController.checkRegistrationAndTC(null, UserInfo.getUserId()) != 0;
 	}
-	public static Boolean isRegTermsPage {
-		get {
-			String currentPageName = ApexPages.currentPage().getUrl();
-			String regTermsPageName = Page.CommunityRegTerms.getUrl();
 
-			currentPageName = currentPageName.split('/')[currentPageName.split('/').size()-1];
-			regTermsPageName = regTermsPageName.split('/')[regTermsPageName.split('/').size()-1];
-
-			String error404PageName = Page.Community404.getUrl();
-			error404PageName = error404PageName.split('/')[error404PageName.split('/').size()-1];
-			return currentPageName.containsIgnoreCase(regTermsPageName) || currentPageName.containsIgnoreCase(error404PageName);
-		}
-		set;
+	public static Boolean getIsRegTermsPage() {
+		return currentPage(Page.CommunityRegTerms.getUrl());
 	}
 
 	public String getAlert() {

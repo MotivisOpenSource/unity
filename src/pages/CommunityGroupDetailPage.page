@@ -83,11 +83,16 @@
 							</li>
 						</apex:repeat>
 					</ul>
-					<div class="margin-bottom-20">
-						<a href="#newConversationModal" role="button" data-toggle="modal">
-							<span id="moreGroupMembersLink">{!$Label.LBL_Show_All} ({!members.totalUsers})</span>
+					<div class="{!IF(RequestCount > 0,'margin-bottom-5','margin-bottom-20')}">
+						<a href="#newConversationModal" role="button" data-toggle="modal" onclick="switchToMemberMode();$('[id$=memin]').hide();">
+							<span>{!$Label.LBL_Show_All} ({!members.totalUsers})</span>
 						</a>
 					</div>
+					<apex:outputPanel layout="block" rendered="{!RequestCount > 0}" styleClass="margin-bottom-20">
+						<a href="#newConversationModal" role="button" data-toggle="modal" onclick="switchToRequestMode();$('[id$=memin]').hide();" style="color:#e9b605;">
+							<span>{!$Label.LBL_Pending} ({!RequestCount})</span>
+						</a>
+					</apex:outputPanel>
 					<div class="blog-twitter">
 						<div class="headline"><h4>{!$Label.LBL_Upcoming_Events}</h4></div>
 						<apex:outputPanel layout="block" styleClass="margin-bottom-5">
@@ -114,9 +119,9 @@
 		<div class="modal-dialog">
 			<apex:form id="memlist" styleClass="modal-content sky-form">
 				<div class="modal-header">
-					<button aria-hidden="true" data-dismiss="modal" class="close" type="button">&times;</button>
+					<button aria-hidden="true" data-dismiss="modal" class="close" type="button" onclick="switchToMemberMode();return false;">&times;</button>
 					<h4 id="newConversationModalLabel" class="modal-title">
-						{!$Label.LBL_Group_Members}
+						{!IF(requestMode,$Label.LBL_PendingRequestsManager_Title,$Label.LBL_Group_Members)}
 						<apex:actionStatus id="statusLoad">
 							<apex:facet name="start">
 								&nbsp;<i class="fa fa-spinner fa-pulse"></i>
@@ -124,7 +129,7 @@
 						</apex:actionStatus>
 					</h4>
 				</div>
-				<div class="modal-body" id="groupmembermodal">
+				<apex:outputPanel id="memin" layout="block" styleClass="modal-body">
 					<table class="table table-hover" id="groupmembertable">
 						<apex:repeat value="{!members.users}" var="mmbr" id="membermodal">
 							<tr>
@@ -141,17 +146,25 @@
 										<span>{!mmbr.role}</span>
 									</div>
 								</td>
-								<td class="text-right">
-									<apex:outputPanel layout="none" rendered="{!mmbr.follow && mmbr.id != $User.Id}">
+								<td id="cell{!mmbr.id}" class="text-right">
+									<apex:outputPanel layout="none" rendered="{!memberMode && mmbr.follow && mmbr.id != $User.Id}">
 										<button id="{!mmbr.id}" type="button" class="btn btn-u btn-u-blue" onclick="toogleFollowing('{!mmbr.id}');return false;">
 											<i class="fa fa-check"></i>
 											&nbsp;{!$Label.BTN_Following}
 										</button>
 									</apex:outputPanel>
-									<apex:outputPanel layout="none" rendered="{!!mmbr.follow && mmbr.id != $User.Id}">
+									<apex:outputPanel layout="none" rendered="{!memberMode && !mmbr.follow && mmbr.id != $User.Id}">
 										<button id="{!mmbr.id}" type="button" class="btn btn-u" onclick="toogleFollowing('{!mmbr.id}');return false;">
 											<i class="fa fa-plus-circle"></i>
 											&nbsp;{!$Label.LBL_Follow}
+										</button>
+									</apex:outputPanel>
+									<apex:outputPanel layout="none" rendered="{!requestMode}">
+										<button class="btn-u" onclick="msproc(7,'{!mmbr.id}');return false;" type="button">
+											<i class="fa fa-plus-circle" ></i>&nbsp;{!$Label.BTN_Accept}
+										</button>
+										<button class="btn-u btn-u-red" onclick="msproc(8,'{!mmbr.id}');return false;" type="button">
+											<i class="fa fa-times-circle" ></i>&nbsp;{!$Label.BTN_Decline}
 										</button>
 									</apex:outputPanel>
 								</td>
@@ -179,12 +192,27 @@
 							</apex:outputPanel>
 						</ul>
 					</apex:outputPanel>
-				</div>
+				</apex:outputPanel>
 				<div class="modal-footer">
-					<button data-dismiss="modal" type="button" class="button btn-u-default" id="closeDialogButton" value="Close" title="Close">Close</button>
+					<button data-dismiss="modal" type="button" class="button btn-u-default" id="closeDialogButton" onclick="switchToMemberMode();return false;">{!$Label.LBL_Done}</button>
 				</div>
+				<apex:actionFunction name="switchToMemberMode" action="{!switchToMemberMode}" rerender="memlist,rightpanel" status="statusLoad"/>
+				<apex:actionFunction name="switchToRequestMode" action="{!switchToRequestMode}" rerender="memlist" status="statusLoad"/>
 			</apex:form>
 			<script>
+				function msproc(inm,inid) {
+					$('#cell'+inid+' .btn-u').removeAttr('onclick');
+					$('#cell'+inid+' i.'+((inm==7)?'fa-plus-circle':'fa-times-circle')).attr('class','fa fa-spinner fa-pulse');
+					Visualforce.remoting.Manager.invokeAction(
+						'{!$RemoteAction.CommunityGroupDetailPageController.membership}',
+						inid,
+						'{!control.Id}',
+						inm,
+						function(result, event) {
+							$('#cell'+result).closest('tr').remove();
+						}
+					);
+				}
 				function toogleFollowing(inid) {
 					Visualforce.remoting.Manager.invokeAction(
 						'{!$RemoteAction.CommunityGroupDetailPageController.toggleSubscriber}',

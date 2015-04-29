@@ -132,8 +132,7 @@ li.list-group-item.active i.fa.fa-check-circle-o.complete-wizard-currentWizardSt
 												<hr/>
 											</apex:repeat></dl>
 										</apex:outputPanel>
-									</apex:repeat>									
-									
+									</apex:repeat>
 									<apex:outputPanel layout="block" id="btnblk" style="display:none;">
 										<apex:commandButton action="{!initProfile}" rerender="wizard" value="{!$Label.BTN_Cancel}" styleClass="btn-u btn-u-sm btn-u-default margin-right-5"/>
 										<apex:commandButton action="{!saveProfile}" rerender="wizard" value="{!$Label.BTN_Submit}" styleClass="btn-u"/>
@@ -241,7 +240,7 @@ li.list-group-item.active i.fa.fa-check-circle-o.complete-wizard-currentWizardSt
 
 						<div class="wizard-button">
 						<apex:form >
-							<apex:commandButton disabled="true" value="{!$Label.LBL_Previous}" styleClass="btn-u" rendered="{!currentWizardStepIndex == 0}" style="opacity: 0.65;"/>
+							<!-- apex:commandButton disabled="true" value="{!$Label.LBL_Previous}" styleClass="btn-u" rendered="{!currentWizardStepIndex == 0}" style="opacity: 0.65;"/-->
 							<apex:commandButton action="{!previousStep}" value="{!$Label.LBL_Previous}" styleClass="btn-u" rendered="{!currentWizardStepIndex != 0}"/>
 							&nbsp;
 

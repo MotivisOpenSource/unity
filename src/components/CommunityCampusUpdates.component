@@ -8,13 +8,13 @@
 			<div class="thumbnails thumbnail-style thumbnail-kenburn">
 				<div class="thumbnail-img">
 					<div class="overflow-hidden">
-						<img class="img-responsive" src="{!$Site.Prefix}{!cn.Image_Path__c}" alt=""/>
+						<img class="img-responsive" src="{!cn.ImagePath}" alt=""/>
 					</div>
-					<a class="btn-more hover-effect" href="{!$Page.CommunityNewsDetail}?id={!cn.Id}">{!$Label.LBL_Read_More}</a>
+					<a class="btn-more hover-effect" href="{!$Page.CommunityNewsDetail}?id={!cn.id}">{!$Label.LBL_Read_More}</a>
 				</div>
 				<div class="caption">
-					<h3><a class="hover-effect" href="{!$Page.CommunityNewsDetail}?id={!cn.Id}">{!cn.Title__c}</a></h3>
-					<p>{!cn.Teaser__c}</p>
+					<h3><a class="hover-effect" href="{!$Page.CommunityNewsDetail}?id={!cn.Id}">{!cn.title}</a></h3>
+					<p>{!cn.teaser}</p>
 				</div>
 			</div>
 		</div>

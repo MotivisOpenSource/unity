@@ -41,7 +41,6 @@ global without sharing class CommunityFeedController {
 	@RemoteAction
 	global static String feeds(String inParentId, String inFeedType, String inPageToken) {
 		FeedElementPage pf = pullFeeds(inParentId, inFeedType, inPageToken);
-		system.debug(pf);
 		return json.serialize(pf);
 	}
 
@@ -57,10 +56,7 @@ global without sharing class CommunityFeedController {
 					PAGE_SIZE,
 					ConnectApi.FeedSortOrder.CreatedDateDesc
 				);
-
 		String result = json.serialize(fep);
-		system.debug(result);
-
 		FeedElementPage fepResult = (FeedElementPage)JSON.deserialize(result,FeedElementPage.class);
 		fepResult = initialRoles(fepResult);
 			
@@ -549,7 +545,7 @@ global without sharing class CommunityFeedController {
 
 	public class FeedElement {
 		public Actor actor { get; set; }
-		public Body body { get; set; }
+		public Body body { get; set;}
 		public Capabilities capabilities { get; set; }
 		public Datetime createdDate { get; set; }
 		public String id { get; set; }
@@ -576,8 +572,20 @@ global without sharing class CommunityFeedController {
 
 	public class Body {
 		public String text { get; set; }
+		public List<MessageSegments> messageSegments {get; set;}
 	}
 
+	public class MessageSegments {
+		public Record record { get; set; }
+		public String text { get; set; }
+		public String type { get; set; }
+		public String name { get; set; }
+	}
+	public class Record {
+		public String id { get; set; }
+		
+	}
+	
 	public class Actor {
 		public String displayName { get; set; }
 		public String role { get; set; }

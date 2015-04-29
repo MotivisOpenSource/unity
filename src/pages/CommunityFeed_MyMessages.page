@@ -9,8 +9,10 @@
 				<apex:actionFunction action="{!goToConversation}" name="refreshConversation" rerender="centerContent" status="showMoreMessagesWaitingStatus" oncomplete="initPrivateConversation(); markConversationReadToTrue();">
 					<apex:param name="conversationId" assignTo="{!SelectedConversationId}" value="" />
 				</apex:actionFunction>
-				<apex:actionFunction action="{!markConversationRead}" name="markConversationRead" rerender="centerContent" oncomplete="initScrollbars();">
+				<apex:actionFunction action="{!markConversationRead}" name="markConversationReadWithoutPage" rerender="centerContent, feedNavigation" oncomplete="initScrollbars();">
 					<apex:param name="conversationId" assignTo="{!SelectedConversationId}" value="" />
+				</apex:actionFunction>
+				<apex:actionFunction action="{!markConversationRead}" name="markConversationRead" rerender="centerContent, feedNavigation" oncomplete="initScrollbars();">
 				</apex:actionFunction>
 				<apex:actionFunction action="{!loadOlderMessages}" name="loadOlderMessages" rerender="messageListContainer" status="showMoreMessagesWaitingStatus" oncomplete="initScrollbars();">
 					<apex:param name="conversationId" assignTo="{!SelectedConversationId}" value="" />
@@ -40,7 +42,9 @@
 						<!--LEFT-->
 						<div class="col-md-3 md-margin-bottom-40">
 							<c:CommunityUserPhoto />
-							<c:CommunityFeedNavigation pn="2" />
+							<apex:outputPanel id="feedNavigation">
+								<c:CommunityFeedNavigation pn="2" />
+							</apex:outputPanel>
 						</div>
 						<!--LEFT-->
 						<!--MIDDLE-->
@@ -366,7 +370,7 @@
 
 				$(document).ready(function() {
 					
-					markConversationReadToTrue();
+					markConversationReadToTrueWithoutPage();
 
 					$(document).on('keyup', REPLY_BODY_ELEMENT, function(event) {
 						event.preventDefault();
@@ -421,11 +425,15 @@
 					});
 				});
 
-				function markConversationReadToTrue(){
+				function markConversationReadToTrueWithoutPage(){
 					if(document.location.href.search("c=") > 0){
 						var conversationId = document.location.href.split("c=")[1];
-						markConversationRead(conversationId);
+						markConversationReadWithoutPage(conversationId);
 					}
+				}
+
+				function markConversationReadToTrue(){
+					markConversationRead();
 				}
 
 				function newConversationValidationHandler(btn, disabled_cls ) {

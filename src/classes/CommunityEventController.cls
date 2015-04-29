@@ -168,7 +168,7 @@ public with sharing class CommunityEventController {
 		eventTagMap = new Map<String, Community_Event_Tag__c>();
 
 		if (event != NULL && event.Id != NULL) {
-			Set<String> collectedFields = new Set<String> {'Id', 'Name', 'Building__c', 'Room__c', 'Street_Address__c', 'City__c', 'State__c', 'Zip__c', 'Teaser__c', 'Description__c'};
+			Set<String> collectedFields = new Set<String> {'Id', 'Name', 'Name__c', 'Building__c', 'Room__c', 'Street_Address__c', 'City__c', 'State__c', 'Zip__c', 'Teaser__c', 'Description__c'};
 			String pp = CommunityUtils.getPackagePrefix();
 			Boolean isPP = String.isNotBlank(pp);
 			for (Schema.FieldSetMember f : fieldset) {

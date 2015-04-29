@@ -60,8 +60,10 @@ public with sharing class CommunityGroupCreateController {
 				pr.getParameters().put('step', String.isBlank(currentGroup.Chatter_Group_ID__c) ? '3' : '2');
 			}
 			else if (step == 2) {
-				ConnectApi.Photo groupPhoto = ConnectApi.ChatterGroups.setPhoto(Network.getNetworkId(), currentGroup.Chatter_Group_ID__c, new ConnectApi.BinaryInput(imageBody, imageContentType, imageFileName));
-				update currentGroup;
+				if (imageBody != NULL) {
+					ConnectApi.Photo groupPhoto = ConnectApi.ChatterGroups.setPhoto(Network.getNetworkId(), currentGroup.Chatter_Group_ID__c, new ConnectApi.BinaryInput(imageBody, imageContentType, imageFileName));
+					update currentGroup;
+				}
 				pr = Page.CommunityGroupCreate;
 				pr.getParameters().put('step', '3');
 			}
@@ -130,7 +132,7 @@ public with sharing class CommunityGroupCreateController {
 
 	public Boolean getDisabledNext() {
 		Community_Settings__c cs = Community_Settings__c.getInstance();
-		return step != 3 || cs == NULL || cs.Create_Group_Require_Tags__c == true;
+		return step == 1 || step == 4 || (step == 3 && cs != NULL && cs.Create_Group_Require_Tags__c == true);
 	}
 
 	public Integer getTagsCount() {

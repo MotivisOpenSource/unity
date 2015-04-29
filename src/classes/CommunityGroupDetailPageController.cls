@@ -12,10 +12,28 @@ public without sharing class CommunityGroupDetailPageController {
 			chatterGroup = [SELECT Id, FullPhotoUrl, CollaborationType FROM CollaborationGroup WHERE Id = :control.Chatter_Group_ID__c];
 			groupRole = ConnectApi.ChatterGroups.getGroup(Network.getNetworkId(), chatterGroup.Id).MyRole;
 		}
+		initMembers();
 	}
 
-	public CommunityGroupManageController.MemberPage getMembers() {
-		return new CommunityGroupManageController.MemberPage('members', (chatterGroup == NULL ? NULL : chatterGroup.Id), control);
+	public Boolean memberMode { get { return memberMode == NULL ? false : memberMode; } set; }
+	public Boolean requestMode { get { return requestMode == NULL ? false : requestMode; } set; }
+
+	private void initMembers() {
+		members = new CommunityGroupManageController.MemberPage((requestMode ? 'requests' : 'members'), (chatterGroup == NULL ? NULL : chatterGroup.Id), control);
+	}
+
+	public CommunityGroupManageController.MemberPage members { get; set; }
+
+	public void switchToMemberMode() {
+		memberMode = true;
+		requestMode = NULL;
+		initMembers();
+	}
+
+	public void switchToRequestMode() {
+		memberMode = NULL;
+		requestMode = true;
+		initMembers();
 	}
 
 	public Boolean getHideFeedComponent() {
@@ -40,6 +58,12 @@ public without sharing class CommunityGroupDetailPageController {
 		}
 		//return resultIcon + ':' + memberId;
 		return '';
+	}
+
+	@RemoteAction
+	public static String membership(String inUserId, String inGroupContolId, Integer inMode) {
+		CommunityUtils.membership(inUserId, inGroupContolId, String.valueOf(inMode));
+		return inUserId;
 	}
 
 	public CommunityUtils.GroupAction getActionButton() {
@@ -81,6 +105,11 @@ public without sharing class CommunityGroupDetailPageController {
 
 	private String prepareUrl(String inUncouthUrl) {
 		return String.isNotBlank(Site.getPathPrefix()) ? inUncouthUrl.replace('/apex/', Site.getPathPrefix() + '/') : inUncouthUrl;
+	}
+
+	public Integer getRequestCount() {
+		return (groupRole == ConnectApi.GroupMembershipType.GroupOwner || groupRole == ConnectApi.GroupMembershipType.GroupManager)
+				? CommunityUtils.getRequestJoinGroupCount(chatterGroup.Id) : 0;
 	}
 
 	public class GroupEvent {

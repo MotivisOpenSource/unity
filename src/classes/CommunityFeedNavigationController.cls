@@ -16,17 +16,14 @@ public with sharing class CommunityFeedNavigationController {
 		}
 	}
 
-	public Boolean showGroupManager {
-		get {
-			if(ApexPages.currentPage().getParameters().containsKey('g'))
-			{
-				String groupId = ApexPages.currentPage().getParameters().get('g');
-				List<Community_Group_Manager__c> cgmList = [SELECT Id FROM Community_Group_Manager__c WHERE Group_Manager_User__c = :UserInfo.getUserId() AND Group_Control__r.Chatter_Group_ID__c = :groupId];
-				return cgmList.size() > 0;
-			} else {
-				return false;
-			}
+	public String chatterGroupId { get; set; }
+	public Boolean getShowGroupManager() {
+		Boolean result = false;
+		if (String.isNotBlank(chatterGroupId)) {
+			List<Community_Group_Manager__c> cgmList = [SELECT Id FROM Community_Group_Manager__c WHERE Group_Manager_User__c = :UserInfo.getUserId() AND Group_Control__r.Chatter_Group_ID__c = :chatterGroupId];
+			result = cgmList.size() > 0;
 		}
+		return result;
 	}
 
 	public static void test1() {

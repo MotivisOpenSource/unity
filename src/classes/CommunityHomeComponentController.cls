@@ -1,13 +1,17 @@
 public with sharing class CommunityHomeComponentController {
 	/* -- Campus Section Component -- */
-	public List<Community_News__c> getCampusNews() {
-		return [
-			SELECT Id, Title__c, Teaser__c, Image_Path__c
-			FROM Community_News__c
-			WHERE Feature_on_Home_Page_Slot__c != NULL AND Expiration_Date__c > TODAY
-			ORDER BY Feature_on_Home_Page_Slot__c ASC NULLS LAST
-			LIMIT 3
-				];
+	public List<News> getCampusNews() {
+		List<News> resultList = new List<News>();
+		for (Community_News__c cnItem : [
+						SELECT Id, Title__c, Teaser__c, Image_Path__c
+						FROM Community_News__c
+						WHERE Feature_on_Home_Page_Slot__c != NULL AND Expiration_Date__c > TODAY
+						ORDER BY Feature_on_Home_Page_Slot__c ASC NULLS LAST
+						LIMIT 3
+							]) {
+			resultList.add(new News(cnItem));
+		}
+		return resultList;
 	}
 	/* !-- Campus Section Component -- */
 
@@ -53,12 +57,12 @@ public with sharing class CommunityHomeComponentController {
 	public class News {
 		public String id { get;set; }
 		public String title { get;set; }
-		public String imageUrl { get;set; }
 		public String teaser { get;set; }
 		public String entryDate { get;set; }
 		public Boolean useTag { get;set; }
 		public String tagStyle { get;set; }
 		public String tag { get;set; }
+		private String imageUrl;
 
 		public News(Community_News__c incn) {
 			id = incn.Id;
@@ -79,6 +83,10 @@ public with sharing class CommunityHomeComponentController {
 				String typeKey = (intag.Community_Theme__c == NULL || String.isBlank(intag.Community_Theme__r.Theme_Type__c)) ? 'default' : intag.Community_Theme__r.Theme_Type__c;
 				tagStyle = TAG_STYLE.get(typeKey);
 			}
+		}
+
+		public String getImagePath() {
+			return CommunityUtils.checkUrl(imageUrl);
 		}
 	}
 	/* !-- Wrapper -- */

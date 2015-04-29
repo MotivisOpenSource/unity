@@ -34,7 +34,7 @@ global without sharing class CommunityHomeNotificationsController {
 				hpMessages.add(new NotificationWrapper(
 					feedMessage.LatestMessage.Sender.MemberId,
 					feedMessage.LatestMessage.Sender.MemberName,
-					'has sent you a direct message.',
+					Label.LBL_Notifications_Message,
 					prepareUrl(Page.CommunityFeed_MyMessages.getUrl())+'?c='+feedMessage.ConversationId,
 					feedMessage.LatestMessage.SentDate));
 			}
@@ -77,20 +77,20 @@ global without sharing class CommunityHomeNotificationsController {
                                         				WHERE id IN :managersIds];
         
         for(Community_Group_Control__c gControl : gControls){
-        	controlsIds.add(gControl.Chatter_Group_ID__c);
+        	controlsIds.add(gControl.Id);
         }
 
     // get feed from groups
 		List<FeedItem> feeds = [SELECT Id, ParentId, Type, CommentCount, LinkUrl, LastModifiedDate, CreatedById 
                                 FROM FeedItem
                                WHERE ParentId IN :controlsIds 
-                               AND  LastModifiedDate > LAST_MONTH
-                               LIMIT 1000];
+                               AND CreatedById != :userId
+                               LIMIT 10];
 
        if(feeds.isEmpty()) return NULL;
 
     //check feeds for comments and owner
-        for(FeedItem feed : feeds){
+        /*for(FeedItem feed : feeds){
         	if(feed.CommentCount > 0){
         		feedForCommentIds.add(feed.id);
         	}
@@ -98,10 +98,10 @@ global without sharing class CommunityHomeNotificationsController {
         		userPostedIds.add(feed.CreatedById);
         		feedsPosted.add(feed);
         	}
-        }
+        }*/
 
     // get comments for feeds   	
-       	if(!feedForCommentIds.isEmpty()){
+       	/*if(!feedForCommentIds.isEmpty()){
         	fComments = [SELECT Id, ParentId, FeedItemId, CreatedById, CreatedDate FROM FeedComment WHERE FeedItemId IN :feedForCommentIds AND CreatedDate > LAST_MONTH LIMIT 1000];
         	for (FeedComment fComment : fComments){
         		if(fComment.CreatedById != userId){
@@ -110,18 +110,18 @@ global without sharing class CommunityHomeNotificationsController {
         		}
 
         	}
-        }
+        }*/
 
     // if feed changed by comment of feed owner
     // exclude this feed from notification
     // apply to comments
-       	for(FeedComment fComment : fCommentsPosted){
+       	/*for(FeedComment fComment : fCommentsPosted){
        		for(Integer i = 0; i < feedsPosted.size(); i++){
        			if(fComment.FeedItemId == feedsPosted[i].Id && fComment.CreatedDate == feedsPosted[i].LastModifiedDate){
        				feedsPosted.remove(i);
        			}
        		}
-       	}
+       	}*/
 
     // get users Name and SmallPhoto
         for(User us : [SELECT Id, SmallPhotoUrl, Name FROM User WHERE Id IN :userPostedIds]){
@@ -134,22 +134,22 @@ global without sharing class CommunityHomeNotificationsController {
         	hpFeedsAndComments.add(new NotificationWrapper(
 						feedPosted.CreatedById,
 						userPhotoAndName.get(feedPosted.CreatedById)[1].replace(Site.getBaseUrl(), ''),
-						'commented in the your posting.',
+						Label.LBL_Notifications_Post,
 						prepareUrl(Page.CommunityGroupDetailPage.getUrl())+'?g='+feedPosted.ParentId,
 						feedPosted.LastModifiedDate,
 						userPhotoAndName.get(feedPosted.CreatedById)[0]));
         }
        	
-       	for(FeedComment fCommentPosted : fCommentsPosted){
+       	/*for(FeedComment fCommentPosted : fCommentsPosted){
 	        
 	        hpFeedsAndComments.add(new NotificationWrapper(
 						fCommentPosted.CreatedById,
 						userPhotoAndName.get(fCommentPosted.CreatedById)[1].replace(Site.getBaseUrl(), ''),
-						'commented in the your posting.',
+						Label.LBL_Notifications_Post,
 						prepareUrl(Page.CommunityGroupDetailPage.getUrl())+'?g='+fCommentPosted.ParentId,
 						fCommentPosted.CreatedDate,
 						userPhotoAndName.get(fCommentPosted.CreatedById)[0]));
-	    }
+	    }*/
 
 	    return formNameWithRoles(hpFeedsAndComments, userPhotoAndName.keySet());
 

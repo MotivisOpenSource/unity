@@ -11,7 +11,7 @@
 			<h1 class="pull-left">{!$ObjectType.Community_Events__c.Label}</h1>
 			<ul class="pull-right breadcrumb">
 				<li><a href="{!$Page.CommunityEventsList}">Events</a></li>
-				<li class="active"><a href="{!$Page.CommunityEventDetail}?id={!event.Id}">{!event.Name}</a></li>
+				<li class="active">{!event.Name__c}</li>
 			</ul>
 		</div>
 	</div>

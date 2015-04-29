@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
     <labels>
+        <fullName>BTN_Accept</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>BTN Accept</shortDescription>
+        <value>Accept</value>
+    </labels>
+    <labels>
         <fullName>BTN_AskToJoin</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -83,6 +90,13 @@
         <protected>true</protected>
         <shortDescription>Create Resource Button</shortDescription>
         <value>Create Resource</value>
+    </labels>
+    <labels>
+        <fullName>BTN_Decline</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>BTN Decline</shortDescription>
+        <value>Decline</value>
     </labels>
     <labels>
         <fullName>BTN_Edit</fullName>
@@ -1184,6 +1198,20 @@
         <value>Notfication Settings</value>
     </labels>
     <labels>
+        <fullName>LBL_Notifications_Message</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Notifications Message</shortDescription>
+        <value>has sent you a direct message.</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Notifications_Post</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Notifications Post</shortDescription>
+        <value>commented on your posting.</value>
+    </labels>
+    <labels>
         <fullName>LBL_OldPassword</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -1231,6 +1259,20 @@
         <protected>true</protected>
         <shortDescription>Label Password Change Message</shortDescription>
         <value>Your password was last changed or reset on</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Pending</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Pending</shortDescription>
+        <value>Pending</value>
+    </labels>
+    <labels>
+        <fullName>LBL_PendingRequestsManager_Title</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL PendingRequestsManager Title</shortDescription>
+        <value>Pending Requests</value>
     </labels>
     <labels>
         <fullName>LBL_PeopleIFollow</fullName>
@@ -1484,13 +1526,6 @@
         <value>Select Tags</value>
     </labels>
     <labels>
-        <fullName>LBL_Share</fullName>
-        <language>en_US</language>
-        <protected>true</protected>
-        <shortDescription>LBL Share</shortDescription>
-        <value>Share</value>
-    </labels>
-    <labels>
         <fullName>LBL_Share_AddGroup</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -1524,6 +1559,13 @@
         <protected>true</protected>
         <shortDescription>LBL Share To A Group</shortDescription>
         <value>Select A Group</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Share_on_Profile</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Share on Profile</shortDescription>
+        <value>Share this on my Profile</value>
     </labels>
     <labels>
         <fullName>LBL_SharesPosts</fullName>

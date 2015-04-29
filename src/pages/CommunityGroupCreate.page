@@ -18,11 +18,11 @@
 	<div class="col-md-9">
 	<apex:form >
 		<div class="row margin-bottom-10">
-			<div class="col-sm-6 text-left" style="padding-left:35px;">
+			<div class="col-sm-8 text-left" style="padding-left:35px;">
 				<!-- h2>{!$Label.BTN_Create_Group}&nbsp;({})</h2-->
 				<h2><apex:outputText value="{!headerText}"/></h2>
 			</div>
-			<div class="col-sm-6 text-right" style="padding-right:25px;">
+			<div class="col-sm-4 text-right" style="padding-right:25px;">
 				<button id="sbtbtn" class="btn-u" type="button" style="opacity:{!IF(disabledNext,'0.65','1')};" onclick="cksbmbtn();">{!$Label.LBL_Next}</button>&nbsp;
 				<apex:outputLink value="{!IF(ISBLANK($CurrentPage.parameters.retURL),$Page.CommunityGroups+'?f=all_groups',JSENCODE($CurrentPage.parameters.retURL))}" styleClass="btn-u" rendered="{!step == 1}">{!$Label.BTN_Cancel}</apex:outputLink>
 				<apex:commandButton action="{!cancel}" value="{!$Label.BTN_Cancel}" styleClass="btn-u" rendered="{!step != 1}"/>

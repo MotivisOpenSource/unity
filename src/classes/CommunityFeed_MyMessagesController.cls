@@ -125,7 +125,6 @@ public with sharing class CommunityFeed_MyMessagesController {
 	}
 
 	public void markConversationRead(String conversationId, Boolean isRead) {
-	System.debug('markConversationRead');	
 		ConnectApi.ChatterMessages.markConversationRead(conversationId, isRead);
 	}
 	/*public void searchUsers(String query) {

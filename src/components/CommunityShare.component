@@ -1,5 +1,10 @@
 <apex:component controller="CommunityShareController" allowDml="true">
 	<apex:attribute name="sO" type="SObject" assignTo="{!sobj}" required="true" description="Parent Object" />
+
+	<script src="{!$Resource.CommunityResources}/js/jquery-1.11.2.min.js"></script>
+	<script src="{!$Resource.CommunityResources}/js/Typeahead/bootstrap3-typeahead.min.js"></script>
+	<script src="{!$Resource.CommunityResources}/js/underscore/underscore-min.js"></script>
+
 	<style>
 		.m-status {
 			color: white;
@@ -10,8 +15,77 @@
 			left: 50%;
 			margin-left: -38px;
 		}
+		.div-like-input {
+			cursor: text;
+			padding: 5px 5px 5px;
+			background-color: white;
+			border: 1px solid #cccccc;
+			box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) inset;
+			box-sizing: border-box;
+			color: rgba(0, 0, 0, 0.75);
+			transition: box-shadow 0.45s ease 0s, border-color 0.45s ease-in-out 0s;
+			border-radius: 3px;
+			margin-bottom: 5px;
+			min-height: 39px;
+		}
+		.groups-container .item {
+			text-decoration: none;
+			white-space: nowrap;
+			border: 1px solid #d4dadc;
+			padding: 2px 5px;
+			-moz-border-radius: 4px;
+			-webkit-border-radius: 4px;
+			background: #eff7fa;
+			color: #015ba7;
+			margin-right: 3px;
+			margin-bottom: 3px;
+			float: left;
+			line-height: normal;
+		}
+		.groups-container {
+			line-height: 22px;
+/*			overflow: hidden;
+			display: inline;*/
+		}
+		.div-like-input input.input-inviz {
+			margin-bottom: 0px;
+			display: block;
+			width: 200px;
+			padding: 2px 5px;
+			font-size: 12px;
+			height: 24px;
+			border: none;
+			box-shadow: none;
+		}
+		.input-inviz:focus {
+			background: inherit;
+		}
+		.groups-container a.remove img {
+			background: transparent url(/img/chatter/message_item_x.png) no-repeat scroll left top;
+			width: 8px;
+			height: 8px;
+			margin-bottom: 4px;
+		}
+		.groups-container a.remove:hover img {
+			background-position: 0 50%;
+		}
+		.tags-container a {
+			margin-left: 5px;
+		}
+		.panel-success .panel-heading:hover a {
+			text-decoration:none;
+			color:black;
+			background-color:#f8f8f8;
+		}
+		.panel-heading .fa {
+			width:10px;
+		}
+		.div-like-input input.input-inviz {
+			float: left;
+			display: inline-block;
+		}
 	</style>
-	<button class="btn-u" data-toggle="modal" data-target="#shareModal" title="{!$Label.BTN_Rechat}" onclick="loadGroupSuggestions();return false;">{!$Label.BTN_Rechat}</button>
+	<button id="shareButton" class="btn-u" data-toggle="modal" data-target="#shareModal" title="{!$Label.BTN_Rechat}" onclick="loadGroupSuggestions();return false;">{!$Label.BTN_Rechat}</button>
 
 	<div class="modal fade in" id="shareModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false" style="display:none;">
 		<i class="fa fa-spinner fa-pulse m-status"></i>
@@ -38,7 +112,7 @@
 							<section>
 								<apex:outputLabel value="{!$Label.LBL_Share_Link_Name}"/>
 								<label class="input">
-									<apex:inputText value="{!shareLinkName}" disabled="true"/>
+									<apex:inputText id="linkName" value="{!shareLinkName}" disabled="true"/>
 								</label>
 							</section>
 							<section>
@@ -48,22 +122,148 @@
 							</section>
 							<section>
 								<apex:outputLabel value="{!$Label.LBL_Share_To_A_Group}"/>
-								<label class="input">
-									<apex:inputText id="inGroup" value="{!shareGroup}"/>
-									<datalist id="list"></datalist>
-								</label>
+								<div class="div-like-input clearfix">
+									<div id="groupsContainer" class="groups-container clearfix">
+										<input id="groupsInput" class="input-inviz" type="text" data-provide="typeahead" autocomplete="off" size="2"></input>
+									</div>
+									<input id="groups" name="groups" style="display:none" visibility="hidden"/>
+								</div>
+							</section>
+							<section>
+								<apex:commandLink value="Add Groups" onclick="getAvailableGroups(); return false;"/>
 							</section>
 						</fieldset>
+					</div>
+					<div id="availGroups">
+						
 					</div>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn-u btn-u-default margin-right-10" data-dismiss="modal">Close</button>
-					<apex:commandButton id="shBtn" action="{!share}" value="{!$Label.BTN_Share}" onclick="$('#shareModalDialog').hide();" rerender="messageArea" oncomplete="completeShare();" styleClass="btn-u btn-u-primary"/>
+					<apex:commandButton id="shBtn"  value="{!$Label.BTN_Share}" onclick="shareForGroups(); return false;" styleClass="btn-u btn-u-primary"/>
 				</div>
 			</div>
 		</div>
 	</div>
 	<script>
+
+		var searchGroups = _.debounce(function(query, process) {
+			Visualforce.remoting.Manager.invokeAction(
+				'{!$RemoteAction.CommunityShareController.getGroupsSelector}',
+				query,
+				function(result, event) {
+					var div = document.createElement('div');
+					div.innerHTML = result;
+					var gdata = JSON.parse(div.firstChild.nodeValue);
+					groups = [];
+					groups_map = [];
+					_.each(gdata, function (group, ix, list) {
+						groups.push(group.name);
+						groups_map.push(group);
+					});
+					process(groups);
+				}
+			);
+		}, 300);
+
+		$(document).ready(function() {
+			if('{!showShareButton}' == 'false') $("#shareButton").hide();
+			$('#groupsInput').typeahead({
+				source:function (query, process) {
+					searchGroups(query, process);
+				},
+				updater: function(item) {
+					_.each(groups_map, function (group, ix, list) {
+						if ((group.name) == item) {
+							addtti(group.id,item);
+						}
+					});
+					return '';
+				}
+			});
+
+
+		});
+
+		function addtti(tid,fn) {
+			if ($('span[id='+tid+']').length == 0) {
+				var span = '<span id="'+tid+'" class="item guestItem"><span>'+fn+'</span><a href="javascript:void(0);" onclick="removeGroup(\''+tid+'\')" class="remove"><img src="/s.gif"></a></span>';
+				$('#groupsInput').before(span);
+				$('#groups').val($('#groups').val() + tid + ',');
+				$('[id$=sbtbtn]').css('opacity','1').removeAttr('disabled');
+			}
+			groupsForShare();
+		}
+
+		function removeGroup(inp) {
+			$('#groupsContainer #'+inp).remove();
+			$('#groups').val($('#groups').val().replace(inp+',' ,''));
+			if ($('#sectionnote').length > 0) {
+				$('#sectionnote').remove();
+				$('[id$=sbtbtn]').css('opacity','1').removeAttr('disabled');
+			}
+			if ($('#groupsContainer span.item').length == 0) {
+				$('[id$=sbtbtn]').css('opacity','0.65').attr('disabled','disabled');
+			}
+		}
+
+		function groupsForShare(){
+			var groups = jQuery("div.groups-container span.item");
+			var groupsSet = [];
+			var groupsIds = "";
+			_.each(groups, function(item){
+				groupsSet.push(item.id);
+			})
+			groupsIds = groupsSet.join();
+			return groupsIds;
+		}
+
+		function shareForGroups(){
+			var groupsIds = groupsForShare();
+			var shareComment = $("[id *= 'commentArea']").val();
+			var sobjId = window.location.href.split("id=")[1];
+			var linkName = $("input[id *='linkName']").val();
+			Visualforce.remoting.Manager.invokeAction(
+				'{!$RemoteAction.CommunityShareController.shareForGroups}',
+				groupsIds,
+				shareComment,
+				linkName,
+				sobjId,
+				function(result, event) {
+					if(result.split('ERR').length > 1){
+						var div = document.createElement('div');
+						div.innerHTML = result;
+						$('[id *= "messageArea"]').html('<div id="messageAreaIn" layout="block" class="alert alert-danger fade in"><strong>Error!</strong> ' + result.substring(3, result.length)+'</div>');
+						$('[id *= "messageArea"]').show();
+					}else{
+						$('#shareModalDialog').hide();
+						$('#shareModal').modal('hide');
+					}
+				}
+			);
+		}
+
+		function getAvailableGroups(){
+			Visualforce.remoting.Manager.invokeAction(
+				'{!$RemoteAction.CommunityShareController.getAvailableGroups}',
+				function(result, event) {
+			console.log("result",result);	
+				var div = document.createElement('div');
+				div.innerHTML = result;
+				var gdata = JSON.parse(div.firstChild.nodeValue);
+				_.each(gdata, function(gDataItems){
+					$("#availGroups").html('<div id="tagForGroup">'+gDataItems.TagName+'</div>');
+					_.each(gDataItems.wrapperGroup, function(wrap){
+						$("#tagForGroup").append('<div id='+wrap.id+'>'+wrap.name+'</div>');
+					})
+				})
+				console.log("=======finish============");
+
+				}
+			);
+
+		}
+
 		$("[id$=commentArea]").attr('placeholder','{!$Label.LBL_Link_InputBox}');
 		$("[id$=inGroup]").attr('list','list');
 

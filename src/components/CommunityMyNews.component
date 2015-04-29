@@ -5,7 +5,7 @@
 		<apex:repeat value="{!MyNews}" var="mn">
 		<div class="col-md-6">
 			<div class="magazine-news-img">
-				<a href="{!$Page.CommunityNewsDetail}?id={!mn.id}"><img class="img-responsive" src="{!$Site.Prefix}{!mn.imageUrl}" alt=""/></a>
+				<a href="{!$Page.CommunityNewsDetail}?id={!mn.id}"><img class="img-responsive" src="{!mn.ImagePath}" alt=""/></a>
 				<apex:outputPanel rendered="{!mn.useTag}" styleClass="magazine-badge {!mn.tagStyle}">
 					{!mn.tag}
 				</apex:outputPanel>

@@ -272,10 +272,28 @@ textarea.form-control {
 						<small><%= p2.dateStr %></small>
 					</h4>
 					<% if (!p2.showLink && !p2.showContent && !p2.capabilities.poll) { %>
-						<p><% print(wrapnl(p2.body.text)); %></p>
+						<p>	<% var p2p = parseFeedBody(p2.body);
+							if(p2p["id"]){
+								if(p2p["id"].indexOf("005") == 0){%>
+								<a href="{!$Page.CommunityProfilePage}?id=<%= p2p['id'] %>">@<%= p2p["name"] %></a>
+							<% }else{%>
+								<a href="{!$Page.CommunityGroupDetailPage}?g=<%= p2p['id'] %>">@<%= p2p["name"] %></a>
+							<%}
+							}%>
+							<% print(wrapnl(p2p["text"])); %>
+						</p> 
 					<% } %>
 					<% if (p2.showLink) { %>
-						<p><% print(wrapnl(p2.body.text)); %></p>
+						<p>	<% var p2p = parseFeedBody(p2.body);
+							if(p2p["id"]){
+								if(p2p["id"].indexOf("005") == 0){%>
+								<a href="{!$Page.CommunityProfilePage}?id=<%= p2p['id'] %>">@<%= p2p["name"] %></a>
+							<% }else{%>
+								<a href="{!$Page.CommunityGroupDetailPage}?g=<%= p2p['id'] %>">@<%= p2p["name"] %></a>
+							<%}
+							}%>
+							<% print(wrapnl(p2p["text"])); %>
+						</p> 
 					<div class="d-link">
 					<a href="<%= p2.linkHref %>" target="_blank" >
 						<i class="fa fa-link"></i>
@@ -285,7 +303,16 @@ textarea.form-control {
 					</div>
 					<% } %>
 					<% if (p2.showContent) { %>
-						<p><% print(wrapnl(p2.body.text)); %></p>	
+						<p>	<% var p2p = parseFeedBody(p2.body);
+							if(p2p["id"]){
+								if(p2p["id"].indexOf("005") == 0){%>
+								<a href="{!$Page.CommunityProfilePage}?id=<%= p2p['id'] %>">@<%= p2p["name"] %></a>
+							<% }else{%>
+								<a href="{!$Page.CommunityGroupDetailPage}?g=<%= p2p['id'] %>">@<%= p2p["name"] %></a>
+							<%}
+							}%>
+							<% print(wrapnl(p2p["text"])); %>
+						</p> 	
 						<div class="file-section">
 							<% if (p2.capabilities.content.fileExtension) { %>
 								<span>
@@ -317,7 +344,16 @@ textarea.form-control {
 						</div>
 					<% } %>
 					<% if (p2.capabilities.poll && p2.capabilities.poll.choices) { %>
-						<p><% print(wrapnl(p2.body.text)); %></p>
+						<p>	<% var p2p = parseFeedBody(p2.body);
+							if(p2p["id"]){
+								if(p2p["id"].indexOf("005") == 0){%>
+								<a href="{!$Page.CommunityProfilePage}?id=<%= p2p['id'] %>">@<%= p2p["name"] %></a>
+							<% }else{%>
+								<a href="{!$Page.CommunityGroupDetailPage}?g=<%= p2p['id'] %>">@<%= p2p["name"] %></a>
+							<%}
+							}%>
+							<% print(wrapnl(p2p["text"])); %>
+						</p> 
 						<fieldset class="pollfieldset">
 							<ul class="pollchoices">
 								<% _.each(p2.capabilities.poll.choices, function(choice) { %>
@@ -386,7 +422,16 @@ textarea.form-control {
 									<strong><a href="{!$Page.CommunityProfilePage}?id=<%= c2.user.id %>"><%= c2.user.displayName %> <%= c2.user.role !== null ?  '(' + c2.user.role + ')': '' %></a></strong>
 									<small><%= c2.dateStr %></small>
 								</h4>
-								<p><% print(wrapnl(c2.body.text)); %></p>
+								<p>	<% var c2p = parseFeedBody(c2.body);
+									if(c2p["id"]){
+										if(c2p["id"].indexOf("005") == 0){%>
+											<a href="{!$Page.CommunityProfilePage}?id=<%= c2p['id'] %>">@<%= c2p["name"] %></a>
+										<% }else{%>
+									<a href="{!$Page.CommunityGroupDetailPage}?g=<%= c2p['id'] %>">@<%= c2p["name"] %></a>
+									<%}
+									}%>
+									<% print(wrapnl(c2p["text"])); %>
+								</p> 
 								<ul class="list-inline results-list pull-left">
 									<li><a href="#"><span><%= c2.countLikes %></span> Likes</a></li>
 								</ul>
@@ -530,7 +575,7 @@ textarea.form-control {
 				// });
 			});
 
-
+			
 			function loadFeeds(inpt) {
 				disableBtn('shmbtn',true);
 				Visualforce.remoting.Manager.invokeAction(
@@ -652,7 +697,6 @@ textarea.form-control {
 			function postAction(text) {
 				$('#postform-error').hide();	
 				disableBtn('mesbtn');
-
 				var messageItemIndex = -1;
 				
 				var fBaseStr = null;
@@ -1103,6 +1147,20 @@ textarea.form-control {
 		</script>
 	</apex:outputPanel>
 	<script>
+		function parseFeedBody(o){
+			var segments = {id:"", name:"", text:""} ;
+			_.each(o.messageSegments,function(item){
+				if(item.record != null){
+					segments["id"] = item.record.id;
+					segments["name"] = item.name;
+				}
+				if(item.text != null && item.type == "Text"){
+					segments["text"] = item.text;
+				}
+			});
+			return segments;
+		}
+
 		function wrapnl(intext) {
 			return intext ? intext.replace(/\r\n/g, '<br />').replace(/[\r\n]/g, '<br />') : '';
 		}

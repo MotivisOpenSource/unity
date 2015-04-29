@@ -109,18 +109,21 @@ public without sharing class CommunityGroupManageController {
 
 	public Boolean memberMode { get { return memberMode == NULL ? false : memberMode; } set; }
 	public Boolean managerMode { get { return managerMode == NULL ? false : managerMode; } set; }
+	public Boolean requestMode { get { return requestMode == NULL ? false : requestMode; } set; }
 	public Boolean showOnlyMode { get { return showOnlyMode == NULL ? false : showOnlyMode; } set; }
 	public MemberPage allusers { get;set; }
 
 	public void msShow() {
 		Id tempChGroup = chatterGroup == NULL ? NULL : chatterGroup.Id;
 		String determineMode = managerMode ? (showOnlyMode ? 'managers' : 'members') : (showOnlyMode ? 'members' : 'all');
+		determineMode = requestMode ? 'requests' : determineMode;
 		allusers = new MemberPage(determineMode, tempChGroup, control);
 	}
 
 	public void msDone() {
 		memberMode = NULL;
 		managerMode = NULL;
+		requestMode = NULL;
 		allusers = NULL;
 		init();
 	}
@@ -129,7 +132,9 @@ public without sharing class CommunityGroupManageController {
 		1 => '2:;: btn-u-blue:;:fa-check:;:' + Label.LBL_Member,
 		2 => '1:;: :;:fa-plus-circle:;:' +Label.LBL_Add,
 		3 => '4:;: :;:fa-star-half-o:;:' + Label.LBL_Manager,
-		4 => '3:;: btn-u-blue:;:fa-check:;:' + Label.LBL_Member
+		4 => '3:;: btn-u-blue:;:fa-check:;:' + Label.LBL_Member,
+		7 => '2:;: btn-u-blue:;:fa-check:;:' + Label.LBL_Member,
+		8 => '1:;: :;:fa-plus-circle:;:' +Label.LBL_Add
 	};
 
 	@RemoteAction
@@ -177,6 +182,14 @@ public without sharing class CommunityGroupManageController {
 		get {
 			return chatterGroup.FullPhotoUrl == NULL ? CommunityUtils.checkUrl('/profilephoto/0F9/F') : chatterGroup.FullPhotoUrl;
 		}
+	}
+
+	public Integer getRequestCount() {
+		return CommunityUtils.getRequestJoinGroupCount(chatterGroup.Id);
+	}
+
+	public String getMemberModalTitle() {
+		return managerMode ? Label.LBL_Update_Managers : (requestMode ? Label.LBL_PendingRequestsManager_Title : Label.LBL_Add_Remove_Members);
 	}
 
 	// MEMBER HANDLER CLASS
@@ -240,6 +253,7 @@ public without sharing class CommunityGroupManageController {
 			Boolean allMode = mode == 'all';
 			Boolean membersMode = mode == 'members';
 			Boolean managersMode = mode == 'managers';
+			Boolean requestsMode = mode == 'requests';
 			List<User> allUsers;
 			if (allMode) {
 				String mQuery = 'SELECT Id, Name, ContactId, City, Country, Community_Contact_ID__c, SmallPhotoUrl FROM User WHERE (ContactId != NULL OR Community_Contact_ID__c != NULL) AND isActive = true';
@@ -280,6 +294,24 @@ public without sharing class CommunityGroupManageController {
 				allUsers = new List<User>();
 				for (Community_Group_Manager__c cgm : Database.query(mQuery3)) {
 					allUsers.add(cgm.Group_Manager_User__r);
+				}
+			}
+			else if (requestsMode) {
+				Set<Id> initialFoundUsers = new Set<Id>();
+				for (CollaborationGroupMemberRequest cgmrItem : [SELECT RequesterId FROM CollaborationGroupMemberRequest WHERE CollaborationGroupId =:gIdChatter AND Status = 'Pending']) {
+					initialFoundUsers.add(cgmrItem.RequesterId);
+				}
+				allUsers = new List<User>();
+				if (initialFoundUsers.size() > 0) {
+					String mQuery4 = 'SELECT Id, Name, ContactId, City, Country, Community_Contact_ID__c, SmallPhotoUrl FROM User WHERE Id IN :initialFoundUsers';
+					if (String.isNotBlank(query)) {
+						mQuery4 += ' AND (FirstName LIKE \'' + String.escapeSingleQuotes(query) + '%\' OR LastName LIKE \'' + String.escapeSingleQuotes(query) + '%\')';
+					}
+					if (columnSort > 0) {
+						List<String> orderList = new List<String> {'','Name'};
+						mQuery4 += ' ORDER BY ' + orderList[columnSort] + (ascSort ? ' ASC' : ' DESC');
+					}
+					allUsers = Database.query(mQuery4);
 				}
 			}
 			Integer mlSize = allUsers.size();
