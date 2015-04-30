@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomSite xmlns="http://soap.sforce.com/2006/04/metadata">
+    <active>true</active>
+    <allowHomePage>false</allowHomePage>
+    <allowStandardAnswersPages>false</allowStandardAnswersPages>
+    <allowStandardIdeasPages>false</allowStandardIdeasPages>
+    <allowStandardLookups>false</allowStandardLookups>
+    <allowStandardSearch>false</allowStandardSearch>
+    <authorizationRequiredPage>CommunitiesLogin</authorizationRequiredPage>
+    <bandwidthExceededPage>BandwidthExceeded</bandwidthExceededPage>
+    <clickjackProtectionLevel>SameOriginOnly</clickjackProtectionLevel>
+    <fileNotFoundPage>Community404</fileNotFoundPage>
+    <genericErrorPage>Community404</genericErrorPage>
+    <inMaintenancePage>CommunitiesLogin</inMaintenancePage>
+    <inactiveIndexPage>CommunitiesLogin</inactiveIndexPage>
+    <indexPage>CommunityHome</indexPage>
+    <masterLabel>Student Community</masterLabel>
+    <requireInsecurePortalAccess>false</requireInsecurePortalAccess>
+    <siteAdmin>motivis@starterpack.com</siteAdmin>
+    <siteTemplate>SiteTemplate</siteTemplate>
+    <siteType>ChatterNetwork</siteType>
+    <subdomain>studentcommunity-developer-edition</subdomain>
+    <urlPathPrefix>studentcommunity</urlPathPrefix>
+</CustomSite>

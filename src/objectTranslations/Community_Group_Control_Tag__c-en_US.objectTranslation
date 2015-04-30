@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Community Group Control Tag</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Community Group Control Tags</value>
+    </caseValues>
+    <fields>
+        <label><!-- Community Tag --></label>
+        <name>Community_Tag__c</name>
+        <relationshipLabel><!-- Group Items Tagged --></relationshipLabel>
+    </fields>
+    <fields>
+        <label><!-- Group Control --></label>
+        <name>Group_Control__c</name>
+        <relationshipLabel><!-- Group Tags --></relationshipLabel>
+    </fields>
+    <fields>
+        <help><!-- Indicates if the related Group item is discoverable to all Community User&apos;s. --></help>
+        <label><!-- Group Discoverable --></label>
+        <name>Group_Discoverable__c</name>
+    </fields>
+    <fields>
+        <help><!-- Status of the related Group item. --></help>
+        <label><!-- Group Status --></label>
+        <name>Group_Status__c</name>
+    </fields>
+    <fields>
+        <help><!-- Represents the 18 digit unique Salesforce ID. --></help>
+        <label><!-- Group Tag SF ID --></label>
+        <name>Group_Tag_SF_ID__c</name>
+    </fields>
+    <fields>
+        <help><!-- Title of the related Group. --></help>
+        <label><!-- Group Type --></label>
+        <name>Group_Type__c</name>
+    </fields>
+    <fields>
+        <help><!-- Represents the Name of the Theme related to the Tag. --></help>
+        <label><!-- Theme --></label>
+        <name>Theme__c</name>
+    </fields>
+    <startsWith>Consonant</startsWith>
+</CustomObjectTranslation>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Community Theme</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Community Themes</value>
+    </caseValues>
+    <fields>
+        <help><!-- Choose from any of Font Awesome&apos;s Icon coloring classes --></help>
+        <label><!-- Icon Color --></label>
+        <name>Icon_Color__c</name>
+    </fields>
+    <fields>
+        <help><!-- Describes the Icon style to be applied to these records in search results --></help>
+        <label><!-- Icon Style --></label>
+        <name>Icon_Style__c</name>
+    </fields>
+    <fields>
+        <label><!-- Theme Type --></label>
+        <name>Theme_Type__c</name>
+        <picklistValues>
+            <masterLabel>Interest</masterLabel>
+            <translation><!-- Interest --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Resource</masterLabel>
+            <translation><!-- Resource --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>System</masterLabel>
+            <translation><!-- System --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- Theme Unique ID --></label>
+        <name>Theme_Unique_ID__c</name>
+    </fields>
+    <startsWith>Consonant</startsWith>
+</CustomObjectTranslation>

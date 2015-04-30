@@ -1,0 +1,17 @@
+<apex:page showHeader="false" sidebar="false" standardStylesheets="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false">
+	<apex:composition template="{!$Site.Template}">
+		<apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
+		<apex:define name="body">
+			<!--=== Content ===-->
+			<div class="container content paddingCategories">
+				<apex:outputPanel layout="block" styleClass="row text-center margin-bottom-20" rendered="{!$ObjectType.Community_Resource__c.createable}" >
+					<apex:outputLink value="{!$Page.CommunityResourceEdit}" styleClass="btn-u">{!$Label.BTN_Create_Resource}</apex:outputLink>
+				</apex:outputPanel>
+				<!-- Top Categories -->
+				<c:CommunityTopCategories ro="true" rendered="{!$ObjectType.Community_Resource__c.accessible}"/>
+				<!-- End Top Categories -->
+			</div><!--/container-->
+			<!--=== End Content ===-->
+		</apex:define>
+	</apex:composition>
+</apex:page>

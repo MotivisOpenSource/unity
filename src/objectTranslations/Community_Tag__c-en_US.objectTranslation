@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Community Tag</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Community Tags</value>
+    </caseValues>
+    <fields>
+        <help><!-- Represents the Theme of the Community Tag. --></help>
+        <label><!-- Community Theme --></label>
+        <name>Community_Theme__c</name>
+        <relationshipLabel><!-- Community Tags --></relationshipLabel>
+    </fields>
+    <fields>
+        <help><!-- Describes the Icon style to be applied to these records in search results --></help>
+        <label><!-- Icon Style --></label>
+        <name>Icon_Style__c</name>
+    </fields>
+    <fields>
+        <help><!-- Represents the 18 digit unique Salesforce ID. --></help>
+        <label><!-- Tag SF ID --></label>
+        <name>Tag_SF_ID__c</name>
+    </fields>
+    <fields>
+        <help><!-- Coming Soon. --></help>
+        <label><!-- Tag-Theme UniqueID --></label>
+        <name>Tag_Theme_UniqueID__c</name>
+    </fields>
+    <fields>
+        <label><!-- Theme Name --></label>
+        <name>Theme_Name__c</name>
+    </fields>
+    <fields>
+        <help><!-- Represents the Theme Type of the Theme related to the Tag. --></help>
+        <label><!-- Theme Type --></label>
+        <name>Theme_Type__c</name>
+    </fields>
+    <startsWith>Consonant</startsWith>
+</CustomObjectTranslation>

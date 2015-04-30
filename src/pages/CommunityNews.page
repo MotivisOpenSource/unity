@@ -1,0 +1,77 @@
+<apex:page controller="CommunityNewsController" action="{!initFromList}" showHeader="false" sideBar="false" standardStylesheets="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false">
+<apex:composition template="{!$Site.Template}">
+<apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
+<apex:define name="body">
+	<div class="breadcrumbs margin-bottom-10">
+		<div class="container">
+			<h1 class="pull-left">{!$ObjectType.Community_News__c.Label}</h1>
+			<ul class="pull-right breadcrumb">
+				<li class="active">{!$Label.LBL_News}</li>
+			</ul>
+		</div>
+	</div>
+	<apex:outputPanel layout="block" styleClass="profile" id="form">
+		<div class="container content">
+			<div class="row margin-bottom-10">
+				<div class="col-md-6 text-left">
+					<h4>{!$Label.LBL_Current_News_Title}</h4>
+				</div>
+				<div class="col-md-6 text-right">
+					<apex:form >
+						<apex:outputLink value="{!urlForNewNews}" rendered="{!$ObjectType.Community_News__c.createable}" styleClass="btn-u">Create News</apex:outputLink>
+					</apex:form>
+				</div>
+			</div>
+			<!--div class="headline">
+				<h4>{!$Label.LBL_Current_News_Title}</h4>
+				<apex:form styleClass="pull-right">
+					<apex:outputLink value="{!urlForNewNews}" rendered="{!$ObjectType.Community_News__c.createable}" styleClass="btn-u">Create News</apex:outputLink>
+				</apex:form>
+			</div-->
+			<apex:repeat value="{!newsPage}" var="np">
+				<div class="row">
+					<apex:repeat value="{!np}" var="npRow">
+						<div class="col-md-3 col-sm-6">
+							<div class="thumbnails thumbnail-style thumbnail-kenburn">
+								<div class="thumbnail-img">
+									<div class="overflow-hidden">
+										<img class="img-responsive" src="{!npRow.imgurl}" alt=""/>
+									</div>
+									<a class="btn-more hover-effect" href="{!$Page.CommunityNewsDetail}?id={!npRow.id}">{!$Label.LBL_Read_More}</a>
+								</div>
+								<div class="caption">
+									<h3><a class="hover-effect" href="{!$Page.CommunityNewsDetail}?id={!npRow.id}">{!npRow.title}</a></h3>
+									<h6>{!npRow.posted}</h6>
+									<p>{!npRow.teaser}</p>
+								</div>
+							</div>
+						</div>
+					</apex:repeat>
+				</div>
+			</apex:repeat>
+			<apex:form >
+				<ul class="pager">
+					<apex:outputPanel layout="none" rendered="{!newsHasPrevious}">
+						<li class="previous">
+							<apex:commandLink action="{!newsFirstPage}" value="{!$Label.LBL_First}" rerender="form"/>
+						</li>
+						<li class="previous">
+							<apex:commandLink action="{!newsPreviousPage}" value="{!$Label.LBL_Previous}" rerender="form" styleClass="margin-left-5"/>
+						</li>
+					</apex:outputPanel>
+					<li><apex:outputText value="{!$Label.LBL_Page} {!newsPageNumber} {!$Label.LBL_of} {!newsPagesTotal}"/></li>
+					<apex:outputPanel layout="none" rendered="{!newsHasNext}">
+						<li class="next">
+							<apex:commandLink action="{!newsLastPage}" value="{!$Label.LBL_Last}" rerender="form" styleClass="margin-left-5"/>
+						</li>
+						<li class="next">
+							<apex:commandLink action="{!newsNextPage}" value="{!$Label.LBL_Next}" rerender="form"/>
+						</li>
+					</apex:outputPanel>
+				</ul>
+			</apex:form>
+		</div>
+	</apex:outputPanel>
+</apex:define>
+</apex:composition>
+</apex:page>

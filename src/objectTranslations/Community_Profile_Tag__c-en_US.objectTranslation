@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Community Profile Tag</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Community Profile Tags</value>
+    </caseValues>
+    <fields>
+        <label><!-- Active --></label>
+        <name>Active__c</name>
+    </fields>
+    <fields>
+        <label><!-- Community Tag --></label>
+        <name>Community_Tag__c</name>
+        <relationshipLabel><!-- Users Tagged --></relationshipLabel>
+    </fields>
+    <fields>
+        <label><!-- Contact --></label>
+        <name>Contact__c</name>
+        <relationshipLabel><!-- Profile Tags --></relationshipLabel>
+    </fields>
+    <fields>
+        <help><!-- Represents the 18 digit unique Salesforce ID. --></help>
+        <label><!-- Profile Tag SF ID --></label>
+        <name>Profile_Tag_SF_ID__c</name>
+    </fields>
+    <fields>
+        <help><!-- Represents the Name of the Theme that the Tag is related to. --></help>
+        <label><!-- Theme --></label>
+        <name>Theme__c</name>
+    </fields>
+    <startsWith>Consonant</startsWith>
+</CustomObjectTranslation>

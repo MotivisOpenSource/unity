@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Community Event Tag</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Community Event Tag</value>
+    </caseValues>
+    <fields>
+        <label><!-- Community Event --></label>
+        <name>Community_Event__c</name>
+        <relationshipLabel><!-- Group &amp; Tags --></relationshipLabel>
+    </fields>
+    <fields>
+        <label><!-- Community Group Control --></label>
+        <name>Community_Group_Control__c</name>
+        <relationshipLabel><!-- Group Events --></relationshipLabel>
+    </fields>
+    <fields>
+        <label><!-- Community Tag --></label>
+        <name>Community_Tag__c</name>
+        <relationshipLabel><!-- Event Items Tagged --></relationshipLabel>
+    </fields>
+    <fields>
+        <help><!-- Represents the Name of the related Event. --></help>
+        <label><!-- Event Name --></label>
+        <name>Event_Name__c</name>
+    </fields>
+    <fields>
+        <help><!-- Indicates if the related Event is flagged as Public. --></help>
+        <label><!-- Event Public --></label>
+        <name>Event_Public__c</name>
+    </fields>
+    <fields>
+        <help><!-- Represents the 18 digit unique Salesforce ID. --></help>
+        <label><!-- Event Tag SF ID --></label>
+        <name>Event_Tag_SF_ID__c</name>
+    </fields>
+    <fields>
+        <help><!-- Represents the Teaser of the related Event. --></help>
+        <label><!-- Event Teaser --></label>
+        <name>Event_Teaser__c</name>
+    </fields>
+    <fields>
+        <help><!-- Represents the Start and End time of the related Event. --></help>
+        <label><!-- Event Time --></label>
+        <name>Event_Time__c</name>
+    </fields>
+    <fields>
+        <help><!-- Indicates if the Group related to the Community Event is Discoverable by everyone in the Community. --></help>
+        <label><!-- Group Discoverable --></label>
+        <name>Group_Discoverable__c</name>
+    </fields>
+    <fields>
+        <help><!-- Represents the Purpose of the related Group. --></help>
+        <label><!-- Group Purpose --></label>
+        <name>Group_Purpose__c</name>
+    </fields>
+    <fields>
+        <help><!-- Represents the Status of the related Group. --></help>
+        <label><!-- Group Status --></label>
+        <name>Group_Status__c</name>
+    </fields>
+    <fields>
+        <help><!-- Represents the Type of Group that is related to the Community Event record. --></help>
+        <label><!-- Group Type --></label>
+        <name>Group_Type__c</name>
+    </fields>
+    <fields>
+        <help><!-- Represents the Theme the related Tag is associated with. --></help>
+        <label><!-- Theme --></label>
+        <name>Theme__c</name>
+    </fields>
+    <startsWith>Consonant</startsWith>
+</CustomObjectTranslation>

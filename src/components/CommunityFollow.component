@@ -1,0 +1,30 @@
+<apex:component controller="CommunityFollowController" allowDml="true">
+	<apex:attribute name="parentId" type="Id" assignTo="{!subscriptionParentId}" required="true" description="Parent Object Id" />
+
+	<script>
+		function fme(element) {
+			$('#fbtns').attr('disabled','disabled').addClass('disabled').css('min-width',$('#fbtns').css('width'));
+			$('#fbtns i').hide();
+			$('#fbtns .fa-pulse').show();
+			followaf();
+		}
+	</script>
+
+	<apex:outputPanel id="fatn">
+		<apex:outputPanel layout="none" rendered="{!!followed}">
+			<button id="fbtns" class="btn-u" onclick="fme(this);return false;">
+				<i class="fa fa-plus-circle"></i>
+				<i class="fa fa-spinner fa-pulse" style="display:none;"></i>
+				&nbsp;{!$Label.LBL_Follow}
+			</button>
+		</apex:outputPanel>
+		<apex:outputPanel layout="none" rendered="{!followed}">
+			<button id="fbtns" class="btn-u btn-u-blue" onclick="fme(this);return false;">
+				<i class="fa fa-check"></i>
+				<i class="fa fa-spinner fa-pulse" style="display:none;"></i>
+				&nbsp;{!$Label.BTN_Following}
+			</button>
+		</apex:outputPanel>
+	</apex:outputPanel>
+	<apex:actionFunction action="{!follow}" name="followaf" rerender="fatn"/>
+</apex:component>

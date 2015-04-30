@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Follow</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <deprecated>false</deprecated>
+    <description>This object allows Tags to be associated to a Community News record.</description>
+    <enableActivities>false</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>false</enableHistory>
+    <enableReports>true</enableReports>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <fields>
+        <fullName>Allow_Comments__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Indicates if the related News article allows user&apos;s to comment on it.</description>
+        <externalId>false</externalId>
+        <formula>Community_News__r.Allow_Comments__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>The News article allows user&apos;s to comment on it.</inlineHelpText>
+        <label>Allow Comments</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Comment_Expiration_Date__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Represents the date when comments are no longer accepted for the related News article.</description>
+        <externalId>false</externalId>
+        <formula>Community_News__r.Comment_Expiration_Date__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>Date when comments are no longer accepted for this News article.</inlineHelpText>
+        <label>Comment Expiration Date</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>Community_News__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Allows tags to be associated with this Community News record.</description>
+        <externalId>false</externalId>
+        <label>Community News</label>
+        <referenceTo>Community_News__c</referenceTo>
+        <relationshipLabel>News Tags</relationshipLabel>
+        <relationshipName>Community_News_Tag</relationshipName>
+        <relationshipOrder>1</relationshipOrder>
+        <reparentableMasterDetail>false</reparentableMasterDetail>
+        <trackTrending>false</trackTrending>
+        <type>MasterDetail</type>
+        <writeRequiresMasterRead>false</writeRequiresMasterRead>
+    </fields>
+    <fields>
+        <fullName>Community_Tag__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Defines the tag that is being associated with the News record.</description>
+        <externalId>false</externalId>
+        <label>Community Tag</label>
+        <referenceTo>Community_Tag__c</referenceTo>
+        <relationshipLabel>News Items Tagged</relationshipLabel>
+        <relationshipName>Community_NewItems_Tagged</relationshipName>
+        <relationshipOrder>0</relationshipOrder>
+        <reparentableMasterDetail>false</reparentableMasterDetail>
+        <trackTrending>false</trackTrending>
+        <type>MasterDetail</type>
+        <writeRequiresMasterRead>false</writeRequiresMasterRead>
+    </fields>
+    <fields>
+        <fullName>News_Entry_Date__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Represents the Entry Date of the related News article.</description>
+        <externalId>false</externalId>
+        <formula>Community_News__r.Entry_Date__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>Entry Date of this News article.</inlineHelpText>
+        <label>News Entry Date</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>News_Expiration_Date__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Represents the Expiration Date of the related News article.</description>
+        <externalId>false</externalId>
+        <formula>Community_News__r.Expiration_Date__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>Expiration Date of the News article.</inlineHelpText>
+        <label>News Expiration Date</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>News_Tag_SF_ID__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Represents the 18 digit unique Salesforce ID.</description>
+        <externalId>false</externalId>
+        <formula>CASESAFEID(Id)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>Represents the 18 digit unique Salesforce ID.</inlineHelpText>
+        <label>News Tag SF ID</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>News_Title__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Represents the Title of the related New item.</description>
+        <externalId>false</externalId>
+        <formula>Community_News__r.Title__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>Title of this News article.</inlineHelpText>
+        <label>News Title</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Theme__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Represents the Theme the Tag is related to.</description>
+        <externalId>false</externalId>
+        <formula>HYPERLINK(&quot;/&quot;&amp; Community_Tag__r.Id , Community_Tag__r.Community_Theme__r.Name ,&quot;_self&quot;)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>Theme name the Tag is related to.</inlineHelpText>
+        <label>Theme</label>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <label>Community News Tag</label>
+    <listViews>
+        <fullName>All</fullName>
+        <columns>NAME</columns>
+        <columns>Community_News__c</columns>
+        <columns>Community_Tag__c</columns>
+        <filterScope>Everything</filterScope>
+        <label>All</label>
+    </listViews>
+    <nameField>
+        <displayFormat>CNT-{yy}{mm}{0}</displayFormat>
+        <label>Community News Tag Name</label>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>Community News Tags</pluralLabel>
+    <searchLayouts/>
+    <sharingModel>ControlledByParent</sharingModel>
+</CustomObject>

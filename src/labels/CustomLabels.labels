@@ -1,0 +1,1766 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+    <labels>
+        <fullName>BTN_Accept</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>BTN Accept</shortDescription>
+        <value>Accept</value>
+    </labels>
+    <labels>
+        <fullName>BTN_AskToJoin</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>BTN_AskToJoin</shortDescription>
+        <value>Ask to Join</value>
+    </labels>
+    <labels>
+        <fullName>BTN_Back</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>BTN Back</shortDescription>
+        <value>Back</value>
+    </labels>
+    <labels>
+        <fullName>BTN_Browse</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>BTN Browse</shortDescription>
+        <value>Browse</value>
+    </labels>
+    <labels>
+        <fullName>BTN_Cancel</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Cancel button</shortDescription>
+        <value>Cancel</value>
+    </labels>
+    <labels>
+        <fullName>BTN_ChooseFile</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Choose File Button</shortDescription>
+        <value>Choose File</value>
+    </labels>
+    <labels>
+        <fullName>BTN_Clone</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Clone button</shortDescription>
+        <value>Clone</value>
+    </labels>
+    <labels>
+        <fullName>BTN_Comment</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>BTN Comment</shortDescription>
+        <value>Comment</value>
+    </labels>
+    <labels>
+        <fullName>BTN_CreateGroup_ApplyTags</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>BTN CreateGroup ApplyTags</shortDescription>
+        <value>Apply Tags</value>
+    </labels>
+    <labels>
+        <fullName>BTN_Create_Event</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Create Event button</shortDescription>
+        <value>Create Event</value>
+    </labels>
+    <labels>
+        <fullName>BTN_Create_Group</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>BTN_Create_Group</shortDescription>
+        <value>Create Group</value>
+    </labels>
+    <labels>
+        <fullName>BTN_Create_News</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Create News button</shortDescription>
+        <value>Create News</value>
+    </labels>
+    <labels>
+        <fullName>BTN_Create_Resource</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Create Resource Button</shortDescription>
+        <value>Create Resource</value>
+    </labels>
+    <labels>
+        <fullName>BTN_Decline</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>BTN Decline</shortDescription>
+        <value>Decline</value>
+    </labels>
+    <labels>
+        <fullName>BTN_Edit</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>BTN Edit</shortDescription>
+        <value>Edit</value>
+    </labels>
+    <labels>
+        <fullName>BTN_Edit_Resource</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Edit Resource Button</shortDescription>
+        <value>Edit Resource</value>
+    </labels>
+    <labels>
+        <fullName>BTN_Following</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>BTN Following</shortDescription>
+        <value>Following</value>
+    </labels>
+    <labels>
+        <fullName>BTN_GoogleCal</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Google Calendar button</shortDescription>
+        <value>Google</value>
+    </labels>
+    <labels>
+        <fullName>BTN_ICS</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>iCal/Outlook button</shortDescription>
+        <value>Outlook/iCal</value>
+    </labels>
+    <labels>
+        <fullName>BTN_Join</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>BTN_Join</shortDescription>
+        <value>Join</value>
+    </labels>
+    <labels>
+        <fullName>BTN_New_Group</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>BTN_New_Group</shortDescription>
+        <value>New Group</value>
+    </labels>
+    <labels>
+        <fullName>BTN_New_Message</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>BTN New Message</shortDescription>
+        <value>New Message</value>
+    </labels>
+    <labels>
+        <fullName>BTN_OK</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Button Ok</shortDescription>
+        <value>OK</value>
+    </labels>
+    <labels>
+        <fullName>BTN_Rechat</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>BTN Rechat</shortDescription>
+        <value>Share This Item</value>
+    </labels>
+    <labels>
+        <fullName>BTN_Save</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>BTN Save</shortDescription>
+        <value>Save</value>
+    </labels>
+    <labels>
+        <fullName>BTN_Save_Changes</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Save Changes</shortDescription>
+        <value>Save Changes</value>
+    </labels>
+    <labels>
+        <fullName>BTN_Search</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>BTN_Search</shortDescription>
+        <value>Search</value>
+    </labels>
+    <labels>
+        <fullName>BTN_Select</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Select button</shortDescription>
+        <value>Select</value>
+    </labels>
+    <labels>
+        <fullName>BTN_Share</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>BTN Share</shortDescription>
+        <value>Share</value>
+    </labels>
+    <labels>
+        <fullName>BTN_Submit</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Submit Button</shortDescription>
+        <value>Submit</value>
+    </labels>
+    <labels>
+        <fullName>BTN_Update</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>BTN Update</shortDescription>
+        <value>Update</value>
+    </labels>
+    <labels>
+        <fullName>BTN_Update_Resource</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Update Resource Button</shortDescription>
+        <value>Update Resource</value>
+    </labels>
+    <labels>
+        <fullName>BTN_Upload_Resource</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Upload Resource Button</shortDescription>
+        <value>Upload Resource</value>
+    </labels>
+    <labels>
+        <fullName>ERR_1_Breaking_News</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>ERR 1 Breaking News</shortDescription>
+        <value>You may only have one record tagged as breaking news at any given time.  Please check your other News records to make sure there aren’t any overlapping records.</value>
+    </labels>
+    <labels>
+        <fullName>ERR_3_Alerts</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>ERR 3 Alerts</shortDescription>
+        <value>You may only have one record in each slot at any given time.  Please check your other News records to make sure there aren’t any overlapping records.</value>
+    </labels>
+    <labels>
+        <fullName>ERR_Community_Profile</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Error: Community Profile</shortDescription>
+        <value>This contact must have a Community Profile before they can be enabled for the Community</value>
+    </labels>
+    <labels>
+        <fullName>ERR_CreateGroup_MaxTagMessage</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>ERR CreateGroup MaxTagMessage</shortDescription>
+        <value>You have reached the Maximum of &lt;setting number&gt; for this group.  You must remove a tag in order to add a tag.</value>
+    </labels>
+    <labels>
+        <fullName>ERR_Dup_Group_Name</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>ERR Dup Group Name</shortDescription>
+        <value>This name has been used by another group. Try adding more descriptors to the name or choose another</value>
+    </labels>
+    <labels>
+        <fullName>ERR_Group_Picture_FileError</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>ERR Group Picture FileError</shortDescription>
+        <value>You have exceeded the file size of 8mb or used incorrect file type.</value>
+    </labels>
+    <labels>
+        <fullName>ERR_MissingPermission</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>ERR MissingPermission</shortDescription>
+        <value>You do not have the correct permission to perform this action.</value>
+    </labels>
+    <labels>
+        <fullName>ERR_News_Too_Many_Sticky</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Error: Too Many Sticky News</shortDescription>
+        <value>There are too many sticky news stories.  Please remove another sticky story to post this news as featured.</value>
+    </labels>
+    <labels>
+        <fullName>ERR_NotGroupManager</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>ERR NotGroupManager</shortDescription>
+        <value>You do not have the permission to view this page.</value>
+    </labels>
+    <labels>
+        <fullName>ERR_Pole_SameValueWarning</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>ERR_Pole_SameValueWarning</shortDescription>
+        <value>It looks as though you have entered the same Choice in more than one location. Please review your choices and make the required changes before sharing your post.</value>
+    </labels>
+    <labels>
+        <fullName>ERR_Primary_Profile</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Error: Only Have One Primary Community Profile</shortDescription>
+        <value>A contact may only have one Primary community profile.</value>
+    </labels>
+    <labels>
+        <fullName>ERR_Profile_RecordType</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>ERR: Profile RecordType</shortDescription>
+        <value>This contact already has a Community Profile with this Record Type.</value>
+    </labels>
+    <labels>
+        <fullName>LBL_About_Me</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL About Me</shortDescription>
+        <value>About Me</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Add</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Add</shortDescription>
+        <value>Add</value>
+    </labels>
+    <labels>
+        <fullName>LBL_AddMoreChoices</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL AddMoreChoices</shortDescription>
+        <value>Add More Choices</value>
+    </labels>
+    <labels>
+        <fullName>LBL_AddToCalendar</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Add to Calendar label</shortDescription>
+        <value>Add to My Calendar</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Add_Manager</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Add Manager</shortDescription>
+        <value>Add Manager</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Add_Remove_Members</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Add Remove Members</shortDescription>
+        <value>Add/Remove Members</value>
+    </labels>
+    <labels>
+        <fullName>LBL_AgreeToTerms</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL AgreeToTerms</shortDescription>
+        <value>I agree to these Terms and Conditions.</value>
+    </labels>
+    <labels>
+        <fullName>LBL_AllGroups</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label All Groups</shortDescription>
+        <value>All Groups</value>
+    </labels>
+    <labels>
+        <fullName>LBL_AllPeople</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL AllPeople</shortDescription>
+        <value>All People</value>
+    </labels>
+    <labels>
+        <fullName>LBL_All_Events</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL All Events</shortDescription>
+        <value>All Events</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Answer</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Answer</shortDescription>
+        <value>Answer</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Banner_Caption</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Banner Image Caption Text</shortDescription>
+        <value>Take a tour of your local community</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Banner_Text</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Banner Image Text</shortDescription>
+        <value>Welcome back &lt;br/&gt; Have a great semester</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Bookmark</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Bookmark</shortDescription>
+        <value>Bookmark</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Bookmarked</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Bookmarked</shortDescription>
+        <value>Bookmarked</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Campus_Updates</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Campus Updates</shortDescription>
+        <value>Campus Updates</value>
+    </labels>
+    <labels>
+        <fullName>LBL_CancelRequest_Message</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>CancelRequest Message</shortDescription>
+        <value>Are you sure want to cancel this request?</value>
+    </labels>
+    <labels>
+        <fullName>LBL_ChangePassword</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Change Password</shortDescription>
+        <value>Change Password</value>
+    </labels>
+    <labels>
+        <fullName>LBL_ChangePassword_Title</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Change My Password</shortDescription>
+        <value>Change My Password</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Choice</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Choice</shortDescription>
+        <value>Choice</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Choose_from_Library</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Choose from library label</shortDescription>
+        <value>Choose from library</value>
+    </labels>
+    <labels>
+        <fullName>LBL_CommentsAfterMe</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Comments After Me</shortDescription>
+        <value>Comments after me</value>
+    </labels>
+    <labels>
+        <fullName>LBL_CommentsOnBookmarked</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Comments On Bookmarked</shortDescription>
+        <value>Comments on an item I bookmarked</value>
+    </labels>
+    <labels>
+        <fullName>LBL_CommentsOnLike</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Comments On Like</shortDescription>
+        <value>Comments on an item I like</value>
+    </labels>
+    <labels>
+        <fullName>LBL_CommentsProfilePost</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Comments Profile Post</shortDescription>
+        <value>Comments on a post on my profile</value>
+    </labels>
+    <labels>
+        <fullName>LBL_CommentsStatusChange</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Comments on my status</shortDescription>
+        <value>Comments on my status</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Comments_Title</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Comments</shortDescription>
+        <value>Comments</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Confirm_Remove_Manager</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Confirm Remove Manager</shortDescription>
+        <value>Are you sure want to remove that user from managers?</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Contact</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Contact</shortDescription>
+        <value>Contact</value>
+    </labels>
+    <labels>
+        <fullName>LBL_CreateGroup_Details</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL CreateGroup Details</shortDescription>
+        <value>Details</value>
+    </labels>
+    <labels>
+        <fullName>LBL_CreateGroup_NoTagsMessage</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL CreateGroup NoTagsMessage</shortDescription>
+        <value>You have not selected any Tags to be associated with this group.  Tags help categorize groups, which help other User&apos;s find groups that match their selected interest.</value>
+    </labels>
+    <labels>
+        <fullName>LBL_CreateGroup_PictureUpload</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL CreateGroup PictureUpload</shortDescription>
+        <value>Picture Upload</value>
+    </labels>
+    <labels>
+        <fullName>LBL_CreateGroup_Tags</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL CreateGroup Tags</shortDescription>
+        <value>Tags</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Current_Events_Title</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Current Events Title</shortDescription>
+        <value>Current Events</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Current_News_Title</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Current News Title</shortDescription>
+        <value>Current News Articles</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Delete</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Delete</shortDescription>
+        <value>Delete</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Description</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Description</shortDescription>
+        <value>Description</value>
+    </labels>
+    <labels>
+        <fullName>LBL_DigestDefaultFrequency</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Digest Default Frequency</shortDescription>
+        <value>Set default frequency for groups I join:</value>
+    </labels>
+    <labels>
+        <fullName>LBL_DigestSettings_Title</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Digest</shortDescription>
+        <value>Digest</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Digest_Daily</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Digest Daily</shortDescription>
+        <value>Daily Digest</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Digest_EachPost</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Digest Each Post</shortDescription>
+        <value>Email me on each post</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Digest_Group</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Group</shortDescription>
+        <value>Group</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Digest_Never</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Digest Never</shortDescription>
+        <value>Never</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Digest_Weekly</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Weekly Digest</shortDescription>
+        <value>Weekly Digest</value>
+    </labels>
+    <labels>
+        <fullName>LBL_DiscoverTitle</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL DiscoverTitle</shortDescription>
+        <value>Discover &lt;span class=&quot;color-green&quot;&gt;new&lt;/span&gt; things</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Done</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Done</shortDescription>
+        <value>Done</value>
+    </labels>
+    <labels>
+        <fullName>LBL_ERR_Help_Link</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL ERR Help Link</shortDescription>
+        <value>You can only have one active resource designated as a Help Link</value>
+    </labels>
+    <labels>
+        <fullName>LBL_ERR_Quick_Link</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Error Quick Link</shortDescription>
+        <value>If you are creating a quick link resource for the Links menu, the name must be 20 characters or less</value>
+    </labels>
+    <labels>
+        <fullName>LBL_EditProfile</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Edit Profile</shortDescription>
+        <value>Edit Profile</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Edit_Group</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Edit Group</shortDescription>
+        <value>Edit Group</value>
+    </labels>
+    <labels>
+        <fullName>LBL_EmailNotifications</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Email Notifications</shortDescription>
+        <value>Email Notifications</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Email_Daily_Digest</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>LBL Email Daily Digest</shortDescription>
+        <value>Email Daily Digest</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Email_Settings</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>LBL Email Settings</shortDescription>
+        <value>Email Settings</value>
+    </labels>
+    <labels>
+        <fullName>LBL_EventResultsTitle</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL EventResultsTitle</shortDescription>
+        <value>Event results found</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Event_Group</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Event Group</shortDescription>
+        <value>Group</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Events</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL_Events</shortDescription>
+        <value>Events</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Every_Post</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>LBL Every Post</shortDescription>
+        <value>Every Post</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Featured_News_Title</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Featured News Title</shortDescription>
+        <value>Featured News Articles</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Feed</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Feed</shortDescription>
+        <value>Feed</value>
+    </labels>
+    <labels>
+        <fullName>LBL_FeedsTime</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL FeedsTime</shortDescription>
+        <value>more than a year;a year ago; months ago;a month ago; weeks ago;a week ago; days ago;yesterday; hours ago;a hour ago; minutes ago;a minute ago</value>
+    </labels>
+    <labels>
+        <fullName>LBL_File</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL File</shortDescription>
+        <value>File</value>
+    </labels>
+    <labels>
+        <fullName>LBL_File_InputBox</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL File InputBox</shortDescription>
+        <value>Write about this file...</value>
+    </labels>
+    <labels>
+        <fullName>LBL_File_Upload_Size_Limit</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>File upload size limit</shortDescription>
+        <value>File size may not exceed 25 MB</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Filter_by</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Filter by</shortDescription>
+        <value>Filter by</value>
+    </labels>
+    <labels>
+        <fullName>LBL_First</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL First</shortDescription>
+        <value>First</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Flag</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Flag</shortDescription>
+        <value>Flag</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Follow</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Follow button/action</shortDescription>
+        <value>Follow</value>
+    </labels>
+    <labels>
+        <fullName>LBL_FollowMe</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Follow Me</shortDescription>
+        <value>Follow Me</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Followers</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Followers</shortDescription>
+        <value>Followers</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Follows</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Follows</shortDescription>
+        <value>Follows</value>
+    </labels>
+    <labels>
+        <fullName>LBL_General</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label General</shortDescription>
+        <value>General</value>
+    </labels>
+    <labels>
+        <fullName>LBL_GroupManager</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL GroupManager</shortDescription>
+        <value>Group Manager</value>
+    </labels>
+    <labels>
+        <fullName>LBL_GroupResultsTitle</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL GroupResultsTitle</shortDescription>
+        <value>Group results for</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Group_Files</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Group Files</shortDescription>
+        <value>Group Files</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Group_Managers</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Group Managers</shortDescription>
+        <value>Group Managers</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Group_Members</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Group Members</shortDescription>
+        <value>Group Members</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Groups</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL_Groups</shortDescription>
+        <value>Groups</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Help</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Help</shortDescription>
+        <value>Help</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Interests</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Interests</shortDescription>
+        <value>Interests</value>
+    </labels>
+    <labels>
+        <fullName>LBL_LIke</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL LIke</shortDescription>
+        <value>Like</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Last</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Last</shortDescription>
+        <value>Last</value>
+    </labels>
+    <labels>
+        <fullName>LBL_LeaveGroup_Message</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Leave Group Message</shortDescription>
+        <value>Are you sure you want to leave this group?</value>
+    </labels>
+    <labels>
+        <fullName>LBL_LeavePage_Message</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Leave Page</shortDescription>
+        <value>You are about to leave the page without Saving the changes you have made.  Click Cancel to have the option to Save your changes or click OK to continue without saving your changes.</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Leave_Group</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Leave Group</shortDescription>
+        <value>Leave Group</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Likes</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Likes</shortDescription>
+        <value>Likes</value>
+    </labels>
+    <labels>
+        <fullName>LBL_LikesPost</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Likes Post</shortDescription>
+        <value>Likes a post or a comment I made</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Link</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Link</shortDescription>
+        <value>Link</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Link_InputBox</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Link InputBox</shortDescription>
+        <value>Say something about this link...</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Links</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Links</shortDescription>
+        <value>Links</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Location</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Location label</shortDescription>
+        <value>Location</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Logout</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Logout</shortDescription>
+        <value>Logout</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Manage</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Manage</shortDescription>
+        <value>Manage</value>
+    </labels>
+    <labels>
+        <fullName>LBL_ManageDetails_Title</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Manage Details</shortDescription>
+        <value>Manage your Information</value>
+    </labels>
+    <labels>
+        <fullName>LBL_ManageDigest_Message1</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Manage Digest Message1</shortDescription>
+        <value>Below are the digest notifications you may manage</value>
+    </labels>
+    <labels>
+        <fullName>LBL_ManageDigest_Title</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Manage Digest Title</shortDescription>
+        <value>Manage your Digest Notifications</value>
+    </labels>
+    <labels>
+        <fullName>LBL_ManageGroupPreferences</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL ManageGroupPreferences</shortDescription>
+        <value>Manage Group Preferences</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Manage_Group</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Manage this Group</shortDescription>
+        <value>Manage this Group</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Manager</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Manager</shortDescription>
+        <value>Manager</value>
+    </labels>
+    <labels>
+        <fullName>LBL_ManagerFeed</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL ManagerFeed</shortDescription>
+        <value>Manager Feed</value>
+    </labels>
+    <labels>
+        <fullName>LBL_ManagerGroupMembers</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL ManagerGroupMembers</shortDescription>
+        <value>Manage Group Members</value>
+    </labels>
+    <labels>
+        <fullName>LBL_MangeGroupManagers</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL MangeGroupManagers</shortDescription>
+        <value>Manage Group Managers</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Member</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Member</shortDescription>
+        <value>Member</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Members</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Members</shortDescription>
+        <value>Members</value>
+    </labels>
+    <labels>
+        <fullName>LBL_MentionsMeComment</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Mentions Me Comment</shortDescription>
+        <value>Mentions me in a comment</value>
+    </labels>
+    <labels>
+        <fullName>LBL_MentionsMePost</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Mentions Me Post</shortDescription>
+        <value>Mentions me in a post</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Mentions_Title</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Mentions Title</shortDescription>
+        <value>Mentions or Messages</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Messages</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Feed Nav Messages</shortDescription>
+        <value>Messages</value>
+    </labels>
+    <labels>
+        <fullName>LBL_MessagesMe</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Messages Me</shortDescription>
+        <value>Sends me a message</value>
+    </labels>
+    <labels>
+        <fullName>LBL_MyGroups</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label My Groups</shortDescription>
+        <value>My Groups</value>
+    </labels>
+    <labels>
+        <fullName>LBL_MyMessages</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL MyMessages</shortDescription>
+        <value>My Messages</value>
+    </labels>
+    <labels>
+        <fullName>LBL_My_Account</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL My Account</shortDescription>
+        <value>My Account</value>
+    </labels>
+    <labels>
+        <fullName>LBL_My_Discussions</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL My Discussions</shortDescription>
+        <value>My Discussions</value>
+    </labels>
+    <labels>
+        <fullName>LBL_My_Events</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL My Events</shortDescription>
+        <value>My Events</value>
+    </labels>
+    <labels>
+        <fullName>LBL_My_Group_Events</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL My Group Events</shortDescription>
+        <value>My Group Events</value>
+    </labels>
+    <labels>
+        <fullName>LBL_My_News</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label My News</shortDescription>
+        <value>My News</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Need_Search</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Need Search</shortDescription>
+        <value>Need help searching?</value>
+    </labels>
+    <labels>
+        <fullName>LBL_NewPassword</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label New Password</shortDescription>
+        <value>New Password</value>
+    </labels>
+    <labels>
+        <fullName>LBL_New_Group_Events</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL New Group Events</shortDescription>
+        <value>All Group Events</value>
+    </labels>
+    <labels>
+        <fullName>LBL_News</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL_News</shortDescription>
+        <value>News</value>
+    </labels>
+    <labels>
+        <fullName>LBL_NewsResultsTitle</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL NewsResultsTitle</shortDescription>
+        <value>News results for</value>
+    </labels>
+    <labels>
+        <fullName>LBL_News_Alert</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>LBL News Alert</shortDescription>
+        <value>Alert</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Next</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Next</shortDescription>
+        <value>Next</value>
+    </labels>
+    <labels>
+        <fullName>LBL_NoUsersFound</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL NoUsersFound</shortDescription>
+        <value>No Users have been found.</value>
+    </labels>
+    <labels>
+        <fullName>LBL_No_Files_Group</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL No Files Group</shortDescription>
+        <value>No files have been posted to this group.</value>
+    </labels>
+    <labels>
+        <fullName>LBL_No_Upcoming_Events_Group</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL No Upcoming Events Group</shortDescription>
+        <value>No upcoming events have been posted to this group.</value>
+    </labels>
+    <labels>
+        <fullName>LBL_NotificationSettings_Message1</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Notification Settings Message1</shortDescription>
+        <value>Below are the notifications you may manage.</value>
+    </labels>
+    <labels>
+        <fullName>LBL_NotificationSettings_Title</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Manage your Notifications</shortDescription>
+        <value>Manage your Notifications</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Notification_Settings</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Notfication Settings</shortDescription>
+        <value>Notfication Settings</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Notifications_Message</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Notifications Message</shortDescription>
+        <value>has sent you a direct message.</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Notifications_Post</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Notifications Post</shortDescription>
+        <value>commented on your posting.</value>
+    </labels>
+    <labels>
+        <fullName>LBL_OldPassword</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Old Password</shortDescription>
+        <value>Old Password</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Other</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Other</shortDescription>
+        <value>Other</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Overview</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Overview</shortDescription>
+        <value>Overview</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Owner</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Owner</shortDescription>
+        <value>Owner</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Page</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Page</shortDescription>
+        <value>Page</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Page_Title</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Page Title</shortDescription>
+        <value>Community University | Welcome...</value>
+    </labels>
+    <labels>
+        <fullName>LBL_PasswordChange_Message</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Password Change Message</shortDescription>
+        <value>Your password was last changed or reset on</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Pending</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Pending</shortDescription>
+        <value>Pending</value>
+    </labels>
+    <labels>
+        <fullName>LBL_PendingRequestsManager_Title</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL PendingRequestsManager Title</shortDescription>
+        <value>Pending Requests</value>
+    </labels>
+    <labels>
+        <fullName>LBL_PeopleIFollow</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL PeopleIFollow</shortDescription>
+        <value>People I Follow</value>
+    </labels>
+    <labels>
+        <fullName>LBL_PictureUploadModal_NoFile</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL PictureUploadModal NoFile</shortDescription>
+        <value>No file chosen</value>
+    </labels>
+    <labels>
+        <fullName>LBL_PictureUploadModal_ShowPublicly</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL PictureUploadModal ShowPublicly</shortDescription>
+        <value>Show my photo on publicly accessible pages</value>
+    </labels>
+    <labels>
+        <fullName>LBL_PictureUploadModal_SizeWarning</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL PictureUploadModal SizeWarning</shortDescription>
+        <value>You can upload a JPG, GIF, or PNG file. Maximum file size is 8 MB.</value>
+    </labels>
+    <labels>
+        <fullName>LBL_PictureUploadModal_Title</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL PictureUploadModal Title</shortDescription>
+        <value>Upload Profile Photo</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Poll</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Poll</shortDescription>
+        <value>Poll</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Poll_InputBox</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Poll InputBox</shortDescription>
+        <value>What would you like to ask?</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Post</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Post</shortDescription>
+        <value>Comment</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Post_InputBox</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Post InputBox</shortDescription>
+        <value>Type your message here…</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Posted</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Posted</shortDescription>
+        <value>Posted</value>
+    </labels>
+    <labels>
+        <fullName>LBL_PostsLikes_Title</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Posts or Likes</shortDescription>
+        <value>Posts or Likes</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Previous</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Previous</shortDescription>
+        <value>Previous</value>
+    </labels>
+    <labels>
+        <fullName>LBL_PrivateGroup</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL PrivateGroup</shortDescription>
+        <value>Group is private</value>
+    </labels>
+    <labels>
+        <fullName>LBL_ProfilePosts</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Posts on my Profile</shortDescription>
+        <value>Posts on my Profile</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Read_More</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Read More</shortDescription>
+        <value>read more +</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Read_More_News</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Read More News</shortDescription>
+        <value>Read More News</value>
+    </labels>
+    <labels>
+        <fullName>LBL_RecommendedGroups</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Recommended Groups</shortDescription>
+        <value>Recommended Groups</value>
+    </labels>
+    <labels>
+        <fullName>LBL_RegGenInfo_Title</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Registration General Info Title</shortDescription>
+        <value>General Information</value>
+    </labels>
+    <labels>
+        <fullName>LBL_RegInterests_Title</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Registration Interests Title</shortDescription>
+        <value>My Interests</value>
+    </labels>
+    <labels>
+        <fullName>LBL_RegProfilePicture_Title</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Registration Profile Picture Title</shortDescription>
+        <value>Profile Picture</value>
+    </labels>
+    <labels>
+        <fullName>LBL_RegTerms_Title</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Registration Terms Title</shortDescription>
+        <value>Terms &amp; Conditions</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Related_Tags</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Related Tags</shortDescription>
+        <value>Related Tags</value>
+    </labels>
+    <labels>
+        <fullName>LBL_RequestToJoin</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL RequestToJoin</shortDescription>
+        <value>Request to Join</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Requested</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Requested</shortDescription>
+        <value>Requested</value>
+    </labels>
+    <labels>
+        <fullName>LBL_ResourceResultsTitle</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL ResourceResultsTitle</shortDescription>
+        <value>Resource results for</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Resources</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL_Resources</shortDescription>
+        <value>Resources</value>
+    </labels>
+    <labels>
+        <fullName>LBL_ResultsFoundTitle</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL ResultsFoundTitle</shortDescription>
+        <value>Results found for</value>
+    </labels>
+    <labels>
+        <fullName>LBL_ReturnToGroup</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL ReturnToGroup</shortDescription>
+        <value>Return To Group</value>
+    </labels>
+    <labels>
+        <fullName>LBL_SaveChanges_Success</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Save Changes Success</shortDescription>
+        <value>You changes has been successfully saved.</value>
+    </labels>
+    <labels>
+        <fullName>LBL_SearchAllMessages</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL SearchAllMessages</shortDescription>
+        <value>Search All Messages</value>
+    </labels>
+    <labels>
+        <fullName>LBL_SearchByName</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL SearchByName</shortDescription>
+        <value>Search by Name...</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Search_Help_Tooltip</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Search Help Tooltip</shortDescription>
+        <value>&lt;br/&gt;&lt;div class=&quot;text-center&quot;&gt;&lt;strong&gt;Text search supports the following expression syntax&lt;/strong&gt;&lt;/div&gt;&lt;br/&gt;
+&lt;ul&gt;
+	&lt;li&gt;the use of quotes for exact phrase matching ex. &quot;this and that&quot; &lt;/li&gt;
+	&lt;li&gt;the use of wildcards ex. Biolog*&lt;/li&gt;
+	&lt;li&gt;the use of the reserved words - AND, OR, NOT  ex.  History AND Biology&lt;/li&gt;
+	&lt;li&gt;the use of parenthesis - ( )  ex.  History OR biology AND NOT ( &quot;class catalog&quot; )&lt;/li&gt;
+&lt;/ul&gt;</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Search_Placeholder</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Search Placeholder</shortDescription>
+        <value>Search words with regular expressions...</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Security_Question</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Security Question</shortDescription>
+        <value>Security Question</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Select_Image</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Select Image field label</shortDescription>
+        <value>Select Image</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Select_Tags</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Select Tags field label</shortDescription>
+        <value>Select Tags</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Share_AddGroup</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Share AddGroup</shortDescription>
+        <value>Add Group(s)</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Share_GroupList</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Share GroupList</shortDescription>
+        <value>Selected Group(s)</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Share_Link_Name</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Share Link Name</shortDescription>
+        <value>Link Name</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Share_Link_Url</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Share Link Url</shortDescription>
+        <value>Link URL</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Share_To_A_Group</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Share To A Group</shortDescription>
+        <value>Select A Group</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Share_on_Profile</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Share on Profile</shortDescription>
+        <value>Share this on my Profile</value>
+    </labels>
+    <labels>
+        <fullName>LBL_SharesPosts</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Shares a post I made</shortDescription>
+        <value>Shares a post I made</value>
+    </labels>
+    <labels>
+        <fullName>LBL_ShowManagersOnly</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL ShowManagersOnly</shortDescription>
+        <value>Show Managers Only</value>
+    </labels>
+    <labels>
+        <fullName>LBL_ShowMembersOnly</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL ShowMembersOnly</shortDescription>
+        <value>Show Members Only</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Show_All</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Show All</shortDescription>
+        <value>Show All</value>
+    </labels>
+    <labels>
+        <fullName>LBL_TagHelper_Link</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL TagHelper Link</shortDescription>
+        <value>What tags can I use?</value>
+    </labels>
+    <labels>
+        <fullName>LBL_TermsAndConditions</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL TermsAndConditions</shortDescription>
+        <value>Terms &amp; Conditions</value>
+    </labels>
+    <labels>
+        <fullName>LBL_ToMe</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL ToMe</shortDescription>
+        <value>To Me</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Turn_Off_Group_Email</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>LBL Turn Off Group Email</shortDescription>
+        <value>Turn Off Group Email</value>
+    </labels>
+    <labels>
+        <fullName>LBL_TypeAName</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL TypeAName</shortDescription>
+        <value>Type A Name...</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Type_Group_Name</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL_Type_Group_Name</shortDescription>
+        <value>Type a Group Name...</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Upcoming_Events</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Upcoming Events</shortDescription>
+        <value>Upcoming Events</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Update_Managers</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Update Managers</shortDescription>
+        <value>Update Managers</value>
+    </labels>
+    <labels>
+        <fullName>LBL_UploadFromComputer</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL UploadFromComputer</shortDescription>
+        <value>Upload file from your computer</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Upload_File</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Upload File</shortDescription>
+        <value>Upload File</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Username</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label User Name</shortDescription>
+        <value>User Name</value>
+    </labels>
+    <labels>
+        <fullName>LBL_VerifyNewPassword</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Label Verify New Password</shortDescription>
+        <value>Verify New Password</value>
+    </labels>
+    <labels>
+        <fullName>LBL_WhatIFollow</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL WhatIFollow</shortDescription>
+        <value>What I Follow</value>
+    </labels>
+    <labels>
+        <fullName>LBL_of</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL of</shortDescription>
+        <value>of</value>
+    </labels>
+    <labels>
+        <fullName>MSG_Group_Name_Available</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>MSG Group Name Available</shortDescription>
+        <value>The Group Name you have selected is available.</value>
+    </labels>
+    <labels>
+        <fullName>NAV_Discover</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>NAV Discover</shortDescription>
+        <value>Discover</value>
+    </labels>
+    <labels>
+        <fullName>NAV_Events</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>NAV Events</shortDescription>
+        <value>Events</value>
+    </labels>
+    <labels>
+        <fullName>NAV_Links</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>NAV Links</shortDescription>
+        <value>Links</value>
+    </labels>
+    <labels>
+        <fullName>NAV_MyFeed</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>NAV MyFeed</shortDescription>
+        <value>My Feed</value>
+    </labels>
+    <labels>
+        <fullName>NAV_News</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>NAV News</shortDescription>
+        <value>News</value>
+    </labels>
+    <labels>
+        <fullName>NAV_Resources</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>NAV Resources</shortDescription>
+        <value>Resources</value>
+    </labels>
+</CustomLabels>

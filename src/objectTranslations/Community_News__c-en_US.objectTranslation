@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Community News</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Community News</value>
+    </caseValues>
+    <fields>
+        <label><!-- Alert --></label>
+        <name>Alert__c</name>
+    </fields>
+    <fields>
+        <help><!-- When selected, Community Users will be allowed to post Comments on a news article as long as the Comment Expiration has not passed. --></help>
+        <label><!-- Allow Comments --></label>
+        <name>Allow_Comments__c</name>
+    </fields>
+    <fields>
+        <help><!-- Represents the Date/Time when the News Article prevents new comments from being added to the News Article.  The Time is based on the Organizations Time Zone listed in Salesforce. --></help>
+        <label><!-- Comment Expiration Date --></label>
+        <name>Comment_Expiration_Date__c</name>
+    </fields>
+    <fields>
+        <help><!-- Represents the full text description of the news article that will be displayed in the Community Portal. --></help>
+        <label><!-- Content --></label>
+        <name>Content__c</name>
+    </fields>
+    <fields>
+        <help><!-- Represents the Date/Time when the News Article will be posted in the Community Portal.  This will be based on the Organizations Time Zone in Salesforce. --></help>
+        <label><!-- Entry Date --></label>
+        <name>Entry_Date__c</name>
+    </fields>
+    <fields>
+        <help><!-- Represents the Date/Time when the News Article will be removed from the Community Portal.  The time will be based on the Organizations Time Zone in Salesforce. --></help>
+        <label><!-- Expiration Date --></label>
+        <name>Expiration_Date__c</name>
+    </fields>
+    <fields>
+        <label><!-- Feature on Home Page - Slot # --></label>
+        <name>Feature_on_Home_Page_Slot__c</name>
+        <picklistValues>
+            <masterLabel>1</masterLabel>
+            <translation><!-- 1 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>2</masterLabel>
+            <translation><!-- 2 --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>3</masterLabel>
+            <translation><!-- 3 --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <help><!-- Indicates the path where the image is stored and pulled from to display in the Community Portal. --></help>
+        <label><!-- Image Path --></label>
+        <name>Image_Path__c</name>
+    </fields>
+    <fields>
+        <help><!-- When selected, the News Article will always appear at the top of the News Article Listed.  If multiple active Sticky, articles will be listed in Descending Order by Entry Date field. --></help>
+        <label><!-- Make Entry Sticky --></label>
+        <name>Make_Entry_Sticky__c</name>
+    </fields>
+    <fields>
+        <help><!-- Represents the 18 digit Salesforce Unique ID of the News record. --></help>
+        <label><!-- News SF ID --></label>
+        <name>News_SF_ID__c</name>
+    </fields>
+    <fields>
+        <help><!-- Represents a short description of the News article that will be posted in the Community Portal. --></help>
+        <label><!-- Teaser --></label>
+        <name>Teaser__c</name>
+    </fields>
+    <fields>
+        <help><!-- Represents the title of the news that will be displayed in the Community Portal. --></help>
+        <label><!-- Title --></label>
+        <name>Title__c</name>
+    </fields>
+    <fields>
+        <help><!-- Indicates the type of news that is being added.  Internal represents a news article pasted into Salesforce and an External would be a link to an article posted somewhere on the internet. --></help>
+        <label><!-- Type --></label>
+        <name>Type__c</name>
+        <picklistValues>
+            <masterLabel>External</masterLabel>
+            <translation><!-- External --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Internal</masterLabel>
+            <translation><!-- Internal --></translation>
+        </picklistValues>
+    </fields>
+    <fields>
+        <label><!-- URL --></label>
+        <name>URL__c</name>
+    </fields>
+    <startsWith>Consonant</startsWith>
+    <validationRules>
+        <errorMessage><!-- If a news item is tagged as an Alert, it should not have a value for home page slot number --></errorMessage>
+        <name>Alert_cannot_have_Home_Page_Slot</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage><!-- You must populate the Teaser for an Internal story --></errorMessage>
+        <name>Teaser_required_for_Internal</name>
+    </validationRules>
+    <validationRules>
+        <errorMessage><!-- You must populate the URL for an External story --></errorMessage>
+        <name>URL_required_for_External</name>
+    </validationRules>
+</CustomObjectTranslation>

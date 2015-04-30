@@ -1,0 +1,81 @@
+<apex:page standardController="Community_Events__c" extensions="CommunityEventController" action="{!initFromView}" showHeader="false" sideBar="false" standardStylesheets="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false">
+<apex:composition template="{!$Site.Template}">
+<apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
+<apex:define name="body">
+	<style>
+		.sky-form .dl-horizontal hr { margin:6px 0; }
+		body.modal-open { padding-right: 0 !important; overflow: auto; }
+	</style>
+	<div class="breadcrumbs margin-bottom-10">
+		<div class="container">
+			<h1 class="pull-left">{!$ObjectType.Community_Events__c.Label}</h1>
+			<ul class="pull-right breadcrumb">
+				<li><a href="{!$Page.CommunityEventsList}">Events</a></li>
+				<li class="active">{!event.Name__c}</li>
+			</ul>
+		</div>
+	</div>
+	<div class="profile">
+		<div class="container content">
+			<div class="row text-center margin-bottom-20">
+				<apex:form id="theform">
+					<c:CommunityFollow parentId="{!event.Id}"/>
+					<c:CommunityShare sO="{!event}"/>
+					<apex:outputLink value="{!urlForEditEvent}" rendered="{!$ObjectType.Community_Events__c.Updateable}" styleClass="btn-u">{!$Label.BTN_Edit}</apex:outputLink>
+					<apex:outputPanel layout="none" rendered="{!$ObjectType.Community_Events__c.Updateable && $ObjectType.Community_Events__c.Createable}">&nbsp;</apex:outputPanel>
+					<apex:outputLink value="{!urlForCloneEvent}" styleClass="btn-u" rendered="{!$ObjectType.Community_Events__c.Createable}">{!$Label.BTN_Clone}</apex:outputLink>
+				</apex:form>
+			</div>
+			
+			<apex:outputPanel layout="block" styleClass="sky-form">
+				<dl class="dl-horizontal">
+					<apex:repeat value="{!fieldset}" var="fs">
+						<apex:outputPanel layout="none" rendered="{!IF((fs.fieldPath != 'Street_Address__c') || !ISBLANK(event[fs.fieldPath]), true, false)}">
+							<dt><strong>{!IF(fs.fieldPath=='Street_Address__c',$Label.LBL_Location,fs.label)}</strong></dt>
+							<dd><apex:outputField value="{!event[fs.fieldPath]}"/></dd>
+							<hr/>
+						</apex:outputPanel>
+					</apex:repeat>
+					<dt><strong>Tags</strong></dt>
+					<dd>
+						<ul class="list-unstyled blog-tags">
+							<apex:repeat value="{!event.Events_Tag_Joins__r}" var="tag">
+								<li>
+									<a href="{!$Page.CommunityEventsList}?t={!tag.Community_Tag__c}" target="_blank">
+										<i class="fa fa-tags"></i>&nbsp;{!(tag.Community_Tag__r.Community_Theme__r.Name & '>' &tag.Community_Tag__r.Name)}
+									</a>
+								</li>
+							</apex:repeat>
+						</ul>
+					</dd>
+					<hr/>
+					<dt><strong>Groups</strong></dt>
+					<dd>
+						<apex:repeat value="{!eventTagList}" var="group">
+							<apex:outputLink value="{!$Page.CommunityGroupDetailPage}?gc={!group.Community_Group_Control__r.Id}" rendered="{!group.Community_Group_Control__c != NULL}">{!group.Community_Group_Control__r.Name}</apex:outputLink>
+							&nbsp;&nbsp;
+						</apex:repeat>
+					</dd>
+					<hr/>
+					<dt><strong>{!$Label.LBL_AddToCalendar}</strong></dt>
+					<dd>
+						<apex:form >
+							<a href="{!GoogleCalendarCreateEventHref}" target="_blank" class="btn btn-xs rounded btn-default">{!$Label.BTN_GoogleCal}</a>
+							<apex:commandLink value="{!$Label.BTN_ICS}" action="{!downloadICS}" target="_blank" styleClass="btn btn-xs rounded btn-default"/>
+						</apex:form>
+					</dd>
+					<hr/>
+				</dl>
+			</apex:outputPanel>
+			<div class="row">
+				<div class="col-sm-12">
+					<div id="feed" class="profile-edit tab-pane fade in active">
+						<c:CommunityFeed pid="{!event.Id}"/>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</apex:define>
+</apex:composition>
+</apex:page>

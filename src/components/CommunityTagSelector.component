@@ -1,0 +1,328 @@
+<apex:component controller="CommunityTagSelectorController">
+	<apex:attribute name="oId" description="" type="string" required="false" assignTo="{!objectId}"/>
+	<apex:attribute name="oType" description="" type="string" required="false" assignTo="{!objectType}"/>
+	<apex:attribute name="fName" description="" type="string" required="false" assignTo="{!filterName}"/>
+	<apex:attribute name="mt" type="integer" required="false" default="-1" description="Max Tags Count"/>
+
+	<script src="{!$Resource.CommunityResources}/js/jquery-1.11.2.min.js"></script>
+	<script src="{!$Resource.CommunityResources}/js/Typeahead/bootstrap3-typeahead.min.js"></script>
+	<script src="{!$Resource.CommunityResources}/js/underscore/underscore-min.js"></script>
+
+	<style>
+		.typeahead {
+			border-radius: 4px;
+			margin-top: 2px;
+		}
+		.dropdown-menu {
+			background-clip: padding-box;
+			background-color: #ffffff;
+			border: 1px solid rgba(0, 0, 0, 0.2);
+			border-radius: 6px;
+			box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+			display: none;
+			float: left;
+			left: 0;
+			list-style: outside none none;
+			margin: 2px 0 0;
+			min-width: 160px;
+			padding: 5px 0;
+			position: absolute;
+			top: 100%;
+			z-index: 1000;
+		}
+		.dropdown-menu a {
+			clear: both;
+			color: #333333;
+			display: block;
+			font-weight: normal;
+			line-height: 20px;
+			padding: 3px 20px;
+			white-space: nowrap;
+		}
+		.dropdown-menu li > a:hover, .dropdown-menu li > a:focus, .dropdown-submenu:hover > a {
+			background-color: #0081c2;
+			background-image: linear-gradient(to bottom, #0088cc, #0077b3);
+			background-repeat: repeat-x;
+			color: #ffffff;
+			text-decoration: none;
+		}
+		.dropdown-menu .active > a, .dropdown-menu .active > a:hover {
+			background-color: #0081c2;
+			background-image: -moz-linear-gradient(center top , #0088cc, #0077b3);
+			background-repeat: repeat-x;
+			color: #ffffff;
+			outline: 0 none;
+			text-decoration: none;
+		}
+		.dropdown-menu .disabled > a, .dropdown-menu .disabled > a:hover {
+			color: #999999;
+		}
+		.dropdown-menu .disabled > a:hover {
+			background-color: transparent;
+			cursor: default;
+			text-decoration: none;
+		}
+		.div-like-input {
+			cursor: text;
+			padding: 5px 5px 5px;
+			background-color: white;
+			border: 1px solid #cccccc;
+			box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) inset;
+			box-sizing: border-box;
+			color: rgba(0, 0, 0, 0.75);
+			transition: box-shadow 0.45s ease 0s, border-color 0.45s ease-in-out 0s;
+			border-radius: 3px;
+			margin-bottom: 5px;
+			min-height: 39px;
+		}
+		.tags-container .item {
+			text-decoration: none;
+			white-space: nowrap;
+			border: 1px solid #d4dadc;
+			padding: 2px 5px;
+			-moz-border-radius: 4px;
+			-webkit-border-radius: 4px;
+			background: #eff7fa;
+			color: #015ba7;
+			margin-right: 3px;
+			margin-bottom: 3px;
+			float: left;
+			line-height: normal;
+		}
+		.tags-container {
+			line-height: 22px;
+/*			overflow: hidden;
+			display: inline;*/
+		}
+		.div-like-input input.input-inviz {
+			margin-bottom: 0px;
+			display: block;
+			width: 200px;
+			padding: 2px 5px;
+			font-size: 12px;
+			height: 24px;
+			border: none;
+			box-shadow: none;
+		}
+		.input-inviz:focus {
+			background: inherit;
+		}
+		.tags-container a.remove img {
+			background: transparent url(/img/chatter/message_item_x.png) no-repeat scroll left top;
+			width: 8px;
+			height: 8px;
+			margin-bottom: 4px;
+		}
+		.tags-container a.remove:hover img {
+			background-position: 0 50%;
+		}
+		.tags-container a {
+			margin-left: 5px;
+		}
+		.panel-success .panel-heading:hover a {
+			text-decoration:none;
+			color:black;
+			background-color:#f8f8f8;
+		}
+		.panel-heading .fa {
+			width:10px;
+		}
+		.div-like-input input.input-inviz {
+			float: left;
+			display: inline-block;
+		}
+		.panel-heading span {
+			cursor:pointer;
+		}
+		.panel-link .panel-heading {
+			color:#72c02c;
+			padding:0 15px;
+		}
+		.panel-link .panel-heading span:hover {
+			text-decoration:underline;
+		}
+	</style>
+
+	<div class="div-like-input clearfix">
+		<div id="tagsContainer" class="tags-container clearfix">
+			<input id="tagsInput" class="input-inviz" type="text" data-provide="typeahead" autocomplete="off" size="2"></input>
+		</div>
+		<input id="tags" name="tags" style="display:none" visibility="hidden"/>
+	</div>
+	<div class="panel-link">
+	<!-- div class="panel panel-success" -->
+		<div class="panel-heading" onclick="toggleTagSection(this);">
+			<i id="tagicon" class="fa fa-caret-right"></i>&nbsp;<span>{!$Label.LBL_TagHelper_Link}</span>
+		</div>
+		<div id="tagsection" class="panel-body" style="display:none;">
+			<div class="panel-group acc-v1" id="accordion-1">
+				<apex:variable value="{!1}" var="rowNum"/>
+				<apex:repeat value="{!AvailableTags}" var="theme">
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h4 class="panel-title">
+								<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#accordion-1" href="#collapse-{!rowNum}" aria-expanded="false">
+									{!theme.name}
+								</a>
+							</h4>
+						</div>
+						<div id="collapse-{!rowNum}" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
+							<div class="panel-body">
+								<ul class="list-unstyled blog-tags">
+									<apex:repeat value="{!theme.tags}" var="tag">
+										<li><a href="javascript:;" onclick="addtti('{!tag.id}','{!tag.fullname}');"><i class="fa fa-tags"></i>&nbsp;{!tag.name}</a></li>
+									</apex:repeat>
+								</ul>
+							</div>
+						</div>
+					</div>
+					<apex:variable var="rowNum" value="{!rowNum + 1}"/>
+				</apex:repeat>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		var $jc = jQuery.noConflict();
+		var searchTags = _.debounce(function(query, process) {
+			Visualforce.remoting.Manager.invokeAction(
+				'{!$RemoteAction.CommunityTagSelectorController.getTags}',
+				query,
+				'Interest',
+				function(result, event) {
+					var div = document.createElement('div');
+					div.innerHTML = result;
+					var mdata = JSON.parse(div.firstChild.nodeValue);
+					tags = [];
+					tags_map = [];
+					_.each(mdata, function (tag, ix, list) {
+						tags.push(tag.fullname);
+						tags_map.push(tag);
+					});
+					process(tags);
+				}
+			);
+		}, 300);
+		$jc(document).ready(function() {
+			Visualforce.remoting.Manager.invokeAction(
+				'{!$RemoteAction.CommunityTagSelectorController.getExistingTags}',
+				'{!objectId}',
+				'{!objectType}',
+				'{!filterName}',
+				function(result, event) {
+					var div = document.createElement('div');
+					div.innerHTML = result;
+					var mdata = JSON.parse(div.firstChild.nodeValue);
+					_.each(mdata, function (tag, ix, list) {
+						var span = '<span id="'+tag.id+'" class="item guestItem"><span>'+tag.fullname+'</span><a href="javascript:void(0);" onclick="removeTag(\''+tag.id+'\')" class="remove"><img src="/s.gif"></a></span>';
+						$jc('#tagsInput').before(span);
+						$jc('#tags').val($jc('#tags').val() + tag.id + ',')
+					});
+				}
+			);
+			$jc('#tagsInput').typeahead({
+				source:function (query, process) {
+					searchTags(query, process);
+				},
+				updater: function(item) {
+					_.each(tags_map, function (tag, ix, list) {
+						if ((tag.fullname) == item) {
+							addtti(tag.id,item);
+						}
+					});
+					return '';
+				}
+			});
+		});
+		function removeTag(inp) {
+			$jc('#tagsContainer #'+inp).remove();
+			$jc('#tags').val($jc('#tags').val().replace(inp+',' ,''));
+			if ({!mt} >= 0 && $jc('#tagsContainer span.item').length <= {!mt} && $jc('#sectionnote').length > 0) {
+				$jc('#sectionnote').remove();
+				$jc('[id$=sbtbtn]').css('opacity','1').removeAttr('disabled');
+			}
+			if ({!mt} != -1 && $jc('#tagsContainer span.item').length == 0) {
+				$jc('[id$=sbtbtn]').css('opacity','0.65').attr('disabled','disabled');
+			}
+		}
+		function toggleTagSection(el) {
+			var par = $jc(el).parent();
+			if (par.attr('class') == 'panel-link') {
+				par.attr('class','panel panel-success');
+				par.find('.panel-body').show();
+				par.find('.panel-heading i').attr('class','fa fa-caret-down');
+			}
+			else {
+				par.attr('class','panel-link');
+				par.find('.panel-body').hide();
+				par.find('.panel-heading i').attr('class','fa fa-caret-right');
+			}
+		}
+		function addtti(tid,fn) {
+			if ($('span[id='+tid+']').length == 0) {
+				var span = '<span id="'+tid+'" class="item guestItem"><span>'+fn+'</span><a href="javascript:void(0);" onclick="removeTag(\''+tid+'\')" class="remove"><img src="/s.gif"></a></span>';
+				$jc('#tagsInput').before(span);
+				$jc('#tags').val($jc('#tags').val() + tid + ',');
+				if ({!mt} >= 0) {
+					if ($jc('#tagsContainer span.item').length > {!mt}) {
+						if ($jc('#sectionnote').length == 0) {
+							var txt = 'You are reached maximum of '+'{!mt}'+' Tag(s) for this group. You must remove a tag in order to add a tag.';
+							$jc('.div-like-input').after('<div id="sectionnote" class="alert alert-danger fade in">'+txt+'</div>');
+							$jc('[id$=sbtbtn]').css('opacity','0.65').attr('disabled','disabled');
+						}
+					}
+					else {
+						$jc('[id$=sbtbtn]').css('opacity','1').removeAttr('disabled');
+					}
+				}
+			}
+		}
+	</script>
+	<apex:outputPanel layout="none" rendered="{!CONTAINS(oType,'Community_Resource_Tag__c')}">
+		<script>
+			var searchTagsResource = _.debounce(function(query, process) {
+				Visualforce.remoting.Manager.invokeAction(
+					'{!$RemoteAction.CommunityTagSelectorController.getTags}',
+					query,
+					'Resource',
+					function(result, event) {
+						var div = document.createElement('div');
+						div.innerHTML = result;
+						var mdata = JSON.parse(div.firstChild.nodeValue);
+						tags = [];
+						tags_map = [];
+						_.each(mdata, function (tag, ix, list) {
+							tags.push(tag.fullname);
+							tags_map.push(tag);
+						});
+						process(tags);
+					}
+				);
+			}, 300);
+			$jc('#ptin').typeahead({
+				source:function (query, process) {
+					searchTagsResource(query, process);
+				},
+				updater: function(item) {
+					_.each(tags_map, function (tag, ix, list) {
+						if ((tag.fullname) == item) {
+							var span = '<span id="'+tag.id+'" class="item guestItem"><span>'+item+'</span><a href="javascript:void(0);" onclick="removePrimaryTag(\''+tag.id+'\')" class="remove"><img src="/s.gif"></a></span>';
+							$jc('#ptin').before(span);
+							$jc('#ptin').hide();
+							$jc('[id$=ptag]').val(tag.id);
+							if ($jc('#tagsContainer #'+tag.id).length > 0) {
+								removeTag(tag.id);
+							}
+						}
+					});
+					return '';
+				}
+			});
+			function removePrimaryTag(inp) {
+				$jc('#ptcon #'+inp).remove();
+				$jc('[id$=ptag]').val('');
+				$jc('#ptin').show();
+			}
+		</script>
+	</apex:outputPanel>
+</apex:component>

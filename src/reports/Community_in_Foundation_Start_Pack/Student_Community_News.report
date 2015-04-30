@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>
+        <field>CUST_CREATED_DATE</field>
+    </columns>
+    <columns>
+        <field>Community_News__c.Title__c</field>
+    </columns>
+    <columns>
+        <field>Community_News__c.Entry_Date__c</field>
+    </columns>
+    <columns>
+        <field>Community_News__c.Expiration_Date__c</field>
+    </columns>
+    <columns>
+        <field>Community_News__c.Feature_on_Home_Page_Slot__c</field>
+    </columns>
+    <columns>
+        <field>Community_News__c.Allow_Comments__c</field>
+    </columns>
+    <columns>
+        <field>CUST_NAME</field>
+    </columns>
+    <columns>
+        <field>Community_News__c.Comment_Expiration_Date__c</field>
+    </columns>
+    <columns>
+        <field>Community_News__c.Type__c</field>
+    </columns>
+    <columns>
+        <field>CUST_CREATED_NAME</field>
+    </columns>
+    <description>Use this report to view Community News Records sorted by Created Date.</description>
+    <format>Tabular</format>
+    <name>Student Community News</name>
+    <params>
+        <name>co</name>
+        <value>1</value>
+    </params>
+    <reportType>CustomEntity$Community_News__c</reportType>
+    <scope>organization</scope>
+    <showDetails>true</showDetails>
+    <sortColumn>CUST_CREATED_DATE</sortColumn>
+    <sortOrder>Desc</sortOrder>
+    <timeFrameFilter>
+        <dateColumn>Community_News__c.Comment_Expiration_Date__c</dateColumn>
+        <interval>INTERVAL_CUSTOM</interval>
+    </timeFrameFilter>
+</Report>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Community Resource</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Community Resources</value>
+    </caseValues>
+    <fields>
+        <help><!-- Represents a description of the Resource that is presented in the Community. --></help>
+        <label><!-- Description --></label>
+        <name>Description__c</name>
+    </fields>
+    <fields>
+        <label><!-- Help Link --></label>
+        <name>Help_Link__c</name>
+    </fields>
+    <fields>
+        <label><!-- Link --></label>
+        <name>Link__c</name>
+    </fields>
+    <fields>
+        <label><!-- Primary Tag --></label>
+        <lookupFilter>
+            <errorMessage><!-- You must select a Resource Tag as the primary tag for this resource. --></errorMessage>
+            <informationalMessage><!-- You can only select Tags where the Theme Type = Resource. --></informationalMessage>
+        </lookupFilter>
+        <name>Primary_Tag__c</name>
+        <relationshipLabel><!-- Resources Tagged w Primary --></relationshipLabel>
+    </fields>
+    <fields>
+        <help><!-- f checked, link will be displayed in the &quot;Links&quot; menu --></help>
+        <label><!-- Quick Link --></label>
+        <name>Quick_Link__c</name>
+    </fields>
+    <fields>
+        <help><!-- Identifies the name of the Resource that will be displayed in the Community. --></help>
+        <label><!-- Resource Name --></label>
+        <name>Resource_Name__c</name>
+    </fields>
+    <fields>
+        <help><!-- Represents the 18 digit Salesforce Unique ID of the Resource record. --></help>
+        <label><!-- Resource SF ID --></label>
+        <name>Resource_SF_ID__c</name>
+    </fields>
+    <fields>
+        <label><!-- Sort --></label>
+        <name>Sort__c</name>
+    </fields>
+    <fields>
+        <label><!-- Status --></label>
+        <name>Status__c</name>
+        <picklistValues>
+            <masterLabel>Active</masterLabel>
+            <translation><!-- Active --></translation>
+        </picklistValues>
+        <picklistValues>
+            <masterLabel>Inactive</masterLabel>
+            <translation><!-- Inactive --></translation>
+        </picklistValues>
+    </fields>
+    <startsWith>Consonant</startsWith>
+</CustomObjectTranslation>

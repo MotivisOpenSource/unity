@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObjectTranslation xmlns="http://soap.sforce.com/2006/04/metadata">
+    <caseValues>
+        <plural>false</plural>
+        <value>Community News Tag</value>
+    </caseValues>
+    <caseValues>
+        <plural>true</plural>
+        <value>Community News Tags</value>
+    </caseValues>
+    <fields>
+        <help><!-- The News article allows user&apos;s to comment on it. --></help>
+        <label><!-- Allow Comments --></label>
+        <name>Allow_Comments__c</name>
+    </fields>
+    <fields>
+        <help><!-- Date when comments are no longer accepted for this News article. --></help>
+        <label><!-- Comment Expiration Date --></label>
+        <name>Comment_Expiration_Date__c</name>
+    </fields>
+    <fields>
+        <label><!-- Community News --></label>
+        <name>Community_News__c</name>
+        <relationshipLabel><!-- News Tags --></relationshipLabel>
+    </fields>
+    <fields>
+        <label><!-- Community Tag --></label>
+        <name>Community_Tag__c</name>
+        <relationshipLabel><!-- News Items Tagged --></relationshipLabel>
+    </fields>
+    <fields>
+        <help><!-- Entry Date of this News article. --></help>
+        <label><!-- News Entry Date --></label>
+        <name>News_Entry_Date__c</name>
+    </fields>
+    <fields>
+        <help><!-- Expiration Date of the News article. --></help>
+        <label><!-- News Expiration Date --></label>
+        <name>News_Expiration_Date__c</name>
+    </fields>
+    <fields>
+        <help><!-- Represents the 18 digit unique Salesforce ID. --></help>
+        <label><!-- News Tag SF ID --></label>
+        <name>News_Tag_SF_ID__c</name>
+    </fields>
+    <fields>
+        <help><!-- Title of this News article. --></help>
+        <label><!-- News Title --></label>
+        <name>News_Title__c</name>
+    </fields>
+    <fields>
+        <help><!-- Theme name the Tag is related to. --></help>
+        <label><!-- Theme --></label>
+        <name>Theme__c</name>
+    </fields>
+    <startsWith>Consonant</startsWith>
+</CustomObjectTranslation>

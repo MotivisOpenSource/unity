@@ -1,0 +1,227 @@
+<apex:page standardController="Community_News__c" extensions="CommunityNewsController" action="{!initFromEdit}" showHeader="false" sideBar="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false">
+
+<script src="{!$Resource.CommunityResources}/js/underscore/underscore-min.js"></script>
+<script type="text/javascript" src="{!$Resource.assets}/plugins/sky-forms/version-2.0.1/js/jquery-ui.min.js"></script>
+<apex:stylesheet value="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.css" />
+<script type="text/javascript" src="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.js"></script>
+
+<apex:composition template="{!$Site.Template}">
+<apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
+<apex:define name="body">
+	<style>
+		.row .bPageBlock { border-top:3px solid #72c02c; }
+	</style>
+	<div class="row">
+		<apex:form id="cnsp1" style="display:none;" styleClass="col-sm-12">
+			<div class="row margin-bottom-10">
+				<div class="col-md-6 text-left" style="padding-left:35px;">
+					<h2>{!$Label.BTN_Create_News}</h2>
+				</div>
+				<div class="col-md-6 text-right" style="padding-right:25px;">
+					<apex:commandButton action="{!submitFirstStep}" value="{!$Label.LBL_Next}" styleClass="btn-u"/>
+					&nbsp;
+					<apex:outputLink value="{!IF(ISBLANK($CurrentPage.parameters.retURL),$Page.CommunityNews,JSENCODE($CurrentPage.parameters.retURL))}" rendered="{!ISBLANK(news.Id)}" styleClass="btn-u">{!$Label.BTN_Cancel}</apex:outputLink>
+					<apex:commandButton action="{!cancel}" value="{!$Label.BTN_Cancel}" styleClass="btn-u" immediate="true" rendered="{!!ISBLANK(news.Id)}"/>
+				</div>
+			</div>
+			<apex:pageBlock >
+				<apex:pageMessages id="pageMessages"/>
+				<apex:pageBlockSection id="cnpbs1" columns="1" collapsible="false">
+					<apex:repeat value="{!fieldset}" var="fs">
+						<apex:inputField value="{!news[fs.fieldPath]}" required="{!OR(fs.required, fs.dbrequired)}"/>
+					</apex:repeat>
+					<apex:pageBlockSectionItem >
+						<apex:outputLabel value="{!$Label.LBL_Select_Image}"/>
+						<apex:outputPanel layout="none">
+							<select id="imsel1" onchange="checkimg();">
+								<option value="">{!$Label.BTN_Select}</option>
+								<option value="f">{!$Label.BTN_ChooseFile}</option>
+								<option value="e">{!$Label.LBL_Choose_from_Library}</option>
+							</select><br/>
+							<apex:inputFile id="cnif1f" value="{!imgBody}" fileName="{!imgFileName}" contentType="{!imgContentType}" style="display:none; margin:5px 0;" onchange="preview(this);"/>
+							<apex:outputPanel id="cnif1e" layout="block" style="display:none;">
+								<br />
+								<a href="#chose_from_library_modal" class="btn-u" data-toggle="modal">{!$Label.LBL_Choose_from_Library}</a>
+								<br />
+								<br />
+							</apex:outputPanel>
+							<div id="iidf" style="{!IF(ISBLANK(news.Image_Path__c),'display:none;','')}">
+								<apex:image id="preview_image" url="{!news.Image_Path__c}" width="200px"/>
+							</div>
+							<div style="display:none;">
+								<apex:inputField value="{!news.Image_Path__c}" id="image_path_field"/>
+							</div>
+						</apex:outputPanel>
+					</apex:pageBlockSectionItem>
+					<apex:pageBlockSectionItem >
+						<apex:outputLabel value="{!$Label.LBL_Select_Tags}"/>
+						<c:CommunityTagSelector oId="{!news.Id}" oType="{!$ObjectType.Community_News_Tag__c.Name}" fName="{!$ObjectType.Community_News_Tag__c.Fields.Community_News__c.Name}"/>
+					</apex:pageBlockSectionItem>
+				</apex:pageBlockSection>
+			</apex:pageBlock> 
+		</apex:form>
+	</div>
+	<div class="modal fade in" id="chose_from_library_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false" style="display:none;">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title" id="myModalLabel">{!$Label.LBL_Select_Image}</h4>
+				</div>
+				<div class="modal-body">
+					<div id='libraryimagescontent'>
+					</div>
+					<div class="clearfix"></div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class='btn-u btn-u-default margin-right-10' data-dismiss="modal">{!$Label.BTN_Cancel}</button>
+					<button class='btn-u btn-u-primary' onclick='selectLibraryImage(); return false;' data-dismiss="modal">{!$Label.BTN_Select}</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</apex:define>
+<apex:define name="scripts">
+	<script>
+		var $F = jQuery.noConflict();
+
+		$F(document).ready(function() {
+			checkprereq();
+			$F('[id$=cnpbs1] select option[value=External]').closest('select').on('change',checkprereq);
+			$F('#imsel1').find('option:first').attr('disabled','disabled');
+			$F('[id$=cnsp1]').show();
+
+			prepareSelect();
+		});
+
+		function checkprereq() {
+			var dstl = 'table-row';
+			if ($F('[id$=cnpbs1] select option[value=External]').closest('select').val() == 'External') {
+				dstl = 'none';
+			}
+			$F('[id$=cnpbs1] textarea[id$=Content__c]').closest('tr').css('display',dstl);
+		}
+		var $imagesCache = [];
+		var $imagePartialUrl = "{!$Site.Prefix}/servlet/servlet.ImageServer?oid={!$Organization.Id}&id=";
+		function checkimg() {
+			var ef = $F('#imsel1').val();
+			$F('[id*=cnif1]').hide();
+			$F('[id*=cnif1' + ef + ']').show();
+		}
+		function chunk(arr, size) {
+			var newArr = [];
+			for (var i=0; i<arr.length; i+=size) {
+				newArr.push(arr.slice(i, i+size));
+			}
+			return newArr;
+		}
+		function prepareSelect() {
+			if ($imagesCache.length == 0) {
+				var docs = new SObjectModel.Document();
+				docs.retrieve(
+					{
+						where: {
+							IsPublic: {
+								eq: true
+							},
+							Type: {
+								in:['jpeg','jpg','bmp','gif','png']
+							}
+						}
+					},
+					function(err, records, event){
+						if(err) {
+							alert(err.message);
+						}
+						else {
+							records.forEach(function(record) {
+								$imagesCache.push({id:$imagePartialUrl+record.get("Id"), name:record.get("Name")});
+							});
+							$selectedImagePath = null;
+							var $maindiv = $F('#libraryimagescontent');
+							var colSize = 6;
+							var chunked = chunk($imagesCache, colSize);
+							$F.each( chunked, function( key, value ) {
+								var $rowDiv = $F('<div class="row" />');
+								$F.each( value, function( key2, value2 ) {
+									var $img = $F("<img src='' class='img-thumbnail imageselector' style='width: 80px;'/>");
+									$img.attr("src", value2.id);
+									$img.data("imageNumber", (colSize*key+key2));
+									var $div = $F("<div class='col-md-2' />");
+									$div.append($img);
+									$rowDiv.append($div);
+								})
+								$maindiv.append($rowDiv);
+							});
+						}
+					}
+				);
+			}
+		}
+		var $selectedImagePath = null;
+		function selectLibraryImage() {
+			if ($selectedImagePath) {
+				var $imgPathField = $F('[id$=image_path_field]');
+				$imgPathField.val($selectedImagePath);
+				preview(null, $selectedImagePath);
+				$F('.imageselector').removeClass('selected');
+			}
+		}
+		$F(document).on('click', '.imageselector', function() {
+			//alert();
+			var $img = $imagesCache[$F(this).data('imageNumber')];
+			var $imgnameField = $F('label[id$=cnif1e]');
+			$imgnameField.html($img.name);
+			$F('.imageselector').removeClass('selected');
+			$F(this).addClass('selected');
+			$selectedImagePath = $img.id;
+		});
+
+		function preview(input, url) {
+			if (!url && (input.files && input.files[0])) {
+				var reader = new FileReader();
+				reader.onload = function (e) {
+					$F('[id$=preview_image]')
+						.attr('src', e.target.result)
+						.width(200)
+						/*.height(120)*/;
+				};
+				reader.readAsDataURL(input.files[0]);
+			}
+			if (url) {
+				$F('[id$=preview_image]')
+					.attr('src', url)
+					.width(200)/*
+					.height(120)*/;
+			};
+			$F('#iidf').show();
+		}
+
+		var dateElements = $(".dateInput input");
+	
+		_.each(dateElements, function(e){
+			e.className = "validate-datetimepicker";
+			e.removeAttribute("onfocus");
+			
+		});
+
+		if(jQuery('.validate-datetimepicker')) {
+			var currentdate = new Date(); 
+			var datetime = (currentdate.getMonth()+1) + '/' + currentdate.getDate() + '/' + currentdate.getFullYear() + ' ' + currentdate.getHours() + ":"  + currentdate.getMinutes();
+			$('.validate-datetimepicker').datetimepicker({
+				minDate:datetime,
+				format:'m/d/Y h:i A',
+				formatTime:'h:i A',
+				formatDate:'m/d/Y',
+				step:30
+			});
+		}
+	</script>
+</apex:define>
+</apex:composition>
+<apex:remoteObjects >
+		<apex:remoteObjectModel name="Document" jsShorthand="roDocument" 
+			fields="Name,Id, IsPublic, Type">
+		</apex:remoteObjectModel>
+	</apex:remoteObjects>
+</apex:page>

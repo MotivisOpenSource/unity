@@ -1,0 +1,480 @@
+<apex:page showHeader="false" sideBar="false" standardStylesheets="true" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false" controller="CommunityProfilePageController">
+<apex:composition template="{!$Site.Template}">
+<apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
+<apex:define name="body">
+<style>
+.p-st-blk {
+	display: inline-block;
+	width: 40px;
+	text-align: right;
+	vertical-align: middle;
+	height: 24px;
+	margin-top: -12px;
+}
+.p-chb {
+	font-size:1.3em;
+	color:coral;
+	font-weight:bold;
+	vertical-align: middle;
+}
+/*profile.css*/
+.profile .profile-edit dt {
+	text-align: inherit;
+	white-space: normal;
+}
+</style>
+	<!--=== Profile ===-->
+	<div class="profile">
+		<div class="container content">
+			<div class="row">
+				<!--Left Sidebar-->
+				<div class="col-md-3 md-margin-bottom-40">
+					<c:CommunityUserPhoto current="{!current}" photoUrl="{!FullPhotoUrl}" fmode="true"/>
+					<c:CommunityFeedNavigation pn="3"/>
+				</div>
+				<!--End Left Sidebar-->
+				<div class="col-md-9">
+					<!--Profile Body-->
+					<div class="profile-body margin-bottom-20">
+						<div class="tab-v1">
+							<apex:outputPanel layout="none" rendered="{!current}">
+								<ul class="nav nav-justified nav-tabs">
+									<li class="active"><a data-toggle="tab" href="#profile">{!$Label.LBL_EditProfile}</a></li>
+									<li><a data-toggle="tab" href="#payment">{!$Label.LBL_Interests}</a></li>
+									<apex:outputPanel layout="none" rendered="{!ShowChangePassword}">
+										<li><a data-toggle="tab" href="#passwordTab">{!$Label.LBL_ChangePassword}</a></li>
+									</apex:outputPanel>
+									<li><a data-toggle="tab" href="#settings">{!$Label.LBL_Notification_Settings}</a></li>
+									<li><a data-toggle="tab" href="#digest">{!$Label.LBL_DigestSettings_Title}</a></li>
+								</ul>
+							</apex:outputPanel>
+							<apex:pageMessages id="pageMessages"/>
+								<div class="tab-content">
+									<div id="profile" class="profile-edit tab-pane fade in active">
+										<apex:form id="btnaction">
+											<div class="margin-bottom-20">
+												<apex:outputPanel layout="none" rendered="{!current}">
+													<h2 class="heading-md">{!$Label.LBL_ManageDetails_Title}</h2>
+												</apex:outputPanel>
+												<apex:outputPanel layout="none" rendered="{!!current}">
+													<h2 class="heading-md">{!StudentName}</h2>
+												</apex:outputPanel>
+												<!--<div style="text-align:right;">-->
+    												<apex:outputPanel rendered="{!!current && !isSubscribe}">
+    													<button id="follow" class="btn-u pull-right margin-right-5"  onclick="clbtn();return false;"><i class="fa fa-plus-circle"></i>&nbsp;Follow</button>
+    												</apex:outputPanel>
+    												<apex:outputPanel rendered="{!!current && isSubscribe}">
+    													<button id="unfollow" class="btn-u btn-u-blue pull-right margin-right-5" onclick="clbtn();return false;"><i class="fa fa-check"></i>&nbsp;Following</button>
+    												</apex:outputPanel>
+    												<script type="text/javascript">
+    													function clbtn() {
+    														subscribe();
+    														$('[id$=follow] i').attr('class','fa fa-spinner fa-pulse');
+    													}
+    												</script>
+    												<apex:actionFunction action="{!subscribeUser}" name="subscribe" rerender="btnaction">
+    												</apex:actionFunction>
+    												
+    											<!--</div>-->
+    										
+											</div>
+										
+										</apex:form>
+									
+									<apex:form id="theform" rendered="{!allOk}">
+										<apex:variable var="index" value="{!0}"/>
+									
+										<div class="margin-bottom-10" style="text-align:right;">
+											<apex:repeat value="{!profiles}" var="p">
+												<apex:commandLink action="{!init}" value="{!p.name}" rendered="{!!p.active}" rerender="theform" immediate="true" styleClass="btn-u btn-u-sm btn-u-default margin-right-5" status="statusLoad">
+													<apex:param name="currentProfileId" value="{!p.profileId}" assignTo="{!currentProfileId}"/>
+												</apex:commandLink>
+												<apex:outputText value="{!p.name}" rendered="{!p.active}" styleClass="btn-u margin-right-5"/>
+											</apex:repeat>
+											<div class="p-st-blk">
+												<apex:actionStatus id="statusLoad">
+													<apex:facet name="start">
+														<i class="fa fa-spinner fa-pulse" style="font-size:2.5em;"></i>
+													</apex:facet>
+												</apex:actionStatus>
+											</div>
+										</div>
+										
+										<apex:variable var="index" value="{!0}"/>
+										<apex:repeat value="{!overviewTab}" var="ot">
+											<apex:outputPanel layout="block" rendered="{!ot.ShowSection}" styleClass="sky-form">
+												<!--header>{!ot.sectionLabel}</header-->
+												<header>{!$Label[ot.sectionLabel]}</header>
+												<div class="margin-bottom-15"></div>
+												<dl class="dl-horizontal"><apex:repeat value="{!ot.fi}" var="otfi">
+													<dt class="margin-bottom-10"><strong>{!otfi.label}</strong></dt>
+													<dd>
+														<span id="vfld{!index}">
+															<apex:outputField id="vfldo" value="{!currentProfile[otfi.name]}"/>
+															<apex:outputLink value="javascript:void(0);" styleClass="pull-right" onclick="shwe('{!index}');" rendered="{!otfi.isUpdateable && current}">
+																<i class="fa fa-pencil"></i>
+															</apex:outputLink>
+														</span>
+														<apex:outputPanel rendered="{!otfi.isUpdateable && current}" layout="none">
+															<div id="efld{!index}" style="display:none;" class="{!otfi.inputStyle}">
+																<apex:inputField id="vflde" value="{!currentProfile[otfi.name]}" required="{!otfi.required}"/>
+																<apex:outputPanel layout="none" rendered="{!otfi.checkbox}"><i onclick="$('#efld{!index} [id$=vflde]').click();"></i></apex:outputPanel>
+																<span style="display:none;">
+																	<span id="bcp{!index}">{!currentProfile[otfi.name]}</span>
+																	<span id="{!index}bcps" name="{!index}">n</span>
+																</span>
+															</div>
+														</apex:outputPanel>
+													</dd>
+													<apex:variable var="index" value="{!index + 1}"/>
+													
+												</apex:repeat></dl>
+												<hr/>
+											</apex:outputPanel>
+										</apex:repeat>
+										<apex:outputPanel layout="block" id="btnblk" style="display:none;">
+											<apex:commandButton action="{!Init}" value="{!$Label.BTN_Cancel}" rerender="theform" status="statusLoad" styleClass="btn-u btn-u-sm btn-u-default margin-right-5"/>
+											<apex:commandButton action="{!Submit}" value="{!$Label.BTN_Save_Changes}" rerender="theform" status="statusLoad" styleClass="btn-u"/>
+										</apex:outputPanel>
+									</apex:form>
+								</div>
+								<apex:outputPanel layout="none" rendered="{!current}">
+								<apex:outputPanel layout="none" rendered="{!ShowChangePassword}">
+								<div id="passwordTab" class="profile-edit tab-pane fade">
+									<h2 class="heading-md">{!$Label.LBL_ChangePassword_Title}</h2>
+									<br/><hr/>
+									<apex:form id="passwordform" styleClass="sky-form">
+										<apex:outputPanel layout="block" styleClass="alert alert-success fade in" rendered="{!showChangePasswordSuccessMsg == true}">
+											<i class="fa fa-check fa-2x"></i>&nbsp;{!$Label.LBL_SaveChanges_Success}
+										</apex:outputPanel>
+										<apex:outputPanel layout="block" styleClass="alert alert-info fade in" rendered="{!showChangePasswordSuccessMsg != true && !ISBLANK(LastTimePasswordChange)}">
+											<i class="fa fa-clock-o fa-2x"></i>&nbsp;&nbsp;{!LastTimePasswordChange}
+										</apex:outputPanel>
+										<dl class="dl-horizontal">
+											<dt>{!$Label.LBL_Username}</dt>
+											<dd>
+												<section>
+													<label>
+														{!$User.Username}
+													</label>
+												</section>
+											</dd>
+											<dt>{!$Label.LBL_OldPassword}</dt>
+											<dd>
+												<section>
+													<label class="input">
+														<i class="icon-append fa fa-lock"></i>
+														<apex:inputSecret value="{!oldPassword}" onkeyup="checkspbtn();"/>
+													</label>
+												</section>
+											</dd>
+											<dt>{!$Label.LBL_NewPassword}</dt>
+											<dd>
+												<section>
+													<label class="input">
+														<i class="icon-append fa fa-lock"></i>
+														<apex:inputSecret value="{!newPassword}" onkeyup="checkspbtn();"/>
+													</label>
+												</section>
+											</dd>
+											<dt>{!$Label.LBL_VerifyNewPassword}</dt>
+											<dd>
+												<section>
+													<label class="input">
+														<i class="icon-append fa fa-lock"></i>
+														<apex:inputSecret value="{!confirmPassword}" onkeyup="checkspbtn();"/>
+													</label>
+												</section>
+											</dd>
+										</dl>
+										<apex:commandButton action="{!cancelChangePassword}" value="{!$Label.BTN_Cancel}" rerender="passwordform,pageMessages" styleClass="btn-u btn-u-sm btn-u-default margin-right-5"/>
+										<apex:commandButton id="psch" action="{!changePassword}" value="{!$Label.BTN_Save_Changes}" rerender="passwordform,pageMessages" styleClass="btn-u disabled"/>
+										<script>
+											$('[id$=psch]').attr('disabled','disabled').css('opacity','0.65');
+										</script>
+									</apex:form>
+								</div>
+								</apex:outputPanel>
+								<div id="payment" class="profile-edit tab-pane fade">
+									<div id="accordion-1" class="panel-group acc-v1">
+									<apex:repeat value="{!interests}" var="ints">
+										<div class="panel panel-default">
+											<div class="panel-heading">
+											<h4 class="panel-title">
+												<a class="accordion-toggle" href="#{!ints.id}" data-parent="#accordion-1" data-toggle="collapse" aria-expanded="false">
+													<header>{!ints.name}</header>
+												</a>
+											</h4>
+											</div>
+											<div id="{!ints.id}" class="panel-collapse collapse" aria-expanded="false" style="">
+												<form class="sky-form" id="sky-form" action="" novalidate="novalidate">
+													<fieldset><div class="row"><div class="col col-8">
+														<apex:repeat value="{!ints.it}" var="init">
+														<apex:outputPanel layout="none" rendered="{!!current}">
+															<i class="fa {!IF(init.checked, 'fa-check-square-o','fa-square-o ')}"></i>{!init.name}<br/>
+														</apex:outputPanel>
+														<apex:outputPanel layout="none" rendered="{!current && init.checked}">
+															<label class="checkbox"><input type="checkbox" name="checkbox" onclick="intersel(this,'{!init.tagId}');" checked="checked"/><i></i>{!init.name}</label>
+														</apex:outputPanel>
+														<apex:outputPanel layout="none" rendered="{!current && !init.checked}">
+															<label class="checkbox"><input type="checkbox" name="checkbox" onclick="intersel(this,'{!init.tagId}');"/><i></i>{!init.name}</label>
+														</apex:outputPanel>
+														</apex:repeat>
+													</div></div></fieldset>
+												</form>
+											</div>
+										</div>
+									</apex:repeat>
+										<apex:outputPanel layout="none" rendered="{!current}">
+											<script>
+												function intersel(inth,tid) {
+													Visualforce.remoting.Manager.invokeAction(
+														'{!$RemoteAction.CommunityProfilePageController.toggle}',
+														tid,
+														inth.checked,
+														function(result, event) {}
+													);
+												}
+											</script>
+										</apex:outputPanel>
+									</div>
+								</div>
+								<div id="settings" class="profile-edit tab-pane fade">
+									<style>
+										.sky-form .toggle i.red-btn { border-color:#ff0024 !important; }
+										.sky-form .toggle i.red-btn:before { background-color:#ff0024; }
+										.sky-form .toggle i.red-btn:after { color:#ff0024; }
+										.sky-form .toggle i.green-btn { border-color:#72c02c !important;}
+										.sky-form .toggle i.green-btn:before { background-color:#72c02c; }
+										.sky-form .toggle i.green-btn:after { color:#72c02c; }
+									</style>
+									<h2 class="heading-md">{!$Label.LBL_NotificationSettings_Title}</h2><br/>
+									<h5>{!$Label.LBL_NotificationSettings_Message1}</h5><hr/>
+									<form class="sky-form" id="sky-form" action="">
+										<apex:repeat value="{!EmailNotifications.sections}" var="section">
+											<label><h4><strong>{!section.sectionLabel}</strong></h4></label>
+											<apex:repeat value="{!section.items}" var="it">
+												<label class="toggle{!IF(section.general,'',' plus')}">
+													<apex:outputText value="{!it.InputHtml}" escape="false"/>
+													{!it.fieldLabel}
+												</label>
+											</apex:repeat>
+											<hr/>
+										</apex:repeat>
+									</form>
+									<script>
+										function chnot(el) {
+											$(el).parent().find('i').toggleClass('green-btn').toggleClass('red-btn');
+											Visualforce.remoting.Manager.invokeAction(
+												'{!$RemoteAction.CommunityProfilePageController.toggleUserNotification}',
+												el.name,
+												function(result, event) {}
+											);
+											if (el.name == 'PreferencesDisableAllFeedsEmail') {
+												if (el.checked) {
+													$('.toggle.plus input').removeAttr('disabled');
+													$('.toggle.plus').each(function(index,el){
+														var er = $(el).find('input').prop('checked') ? 'green-btn' : 'red-btn';
+														$(el).find('i').addClass(er);
+													});
+												}
+												else {
+													$('.toggle.plus i').removeClass('green-btn').removeClass('red-btn');
+													$('.toggle.plus input').attr('disabled','disabled');
+												}
+											}
+										}
+									</script>
+								</div>
+								<div id="digest" class="profile-edit tab-pane fade">
+									<style>
+										#digest .table thead { background:#f7f7f7; }
+										#digest i.rounded-x { width:24px; height:24px; }
+										#digest i.rounded-x.fa { background:#72c02c; color:white; border-color:#72c02c; }
+									</style>
+									<h2 class="heading-md">{!$Label.LBL_ManageDigest_Title}</h2><br/>
+									<h5>{!$Label.LBL_ManageDigest_Message1}</h5><hr/>
+									<div class="margin-bottom-10">
+										<h5>{!$Label.LBL_DigestDefaultFrequency}</h5>
+									</div>
+									<div class="row margin-left-10">
+										<ul class="parentnode list-unstyled col-md-4">
+											<li class="margin-bottom-5">
+												<label>{!$Label.LBL_Digest_EachPost}</label>
+												<i class="expand-list rounded-x{!DefaultDigest.eepStyle} pull-right" onclick="ddseta(this,'','P');"></i>
+											</li>
+											<li class="margin-bottom-5">
+												<label>{!$Label.LBL_Digest_Daily}</label>
+												<i class="expand-list rounded-x{!DefaultDigest.ddStyle} pull-right" onclick="ddseta(this,'','D');"></i>
+											</li>
+											<li class="margin-bottom-5">
+												<label>{!$Label.LBL_Digest_Weekly}</label>
+												<i class="expand-list rounded-x{!DefaultDigest.wdStyle} pull-right" onclick="ddseta(this,'','W');"></i>
+											</li>
+											<li class="margin-bottom-5">
+												<label>{!$Label.LBL_Digest_Never}</label>
+												<i class="expand-list rounded-x{!DefaultDigest.nStyle} pull-right" onclick="ddseta(this,'','N');"></i>
+											</li>
+										</ul>
+									</div>
+									<hr/>
+									<apex:outputPanel layout="none" rendered="{!DigestSettings.size > 0}">
+									<table class="table">
+										<thead>
+											<tr>
+												<th>{!$Label.LBL_Digest_Group}</th>
+												<th>{!$Label.LBL_Digest_EachPost}</th>
+												<th>{!$Label.LBL_Digest_Daily}</th>
+												<th>{!$Label.LBL_Digest_Weekly}</th>
+												<th>{!$Label.LBL_Digest_Never}</th>
+											</tr>
+										</thead>
+										<tbody>
+											<apex:repeat value="{!DigestSettings}" var="ds">
+											<tr class="parentnode">
+												<td>
+													{!ds.gname}
+												</td>
+												<td>
+													<i class="expand-list rounded-x{!ds.eepStyle}" onclick="ddseta(this,'{!ds.gid}','P');"></i>
+												</td>
+												<td>
+													<i class="expand-list rounded-x{!ds.ddStyle}" onclick="ddseta(this,'{!ds.gid}','D');"></i>
+												</td>
+												<td>
+													<i class="expand-list rounded-x{!ds.wdStyle}" onclick="ddseta(this,'{!ds.gid}','W');"></i>
+												</td>
+												<td>
+													<i class="expand-list rounded-x{!ds.nStyle}" onclick="ddseta(this,'{!ds.gid}','N');"></i>
+												</td>
+											</tr>
+											</apex:repeat>
+										</tbody>
+									</table>
+									</apex:outputPanel>
+									<script>
+										function ddseta(el,gid,f) {
+											if ($(el).attr('class').indexOf('fa-dot-circle-o') == -1) {
+												$(el).closest('.parentnode').find('i').removeClass('fa fa-dot-circle-o');
+												$(el).addClass('fa fa-dot-circle-o');
+												Visualforce.remoting.Manager.invokeAction(
+													'{!$RemoteAction.CommunityProfilePageController.toggleUserDigest}',
+													gid,
+													f,
+													function(result, event) {}
+												);
+											}
+										}
+									</script>
+								</div>
+								</apex:outputPanel>
+							</div>
+						</div>
+					</div>
+					<!--End Profile Body-->
+				</div>
+			</div>
+			<!--/end row-->
+		</div>
+		<!--/container-->
+	</div>
+	<script>
+		var iepp = 'z';
+		var iepf = false;
+		window.onload = function() {
+		$(document).click(function(event) {
+			if (iepp != 'z') {
+				if (iepf == false) {
+					iepf = true;
+				}
+				else if ($(event.target).parents('#efld' + iepp).length == 0){
+					ende(iepp);
+					iepp='z';
+					iepf = false;
+				}
+			}
+		});
+		};
+		function chs(inchs) {
+			$('[id$=tab]').hide();
+			$('#' + inchs).show();
+			$('.smhu a.active').removeClass('active');
+			$('#' + inchs + 'a').addClass('active');
+		}
+		function shwe(ini) {
+			$('#vfld' + ini).hide();
+			$('#efld' + ini).show();
+			$('#efld' + ini + ' [id$=vflde]').focus();
+			$('[id$=btnblk]').show();
+			iepp=ini;
+		}
+		function ende(ini) {
+			$('#efld' + ini).hide();
+			if ($('#efld' + ini + ' [id$=vflde]').attr('type') == 'checkbox') {
+				$('#vfld' + ini + ' img').remove();
+				$('#vfld' + ini + ' .p-chb').remove();
+				$('#vfld' + ini).append('<i class="fa fa-'+($('#efld' + ini + ' [id$=vflde]').prop('checked')?'check-':'')+'square-o p-chb"></i>')
+			}
+			else {
+				var vtxt = $('#efld' + ini + ' [id$=vflde]').val();
+				if ($('#vfld' + ini + ' [id$=vfldo]').text() != vtxt) {
+					$('#vfld' + ini + ' [id$=vfldo]').text(vtxt).css('color','coral').css('font-weight','bold');
+					$('#' + ini + 'bcps').text('y');
+				}
+			}
+			$('#vfld' + ini).show();
+		}
+		function passformready() {
+			var ff = $('[id$=passwordform] dd input');
+			var r = ff.length > 0;
+			ff.each(function(index,el){
+				r = el.value.trim().length < 4 ? false : r;
+			});
+			return r;
+		}
+		function checkspbtn() {
+			if (passformready()) {
+				$('[id$=psch][disabled=disabled]').removeAttr('disabled').css('opacity','1');
+			}
+			else if($('[id$=psch][disabled=disabled]').length == 0) {
+				$('[id$=psch]').attr('disabled','disabled').css('opacity','0.65');
+			}
+		}
+		function profileformready() {
+			return $('[id$=btnblk]').css('display') != 'none';
+		}
+	</script>
+	<!--=== End Profile ===-->
+</apex:define>
+<apex:define name="scripts">
+	<script type="text/javascript" src="{!$Resource.assets}/plugins/jquery.parallax.js"></script>
+	<script type="text/javascript" src="{!$Resource.assets}/plugins/counter/waypoints.min.js"></script>
+	<script type="text/javascript" src="{!$Resource.assets}/plugins/sky-forms/version-2.0.1/js/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="{!$Resource.assets}/plugins/counter/jquery.counterup.min.js"></script>
+	<script type="text/javascript" src="{!$Resource.assets}/js/plugins/datepicker.js"></script>
+	<script type="text/javascript">
+		jQuery(document).ready(function() {
+			App.initCounter();
+			Datepicker.initDatepicker();
+		});
+		/* unload for save password */
+		window.onbeforeunload = function(e) {
+			if (passformready() || profileformready()) {
+				var lm = '{!$Label.LBL_LeavePage_Message}';
+				if(!e) e = window.event;
+				//e.cancelBubble is supported by IE - this will kill the bubbling process.
+				e.cancelBubble = true;
+				e.returnValue = lm;
+				//e.stopPropagation works in Firefox.
+				if (e.stopPropagation) {
+					e.stopPropagation();
+					e.preventDefault();
+				}
+				//return works for Chrome and Safari
+				return lm;
+			}
+		}
+	</script>
+</apex:define>
+</apex:composition>
+</apex:page>

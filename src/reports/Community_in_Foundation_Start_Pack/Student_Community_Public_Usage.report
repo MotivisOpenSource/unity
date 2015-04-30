@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>
+        <field>Network$Name</field>
+    </columns>
+    <columns>
+        <field>Network.NetworkPublicUsageDailyMetrics$PageViewDailyCount</field>
+    </columns>
+    <columns>
+        <field>Network.NetworkPublicUsageDailyMetrics$UniqueVisitorDailyCount</field>
+    </columns>
+    <columns>
+        <field>Network.NetworkPublicUsageDailyMetrics$FieldValue</field>
+    </columns>
+    <columns>
+        <field>Network.NetworkPublicUsageDailyMetrics$PeriodEndDate</field>
+    </columns>
+    <description>Use this report to view Daily Metrics Public Usage metrics:  Page View Count, Unique Visitor Count.</description>
+    <format>Tabular</format>
+    <name>Student Community Public Usage</name>
+    <params>
+        <name>co</name>
+        <value>1</value>
+    </params>
+    <reportType>ca_collab_2_0__Network_Public_Usage_Daily_Metrics_20__c</reportType>
+    <scope>organization</scope>
+    <showDetails>true</showDetails>
+    <timeFrameFilter>
+        <dateColumn>Network$CreatedDate</dateColumn>
+        <interval>INTERVAL_CUSTOM</interval>
+    </timeFrameFilter>
+</Report>
