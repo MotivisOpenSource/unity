@@ -116,18 +116,9 @@ public with sharing class CommunityEventController {
 	}
 
 	public PageReference initFromView() {
-		PageReference pr;
-		Set<String> noredirect = new Set<String> { 'Standard', 'Salesforce' };
-		Map<Id, Profile> studentsProfiles = new Map<Id, Profile>([SELECT Id FROM Profile WHERE Name LIKE '%Community%']);
-		if (noredirect.contains(Userinfo.getUserType()) || !studentsProfiles.containsKey(Userinfo.getProfileId())) {
-			Community_Events__c eventLocal = (Community_Events__c)stdctrl.getRecord();
-			pr = new PageReference('/' + eventLocal.Id);
-			pr.getParameters().putAll(ApexPages.currentPage().getParameters());
-			pr.getParameters().put('nooverride', '1');
-			pr.getParameters().remove('id');
-			pr.setRedirect(true);
-		}
-		else {
+		Community_Events__c eventLocal = (Community_Events__c)stdctrl.getRecord();
+		PageReference pr = CommunityUtils.checkRedirectToStandardView(eventLocal.Id);
+		if (pr == NULL) {
 			mode = 'view';
 			init();
 		}

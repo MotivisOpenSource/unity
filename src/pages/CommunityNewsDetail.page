@@ -54,19 +54,21 @@
 					</div>
 				</div>
 			</apex:outputPanel>
-			<apex:outputPanel layout="block" styleClass="row margin-bottom-20" style="max-height:300px;overflow:hidden;" rendered="{!!ISBLANK(NewsImage)}">
-				<img class="img-responsive full-width" src="{!NewsImage}" alt=""/>
-			</apex:outputPanel>
-			<!--apex:outputPanel layout="block" styleClass="row text-center margin-bottom-20" rendered="{!ISBLANK(NewsImage)}" style="background:#f8f8f8; padding:20px;">
-				<i class="fa fa-newspaper-o fa-5x"></i>
-			</apex:outputPanel-->
-			<apex:repeat value="{!fieldset}" var="fs">
-				<apex:outputPanel layout="none" rendered="{!!ISBLANK(news[fs.fieldPath])}">
-					<apex:outputField value="{!news[fs.fieldPath]}"/><br/>
-				</apex:outputPanel>
-			</apex:repeat>
 			<div class="margin-bottom-30">
-				<apex:outputText value="{!news.Content__c}" escape="false"/>
+				<apex:outputPanel layout="none" styleClass="row margin-bottom-20" style="max-height:300px;overflow:hidden;" rendered="{!!ISBLANK(NewsImage)}">
+					<img class="img-responsive maxheight300 margin-right-10 margin-bottom-10" src="{!NewsImage}" align="left" alt=""/>
+				</apex:outputPanel>
+				<!--apex:outputPanel layout="block" styleClass="row text-center margin-bottom-20" rendered="{!ISBLANK(NewsImage)}" style="background:#f8f8f8; padding:20px;">
+					<i class="fa fa-newspaper-o fa-5x"></i>
+				</apex:outputPanel-->
+				<apex:repeat value="{!fieldset}" var="fs">
+					<apex:outputPanel layout="none" rendered="{!!ISBLANK(news[fs.fieldPath])}">
+						<apex:outputField value="{!news[fs.fieldPath]}"/><br/>
+					</apex:outputPanel>
+				</apex:repeat>
+				
+					<apex:outputText value="{!news.Content__c}" escape="false"/>
+				
 			</div>
 			<div class="row margin-bottom-20">
 				<div class="col-sm-12">

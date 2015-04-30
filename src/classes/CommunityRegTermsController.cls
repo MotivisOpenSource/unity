@@ -1,398 +1,213 @@
 public with sharing class CommunityRegTermsController {
 
-	public Boolean allOk { get;set; }
-	public String notOkMessage { get;set; }
-	public Community_Profile__c profileEdited { get;set; }
-	public List<FieldSection> overviewTab { get;set; }
-	public ProfileTab profileView { get;set; }
-	public List<InterestSection> interests { get;set; }	
-	public String FullPhotoUrl { get;set; }
-	public Blob imageBody { get; set; }
-	public String imageFileName { get; set; }
-	public String imageContentType { get; set; }
-	public String termsConditionsText { get; set; }
-	public Boolean termsIsChecked{ get; set; }
-
-	private static Map<String, Schema.SObjectField> CP_FIELDS = SObjectType.Community_Profile__c.fields.getMap();
-
-	public Integer clickedStepIndex { get; set; }
-	public List<String> wizardSteps { get; set; }
-	public Integer wizardStepsLength { get; set; }
-	public List<Boolean> completedSteps { get; set; }
-
-	public String currentWizardStep { get; set; }	
-	public Integer currentWizardStepIndex { get; set;}
-
-	public User currentUser { get; set; }
-	public Contact currentContact { get; set; }
-	public Community_Profile__c currentCProfile { get; set; }
-	public Community_Registration__c registrationSetting = Community_Registration__c.getOrgDefaults();
-	public Boolean registrationDisabled { get; set; }
-
-	/**
-	*	Method returned CommunityRegTerms page name
-	*	@return String - returns page url (Site/Community prefix + Page URL)
-	*/
-	public static String CommunityHome_Page {
-		get {
-			CommunityHome_Page = Site.getPathPrefix() + Page.CommunityHome.getUrl();
-			return CommunityHome_Page;
-		}
-		private set;
-	}
-
-	public static Integer getItemIndexFromWizardSteps(String stepname, List<String> steplist) {
-		Integer index = -1;
-			for(Integer i=0; i < steplist.size(); i++) {
-				if(stepname.equalsIgnoreCase(steplist[i])) {
-					index = i;
-				}
-			}
-		return index;
-	}
+	public Menu leftSideBar { get; set; }
+	private User currentUser;
+	private Contact currentContact;
+	public Integer step { get { return step == NULL ? 1 : step; } set; }
+	public String errorMessage { get; set; }
+	public String stepName { get { return stepName == NULL ? 'info' : stepName; } set; }
+	public Community_Profile__c currentProfile { get;set; }
+	public List<CommunityProfilePageController.FieldSection> overviewTab { get;set; }
+	public List<CommunityProfilePageController.InterestSection> interests { get;set; }
+	public transient String tcText { get; set; }
+	public Boolean tcCheckBox { get; set; }
 
 	public CommunityRegTermsController() {
+	}
+
+	public PageReference init() {
+		PageReference pr;
+
+		Set<String> availableSteps = new Set<String> {'2','3','4'};
+		Map<String, String> pageParams = ApexPages.currentPage().getParameters();
+		String stepStr = (String.isNotBlank(pageParams.get('step')) && availableSteps.contains(pageParams.get('step'))) ? pageParams.get('step') : '1';
+		step = Integer.valueOf(stepStr);
+		String mess = checkAndPrepareMenu();
+		if (mess == 'false') {
+			pr = Page.CommunityHome;
+			pr.setRedirect(true);
+		}
+		else if (mess == 'true') {
+			try {
+				if (stepName == 'info') {
+					CommunityProfilePageController cppc = new CommunityProfilePageController();
+					cppc.init();
+					currentProfile = cppc.currentProfile;
+					overviewTab = cppc.overviewTab;
+				}
+				else if (stepName == 'interest') {
+					CommunityProfilePageController cppc = new CommunityProfilePageController();
+					cppc.init();
+					cppc.initInterests();
+					interests = cppc.interests;
+				}
+				/*else if (stepName == 'picture') {
+					
+				}*/
+				else if (stepName == 'tc') {
+					List<Community_Admins__c> admins = [SELECT Id, Terms_Body__c, Terms_Published_Date__c, Terms_Archived_Date__c, Terms_Req_New_Signature__c FROM Community_Admins__c WHERE RecordType.Name = 'Community Terms' AND Terms_Status__c = 'Published' ORDER BY Terms_Published_Date__c DESC LIMIT 1];
+					tcText = (admins.size() != 0) ? admins[0].Terms_Body__c : '';
+				}
+			}
+			catch (Exception e) {
+				errorMessage = e.getMessage();
+			}
+		}
+		else {
+			errorMessage = mess;
+		}
+		return pr;
+	}
+
+	// returns 'true' if user need to pass through registration, otherwise 'false'
+	// if any other value - 'error mess'
+	public String checkAndPrepareMenu() {
+		String resultMess = 'false';
+		leftSideBar = new Menu();
+		Community_Registration__c cs = Community_Registration__c.getOrgDefaults();
 		try {
-			registrationDisabled = registrationSetting.Disable_Registration__c;
-			allOk = true;
-			wizardSteps = new List<String>();
-			completedSteps = new List<Boolean>();
-
-			currentUser = [SELECT Id, Name, ContactId, FullPhotoUrl, Community_Contact_ID__c, Completed_Registration_Date__c, Terms_of_Use__c FROM User WHERE Id =: UserInfo.getUserId() LIMIT 1];
-			currentContact = [
-				SELECT Id, Primary_Community_Profile__c, Reg_General_Info_Completed__c, Reg_Interests_Completed__c, Reg_Picture_Completed__c,
-					Reg_Completed__c, Reg_T_C_Completed__c
-				FROM Contact WHERE Id = :currentUser.ContactId OR Id = :currentUser.Community_Contact_ID__c LIMIT 1
-					];
-
-			currentCProfile = [SELECT Id, Name, Primary__c, RecordType.Name FROM Community_Profile__c WHERE Id = :currentContact.Primary_Community_Profile__c ORDER BY CreatedDate DESC LIMIT 1];
-
-			List<Community_Admins__c> admins = [SELECT Id, Terms_Body__c, Terms_Published_Date__c, Terms_Archived_Date__c, Terms_Req_New_Signature__c FROM Community_Admins__c WHERE RecordType.Name = 'Community Terms' AND Terms_Status__c = 'Published' ORDER BY Terms_Published_Date__c DESC LIMIT 1];
-			termsConditionsText = (admins.size() != 0) ? admins[0].Terms_Body__c : '';	
-
-			initProfile();
-			wizardSteps.add('GenInfo');
-			completedSteps.add(currentContact.Reg_General_Info_Completed__c != NULL);
-	
-			if (registrationSetting.Disable_Interest__c != true ) {
-				initInterests();
-				wizardSteps.add('Interests');
-				completedSteps.add(currentContact.Reg_Interests_Completed__c != NULL);
-			}
-
-			if(!registrationSetting.Disable_Picture_Upload__c) {
-				wizardSteps.add('ProfilePicture');
-				completedSteps.add(currentContact.Reg_Picture_Completed__c != NULL);
-			}
-	
-			if(!registrationSetting.Disable_T_C__c) {
-				wizardSteps.add('Terms');
-				Boolean tuCompleted = (currentUser.Terms_of_Use__c > registrationSetting.T_C_Published_Current_Date__c || currentContact.Reg_T_C_Completed__c > registrationSetting.T_C_Published_Current_Date__c);
-				termsIsChecked = tuCompleted;
-				completedSteps.add(tuCompleted);
-			}
-
-			wizardStepsLength = wizardSteps.size();
-			//if(wizardSteps.size() == null) {
-			//	PageReference pageRef = Page.CommunityHome;
-			//}
-
-			Map<String, String> pageParams = ApexPages.currentPage().getParameters();
-			String stepStr = (String.isNotBlank(pageParams.get('step'))) ? pageParams.get('step') : '';
-			Integer tmpIndex = getItemIndexFromWizardSteps(stepStr, wizardSteps);
-			currentWizardStepIndex = tmpIndex > -1 ? tmpIndex : 0;
-			currentWizardStep = wizardSteps[currentWizardStepIndex];
-		}
-		catch(Exception e) {
-			allOk = false;
-			notOkMessage = e.getMessage();
-		}
-	}
-
-
-	// 0 - nothing requires
-	// 1 - need update terms&condition
-	// 2 - need register
-	// 3 - need register and terms&condition
-	public static Integer checkRegistrationAndTC(User cUser, String cUserId) {
-		Community_Registration__c cSetting = Community_Registration__c.getOrgDefaults();
-		if(cSetting.Disable_Registration__c == true) {
-			return 0;
-		}
-		if(cUser == null) {
-			cUserId = String.isNotBlank(cUserId) ? cUserId : UserInfo.getUserId();
-			cUser = [SELECT Id, Community_Contact_ID__c, Completed_Registration_Date__c, Terms_of_Use__c FROM User WHERE Id =: cUserId LIMIT 1];
-			if(cUser == null) {
-				return 3;
-			}
-		}
-		// Registration Enabled
-		if((cSetting != null && cSetting.Disable_Registration__c == false)) {
-			// Must Register
-			if(cUser.Completed_Registration_Date__c == null ) {
-				// T&C Enabled 
-				if(cSetting != null && cSetting.Disable_T_C__c == false) {
-					// T&C Need Accepted or Update
-					if(cUser.Terms_of_Use__c == null || cUser.Terms_of_Use__c < cSetting.T_C_Published_Current_Date__c) {
-						//System.debug('Registration with T&C');
-						return 3;
-					} 
+			Integer stepCounter = 1;
+			if (cs.Disable_Registration__c != true) {
+				currentUser = [SELECT Id, Name, ContactId, FullPhotoUrl, Community_Contact_ID__c, Completed_Registration_Date__c, Terms_of_Use__c FROM User WHERE Id = :UserInfo.getUserId()];
+				currentContact = [
+							SELECT Id, Primary_Community_Profile__c, Reg_General_Info_Completed__c, Reg_Interests_Completed__c, Reg_Picture_Completed__c,
+								Reg_Completed__c, Reg_T_C_Completed__c
+							FROM Contact WHERE Id = :currentUser.Community_Contact_ID__c OR Id = :currentUser.ContactId LIMIT 1
+								];
+				leftSideBar.items.add(new MenuItem(Label.LBL_RegGenInfo_Title, currentContact.Reg_General_Info_Completed__c == NULL, stepCounter == step, stepCounter));
+				stepCounter++;
+				if (cs.Disable_Interest__c != true ) {
+					stepName = (stepCounter == step) ? 'interest' : stepName;
+					leftSideBar.items.add(new MenuItem(Label.LBL_RegInterests_Title, currentContact.Reg_Interests_Completed__c == NULL, stepCounter == step, stepCounter));
+					stepCounter++;
 				}
-				else {
-					//System.debug('Registration without T&C');
-					return 2;
+				if(cs.Disable_Picture_Upload__c != true) {
+					stepName = (stepCounter == step) ? 'picture' : stepName;
+					leftSideBar.items.add(new MenuItem(Label.LBL_RegProfilePicture_Title, currentContact.Reg_Picture_Completed__c == NULL, stepCounter == step, stepCounter));
+					stepCounter++;
+				}
+				if(cs.Disable_T_C__c != true) {
+					stepName = (stepCounter == step) ? 'tc' : stepName;
+					Datetime ctc = currentContact.Reg_T_C_Completed__c;
+					Datetime utc = currentUser.Terms_of_Use__c;
+					Datetime stc = cs.T_C_Published_Current_Date__c;
+					tcCheckBox = ctc != NULL && utc != NULL && (stc == NULL || stc < ctc || stc < utc);
+					leftSideBar.items.add(new MenuItem(Label.LBL_RegTerms_Title, !tcCheckBox, stepCounter == step, stepCounter));
 				}
 			}
-			// Registered
-			else {
-				// T&C Enabled 
-				if(cSetting != null && cSetting.Disable_T_C__c == false) {
-					// T&C Need Accepted or Update
-					if(cUser.Terms_of_Use__c == null || cUser.Terms_of_Use__c < cSetting.T_C_Published_Current_Date__c) {
-						//System.debug('Need update T&C');
-						return 1;
-					}
-				}
-			}
-		}
-		// Registration Disabled
-		// Take the User to the CommunityHome page
-		return 0;	
-	}
-
-	public void changeWizardStep() {
-		if(clickedStepIndex < wizardSteps.size()) {
-			currentWizardStep = wizardSteps[clickedStepIndex];
-			currentWizardStepIndex = clickedStepIndex;
-		}
-	}
-
-	public void previousStep() {
-		if(currentWizardStepIndex > 0) {
-			currentWizardStepIndex = currentWizardStepIndex - 1;
-			currentWizardStep = wizardSteps[currentWizardStepIndex];
-		}
-	}
-
-	public void initProfile() {
-		profileView = new ProfileTab(currentCProfile, true);
-		// select contact with field from fieldset
-		overviewTab = new List<FieldSection>();
-		String rtName = currentCProfile.RecordType.Name.replace('/','');
-		Map<String, FieldSection> tabMap = new Map<String, FieldSection>();
-		for (Schema.FieldSet fsItem : SObjectType.Community_Profile__c.FieldSets.getMap().values()) {
-			String fsLabel = fsItem.getLabel();
-			if (fsLabel.contains(':')) {
-				String[] parts = fsLabel.split(':');
-				if (parts.size() == 3 && parts[0] == rtName && parts[2].isNumeric()) {
-					Integer sNum = Integer.valueOf(parts[2]);
-					Boolean notAdded = true;
-					for (Integer ii = 0; ii < overviewTab.size(); ii++) {
-						if (overviewTab[ii].sectionOrder >= sNum) {
-							overviewTab.add(ii, new FieldSection(fsItem, parts[1], sNum));
-							//overviewTab.add(ii, new FieldSection(fsItem, 'LBL_' + parts[1], sNum));
-							notAdded = false;
-							break;
-						}
-					}
-					if (notAdded) {
-						overviewTab.add(new FieldSection(fsItem, parts[1], sNum));
-						//overviewTab.add(new FieldSection(fsItem, 'LBL_' + parts[1], sNum));
-					}
-				}
-			}
-		}
-		Set<String> profileFields = new Set<String> {'Id', 'Name', 'Contact__r.Name'};
-		for (FieldSection fs2 : overviewTab) {
-			for (FieldItem fi2 : fs2.fi) {
-				profileFields.add(fi2.name);
-			}
-		}
-		List<String> fieldList = new List<String>();
-		fieldList.addAll(profileFields);
-		profileEdited = Database.query('SELECT ' + String.join(fieldList, ', ') + ' FROM Community_Profile__c WHERE Id =\'' + currentCProfile.Id + '\'');
-		FullPhotoUrl =  (currentUser.FullPhotoUrl != null && String.isNotEmpty(currentUser.FullPhotoUrl)) ? currentUser.FullPhotoUrl : '/profilephoto/005/F';
-	}
-
-	public void saveProfile() {
-		try {
-			update profileEdited;
+			step = stepCounter < step ? 1 : step;
+			resultMess = leftSideBar.activeRegistration() ? 'true' : 'false';
 		}
 		catch (Exception e) {
-			ApexPages.addMessages(e);
+			resultMess = e.getMessage();
 		}
-	}
-
-	private void initInterests() {
-		Set<Id> activeTags = new Set<Id>();
-		Id currentContactId = currentUser.ContactId != NULL ? currentUser.ContactId : currentUser.Community_Contact_ID__c;
-		for (Community_Profile_Tag__c cptItem : [SELECT Community_Tag__c FROM Community_Profile_Tag__c WHERE Contact__c =:currentContactId AND Active__c = true]) {
-			activeTags.add(cptItem.Community_Tag__c);
-		}
-		Map<Id,InterestSection> isMap = new Map<Id,InterestSection>();
-		for (Community_Tag__c ctItem : [
-						SELECT Name, Id, Community_Theme__c, Community_Theme__r.Name, Community_Theme__r.Id
-						FROM Community_Tag__c
-						WHERE Community_Theme__r.Theme_Type__c = 'Interest'
-						ORDER BY Community_Theme__r.Name, Name
-							]) {
-			if (!isMap.containsKey(ctItem.Community_Theme__c)) {
-				isMap.put(ctItem.Community_Theme__c, new InterestSection(ctItem.Community_Theme__r.Name, ctItem.Community_Theme__r.Id));
-			}
-			isMap.get(ctItem.Community_Theme__c).it.add(new InterestTag(ctItem, activeTags.contains(ctItem.Id)));
-		}
-		interests = isMap.values();
+		return resultMess;
 	}
 
 	public PageReference completeCurrentStep() {
 		PageReference pageRef;
 		try {
-			if (currentWizardStep == 'GenInfo') {
+			if (stepName == 'info') {
+				update currentProfile;
 				currentContact.Reg_General_Info_Completed__c = Datetime.now();
-				completedSteps[currentWizardStepIndex] = true;
 			}
-			else if (currentWizardStep == 'Interests') {
+			else if (stepName == 'interest') {
 				currentContact.Reg_Interests_Completed__c = Datetime.now();
-				completedSteps[currentWizardStepIndex] = true;
 			}
-			else if (currentWizardStep == 'ProfilePicture') {
+			else if (stepName == 'picture') {
 				currentContact.Reg_Picture_Completed__c = Datetime.now();
-				completedSteps[currentWizardStepIndex] = true;
 			}
-			else if (currentWizardStep == 'Terms') {
-				termsIsChecked = true;
-				completedSteps[currentWizardStepIndex] = true;
+			else if (stepName == 'tc') {
 				currentUser.Terms_of_Use__c = Datetime.now();
 				currentContact.Reg_T_C_Completed__c = Datetime.now();
 			}
-			Integer counter = 0;
-			Integer uncompletedStep;
-			for(Boolean item : completedSteps) {
-				if (!item && uncompletedStep == NULL) {
-					uncompletedStep = counter;
-				}
-				counter++;
-			}
-			if(uncompletedStep == NULL) {
+			Integer ns = leftSideBar.nextStep();
+			if (ns != -1) {
 				currentContact.Reg_Completed__c = Datetime.now();
-				currentUser.Completed_Registration_Date__c = Datetime.now();
-				pageRef = Page.CommunityHome;
+				pageRef = Page.CommunityRegTerms;
+				pageRef.getParameters().put('step', String.valueOf(ns));
 			}
 			else {
-				currentWizardStepIndex = uncompletedStep;
-				currentWizardStep = wizardSteps[currentWizardStepIndex];
-				/*pageRef = Page.CommunityRegTerms;
-				pageRef.getParameters().put('step', wizardSteps[currentWizardStepIndex]);*/
+				pageRef = Page.CommunityHome;
 			}
 			update currentContact;
 			update currentUser;
+			pageRef.setRedirect(true);
 		}
 		catch (Exception e) {
 			ApexPages.addMessages(e);
 		}
-		return pageRef;	
+		return pageRef;
+	}
+
+	public Boolean getDisabledNext() {
+		return (stepName == 'tc' && !tcCheckbox)
+				|| (stepName == 'picture' && (currentUser.FullPhotoUrl == NULL || currentUser.FullPhotoUrl.endsWith('/profilephoto/005/F')));
 	}
 
 	//remote actions
 	@RemoteAction
 	public static String toggle(String inid, Boolean sel) {
-		User cUser = [SELECT Id, ContactId, Community_Contact_ID__c FROM User WHERE Id =: UserInfo.getUserId() LIMIT 1];
-		Id currentContactId = cUser.ContactId != NULL ? cUser.ContactId : cUser.Community_Contact_ID__c;
-		if (currentContactId != NULL) {
-			List<Community_Profile_Tag__c> cptList3 = [SELECT Id, Active__c FROM Community_Profile_Tag__c WHERE Contact__c = :currentContactId AND Community_Tag__c = :inid LIMIT 1];
-			if (cptList3.size() > 0) {
-				cptList3[0].Active__c = sel;
-				update cptList3;
-			}
-			else {
-				insert new Community_Profile_Tag__c (Contact__c = currentContactId, Community_Tag__c = inid, Active__c = true);
-			}
-		}
-		return '';
+		return CommunityProfilePageController.toggle(inid, sel);
 	}
 
-	public class FieldSection {
-		public String sectionLabel { get;set; }
-		public Integer sectionOrder;
-		public List<FieldItem> fi { get;set; }
+	public class Menu {
+		public List<MenuItem> items { get; set; }
 
-		public FieldSection(Schema.FieldSet infs, String inlabel, Integer inorder) {
-			fi = new List<FieldItem>();
-			sectionLabel = inlabel;
-			sectionOrder = inorder;
-			for (Schema.FieldSetMember f3 : infs.getFields()) {
-				fi.add(new FieldItem(f3));
-			}
+		public Menu() {
+			items = new List<MenuItem>();
 		}
 
-		public Boolean getShowSection() {
+		public Boolean activeRegistration() {
 			Boolean result = false;
-			for (FieldItem fi1 : this.fi) {
-				result = fi1.isAccessible ? true : result;
+			for (MenuItem mi : items) {
+				result = mi.active ? true : result;
+			}
+			return result;
+		}
+
+		public Boolean getLastStep() {
+			return nextStep() == -1;
+		}
+
+		public Integer nextStep() {
+			Integer nearestActiveStep = -1;
+			Integer currentStep = 0;
+			Integer allSteps = 0;
+			for (MenuItem mi : items) {
+				allSteps++;
+				if (!mi.current && mi.active && nearestActiveStep == -1) {
+					nearestActiveStep = allSteps;
+				}
+				currentStep = mi.current ? allSteps : currentStep;
+			}
+			return (allSteps > 0 && currentStep < allSteps && nearestActiveStep != -1) ? (currentStep + 1) : nearestActiveStep;
+		}
+
+		public String getCurrentStepName() {
+			String result = '';
+			for (MenuItem mi : items) {
+				result = mi.current ? mi.name : result;
 			}
 			return result;
 		}
 	}
 
-	private static Map<DisplayType, String> TYPE_TO_STYLE = new Map<DisplayType, String> {
-		DisplayType.String => 'input', DisplayType.TextArea => 'textarea', DisplayType.Boolean => 'checkbox',
-		DisplayType.DateTime => 'text', DisplayType.Date => 'text', DisplayType.Time => 'text'
-	};
+	public class MenuItem {
+		public String name { get; set; }
+		public Boolean active { get; set; }
+		public Boolean current { get; set; }
+		private Integer step;
 
-	public class FieldItem {
-		public String name { get;set; }
-		public String label { get;set; }
-		public Boolean required { get;set; }
-		public Boolean isUpdateable { get;set; }
-		public Boolean isAccessible { get;set; }
-		public String inputStyle { get { return inputStyle == NULL ? 'input' : inputStyle; } set; }
-		public Boolean checkbox { get;set;}
-
-		public FieldItem(Schema.FieldSetMember infsm) {
-			name = infsm.getFieldPath();
-			required = infsm.getRequired() || infsm.getDBRequired();
-			DescribeFieldResult dfr = CP_FIELDS.get(name).getDescribe();
-			isUpdateable = dfr.isUpdateable();
-			isAccessible = dfr.isAccessible();
-			label = dfr.getLabel();
-			inputStyle = TYPE_TO_STYLE.get(dfr.getType());
-			checkbox = dfr.getType() == DisplayType.Boolean;
+		public MenuItem(String n, Boolean a, Boolean c, Integer s) {
+			name = n;
+			active = a;
+			current = c;
+			step = s;
 		}
-	}
 
-	public class ProfileTab {
-		public String name { get;set; }
-		public Boolean active { get;set; }
-		public String profileId { get;set; }
-
-		public ProfileTab(Community_Profile__c incp, Boolean inisa) {
-			name = incp.RecordType.Name;
-			active = inisa;
-			profileId = incp.Id;
-		}
-	}
-
-	public class InterestSection {
-		public String id { get;set; }
-		public String name { get;set; }
-		public List<InterestTag> it { get;set; }
-
-		public InterestSection(String inn, String itemId) {
-			this.it = new List<InterestTag>();
-			this.name = inn;
-			this.id = itemId;
-		}
-	}
-
-	public class InterestTag {
-		public String tagId { get;set; }
-		public Boolean checked { get;set; }
-		public String name { get;set; }
-
-		public InterestTag(Community_Tag__c inct, Boolean inchkd) {
-			tagId = inct.Id;
-			checked = inchkd;
-			name = inct.Name;
+		public String getStepParam() {
+			return '?step=' + String.valueOf(step);
 		}
 	}
 

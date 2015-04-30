@@ -213,13 +213,13 @@
 						<style>
 							.table i.icon { font-size: 1.8em; border: 2px solid #777; width: 36px; }
 						</style>
-						<apex:outputPanel id="rsect" layout="block" styleClass="container content">
-							<div class="headline">
+						<apex:outputPanel id="rsect" layout="block" styleClass="container content" >
+							<apex:outputPanel styleClass="headline" rendered="{!mode == 'discover' || mode == 'search'}">
 								<h3>Resources results for {!FilterName}</h3>
 								<a href="javascript:;" title="Scroll Back to results" onclick="$('div#topcontrol').click();">
 									<i class="icon-custom icon-sm fa fa-angle-up" style="border-color:white;"></i>
 								</a>
-							</div>
+							</apex:outputPanel>
 							<apex:outputPanel layout="block" styleClass="text-center" rendered="{!resources.showPagination}">
 								<ul class="pagination">
 									<apex:repeat value="{!resources.pagination}" var="pg">

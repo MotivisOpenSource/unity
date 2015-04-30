@@ -165,8 +165,6 @@ public without sharing class CommunityGroupsController {
 					}
 				}
 
-				system.debug(groupDetail.NotAMemberStatus);
-
 				Result.add(groupDetail);
 			}
 
@@ -209,150 +207,88 @@ public without sharing class CommunityGroupsController {
 	@RemoteAction
 	public static DiscoverResultClass getGroups(Integer limitSize, Integer startFrom, String currentTab) {
 
-		String currentCommunityId = Network.getNetworkId();
-		List<Community_Group_Control__c> communityGroupControllList = new List<Community_Group_Control__c>();
-		List<Community_Group_Control__c> communityGroupControllSizeList = new List<Community_Group_Control__c>();
-		Map<Id, CollaborationGroup> collaborationGroupMap = new Map<Id, CollaborationGroup>();
+		String gQuery = 'SELECT Id, Name, Chatter_Group_ID__c, Discoverable__c, Description__c, Type__c FROM Community_Group_Control__c';
+		Boolean foundData = false;
+		Set<String> filtredChatterGroups = new Set<String>();
+		Set<String> alreadyJoinedGroups = new Set<String>();
+		Set<String> matchedTagedGroups = new Set<String>();
 
-		collaborationGroupMap = new Map<Id,CollaborationGroup> ([
-			SELECT CollaborationGroup.Id
-			FROM CollaborationGroup
-			WHERE NetworkId =: currentCommunityId
-		]);
+		if (currentTab == 'all_groups' || currentTab == 'recommended_groups' || String.isBlank(currentTab)) {
+			for (CollaborationGroup cgItem : [SELECT Id FROM CollaborationGroup WHERE NetworkId = :Network.getNetworkId()]) {
+				filtredChatterGroups.add(cgItem.Id);
+			}
+			gQuery += ' WHERE Chatter_Group_ID__c IN :filtredChatterGroups AND Discoverable__c = true';
+			foundData = filtredChatterGroups.size() > 0;
+		}
 
-		if (currentTab == 'all_groups' || currentTab == '') { //all
-			communityGroupControllList = [
-				SELECT Id, Name, Chatter_Group_ID__c, Discoverable__c, Description__c, Type__c
-				FROM Community_Group_Control__c
-				WHERE Chatter_Group_ID__c != NULL
-				AND Discoverable__c = true
-				AND Chatter_Group_ID__c IN: collaborationGroupMap.keySet()
-				ORDER BY Name
-				LIMIT :limitSize
-				OFFSET :startFrom
-			];
-
-			communityGroupControllSizeList = [
-				SELECT Id
-				FROM Community_Group_Control__c
-				WHERE Chatter_Group_ID__c != NULL
-				AND Discoverable__c = true
-				AND Chatter_Group_ID__c IN: collaborationGroupMap.keySet()
-			];
-
-		} else if (currentTab == 'my_groups') {
-			List<Community_Group_Manager__c> groupControlMembershipList = new List<Community_Group_Manager__c>();
-			List<CollaborationGroupMember> collaborationGroupMemberList = new List<CollaborationGroupMember>();
-
-			List<Id> collaborationGroupIdList = new List<Id>();
-			List<Id> groupControlIdList = new List<Id>();
-
-			collaborationGroupMemberList = [
-				SELECT Id, CollaborationGroupId
-				FROM CollaborationGroupMember
-				WHERE CollaborationGroup.NetworkId =: currentCommunityId
-				AND MemberId =: UserInfo.getUserId()
-			];
-
-			if (!collaborationGroupMemberList.isEmpty()) {
-				for (CollaborationGroupMember item : collaborationGroupMemberList) {
-					collaborationGroupIdList.add(item.CollaborationGroupId);
+		if (currentTab == 'recommended_groups' && foundData) {
+			User currentUser = [SELECT ContactId, Community_Contact_ID__c FROM User WHERE Id = :UserInfo.getUserId()];
+			String currentContactId = currentUser.ContactId == NULL ? currentUser.Community_Contact_ID__c : currentUser.Community_Contact_ID__c;
+			Set<Id> userTags = new Set<Id>();
+			if (String.isNotBlank(currentContactId)) {
+				for (Community_Profile_Tag__c cpt : [SELECT Community_Tag__c FROM Community_Profile_Tag__c WHERE Active__c = true AND Contact__c = :currentContactId]) {
+					userTags.add(cpt.Community_Tag__c);
 				}
 			}
-
-			groupControlMembershipList = [
-				SELECT Group_Control__c
-				FROM Community_Group_Manager__c
-				WHERE Group_Manager_SF_ID__c =: UserInfo.getUserId()
-			];
-
-			if (!groupControlMembershipList.isEmpty()) {
-				for (Community_Group_Manager__c item : groupControlMembershipList) {
-					groupControlIdList.add(item.Group_Control__c);
+			foundData = userTags.size() > 0;
+			if (foundData) {
+				for (Community_Group_Control_Tag__c cgctItem : [
+									SELECT Group_Control__r.Chatter_Group_ID__c FROM Community_Group_Control_Tag__c
+									WHERE Community_Tag__c IN :userTags AND Group_Control__c != NULL AND Group_Control__r.Chatter_Group_ID__c != NULL]) {
+					matchedTagedGroups.add(cgctItem.Group_Control__r.Chatter_Group_ID__c);
+				}
+				if (matchedTagedGroups.size() > 0) {
+					gQuery += ' AND Chatter_Group_ID__c IN :matchedTagedGroups';
+					foundData = true;
 				}
 			}
-
-			if (!groupControlIdList.isEmpty() || !collaborationGroupIdList.isEmpty()) {
-				communityGroupControllList = [
-					SELECT Id, Name, Chatter_Group_ID__c, Discoverable__c, Description__c, Type__c
-					FROM Community_Group_Control__c
-					WHERE (Id IN: groupControlIdList
-					OR Chatter_Group_ID__c IN: collaborationGroupIdList)
-					AND Discoverable__c = true
-					ORDER BY Name
-					LIMIT :limitSize
-					OFFSET :startFrom
-				];
-			}
-			if (!groupControlIdList.isEmpty() || !collaborationGroupIdList.isEmpty()) {
-				communityGroupControllSizeList = [
-					SELECT Id, Name, Chatter_Group_ID__c, Discoverable__c, Description__c, Type__c
-					FROM Community_Group_Control__c
-					WHERE (Id IN: groupControlIdList
-					OR Chatter_Group_ID__c IN: collaborationGroupIdList)
-					AND Discoverable__c = true
-				];
-			}
-
-		} else if (currentTab == 'recommended_groups') {
-			User currentUser = [SELECT ContactId FROM User WHERE Id = :UserInfo.getUserId()];
-			if (currentUser.ContactId != NULL) {
-				List<Community_Profile_Tag__c> profileTagList = [
-					SELECT Id, Name, Community_Tag__r.Id
-					FROM Community_Profile_Tag__c
-					WHERE Contact__r.Id =: currentUser.ContactId
-					LIMIT 1000
-				];
-				Set<Id> profileTagsIds = new Set<Id>();
-				for (Community_Profile_Tag__c item : profileTagList) {
-					profileTagsIds.add(item.Community_Tag__r.Id);
+			if (foundData) {
+				for (CollaborationGroupMember cgmItem2 : [
+						SELECT CollaborationGroupId FROM CollaborationGroupMember
+						WHERE CollaborationGroup.NetworkId = :Network.getNetworkId() AND MemberId = :UserInfo.getUserId()
+							]) {
+					alreadyJoinedGroups.add(cgmItem2.CollaborationGroupId);
 				}
-				List<Community_Group_Control_Tag__c> groupControllTagList = [
-					SELECT Id, Group_Control__r.Id
-					FROM Community_Group_Control_Tag__c
-					WHERE Community_Tag__r.Id IN: profileTagsIds
-					LIMIT 1000
-				];
-				Set<Id> groupControllsIds = new Set<Id>();
-				for (Community_Group_Control_Tag__c item : groupControllTagList) {
-					groupControllsIds.add(item.Group_Control__r.Id);
+				if (alreadyJoinedGroups.size() > 0) {
+					gQuery += ' AND Chatter_Group_ID__c NOT IN :alreadyJoinedGroups';
 				}
-
-				if (!groupControllsIds.isEmpty()) {
-					communityGroupControllList = [
-						SELECT Id, Name, Chatter_Group_ID__c, Discoverable__c, Description__c, Type__c
-						FROM Community_Group_Control__c
-						WHERE Chatter_Group_ID__c != NULL
-						AND Discoverable__c = true
-						AND Id IN: groupControllsIds
-						AND Chatter_Group_ID__c IN: collaborationGroupMap.keySet()
-						ORDER BY Name
-						LIMIT :limitSize
-						OFFSET :startFrom
-					];
-				}
-
-				if (!groupControllsIds.isEmpty()) {
-					communityGroupControllSizeList = [
-						SELECT Id, Name, Chatter_Group_ID__c, Discoverable__c, Description__c, Type__c
-						FROM Community_Group_Control__c
-						WHERE Chatter_Group_ID__c != NULL
-						AND Discoverable__c = true
-						AND Id IN: groupControllsIds
-						AND Chatter_Group_ID__c IN: collaborationGroupMap.keySet()
-					];
-				}
-
 			}
 		}
 
-		DiscoverResultClass DiscoverResult = new DiscoverResultClass();
-		if (!communityGroupControllSizeList.isEmpty() && !communityGroupControllList.isEmpty()) {
-			DiscoverResult = CommunityGroupsController.getDiscoverResultClassForGroups(communityGroupControllSizeList.size(), communityGroupControllList);
+		if (currentTab == 'my_groups') {
+			for (CollaborationGroupMember cgmItem : [
+					SELECT CollaborationGroupId FROM CollaborationGroupMember
+					WHERE CollaborationGroup.NetworkId = :Network.getNetworkId() AND MemberId = :UserInfo.getUserId()
+						]) {
+				filtredChatterGroups.add(cgmItem.CollaborationGroupId);
+			}
+			gQuery += ' WHERE Chatter_Group_ID__c IN :filtredChatterGroups';
+			foundData = filtredChatterGroups.size() > 0;
+		}
+
+		DiscoverResultClass DiscoverResult;
+		if (foundData) {
+			gQuery += ' ORDER BY Name';
+			List<Community_Group_Control__c> allFoundGroupsList = Database.query(gQuery);
+			Integer allSize = allFoundGroupsList.size();
+			Integer startCopyInterval = startFrom;
+			Integer requestedEndInterval = startFrom + limitSize;
+			Integer endCopyInterval = (allSize > 0 && allSize > startFrom) ? ((allSize > requestedEndInterval) ? requestedEndInterval : allSize) : startFrom;
+			foundData = startCopyInterval < endCopyInterval;
+			if (foundData) {
+				List<Community_Group_Control__c> groupsPage = new List<Community_Group_Control__c>();
+				for (Integer ii = startCopyInterval; ii < endCopyInterval; ii++) {
+					groupsPage.add(allFoundGroupsList[ii]);
+				}
+				DiscoverResult = CommunityGroupsController.getDiscoverResultClassForGroups(allSize, groupsPage);
+			}
+		}
+
+		if (!foundData){
+			DiscoverResult = new DiscoverResultClass();
 		}
 
 		return DiscoverResult;
-
 	}
 
 	@RemoteAction

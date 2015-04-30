@@ -11,10 +11,13 @@ public with sharing class CommunityMenuController {
 		return currentPageName.containsIgnoreCase(urlToCompare);
 	}
 
-	public static Boolean getRedirectToRegTerms() {
-		return 	!currentPage(Page.CommunityRegTerms.getUrl()) 
-				&& !currentPage(Page.Community404.getUrl())
-				&& CommunityRegTermsController.checkRegistrationAndTC(null, UserInfo.getUserId()) != 0;
+	public static String getRegistration() {
+		String result = 'false';
+		if (!currentPage(Page.CommunityRegTerms.getUrl()) && !currentPage(Page.Community404.getUrl())) {
+			CommunityRegTermsController crtc = new CommunityRegTermsController();
+			result = crtc.checkAndPrepareMenu();
+		}
+		return result;
 	}
 
 	public static Boolean getIsRegTermsPage() {

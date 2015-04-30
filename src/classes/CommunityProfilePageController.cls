@@ -123,7 +123,7 @@ public with sharing class CommunityProfilePageController {
 		return currentProfile.Contact__r.Name;
 	}
 
-	private void initInterests() {
+	public void initInterests() {
 		Set<Id> activeTags = new Set<Id>();
 		for (Community_Profile_Tag__c cptItem : [SELECT Community_Tag__c FROM Community_Profile_Tag__c WHERE Contact__c =:contactId AND Active__c = true]) {
 			activeTags.add(cptItem.Community_Tag__c);
@@ -333,6 +333,14 @@ public with sharing class CommunityProfilePageController {
 			}
 			return result;
 		}
+
+		public Boolean getShowSectionReg() {
+			Boolean result = false;
+			for (FieldItem fi2 : this.fi) {
+				result = (fi2.isAccessible && !fi2.regDB) ? true : result;
+			}
+			return result;
+		}
 	}
 
 	private static Map<DisplayType, String> TYPE_TO_STYLE = new Map<DisplayType, String> {
@@ -348,10 +356,14 @@ public with sharing class CommunityProfilePageController {
 		public Boolean isAccessible { get;set; }
 		public String inputStyle { get { return inputStyle == NULL ? 'input' : inputStyle; } set; }
 		public Boolean checkbox { get;set;}
+		public Boolean reqFieldSet { get;set; }
+		public Boolean regDB { get;set; }
 
 		public FieldItem(Schema.FieldSetMember infsm) {
 			name = infsm.getFieldPath();
 			required = infsm.getRequired() || infsm.getDBRequired();
+			reqFieldSet = infsm.getRequired();
+			regDB = infsm.getDBRequired();
 			DescribeFieldResult dfr = CP_FIELDS.get(name).getDescribe();
 			isUpdateable = dfr.isUpdateable();
 			isAccessible = dfr.isAccessible();

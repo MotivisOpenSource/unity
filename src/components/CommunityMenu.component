@@ -8,17 +8,25 @@ ul li, ol li {
 }
 </style>
 
-<apex:outputPanel rendered="{!redirectToRegTerms}">
+<apex:outputPanel rendered="{!Registration == 'true'}">
 	<script type="text/javascript">
 		(function() {
 			window.location.href = '{!$Page.CommunityRegTerms}';
+			$('body').hide();
+		})();
+	</script>
+</apex:outputPanel>
+<apex:outputPanel rendered="{!Registration != 'true' && Registration != 'false'}">
+	<script type="text/javascript">
+		(function() {
+			console.log('Registration Error: {!Registration}');
 		})();
 	</script>
 </apex:outputPanel>
 
 <div class="header-v1 header-sticky {!IF(isRegTermsPage, 'without-menu', '')}" >
 <!-- Topbar -->
-	<div class="topbar-v1" style="{!IF(isRegTermsPage, 'display:none;', '')}">
+	<apex:outputPanel layout="block" styleClass="topbar-v1" rendered="{!!isRegTermsPage}">
 		<div class="container">
 			<div class="row">
 				<div class="col-md-6">
@@ -41,7 +49,7 @@ ul li, ol li {
 				</div>
 			</div>
 		</div>
-	</div>
+	</apex:outputPanel>
 	<!-- End Topbar -->
 
 	<!-- Navbar -->
@@ -59,7 +67,7 @@ ul li, ol li {
 			</div>
 
 			<!-- Collect the nav links, forms, and other content for toggling -->
-			<div class="collapse navbar-collapse navbar-responsive-collapse" style="{!IF(isRegTermsPage, 'display:none;', '')}">
+			<apex:outputPanel layout="block" styleClass="collapse navbar-collapse navbar-responsive-collapse" rendered="{!!isRegTermsPage}">
 				<ul class="nav navbar-nav">
 					<!-- Home class="active" -->
 					<li>
@@ -152,7 +160,7 @@ ul li, ol li {
 					</li>
 					<!-- End Search Block -->
 				</ul>
-			</div><!--/navbar-collapse-->
+			</apex:outputPanel><!--/navbar-collapse-->
 		</div>
 	</div>
 	<!-- End Navbar -->

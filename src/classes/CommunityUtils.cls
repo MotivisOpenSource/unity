@@ -295,6 +295,21 @@ public class CommunityUtils {
 		}
 	}
 
+	public static PageReference checkRedirectToStandardView(Id sObjectId) {
+		PageReference resultpr;
+		/*Set<String> noredirect = new Set<String> { 'Standard', 'Salesforce' };
+		Map<Id, Profile> studentsProfiles = new Map<Id, Profile>([SELECT Id FROM Profile WHERE Name LIKE '%Community%']);
+		if (noredirect.contains(Userinfo.getUserType()) || !studentsProfiles.containsKey(Userinfo.getProfileId())) {*/
+		if (String.isBlank(Site.getName())) {
+			resultpr = new PageReference('/' + sObjectId);
+			resultpr.getParameters().putAll(ApexPages.currentPage().getParameters());
+			resultpr.getParameters().put('nooverride', '1');
+			resultpr.getParameters().remove('id');
+			resultpr.setRedirect(true);
+		}
+		return resultpr;
+	}
+
 	//wrapper classes
 
 	public class GroupAction {

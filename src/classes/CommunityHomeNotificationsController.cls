@@ -9,8 +9,13 @@ global without sharing class CommunityHomeNotificationsController {
 		
 		List<NotificationWrapper> notificationsData = new List<NotificationWrapper>();
 		
-		notificationsData.addAll(privateHPMessages());
-		notificationsData.addAll(getGroupComments());
+		List<NotificationWrapper> privateHPMessages = privateHPMessages();
+		List<NotificationWrapper> getGroupManagerFeeds = getGroupManagerFeeds();
+		
+		if(privateHPMessages == null && getGroupManagerFeeds == null) return 'EMPTY You have no notifications.';
+		if(privateHPMessages != null) notificationsData.addAll(privateHPMessages);
+		if(getGroupManagerFeeds != null) notificationsData.addAll(getGroupManagerFeeds);
+		
 		notificationsData.sort();
 
 		return JSON.serialize(notificationsData);
@@ -26,6 +31,8 @@ global without sharing class CommunityHomeNotificationsController {
 	// used existing method for messages
 		CommunityFeed_MyMessagesController feedMessages = new CommunityFeed_MyMessagesController();
 		
+		if(feedMessages.Conversations.isEmpty()) return NULL;
+
 		for(CommunityFeed_MyMessagesController.ChatterConversation feedMessage : feedMessages.Conversations){
 	// check owner messageges 
 			if(feedMessage.LatestMessage.Sender.MemberId != UserInfo.getUserId()){
@@ -47,18 +54,16 @@ global without sharing class CommunityHomeNotificationsController {
 	}
 	// get feeds and comments for them from groups
 	// where user is owner or manager
-	private static List<NotificationWrapper> getGroupComments(){
+	private static List<NotificationWrapper> getGroupManagerFeeds(){
 		
 		String userId = UserInfo.getUserId();
 		Set<Id> managersIds = new Set<Id>();
 		Set<Id> controlsIds = new Set<Id>();
-		Set<Id> feedForCommentIds = new Set<Id>();
-        List<FeedItem> feedsPosted = new List<FeedItem>();
-        List<FeedComment> fComments = new List<FeedComment>();
-        List<FeedComment> fCommentsPosted = new List<FeedComment>();
+		List<FeedItem> feedsPosted = new List<FeedItem>();
         Set<Id> userPostedIds = new Set<Id>();
         Map<Id, List<String>> userPhotoAndName = new Map<Id, List<String>>();
-        List<NotificationWrapper> hpFeedsAndComments = new List<NotificationWrapper>();
+        List<NotificationWrapper> hpGroupsFeeds = new List<NotificationWrapper>();
+        Map<Id, Id> gControlGroups = new Map<Id, Id>();
     
     // get Group_Control 
     // where user is owner or manager
@@ -66,7 +71,6 @@ global without sharing class CommunityHomeNotificationsController {
 														FROM Community_Group_Manager__c 
 														WHERE Group_Manager_User__c = :userId];
 
-		
 		if(cGManagers.isEmpty()) return NULL;
 
 		for(Community_Group_Manager__c cGManager : cGManagers){
@@ -78,50 +82,27 @@ global without sharing class CommunityHomeNotificationsController {
         
         for(Community_Group_Control__c gControl : gControls){
         	controlsIds.add(gControl.Id);
+        	gControlGroups.put(gControl.Id, gControl.Chatter_Group_ID__c);
         }
 
+        ConnectApi.FollowerPage fp = ConnectApi.Chatter.getFollowers(Network.getNetworkId(), 'me');
+        System.debug('Follower = '+fp);
+
+    	
     // get feed from groups
-		List<FeedItem> feeds = [SELECT Id, ParentId, Type, CommentCount, LinkUrl, LastModifiedDate, CreatedById 
+		List<FeedItem> feeds = [SELECT Id, ParentId, Type, CommentCount, LinkUrl, LastModifiedDate, CreatedById, Visibility 
                                 FROM FeedItem
                                WHERE ParentId IN :controlsIds 
                                AND CreatedById != :userId
-                               LIMIT 10];
+                               AND Visibility = 'AllUsers'
+                               LIMIT 10000];
 
        if(feeds.isEmpty()) return NULL;
-
-    //check feeds for comments and owner
-        /*for(FeedItem feed : feeds){
-        	if(feed.CommentCount > 0){
-        		feedForCommentIds.add(feed.id);
-        	}
-        	if(feed.CreatedById != userId){
+    //check GroupManager feeds 
+        for(FeedItem feed : feeds){
         		userPostedIds.add(feed.CreatedById);
         		feedsPosted.add(feed);
-        	}
-        }*/
-
-    // get comments for feeds   	
-       	/*if(!feedForCommentIds.isEmpty()){
-        	fComments = [SELECT Id, ParentId, FeedItemId, CreatedById, CreatedDate FROM FeedComment WHERE FeedItemId IN :feedForCommentIds AND CreatedDate > LAST_MONTH LIMIT 1000];
-        	for (FeedComment fComment : fComments){
-        		if(fComment.CreatedById != userId){
-        			userPostedIds.add(fComment.CreatedById);
-        			fCommentsPosted.add(fComment);
-        		}
-
-        	}
-        }*/
-
-    // if feed changed by comment of feed owner
-    // exclude this feed from notification
-    // apply to comments
-       	/*for(FeedComment fComment : fCommentsPosted){
-       		for(Integer i = 0; i < feedsPosted.size(); i++){
-       			if(fComment.FeedItemId == feedsPosted[i].Id && fComment.CreatedDate == feedsPosted[i].LastModifiedDate){
-       				feedsPosted.remove(i);
-       			}
-       		}
-       	}*/
+        }
 
     // get users Name and SmallPhoto
         for(User us : [SELECT Id, SmallPhotoUrl, Name FROM User WHERE Id IN :userPostedIds]){
@@ -131,28 +112,17 @@ global without sharing class CommunityHomeNotificationsController {
     // fill Wrapper class
         for(FeedItem feedPosted : feedsPosted){
 
-        	hpFeedsAndComments.add(new NotificationWrapper(
+        	hpGroupsFeeds.add(new NotificationWrapper(
 						feedPosted.CreatedById,
 						userPhotoAndName.get(feedPosted.CreatedById)[1].replace(Site.getBaseUrl(), ''),
 						Label.LBL_Notifications_Post,
-						prepareUrl(Page.CommunityGroupDetailPage.getUrl())+'?g='+feedPosted.ParentId,
+						prepareUrl(Page.CommunityGroupManager.getUrl())+'?g='+gControlGroups.get(feedPosted.ParentId),
 						feedPosted.LastModifiedDate,
 						userPhotoAndName.get(feedPosted.CreatedById)[0]));
         }
        	
-       	/*for(FeedComment fCommentPosted : fCommentsPosted){
-	        
-	        hpFeedsAndComments.add(new NotificationWrapper(
-						fCommentPosted.CreatedById,
-						userPhotoAndName.get(fCommentPosted.CreatedById)[1].replace(Site.getBaseUrl(), ''),
-						Label.LBL_Notifications_Post,
-						prepareUrl(Page.CommunityGroupDetailPage.getUrl())+'?g='+fCommentPosted.ParentId,
-						fCommentPosted.CreatedDate,
-						userPhotoAndName.get(fCommentPosted.CreatedById)[0]));
-	    }*/
-
-	    return formNameWithRoles(hpFeedsAndComments, userPhotoAndName.keySet());
-
+       	return formNameWithRoles(hpGroupsFeeds, userPhotoAndName.keySet());
+       	
 	}
 
 

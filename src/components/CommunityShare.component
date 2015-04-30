@@ -6,6 +6,10 @@
 	<script src="{!$Resource.CommunityResources}/js/underscore/underscore-min.js"></script>
 
 	<style>
+		.addGroups{
+			text-decoration: none !important;
+ 		 	color: #2da5da !important;
+		}
 		.m-status {
 			color: white;
 			top: 40%;
@@ -72,14 +76,6 @@
 		.tags-container a {
 			margin-left: 5px;
 		}
-		.panel-success .panel-heading:hover a {
-			text-decoration:none;
-			color:black;
-			background-color:#f8f8f8;
-		}
-		.panel-heading .fa {
-			width:10px;
-		}
 		.div-like-input input.input-inviz {
 			float: left;
 			display: inline-block;
@@ -120,7 +116,7 @@
 									<apex:inputTextarea id="commentArea" value="{!shareComment}" style="width:100%;"/>
 								</label>
 							</section>
-							<section>
+							<section id = "selectedGroup">
 								<apex:outputLabel value="{!$Label.LBL_Share_To_A_Group}"/>
 								<div class="div-like-input clearfix">
 									<div id="groupsContainer" class="groups-container clearfix">
@@ -130,13 +126,41 @@
 								</div>
 							</section>
 							<section>
-								<apex:commandLink value="Add Groups" onclick="getAvailableGroups(); return false;"/>
+								<apex:inputCheckbox id="shareOnProfile" title="{!$Label.LBL_Share_on_Profile}"/>
+								&nbsp;<apex:outputLabel for="shareOnProfile" value="{!$Label.LBL_Share_on_Profile}"/>
+							</section>
+							<section>
+								<apex:commandLink value="Add Groups" onclick="getAvailableGroups(false); return false;" styleClass="addGroups"/>
 							</section>
 						</fieldset>
 					</div>
-					<div id="availGroups">
-						
-					</div>
+					<apex:outputPanel id="availGroupsPanel" layout="Block">
+						<apex:inputHidden id="availGroupsOut" value="{!availGroups}" />
+						<div class="panel-group acc-v1" id="accordion-1">
+							<apex:variable value="{!1}" var="rowNum"/>
+							<apex:repeat value="{!AvailableGroups}" var="ag">
+								<div id="tName" class="panel panel-default" >
+									<div class="panel-heading">
+										<h4 class="panel-title">
+											<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#accordion-1" aria-expanded="false" href="#collapse-{!rowNum}">{!ag.TagName}</a>
+										</h4>
+									</div>
+									<div id="collapse-{!rowNum}" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;" >
+										<div class="panel-body">
+											<ul class="list-unstyled blog-tags">
+												<apex:repeat value="{!ag.wrapperGroup}" var="group">
+													<li><a href="javascript:;" onclick="addtti('{!group.id}','{!group.name}');"><i class="fa fa-users"></i>&nbsp;{!group.name}</a>
+													</li>
+												</apex:repeat>
+											</ul>
+										</div>
+									</div>
+								</div>
+								<apex:variable var="rowNum" value="{!rowNum + 1}"/>	
+							</apex:repeat>
+							<br/><apex:commandButton id="doneBtn" value="Done" onclick="getAvailableGroups(true); return false;" styleClass="btn-u btn-u-primary"/>
+						</div>
+					</apex:outputPanel>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn-u btn-u-default margin-right-10" data-dismiss="modal">Close</button>
@@ -145,6 +169,7 @@
 			</div>
 		</div>
 	</div>
+	<apex:actionFunction action="{!availableGroupsProcess}" name="availableGroupsProcess" rerender="availGroupsPanel"/>
 	<script>
 
 		var searchGroups = _.debounce(function(query, process) {
@@ -168,6 +193,7 @@
 
 		$(document).ready(function() {
 			if('{!showShareButton}' == 'false') $("#shareButton").hide();
+			$("[id $= 'availGroupsPanel']").hide();
 			$('#groupsInput').typeahead({
 				source:function (query, process) {
 					searchGroups(query, process);
@@ -223,12 +249,15 @@
 			var shareComment = $("[id *= 'commentArea']").val();
 			var sobjId = window.location.href.split("id=")[1];
 			var linkName = $("input[id *='linkName']").val();
+			var shareOnProfile = $("input[id $='shareOnProfile']").is(':checked');
+			console.log($("input[id $='shareOnProfile']"));
 			Visualforce.remoting.Manager.invokeAction(
 				'{!$RemoteAction.CommunityShareController.shareForGroups}',
 				groupsIds,
 				shareComment,
 				linkName,
 				sobjId,
+				shareOnProfile,
 				function(result, event) {
 					if(result.split('ERR').length > 1){
 						var div = document.createElement('div');
@@ -243,27 +272,35 @@
 			);
 		}
 
-		function getAvailableGroups(){
-			Visualforce.remoting.Manager.invokeAction(
-				'{!$RemoteAction.CommunityShareController.getAvailableGroups}',
-				function(result, event) {
-			console.log("result",result);	
-				var div = document.createElement('div');
-				div.innerHTML = result;
-				var gdata = JSON.parse(div.firstChild.nodeValue);
-				_.each(gdata, function(gDataItems){
-					$("#availGroups").html('<div id="tagForGroup">'+gDataItems.TagName+'</div>');
-					_.each(gDataItems.wrapperGroup, function(wrap){
-						$("#tagForGroup").append('<div id='+wrap.id+'>'+wrap.name+'</div>');
-					})
-				})
-				console.log("=======finish============");
-
-				}
-			);
-
+		function getAvailableGroups(bool){
+			var a = '{!availGroups}';
+			if($("[id $= 'availGroupsOut']").val() == "false"){
+				availableGroupsProcess();
+			}
+			if(bool == false){
+				$("[id $= 'availGroupsPanel']").show();
+				_.each($(".sky-form section"),function(item){
+					if(item.id == "") {
+						item.style.display = "none";
+					}
+				});
+				$(".modal-footer").hide();
+			}else {
+				$("[id $= 'availGroupsPanel']").hide();
+				_.each($(".sky-form section"),function(item){
+					item.style.display = "block";
+				});
+				$(".modal-footer").show();
+			}
 		}
 
+		function toggleFunc(tag){
+			var tagId = tag.id.toString();
+			tagId = tagId.split("_")[1];
+			var grId = "#gr_"+tagId;
+			$(grId).toggle();
+		}
+		
 		$("[id$=commentArea]").attr('placeholder','{!$Label.LBL_Link_InputBox}');
 		$("[id$=inGroup]").attr('list','list');
 
