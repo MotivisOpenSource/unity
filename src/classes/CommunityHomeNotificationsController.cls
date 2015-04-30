@@ -58,7 +58,6 @@ global without sharing class CommunityHomeNotificationsController {
 		
 		String userId = UserInfo.getUserId();
 		String userType = UserInfo.getUserType();
-		
 		Set<Id> managersIds = new Set<Id>();
 		Set<Id> controlsIds = new Set<Id>();
 		List<FeedItem> feedsPosted = new List<FeedItem>();
@@ -66,9 +65,9 @@ global without sharing class CommunityHomeNotificationsController {
         Map<Id, List<String>> userPhotoAndName = new Map<Id, List<String>>();
         List<NotificationWrapper> hpGroupsFeeds = new List<NotificationWrapper>();
         Map<Id, Id> gControlGroups = new Map<Id, Id>();
-    	
         List<EntitySubscription> follows = new List<EntitySubscription>();
         Set<Id> followsIds = new Set<Id>();
+
     // get Group_Control 
     // where user is owner or manager
 		List<Community_Group_Manager__c> cGManagers = [SELECT Manager_Role__c, Group_Manager_User__c, Group_Control__c 
@@ -80,7 +79,6 @@ global without sharing class CommunityHomeNotificationsController {
 		for(Community_Group_Manager__c cGManager : cGManagers){
     		managersIds.add(cGManager.Group_Control__c);
 		}
-
 		
         if(userType.equalsIgnoreCase('Standard')){
         	follows = [SELECT Id, ParentId, SubscriberId, NetworkId 
@@ -104,7 +102,6 @@ global without sharing class CommunityHomeNotificationsController {
         	controlsIds.add(gControl.Id);
         	gControlGroups.put(gControl.Id, gControl.Chatter_Group_ID__c);
         }
-
 
     // get feed from groups
 		List<FeedItem> feeds = [SELECT Id, ParentId, Type, CommentCount, LinkUrl, LastModifiedDate, CreatedById, Visibility 
