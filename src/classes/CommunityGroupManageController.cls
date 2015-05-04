@@ -38,7 +38,7 @@ public without sharing class CommunityGroupManageController {
 
 	public static Community_Group_Control__c pullGroupControlRecord(Boolean useFieldSet) {
 		//useFieldSet = true; //hardcode - 
-		String chatterGroupId = ApexPages.currentPage().getParameters().get('g');
+		String chatterGroupId = ApexPages.currentPage().getParameters().get('gr');
 		String groupControlId = ApexPages.currentPage().getParameters().get('gc');
 		if (String.isNotBlank(chatterGroupId) || String.isNotBlank(groupControlId)) {
 			Set<String> collectedFields = new Set<String> {'Id', 'Name', 'Chatter_Group_ID__c', 'Type__c', 'OwnerId'};

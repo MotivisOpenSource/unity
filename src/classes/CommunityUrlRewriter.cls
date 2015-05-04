@@ -11,6 +11,7 @@ global without sharing class CommunityUrlRewriter implements Site.UrlRewriter {
 	global PageReference mapRequestUrl(PageReference myFriendlyUrl) {
 		String url = myFriendlyUrl.getUrl();
 		PageReference redirect;
+		
 		if (myFriendlyUrl.getParameters().containsKey('nr')) {
 			
 		}
@@ -22,14 +23,22 @@ global without sharing class CommunityUrlRewriter implements Site.UrlRewriter {
 			if (myM.find()) {
 				uId = myM.group(1);
 				redirect.getparameters().put('id', uId);
+				
 			}
 		}
 		else if (url.contains(STANDARD_CHATTER_PAGE)) {
 			redirect = Page.CommunityFeed_MyFeed;
+			
 		}
-		/*if (url.contains(STANDARD_GROUP_DETAIL_PAGE)) {
-			redirect = Page.CommunityProfilePage;
-		}*/
+		
+		if (url.contains(STANDARD_GROUP_DETAIL_PAGE)) {			
+			redirect = Page.CommunityGroupDetailPage;			
+			redirect.getparameters().put('gr', String.valueOf(Id.valueof( myFriendlyUrl.getparameters().get('g') ) ) );				
+			if(myFriendlyUrl.getparameters().get('filter')=='requests') {
+				redirect.setAnchor('#newConversationModal');
+			}								
+		}		
+		
 		return redirect;
 		/*String url = myFriendlyUrl.getUrl();
 		Boolean noredirect = myFriendlyUrl.getParameters().containsKey('noredirect')
@@ -83,7 +92,7 @@ global without sharing class CommunityUrlRewriter implements Site.UrlRewriter {
 		}*/
 	}
 
-	global List<PageReference> generateUrlFor(List<PageReference> mySalesforceUrls) {
+	global List<PageReference> generateUrlFor(List<PageReference> mySalesforceUrls) {		
 		return NULL;
 	}
 
