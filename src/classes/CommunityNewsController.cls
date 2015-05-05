@@ -73,9 +73,9 @@ public with sharing class CommunityNewsController {
 					ApexPages.addMessages(e);
 				}
 			}
-			else {
+			/*else {
 				news.Entry_Date__c = Datetime.now();
-			}
+			}*/
 			recordPulled = true;
 		}
 
@@ -172,10 +172,6 @@ public with sharing class CommunityNewsController {
 				Database.rollback(sp);
 			}
 			if (imgBody != NULL && String.isNotBlank(imgFileName)) {
-				List<Attachment> purgeImageFiles = [SELECT Id FROM Attachment WHERE ParentId = :news.Id AND Name LIKE 'Thumbnail_%'];
-				if (purgeImageFiles.size() > 0) {
-					delete purgeImageFiles;
-				}
 				Attachment aTemp = new Attachment(Name='Thumbnail_' + imgFileName, Body=imgBody, ParentId=news.Id, ContentType=imgContentType);
 				insert aTemp;
 				news.Image_Path__c = '/servlet/servlet.FileDownload?file=' + aTemp.Id;
@@ -221,7 +217,7 @@ public with sharing class CommunityNewsController {
 	}
 
 	public PageReference cancel() {
-		if (!clearUpdateTemporaryFiles() && news.Id != NULL) {
+		if (!clearUpdateTemporaryFiles() && mode == 'preview') {
 			delete news;
 		}
 		PageReference pr;
@@ -307,14 +303,13 @@ public with sharing class CommunityNewsController {
 
 	// LIST SECTION
 	// -- variables --
-	public List<List<NewsItem>> newsPage { get;set; }
+	public transient List<List<NewsItem>> newsPage { get;set; }
 	public Integer newsPageNumber { get;set; }
 	public Integer newsPagesTotal { get;set; }
 	public Boolean newsHasNext { get;set; }
 	public Boolean newsHasPrevious { get;set; }
-	public Map<String, List<Tag>> tagsMap { get; set; }
 
-	private Integer NEWS_PAGE_SIZE = 16;
+	private Integer NEWS_PAGE_SIZE = 12;
 	private String TAGS_FILTER_NAME = 't';
 
 	// -- methods --
@@ -360,7 +355,9 @@ public with sharing class CommunityNewsController {
 			divider++;
 			//communityNewsIdList.add(nQueryList[ii].Id);
 		}
-		//tagsMap = getTags(Page.CommunityNews.getUrl(), communityNewsIdList);
+		if (dividedList.size() > 0) {
+			newsPage.add(dividedList);
+		}
 	}
 
 	public void newsNextPage() {
@@ -381,66 +378,6 @@ public with sharing class CommunityNewsController {
 	public void newsFirstPage() {
 		newsPageNumber = 1;
 		initList();
-	}
-
-	private Map<String, List<Tag>> getTags(String rPage, List<String> communityNewsIdList) {
-
-		Map<String, List<Tag>> result = new Map<String, List<Tag>>();
-		Map<String, List<String>> eventsAndTagsMap = new Map<String, List<String>>();
-		Map<Id, Community_Tag__c> communityTagsMap = new Map<Id, Community_Tag__c>();
-
-		String query = 'SELECT Id, Community_Tag__c, Community_News__c FROM Community_News_Tag__c WHERE Community_News__c IN: communityNewsIdList';
-		List<SObject> sObjectList = Database.query(query);
-		Set<String> tagIds = new Set<String>();
-		for (SObject objItem : sObjectList) {
-			tagIds.add((String) objItem.get('Community_Tag__c'));
-			String communityEventId = (String) objItem.get('Community_News__c');
-			if (eventsAndTagsMap.get(communityEventId) == NULL) {
-				eventsAndTagsMap.put(communityEventId, new List<String>{(String) objItem.get('Community_Tag__c')});
-			}
-			else {
-				eventsAndTagsMap.get(communityEventId).add((String) objItem.get('Community_Tag__c'));
-			}
-
-		}
-		communityTagsMap = new Map<Id, Community_Tag__c>([
-			SELECT Id, Name, Tag_Theme_UniqueID__c, Community_Theme__r.Name
-			FROM Community_Tag__c
-			WHERE Id IN :tagIds
-		]);
-		for (String Item : eventsAndTagsMap.keySet()) {
-
-			for (String  eventsAndTagsMapItem : eventsAndTagsMap.get(Item)) {
-				Community_Tag__c CommunityTagItem = communityTagsMap.get(eventsAndTagsMapItem);
-				Tag tag = new Tag();
-				tag.Name = CommunityTagItem.Community_Theme__r.Name + ' > ' + CommunityTagItem.Name;
-				tag.Url = rPage + '?t=' + CommunityTagItem.Id;
-
-				if (result.get(Item) != NULL) {
-					result.get(Item).add(tag);
-				}
-				else {
-					result.put(Item, new List<Tag>{tag});
-				}
-			}
-
-		}
-		for (String Item : communityNewsIdList) {
-			if (result.get(Item) == NULL) {
-				Tag tag = new Tag();
-				tag.Name = '';
-				tag.Url = 'null';
-				result.put(Item, new List<Tag>{tag});
-			}
-
-		}
-
-		return result;
-	}
-
-	public class Tag {
-		public String Url { get; set; }
-		public String Name { get; set; }
 	}
 
 	public class NewsItem {

@@ -123,11 +123,12 @@ public with sharing class CommunityRegTermsController {
 			}
 			Integer ns = leftSideBar.nextStep();
 			if (ns != -1) {
-				currentContact.Reg_Completed__c = Datetime.now();
 				pageRef = Page.CommunityRegTerms;
 				pageRef.getParameters().put('step', String.valueOf(ns));
 			}
 			else {
+				currentContact.Reg_Completed__c = Datetime.now();
+				currentUser.Completed_Registration_Date__c = Datetime.now();
 				pageRef = Page.CommunityHome;
 			}
 			update currentContact;

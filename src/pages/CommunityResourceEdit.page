@@ -7,7 +7,6 @@
 			<style>
 				.calert h4 { font-size:1.25em; margin-top:-5px; color:inherit;}
 				.calert .messageText { height:20px; color:inherit;}
-				body.modal-open { padding-right: 0 !important; overflow: auto; }
 			</style>
 			<apex:pageMessages id="pageMessages"/>
 			<apex:pageBlockButtons >

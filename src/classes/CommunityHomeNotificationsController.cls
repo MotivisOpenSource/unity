@@ -58,16 +58,17 @@ global without sharing class CommunityHomeNotificationsController {
 		
 		String userId = UserInfo.getUserId();
 		String userType = UserInfo.getUserType();
+		
 		Set<Id> managersIds = new Set<Id>();
 		Set<Id> controlsIds = new Set<Id>();
 		List<FeedItem> feedsPosted = new List<FeedItem>();
         Set<Id> userPostedIds = new Set<Id>();
         Map<Id, List<String>> userPhotoAndName = new Map<Id, List<String>>();
         List<NotificationWrapper> hpGroupsFeeds = new List<NotificationWrapper>();
-        Map<Id, Id> gControlGroups = new Map<Id, Id>();
+        Map<Id, List<String>> gControlGroups = new Map<Id, List<String>>();
+    	
         List<EntitySubscription> follows = new List<EntitySubscription>();
         Set<Id> followsIds = new Set<Id>();
-
     // get Group_Control 
     // where user is owner or manager
 		List<Community_Group_Manager__c> cGManagers = [SELECT Manager_Role__c, Group_Manager_User__c, Group_Control__c 
@@ -79,6 +80,7 @@ global without sharing class CommunityHomeNotificationsController {
 		for(Community_Group_Manager__c cGManager : cGManagers){
     		managersIds.add(cGManager.Group_Control__c);
 		}
+
 		
         if(userType.equalsIgnoreCase('Standard')){
         	follows = [SELECT Id, ParentId, SubscriberId, NetworkId 
@@ -86,9 +88,10 @@ global without sharing class CommunityHomeNotificationsController {
         				WHERE SubscriberId = :userId
         				];
         }
-	    System.debug('follow = '+follows);
+        Schema.DescribeSObjectResult cg = Community_Group_Control__c.sObjectType.getDescribe();
+	    String keyPrefixCG = cg.getKeyPrefix();
 	    for(EntitySubscription follow : follows){
-	    	if(String.valueOf(follow.ParentId).substring(0,3) == 'a02'){
+	    	if(String.valueOf(follow.ParentId).substring(0,3).equalsIgnoreCase(keyPrefixCG)){
 	    		followsIds.add(follow.ParentId);
 	    	}
 	    }    	 
@@ -100,8 +103,9 @@ global without sharing class CommunityHomeNotificationsController {
         
         for(Community_Group_Control__c gControl : gControls){
         	controlsIds.add(gControl.Id);
-        	gControlGroups.put(gControl.Id, gControl.Chatter_Group_ID__c);
+        	gControlGroups.put(gControl.Id, new List<String>{gControl.Chatter_Group_ID__c, gControl.Name});
         }
+
 
     // get feed from groups
 		List<FeedItem> feeds = [SELECT Id, ParentId, Type, CommentCount, LinkUrl, LastModifiedDate, CreatedById, Visibility 
@@ -129,8 +133,8 @@ global without sharing class CommunityHomeNotificationsController {
         	hpGroupsFeeds.add(new NotificationWrapper(
 						feedPosted.CreatedById,
 						userPhotoAndName.get(feedPosted.CreatedById)[1].replace(Site.getBaseUrl(), ''),
-						Label.LBL_Notifications_Post,
-						prepareUrl(Page.CommunityGroupManager.getUrl())+'?g='+gControlGroups.get(feedPosted.ParentId),
+						Label.LBL_Notifications_Post.replace('{0}',gControlGroups.get(feedPosted.ParentId)[1]),
+						prepareUrl(Page.CommunityGroupManager.getUrl())+'?g='+gControlGroups.get(feedPosted.ParentId)[0],
 						feedPosted.LastModifiedDate,
 						userPhotoAndName.get(feedPosted.CreatedById)[0]));
         }

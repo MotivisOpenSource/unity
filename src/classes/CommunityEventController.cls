@@ -308,402 +308,112 @@ public with sharing class CommunityEventController {
 
 	// LIST SECTION
 	// -- variables --
-	public CommunityListViewBase listView { get; set; }
-	public Integer pageNumber { get; set; }
-	public String CurrentFilter { get; set; }
-	public Map<String, List<Tag>> tagsMap { get; set; }
+	public transient List<List<EventItem>> eventsPage { get;set; }
+	public Integer eventsPageNumber { get;set; }
+	public Integer eventsPagesTotal { get;set; }
+	public Boolean eventsHasNext { get;set; }
+	public Boolean eventsHasPrevious { get;set; }
 
-	private final Integer NEWS_PAGE_SIZE = 25;
-	private final String TAGS_FILTER_NAME = 't';
+	private Integer EVENTS_PAGE_SIZE = 12;
+	private String TAGS_FILTER_NAME = 't';
 
 	// -- methods --
 	private void initList() {
-
-		String tagsIdsString = ApexPages.currentPage().getParameters().get(TAGS_FILTER_NAME);
-		String idCommunityEventTag = '';
-
+		Datetime eNow = Datetime.now();
+		Id userId = UserInfo.getUserId();
+		String eQuery = 'SELECT Id, Name__c, Teaser__c, Start__c FROM Community_Events__c';
+		//eQuery += ' WHERE Start__c != NULL';
+		eQuery += ' WHERE Start__c != NULL AND Start__c <= :eNow AND (Public__c = true OR OwnerId = :userId) AND (End__c = NULL OR End__c >= :eNow)';
+		Set<Id> cnIds = new Set<Id>();
 		try {
-			if (String.isNotBlank(tagsIdsString)) {
-				Id tagId = Id.valueOf(tagsIdsString);
-				List<Id> cnIds = new List<Id>();
-				for (Community_Event_Tag__c cnt : [
-					SELECT Community_Event__c
-					FROM Community_Event_Tag__c
-					WHERE Community_Event__r.Start__c >= TODAY
-						AND Community_Event__r.End__c > TODAY
-						AND Community_Tag__c = :tagId
-				]) {
-					cnIds.add(cnt.Community_Event__c);
-				}
-				idCommunityEventTag = createQueryStringId(cnIds);
-			}
-			/*---*
 			Map<String, String> pageParams = ApexPages.currentPage().getParameters();
 			if (pageParams.containsKey('t') && String.isNotBlank(pageParams.get('t'))) {
-				cnIds = CommunitySearchController.filterTags(pageParams.get('t'), 'Community_News__c');
-				nQuery += ' AND Id IN :cnIds';
+				cnIds = CommunitySearchController.filterTags(pageParams.get('t'), 'Community_Events__c');
+				eQuery += ' AND Id IN :cnIds';
 			}
 			else if (pageParams.containsKey('s') && String.isNotBlank(pageParams.get('s'))) {
-				cnIds = CommunitySearchController.performSearch(pageParams.get('s'), 'Community_News__c');
-				nQuery += ' AND Id IN :cnIds';
+				cnIds = CommunitySearchController.performSearch(pageParams.get('s'), 'Community_Events__c');
+				eQuery += ' AND Id IN :cnIds';
 			}
-			/*---*/
-		}
+		} 
 		catch (Exception e) {
 			//TO DO: Create Filter Error Message
 		}
+		eQuery += ' ORDER BY Start__c ASC, Name__c ASC LIMIT 10000';
+		List<Community_Events__c> eQueryList = database.query(eQuery);
+		Integer eqlSize = eQueryList.size();
+		eventsPagesTotal = eqlSize / EVENTS_PAGE_SIZE + ((Math.mod(eqlSize, EVENTS_PAGE_SIZE) == 0) ? 0 : 1);
+		eventsPagesTotal = eventsPagesTotal == 0 ? 1 : eventsPagesTotal;
+		eventsPageNumber = eventsPageNumber == NULL ? 1 : eventsPageNumber;
+		eventsHasNext = eventsPageNumber < eventsPagesTotal;
+		eventsHasPrevious = eventsPageNumber > 1;
+		Integer startCopyInterval = eventsPageNumber > 1 ? ((eventsPageNumber - 1) * EVENTS_PAGE_SIZE) : 0;
+		Integer endCopyInterval = (eqlSize <= (startCopyInterval + EVENTS_PAGE_SIZE)) ? eqlSize : (startCopyInterval + EVENTS_PAGE_SIZE);
 
-		listView = new CommunityListViewBase();
-		listView.DefaultRecordsPerPage = NEWS_PAGE_SIZE;
-		listView.ObjectName = 'Community_Events__c';
-		listView.QueryFields = new List<String> {'Name__c', 'Start__c', 'End__c', 'Teaser__c'};
-		listView.OrderByField = 'Start__c, Name__c';
-		listView.OrderByDirection = 'ASC';
-		listView.LimitValue = 45000;
+		Set<Id> eventsPageIds = new Set<Id>();
+		for (Integer ii = startCopyInterval; ii < endCopyInterval; ii++) {
+			eventsPageIds.add(eQueryList[ii].Id);
+		}
 
-		if (CurrentFilter == NULL || CurrentFilter == Label.LBL_All_Events) {
-			listView.WhereCondition = 'Start__c >= TODAY AND Public__c = TRUE ';
-			if (String.isNotBlank(tagsIdsString)) {
-				listView.WhereCondition = 'Start__c >= TODAY AND Public__c = TRUE AND Id IN (' + filterAllEvents(tagsIdsString) + ')';
-			}
-		}
-		else if (CurrentFilter == Label.LBL_New_Group_Events) {
-			listView.WhereCondition = 'Public__c = TRUE AND Id IN (' + filterAllGroup('') + ')';
-			if (String.isNotBlank(tagsIdsString)) {
-				listView.WhereCondition = 'Public__c = TRUE AND Id IN (' + filterAllGroup(tagsIdsString) + ') ';
-			}
-		}
-		else if (CurrentFilter == Label.LBL_My_Group_Events) {
-			listView.WhereCondition = 'Start__c >= TODAY AND Public__c = TRUE AND Id IN ( ' + filterMyGroup('') + ' )';
-			if (String.isNotBlank(tagsIdsString)) {
-				listView.WhereCondition = 'Start__c >= TODAY AND Public__c = TRUE AND Id IN (' + filterMyGroup(tagsIdsString) + ')';
-			}
-		}
-		else if (CurrentFilter == Label.LBL_My_Events){
-			String UserId = UserInfo.getUserId();
-			listView.WhereCondition = 'Start__c >= TODAY AND OwnerId = \'' + UserId + '\' ';
-			if (String.isNotBlank(tagsIdsString)) {
-				listView.WhereCondition += 'AND Id IN (' + idCommunityEventTag + ')';
+		Map<Id,List<String>> referencedGroupsMap = new Map<Id,List<String>>();
+		for (Community_Event_Tag__c cetItem : [
+								SELECT Community_Event__c, Community_Group_Control__c, Community_Group_Control__r.Name
+								FROM Community_Event_Tag__c WHERE Community_Group_Control__c != NULL AND Community_Event__c IN :eventsPageIds
+									]) {
+			if (!referencedGroupsMap.containsKey(cetItem.Community_Event__c)) {
+				referencedGroupsMap.put(cetItem.Community_Event__c, new List<String> {
+					cetItem.Community_Group_Control__r.Name,
+					cetItem.Community_Group_Control__c
+				});
 			}
 		}
 
-		listView.FilterByList = new List<SelectOption> {
-			new SelectOption(Label.LBL_All_Events, Label.LBL_All_Events),
-			new SelectOption(Label.LBL_New_Group_Events, Label.LBL_New_Group_Events),
-			new SelectOption(Label.LBL_My_Group_Events, Label.LBL_My_Group_Events),
-			new SelectOption(Label.LBL_My_Events,Label.LBL_My_Events)
-		};
+		Map<Id,List<Tag>> eventTagsMap = new Map<Id,List<Tag>>();
+		for (Community_Event_Tag__c cetItem2 : [
+								SELECT Community_Event__c, Community_Tag__c, Community_Tag__r.Name, Community_Tag__r.Community_Theme__c, Community_Tag__r.Community_Theme__r.Name
+								FROM Community_Event_Tag__c WHERE Community_Tag__c != NULL AND Community_Event__c IN :eventsPageIds
+									]) {
+			if (!eventTagsMap.containsKey(cetItem2.Community_Event__c)) {
+				eventTagsMap.put(cetItem2.Community_Event__c, new List<Tag>());
+			}
+			eventTagsMap.get(cetItem2.Community_Event__c).add(new Tag(cetItem2));
+		}
 
-		listView.initQueryLocator();
-		createTags();
-
-		return;
+		eventsPage = new List<List<EventItem>>();
+		Integer divider = 1;
+		List<EventItem> dividedList = new List<EventItem>();
+		for (Integer ii = startCopyInterval; ii < endCopyInterval; ii++) {
+			if (divider == 5) {
+				eventsPage.add(dividedList);
+				dividedList = new List<EventItem>();
+				divider = 1;
+			}
+			dividedList.add(new EventItem(eQueryList[ii], referencedGroupsMap.get(eQueryList[ii].Id), eventTagsMap.get(eQueryList[ii].Id)));
+			divider++;
+		}
+		if (dividedList.size() > 0) {
+			eventsPage.add(dividedList);
+		}
 	}
 
-	private String filterAllEvents(String tagId) {
-
-		List<String> communityEventList = new List<String>();
-		String result = '';
-		Map<Id, CollaborationGroup> collaborationGroupMap = new Map<Id, CollaborationGroup>();
-		List<Community_Group_Control__c> communityGroupControllList = new List<Community_Group_Control__c>();
-		List<Community_Event_Tag__c> communityEventTagList = new List<Community_Event_Tag__c>();
-
-		collaborationGroupMap = new Map<Id, CollaborationGroup>([
-			SELECT CollaborationGroup.Id
-			FROM CollaborationGroup
-		]);
-
-		if (!collaborationGroupMap.isEmpty()) {
-			communityGroupControllList = [
-				SELECT Id, Chatter_Group_ID__c, Discoverable__c
-				FROM Community_Group_Control__c
-				WHERE Chatter_Group_ID__c IN: collaborationGroupMap.keySet()
-//				AND Discoverable__c = true
-			];
-		}
-
-/*		String query = 'SELECT Community_Event__c FROM Community_Event_Tag__c ';
-		query += ' WHERE Community_Event__r.Start__c >= TODAY ';
-		query += ' AND Community_Event__r.End__c > TODAY AND ( Community_Group_Control__c = NULL ';
-		query += ' OR Community_Group_Control__c IN: communityGroupControllList ) ';
-		if (String.isNotBlank(tagId)) {
-			query += ' AND Community_Tag__c = :tagId ';
-		}
-		communityEventTagList = Database.query(query); */
-		if (String.isNotBlank(tagId)) {
-			String query = 'SELECT Community_Event__c FROM Community_Event_Tag__c ';
-//			query += ' WHERE Community_Event__r.Start__c >= TODAY ';
-//			query += ' AND Community_Event__r.End__c > TODAY ';
-			query += ' WHERE Community_Tag__c = :tagId ';
-			query += 'LIMIT 45000';
-			communityEventTagList = Database.query(query);
-		}
-
-		if (!communityEventTagList.isEmpty()) {
-			for (Community_Event_Tag__c communityEventTagItem : communityEventTagList) {
-				communityEventList.add(communityEventTagItem.Community_Event__c);
-			}
-		}
-
-		result = createQueryStringId(communityEventList);
-
-		return result;
+	public void eventsNextPage() {
+		eventsPageNumber++;
+		initList();
 	}
 
-	private String filterMyGroup(String communityEventIds) {
-
-		String result = '';
-		List<String> communityEventList = new List<String>();
-		List<String> communityGroupControl = new List<String>();
-/*
-		String UserId = UserInfo.getUserId();
-		String query = 'SELECT Id, ParentId FROM EntitySubscription WHERE SubscriberId = :UserId ';
-		if (String.isNotBlank(communityEventIds)) {
-			query += 'AND ParentId IN ( ' + communityEventIds + ' )';
-		}
-		query += 'LIMIT 900';
-		List<EntitySubscription> sObjectList1 = Database.query(query);
-		if (!sObjectList1.isEmpty()) {
-			for (EntitySubscription EntitySubscriptionItem : sObjectList1) {
-				communityEventList.add(EntitySubscriptionItem.ParentId);
-			}
-		}
-
-		query = 'SELECT Id, Community_Group_Control__c FROM Community_Event_Tag__c WHERE Community_Event__c IN :communityEventList ';
-		List<Community_Event_Tag__c> sObjectList2 = Database.query(query);
-		if (!sObjectList2.isEmpty()) {
-			for (Community_Event_Tag__c communityGroupControlItem : sObjectList2) {
-				communityGroupControl.add(communityGroupControlItem.Community_Group_Control__c);
-			}
-		}
-*/
-		List<CollaborationGroupMember> collaborationGroupMemberList = [
-			SELECT MemberId, Id, CollaborationRole,
-				CollaborationGroupId,
-				CollaborationGroup.Id, CollaborationGroup.Name, CollaborationGroup.Description,
-				CollaborationGroup.InformationTitle, CollaborationGroup.InformationBody,
-				CollaborationGroup.SmallPhotoUrl, CollaborationGroup.FullPhotoUrl, CollaborationGroup.MemberCount,
-				CollaborationGroup.LastFeedModifiedDate,
-				CollaborationGroup.OwnerId, CollaborationGroup.NetworkId, CollaborationGroup.IsArchived,
-				CollaborationGroup.CollaborationType, CollaborationGroup.CanHaveGuests,
-				CollaborationGroup.Owner.Name, CollaborationGroup.Owner.FirstName,
-				CollaborationGroup.Owner.LastName, CollaborationGroup.Owner.SmallPhotoUrl
-			FROM CollaborationGroupMember
-//			WHERE CollaborationGroup.NetworkId =: currentCommunityId
-			WHERE MemberId =: UserInfo.getUserId()
-			ORDER BY CollaborationGroup.Name
-		];
-		Map<Id, CollaborationGroupMember> CollaborationGroupMemberMap = new Map<Id, CollaborationGroupMember>();
-		for (CollaborationGroupMember item : collaborationGroupMemberList) {
-			CollaborationGroupMemberMap.put(item.CollaborationGroup.Id, item);
-		}
-		Set<Id> memberOfGroupsIds = new Set<Id>(CollaborationGroupMemberMap.keySet());
-
-		if (!memberOfGroupsIds.isEmpty()) {
-			String query = '';
-
-			query = 'SELECT Id, Community_Event__c ';
-			query += 'FROM Community_Event_Tag__c ';
-			query += 'WHERE Community_Group_Control__r.Chatter_Group_ID__c IN :memberOfGroupsIds ';
-	//		query += 'AND Community_Event__r.End__c > TODAY AND Community_Event__r.Start__c >= TODAY ';
-			if (String.isNotBlank(communityEventIds)) {
-				query += 'AND Community_Tag__c = :communityEventIds ';
-			}
-			List<Community_Event_Tag__c> sObjectList3 = Database.query(query);
-			communityEventList = new List<String>();
-			if (!sObjectList3.isEmpty()) {
-				for (Community_Event_Tag__c communityEventTagItem : sObjectList3) {
-					if (!String.isBlank(communityEventTagItem.Community_Event__c)) {
-						communityEventList.add(communityEventTagItem.Community_Event__c);
-					}
-				}
-			}
-			result = createQueryStringId(communityEventList);
-		}
-
-		return result;
+	public void eventsLastPage() {
+		eventsPageNumber = eventsPagesTotal;
+		initList();
 	}
 
-	private String filterAllGroup(String tagId) {
-
-		List<String> communityEventList = new List<String>();
-		String result = '';
-		Map<Id, CollaborationGroup> collaborationGroupMap = new Map<Id, CollaborationGroup>();
-		List<Community_Group_Control__c> communityGroupControllList = new List<Community_Group_Control__c>();
-		List<Community_Event_Tag__c> communityEventTagList = new List<Community_Event_Tag__c>();
-
-		collaborationGroupMap = new Map<Id, CollaborationGroup>([
-			SELECT CollaborationGroup.Id
-			FROM CollaborationGroup
-		]);
-
-		if (!collaborationGroupMap.isEmpty()) {
-			communityGroupControllList = [
-				SELECT Id, Chatter_Group_ID__c, Discoverable__c
-				FROM Community_Group_Control__c
-				WHERE Chatter_Group_ID__c IN: collaborationGroupMap.keySet()
-//				AND Discoverable__c = true
-			];
-		}
-
-		String query = 'SELECT Community_Event__c FROM Community_Event_Tag__c WHERE Community_Event__r.Start__c >= TODAY ';
-		query += 'AND Community_Event__r.End__c > TODAY AND Community_Group_Control__c IN: communityGroupControllList ';
-		if (String.isNotBlank(tagId)) {
-			query += 'AND Community_Tag__c = :tagId ';
-		}
-		communityEventTagList = Database.query(query);
-
-		if (!communityEventTagList.isEmpty()) {
-			for (Community_Event_Tag__c communityEventTagItem : communityEventTagList) {
-				communityEventList.add(communityEventTagItem.Community_Event__c);
-			}
-		}
-		result = createQueryStringId(communityEventList);
-		return result;
+	public void eventsPreviousPage() {
+		eventsPageNumber--;
+		initList();
 	}
 
-	private String createQueryStringId(List<String> stringList) {
-		String result = '';
-		String sep = '';
-
-		if (!stringList.isEmpty()) {
-			for (String stringListItem : stringList) {
-				if (!String.isBlank(stringListItem)) {
-					result += sep + ' \'' + stringListItem + '\'';
-					sep = ', ';
-				}
-			}
-		}
-		else {
-			result = '\'\'';
-		}
-
-		return result;
-	}
-
-
-
-	public void nextPage() {
-
-		listView.itemsSetController.next();
-		createTags();
-
-		return;
-	}
-
-	public void lastPage() {
-
-		listView.itemsSetController.last();
-		createTags();
-
-		return;
-	}
-
-	public void previousPage() {
-
-		listView.itemsSetController.previous();
-		createTags();
-
-		return;
-	}
-
-	public void firstPage() {
-
-		listView.itemsSetController.first();
-		createTags();
-
-		return;
-	}
-
-	public void setPageNumber() {
-
-		listView.itemsSetController.setPageNumber(pageNumber);
-		createTags();
-
-		return;
-	}
-
-	private void createTags() {
-		List<String> eventIdList = new List<String>();
-		List<sObject> communityEventList = listView.itemsSetController.getRecords();
-
-		if (!communityEventList.isEmpty()) {
-			for (sObject communityEventItem : communityEventList) {
-				eventIdList.add(communityEventItem.Id);
-			}
-
-			tagsMap = getTags(
-				Page.CommunityEventsList.getUrl(),
-				eventIdList
-			);
-		}
-
-		return;
-	}
-
-	private Map<String, List<Tag>> getTags(String rPage, List<String> communityEventIdList) {
-
-		Map<String, List<Tag>> result = new Map<String, List<Tag>>();
-		Map<String, List<String>> eventsAndTagsMap = new Map<String, List<String>>();
-		Map<Id, Community_Tag__c> communityTagsMap = new Map<Id, Community_Tag__c>();
-		Set<String> tagIds = new Set<String>();
-
-		String query = 'SELECT Id, Community_Tag__c, Community_Event__c FROM Community_Event_Tag__c WHERE Community_Event__c IN: communityEventIdList';
-		List<SObject> sObjectList = Database.query(query);
-		if (!sObjectList.isEmpty()) {
-			for (SObject objItem : sObjectList) {
-				tagIds.add((String) objItem.get('Community_Tag__c'));
-				String communityEventId = (String) objItem.get('Community_Event__c');
-				if (eventsAndTagsMap.get(communityEventId) == NULL) {
-					eventsAndTagsMap.put(communityEventId, new List<String>{(String) objItem.get('Community_Tag__c')});
-				}
-				else {
-					eventsAndTagsMap.get(communityEventId).add((String) objItem.get('Community_Tag__c'));
-				}
-
-			}
-		}
-
-		communityTagsMap = new Map<Id, Community_Tag__c>([
-			SELECT Id, Name, Tag_Theme_UniqueID__c, Community_Theme__r.Name
-			FROM Community_Tag__c
-			WHERE Id IN :tagIds
-		]);
-		if (!communityTagsMap.isEmpty()) {
-			for (String Item : eventsAndTagsMap.keySet()) {
-
-				if (!eventsAndTagsMap.get(Item).isEmpty()) {
-					for (String  eventsAndTagsMapItem : eventsAndTagsMap.get(Item)) {
-						Community_Tag__c CommunityTagItem = communityTagsMap.get(eventsAndTagsMapItem);
-						if (CommunityTagItem != NULL) {
-							Tag tag = new Tag();
-							tag.Name = CommunityTagItem.Community_Theme__r.Name + ' > ' + CommunityTagItem.Name;
-							tag.Url = rPage + '?t=' + CommunityTagItem.Id;
-
-							if (result.get(Item) != NULL) {
-								result.get(Item).add(tag);
-							}
-							else {
-								result.put(Item, new List<Tag>{tag});
-							}
-						}
-					}
-				}
-
-			}
-		}
-		if (!communityEventIdList.isEmpty()) {
-			for (String Item : communityEventIdList) {
-				if (result.get(Item) == NULL) {
-					Tag tag = new Tag();
-					tag.Name = '';
-					tag.Url = 'null';
-					result.put(Item, new List<Tag>{tag});
-				}
-			}
-		}
-
-		return result;
+	public void eventsFirstPage() {
+		eventsPageNumber = 1;
+		initList();
 	}
 
 	public String urlForEditEvent {
@@ -734,62 +444,38 @@ public with sharing class CommunityEventController {
 		return String.isNotBlank(Site.getPathPrefix()) ? inUncouthUrl.replace('/apex/', Site.getPathPrefix() + '/') : inUncouthUrl;
 	}
 
-	public class Tag {
-		public String Url { get; set; }
-		public String Name { get; set; }
+	public String getTodayStr() {
+		return Label.LBL_Today_is + ' ' + Datetime.now().format('MM/dd/yyyy');
 	}
 
-	public class CommunityListViewBase {
+	public class EventItem {
+		public String id { get; set; }
+		public String name { get; set; }
+		public String teaser { get; set; }
+		public String eWhen { get; set; }
+		public String eGroupName { get; set; }
+		public String eGroupId { get; set; }
+		public List<Tag> tags { get; set; }
 
-		public ApexPages.StandardSetController itemsSetController { get; set; }
-		public List<String> QueryFields { get; set; }
-		public String ObjectName { get; set; }
-		public String OrderByField;
-		public String OrderByDirection;
-		public Integer LimitValue;
-		public String WhereCondition { get; set; }
-		public List<SelectOption> FilterByList { get; set; }
-		public String CurrentFilter { get; set; }
-		public Integer DefaultRecordsPerPage { get; set; }
-
-
-		public CommunityListViewBase() {
+		public EventItem(Community_Events__c ince, List<String> ing, List<Tag> intgs) {
+			id = ince.Id;
+			name = ince.Name__c;
+			teaser = ince.Teaser__c;
+			eWhen = ' ' + ince.Start__c.format('MM/dd/yyyy @ h.mm a');
+			eGroupName = ing == NULL ? NULL : ing[0];
+			eGroupId = ing == NULL ? NULL : ing[1];
+			tags = intgs == NULL ? new List<Tag>() : intgs;
 		}
+	}
 
-		public void initQueryLocator() {
-			String query = ('SELECT Id, ' + String.join(QueryFields, ', ')) + ' '
-				+ ('FROM ' + ObjectName + ' ')
-				+ (!String.isBlank(WhereCondition) ? 'WHERE ' + WhereCondition: ' ') + ' '
-				+ ((!String.isBlank(OrderByField) ? 'ORDER BY ' + OrderByField : ' ') + ' ')
-				+ ((!String.isBlank(OrderByDirection) ? OrderByDirection : ' ') + ' ')
-				+ ((LimitValue != NULL && LimitValue != 0) ? ('LIMIT ' + String.valueOf(LimitValue)) : ' ');
+	public class Tag {
+		public String id { get; set; }
+		public String name { get; set; }
 
-			system.debug(query);
-			Integer RecordOnPageSelected = itemsSetController == NULL ? DefaultRecordsPerPage : itemsSetController.getPageSize();
-			itemsSetController = new ApexPages.StandardSetController(Database.getQueryLocator(query));
-			itemsSetController.setPageSize(RecordOnPageSelected);
-		}
-		public String getCurrentPagePositionString() {
-			return Label.LBL_Page + ' ' + itemsSetController.getPageNumber() + ' ' + Label.LBL_of + ' ' + getTotalPagesCount();
-		}
-		public List<SelectOption> getRecordOnPageOptions() {
-			return new List<SelectOption> {
-				new SelectOption('10','10'),
-				new SelectOption('25','25')
-			};
-		}
-		public Integer getTotalPagesCount() {
-
-			Integer result = 0;
-
-			Integer totalRecords = itemsSetController.getResultSize();
-			Integer pageSize = itemsSetController.getPageSize();
-			result = (totalRecords / pageSize) + (Math.mod(totalRecords, pageSize) > 0 ? 1 : 0);
-			if (result == 0) {
-				result = 1;
-			}
-
-			return result;
+		public Tag(Community_Event_Tag__c cet) {
+			id = cet.Community_Tag__c;
+			name = cet.Community_Tag__r.Community_Theme__c == NULL ? '' : (cet.Community_Tag__r.Community_Theme__r.Name + ' > ');
+			name += cet.Community_Tag__r.Name;
 		}
 	}
 

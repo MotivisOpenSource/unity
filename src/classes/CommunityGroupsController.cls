@@ -230,19 +230,19 @@ public without sharing class CommunityGroupsController {
 					userTags.add(cpt.Community_Tag__c);
 				}
 			}
-			foundData = userTags.size() > 0;
-			if (foundData) {
+			if (userTags.size() > 0) {
 				for (Community_Group_Control_Tag__c cgctItem : [
 									SELECT Group_Control__r.Chatter_Group_ID__c FROM Community_Group_Control_Tag__c
 									WHERE Community_Tag__c IN :userTags AND Group_Control__c != NULL AND Group_Control__r.Chatter_Group_ID__c != NULL]) {
 					matchedTagedGroups.add(cgctItem.Group_Control__r.Chatter_Group_ID__c);
 				}
-				if (matchedTagedGroups.size() > 0) {
-					gQuery += ' AND Chatter_Group_ID__c IN :matchedTagedGroups';
-					foundData = true;
-				}
 			}
+			for (CollaborationGroupMemberRequest cgmrItem : [SELECT CollaborationGroupId FROM CollaborationGroupMemberRequest WHERE RequesterId =:UserInfo.getUserId() AND Status = 'Pending']) {
+				matchedTagedGroups.add(cgmrItem.CollaborationGroupId);
+			}
+			foundData = matchedTagedGroups.size() > 0;
 			if (foundData) {
+				gQuery += ' AND Chatter_Group_ID__c IN :matchedTagedGroups';
 				for (CollaborationGroupMember cgmItem2 : [
 						SELECT CollaborationGroupId FROM CollaborationGroupMember
 						WHERE CollaborationGroup.NetworkId = :Network.getNetworkId() AND MemberId = :UserInfo.getUserId()

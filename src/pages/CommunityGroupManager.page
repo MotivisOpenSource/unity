@@ -3,7 +3,6 @@
 <apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
 <apex:define name="body">
 <style type="text/css">
-	body.modal-open { padding-right: 0 !important; overflow: auto; }
 	.profile .profile-edit hr { margin: 10px 0 15px; }
 	.messageText { padding:15px 30px; margin-bottom:20px; border:1px solid #ebccd1; background-color:#f2dede; color:#a94442;}
 	.messageText span { display:none; }

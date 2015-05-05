@@ -390,8 +390,9 @@
     <fields>
         <fullName>Teaser__c</fullName>
         <deprecated>false</deprecated>
-        <description>Provide a teaser description for the Event, to be displayed on the Community</description>
+        <description>Provide a teaser description for the Event, to be displayed on the Event Listing page within the Community.</description>
         <externalId>false</externalId>
+        <inlineHelpText>The Teaser is shown on the Event Listing page for Events that are flagged as Public.</inlineHelpText>
         <label>Teaser</label>
         <length>140</length>
         <required>false</required>

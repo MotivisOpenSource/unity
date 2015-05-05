@@ -458,7 +458,7 @@
     </listViews>
     <listViews>
         <fullName>All_News_Active</fullName>
-        <booleanFilter>1 OR 2</booleanFilter>
+        <booleanFilter>1 AND 2</booleanFilter>
         <columns>NAME</columns>
         <columns>Title__c</columns>
         <columns>Teaser__c</columns>
@@ -472,13 +472,14 @@
         <columns>Comment_Expiration_Date__c</columns>
         <filterScope>Everything</filterScope>
         <filters>
-            <field>Expiration_Date__c</field>
-            <operation>greaterThan</operation>
+            <field>Entry_Date__c</field>
+            <operation>lessOrEqual</operation>
             <value>TODAY</value>
         </filters>
         <filters>
             <field>Expiration_Date__c</field>
-            <operation>equals</operation>
+            <operation>greaterOrEqual</operation>
+            <value>TODAY</value>
         </filters>
         <label>All News - Active</label>
         <language>en_US</language>

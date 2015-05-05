@@ -5,7 +5,6 @@
 	<style>
 		.profile-edit .headline { margin-bottom: 15px; }
 		.profile-edit .blog-photos li img { width: 36px; height: 36px; }
-		body.modal-open { padding-right: 0 !important; overflow: auto; }
 	</style>
 
 	<!--=== Breadcrumbs ===-->

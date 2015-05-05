@@ -77,23 +77,12 @@
 		<script src="{!$Resource.assets}/js/plugins/placeholder-IE-fixes.js"></script>
 	<![endif]-->
 
-	<!-- For Background Image -->
-	<script type="text/javascript" src="{!$Resource.assets}/plugins/backstretch/jquery.backstretch.min.js"></script>
 	<script>
 		jQuery(document).ready(function ($) {
 			"use strict";
 			$('.contentHolder').perfectScrollbar();
 		});
 	</script>
-	<apex:outputText id="bgiid" value="{!$Setup.Community_Template_Settings__c.Background_ImageID__c}" style="display:none;"/>
-	<apex:outputPanel layout="none" rendered="{!!ISBLANK($Setup.Community_Template_Settings__c.Background_ImageID__c)}">
-		<script type="text/javascript">
-			jQuery.backstretch([
-				'{!$Site.Prefix}/servlet/servlet.ImageServer?oid={!$Organization.Id}&id=' + jQuery('[id$=bgiid]').text()
-			]);
-		</script>
-	</apex:outputPanel>
-	<!-- End For Background Image -->
 
 	<!-- CHATTER PHOTO UPLOAD DIALOG -->
 	<div class="modal fade" id="chatterAvatarComponentUploadDialog" aria-live="assertive" role="dialog" tabindex="-1" aria-labelledby="chatterAvatarComponentUploadDialogLabel" aria-hidden="true">

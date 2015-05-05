@@ -1212,6 +1212,13 @@
         <value>Notfication Settings</value>
     </labels>
     <labels>
+        <fullName>LBL_Notifications</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Notifications</shortDescription>
+        <value>Notifications</value>
+    </labels>
+    <labels>
         <fullName>LBL_Notifications_Message</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -1223,7 +1230,7 @@
         <language>en_US</language>
         <protected>true</protected>
         <shortDescription>LBL Notifications Post</shortDescription>
-        <value>commented on your posting.</value>
+        <value>commented in the {0} manager feed.</value>
     </labels>
     <labels>
         <fullName>LBL_OldPassword</fullName>
@@ -1436,13 +1443,6 @@
         <value>Terms &amp; Conditions</value>
     </labels>
     <labels>
-        <fullName>LBL_Related_Tags</fullName>
-        <language>en_US</language>
-        <protected>true</protected>
-        <shortDescription>LBL Related Tags</shortDescription>
-        <value>Related Tags</value>
-    </labels>
-    <labels>
         <fullName>LBL_RequestToJoin</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -1638,6 +1638,13 @@
         <value>To Me</value>
     </labels>
     <labels>
+        <fullName>LBL_Today_is</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Today is</shortDescription>
+        <value>Today is</value>
+    </labels>
+    <labels>
         <fullName>LBL_Turn_Off_Group_Email</fullName>
         <language>en_US</language>
         <protected>false</protected>
@@ -1706,6 +1713,13 @@
         <protected>true</protected>
         <shortDescription>LBL WhatIFollow</shortDescription>
         <value>What I Follow</value>
+    </labels>
+    <labels>
+        <fullName>LBL_When</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL_When</shortDescription>
+        <value>When:</value>
     </labels>
     <labels>
         <fullName>LBL_of</fullName>

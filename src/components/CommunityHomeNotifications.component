@@ -13,7 +13,7 @@
 	</style>
 
 	<div class="profile">
-        <div class="headline"><h2><i class="fa fa-bell-o"></i> Notifications</h2></div>
+        <div class="headline"><h2><i class="fa fa-bell-o"></i> {!$Label.LBL_Notifications}</h2></div>
 		<div id="notif-panel"></div>
 	</div>
 

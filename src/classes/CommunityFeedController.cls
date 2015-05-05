@@ -491,7 +491,52 @@ global without sharing class CommunityFeedController {
 		return feeds(inParentId, inFeedType, NULL);
 	}
 
+	@RemoteAction
+	global static String werewolfTextRemote(String intxtr, String jsStr) {
+		ChatterActionLayout layout = (ChatterActionLayout)JSON.deserialize(jsStr,ChatterActionLayout.class);			
+		String intxt = layout.items[0].value;
+System.debug('intxt = '+intxt);
+System.debug('layout.items[1].value = '+layout.items[1].value);
+System.debug('layout.items[2].value = '+layout.items[2].value);		
+		Body result = new Body();
+		while(intxt.length() > 0) {
+			Integer index = intxt.indexOf('@[');
+			index = index == -1 ? intxt.length() : index;
+			MessageSegments msi = new MessageSegments();
+			result.messageSegments = new List<MessageSegments>();
+System.debug('index ==> '+index);	
+			if (index > 0) {
+				msi.text = intxt.substring(0, index);
+				result.messageSegments.add(msi);
+				intxt = intxt.substring(index, intxt.length());
+			}
+			else {
+				Integer endIndex = intxt.indexOf(']');
+System.debug('endIndex ==> '+endIndex);
+				if (endIndex != -1) {
+					try {
+						msi.record.id = Id.valueOf(intxt.substring(index + 2, endIndex));
+						result.messageSegments.add(msi);
+System.debug('msi.record.id ==> '+msi.record.id);
+					}
+					catch (Exception e) {
+						endIndex = index + 1;
+					}
+				}
+				else {
+					endIndex = index + 1;
+				}
+				intxt = intxt.substring(endIndex + 1, intxt.length());
+			}
+		}
+System.debug('result ==> '+result);
+System.debug('result.messageSegments ==> '+result.messageSegments);
+		return 'result';
+	}
+	
+
 	private static ConnectApi.MessageBodyInput werewolfText(String intxt) {
+System.debug('intxt = '+intxt);		
 		ConnectApi.MessageBodyInput result = new ConnectApi.MessageBodyInput();
 		result.messageSegments = new List<ConnectApi.MessageSegmentInput>();
 		while(intxt.length() > 0) {

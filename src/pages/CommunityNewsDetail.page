@@ -3,7 +3,6 @@
 <apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
 <apex:define name="body">
 	<style type="text/css">
-		body.modal-open { padding-right: 0 !important; overflow: auto; }
 		.row.u-page-block { background:#f8f8f8; border-top:3px solid #72c02c; }
 	</style>
 	<apex:outputPanel layout="block" rendered="{!!previewMode}" styleClass="breadcrumbs margin-bottom-10">

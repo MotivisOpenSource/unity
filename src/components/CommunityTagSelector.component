@@ -170,7 +170,7 @@
 							<div class="panel-body">
 								<ul class="list-unstyled blog-tags">
 									<apex:repeat value="{!theme.tags}" var="tag">
-										<li><a href="javascript:;" onclick="addtti('{!tag.id}','{!tag.fullname}');"><i class="fa fa-tags"></i>&nbsp;{!tag.name}</a></li>
+										<li><a href="javascript:;" onclick="addtti('{!tag.id}','{!JSENCODE(tag.fullname)}');"><i class="fa fa-tags"></i>&nbsp;{!tag.name}</a></li>
 									</apex:repeat>
 								</ul>
 							</div>

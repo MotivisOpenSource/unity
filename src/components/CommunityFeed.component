@@ -273,26 +273,12 @@ textarea.form-control {
 					</h4>
 					<% if (!p2.showLink && !p2.showContent && !p2.capabilities.poll) { %>
 						<p>	<% var p2p = parseFeedBody(p2.body);
-							if(p2p["id"]){
-								if(p2p["id"].indexOf("005") == 0){%>
-								<a href="{!$Page.CommunityProfilePage}?id=<%= p2p['id'] %>">@<%= p2p["name"] %></a>
-							<% }else{%>
-								<a href="{!$Page.CommunityGroupDetailPage}?g=<%= p2p['id'] %>">@<%= p2p["name"] %></a>
-							<%}
-							}%>
-							<% print(wrapnl(p2p["text"])); %>
+							print(wrapnl(p2p)); %>
 						</p> 
 					<% } %>
 					<% if (p2.showLink) { %>
 						<p>	<% var p2p = parseFeedBody(p2.body);
-							if(p2p["id"]){
-								if(p2p["id"].indexOf("005") == 0){%>
-								<a href="{!$Page.CommunityProfilePage}?id=<%= p2p['id'] %>">@<%= p2p["name"] %></a>
-							<% }else{%>
-								<a href="{!$Page.CommunityGroupDetailPage}?g=<%= p2p['id'] %>">@<%= p2p["name"] %></a>
-							<%}
-							}%>
-							<% print(wrapnl(p2p["text"])); %>
+							print(wrapnl(p2p)); %>
 						</p> 
 					<div class="d-link">
 					<a href="<%= p2.linkHref %>" target="_blank" >
@@ -304,15 +290,8 @@ textarea.form-control {
 					<% } %>
 					<% if (p2.showContent) { %>
 						<p>	<% var p2p = parseFeedBody(p2.body);
-							if(p2p["id"]){
-								if(p2p["id"].indexOf("005") == 0){%>
-								<a href="{!$Page.CommunityProfilePage}?id=<%= p2p['id'] %>">@<%= p2p["name"] %></a>
-							<% }else{%>
-								<a href="{!$Page.CommunityGroupDetailPage}?g=<%= p2p['id'] %>">@<%= p2p["name"] %></a>
-							<%}
-							}%>
-							<% print(wrapnl(p2p["text"])); %>
-						</p> 	
+							print(wrapnl(p2p)); %>
+						</p> 
 						<div class="file-section">
 							<% if (p2.capabilities.content.fileExtension) { %>
 								<span>
@@ -345,14 +324,7 @@ textarea.form-control {
 					<% } %>
 					<% if (p2.capabilities.poll && p2.capabilities.poll.choices) { %>
 						<p>	<% var p2p = parseFeedBody(p2.body);
-							if(p2p["id"]){
-								if(p2p["id"].indexOf("005") == 0){%>
-								<a href="{!$Page.CommunityProfilePage}?id=<%= p2p['id'] %>">@<%= p2p["name"] %></a>
-							<% }else{%>
-								<a href="{!$Page.CommunityGroupDetailPage}?g=<%= p2p['id'] %>">@<%= p2p["name"] %></a>
-							<%}
-							}%>
-							<% print(wrapnl(p2p["text"])); %>
+							print(wrapnl(p2p)); %>
 						</p> 
 						<fieldset class="pollfieldset">
 							<ul class="pollchoices">
@@ -422,15 +394,8 @@ textarea.form-control {
 									<strong><a href="{!$Page.CommunityProfilePage}?id=<%= c2.user.id %>"><%= c2.user.displayName %> <%= c2.user.role !== null ?  '(' + c2.user.role + ')': '' %></a></strong>
 									<small><%= c2.dateStr %></small>
 								</h4>
-								<p>	<% var c2p = parseFeedBody(c2.body);
-									if(c2p["id"]){
-										if(c2p["id"].indexOf("005") == 0){%>
-											<a href="{!$Page.CommunityProfilePage}?id=<%= c2p['id'] %>">@<%= c2p["name"] %></a>
-										<% }else{%>
-									<a href="{!$Page.CommunityGroupDetailPage}?g=<%= c2p['id'] %>">@<%= c2p["name"] %></a>
-									<%}
-									}%>
-									<% print(wrapnl(c2p["text"])); %>
+								<p>	<% var p2p = parseFeedBody(c2.body);
+									print(wrapnl(p2p)); %>
 								</p> 
 								<ul class="list-inline results-list pull-left">
 									<li><a href="#"><span><%= c2.countLikes %></span> Likes</a></li>
@@ -738,11 +703,12 @@ textarea.form-control {
 									var FeedItemInput = new sforce.SObject('FeedItem');
 									FeedItemInput.ParentId = '{!parentId}';
 									FeedItemInput.Type = 'ContentPost';
-									FeedItemInput.ContentData = new sforce.Base64Binary(binary).toString();;
+									FeedItemInput.ContentData = new sforce.Base64Binary(binary).toString();
 									FeedItemInput.ContentFileName = fName;
-									FeedItemInput.body = text;
+									chataction.layout.items[messageItemIndex].value = text;
+									FeedItemInput.body = parseBody(text, JSON.stringify(chataction.layout));
 									FeedItemInput.NetworkScope = '{!NetworkId}';
-
+									
 									sforce.connection.create([FeedItemInput],
 									{ 	onSuccess : function(result, source)
 									    {
@@ -798,6 +764,24 @@ textarea.form-control {
 				}
 				
 			}
+
+			function parseBody(text, jsontext){
+				console.log('text',text);
+				Visualforce.remoting.Manager.invokeAction(
+					'{!$RemoteAction.CommunityFeedController.werewolfTextRemote}',
+					text,
+					jsontext,
+					function(result, event){
+						if(result != undefined){
+							console.log('result',result);
+							//return JSON.parse(result.body);
+						}
+					}
+
+				);
+				return text;
+			}
+
 			function sendPostAction (jsontext, infilebstr, infiletype, infilename) {
 				Visualforce.remoting.timeout = 120000;
 				Visualforce.remoting.Manager.invokeAction(
@@ -1148,17 +1132,22 @@ textarea.form-control {
 	</apex:outputPanel>
 	<script>
 		function parseFeedBody(o){
-			var segments = {id:"", name:"", text:""} ;
+			var outString = "";
 			_.each(o.messageSegments,function(item){
 				if(item.record != null){
-					segments["id"] = item.record.id;
-					segments["name"] = item.name;
+					if(item.record.id.indexOf("005") == 0){
+						outString += '<a href="{!$Page.CommunityProfilePage}?id='+item.record.id+'">@'+item.name+'</a>';
+					}else{
+						outString += '<a href="{!$Page.CommunityGroupDetailPage}?g='+item.record.id+'">@'+item.name+'</a>';
+					}
 				}
 				if(item.text != null && item.type == "Text"){
-					segments["text"] = item.text;
+					outString += item.text;
 				}
+				console.log("item.record",item.record);
+				console.log("item",item);
 			});
-			return segments;
+			return outString;
 		}
 
 		function wrapnl(intext) {

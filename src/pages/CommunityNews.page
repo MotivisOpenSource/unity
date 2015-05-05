@@ -4,7 +4,7 @@
 <apex:define name="body">
 	<div class="breadcrumbs margin-bottom-10">
 		<div class="container">
-			<h1 class="pull-left">{!$ObjectType.Community_News__c.Label}</h1>
+			<h1 class="pull-left">{!$ObjectType.Community_News__c.labelPlural}</h1>
 			<ul class="pull-right breadcrumb">
 				<li class="active">{!$Label.LBL_News}</li>
 			</ul>
@@ -17,9 +17,7 @@
 					<h4>{!$Label.LBL_Current_News_Title}</h4>
 				</div>
 				<div class="col-md-6 text-right">
-					<apex:form >
-						<apex:outputLink value="{!urlForNewNews}" rendered="{!$ObjectType.Community_News__c.createable}" styleClass="btn-u">Create News</apex:outputLink>
-					</apex:form>
+					<apex:outputLink value="{!urlForNewNews}" rendered="{!$ObjectType.Community_News__c.createable}" styleClass="btn-u">{!$Label.BTN_Create_News}</apex:outputLink>
 				</div>
 			</div>
 			<!--div class="headline">
