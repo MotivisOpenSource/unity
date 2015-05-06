@@ -1,28 +1,125 @@
-<apex:component layout="none">
+<apex:component controller="CommunityFeedNavigationController" allowDML="true">
 	<apex:attribute name="current" description="" type="Boolean" required="false" default="true"/>
-	<apex:attribute name="fmode" description="" type="Boolean" required="false" default="false"/>
-	<apex:attribute name="photoUrl" description="" type="String" required="false" default="/profilephoto/005/T"/>
-	<div class="chatter-photo shadow-wrapper">
-	<div class="box-shadow shadow-effect-2">	
-		<apex:outputPanel layout="block" id="userPhoto" rendered="{!current}">
-			<style>
-				div[id$=userPhoto]>span,
-				a.chatter-upload-avatar,
-				span.chatter-avatarFull {
-					width: 100%;
-					display:block;
-				}
-				img.chatter-photo {
-					width: 100%;
-				}
-			</style>
-			<chatter:userPhotoUpload showOriginalPhoto="true" />
-		</apex:outputPanel>
-		<apex:image value="{!photoUrl}" rendered="{!!current}" style="width: 100%;" styleclass="img-responsive img-bordered"/>
-	</div>
-	</div>
-	<script type="text/javascript">
-		//window.sfdcPage = new GenericSfdcPage();
-	</script>
+	<apex:attribute name="fmode" description="" type="Boolean" required="false" default="true"/>
+	<apex:attribute name="photoUrl" description="" type="String" required="false"/>
+	<apex:image value="{!UserPhotoUrl}" styleclass="img-responsive img-bordered" onclick="uploadps();" width="100%" rendered="{!current}"/>
+	<apex:image value="{!photoUrl}" styleclass="img-responsive img-bordered" width="100%" rendered="{!!current}"/>
 	<div class="margin-bottom-10"/>
+
+	<apex:outputPanel layout="none" rendered="{!current}">
+	<style>
+		.m-status {
+			color: white;
+			top: 30%;
+			position: absolute;
+			font-size: 6em;
+			margin-top: -38px;
+			left: 50%;
+			margin-left: -38px;
+		}
+	</style>
+	<div class="modal fade" id="stfo" aria-live="assertive" role="dialog" tabindex="-1" aria-labelledby="stfol" aria-hidden="true">
+		<i class="fa fa-spinner fa-pulse m-status"></i>
+		<apex:form >
+			<div id="stfomd" class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button aria-hidden="true" data-dismiss="modal" class="close" type="button">&times;</button>
+						<h4 id="stfol" class="modal-title">{!$Label.LBL_PictureUploadModal_Title}</h4>
+					</div>
+					<div class="modal-body">
+						<div class="row sky-form">
+							<div class="col-sm-4">
+								<apex:image id="stfopi" value="{!UserPhotoUrl}" styleclass="img-responsive img-bordered"/>
+							</div>
+							<div class="col-sm-8">
+								<section id="stfofs" style="display:none;">
+									<label class="label">{!$Label.LBL_PictureUploadModal_SizeWarning}</label>
+									<label id="stfolbl" for="file" class="input input-file"></label>
+									<span id="stfopr"><div class="button">
+										<apex:inputFile id="stfofi" value="{!photoBody}" fileName="{!photoName}" contentType="{!photoContentType}" accept="image/*" onchange="uphotos(1);"/>
+										{!$Label.BTN_ChooseFile}
+									</div><input type="text"/></span>
+								</section>
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn-u btn-u-default margin-right-10" data-dismiss="modal">{!$Label.BTN_Cancel}</button>
+						<button id="stfos" type="button" class="btn-u btn-u-primary" onclick="uphotos(1);return false;">{!$Label.BTN_Save}</button>
+					</div>
+				</div>
+			</div>
+			<apex:actionFunction action="{!photoaction}" name="photoaction">
+				<apex:param name="cx" assignTo="{!cropX}" value=""/>
+				<apex:param name="cy" assignTo="{!cropY}" value=""/>
+				<apex:param name="cs" assignTo="{!cropSize}" value=""/>
+			</apex:actionFunction>
+		</apex:form>
+		<apex:form >
+			<apex:outputPanel id="stform"><apex:outputPanel layout="block" rendered="{!uploadMode}">
+				<script>
+					function uphotos(m) {
+						if (m == 1) {
+							input = $('[id$=stfofi]')[0];
+							if (input.files && input.files[0]) {
+								$('#stfoer').remove();
+								$('#stfofs .input').removeClass('state-error');
+								input.parentNode.nextSibling.value = input.files[0].name;
+								if (input.files[0].type.indexOf('image/') != 0 || input.files[0].size > 8388608) {
+									$('#stfofs .input').addClass('state-error');
+									$('#stfofs').append('<div id="stfoer" class="alert alert-danger fade in">{!$Label.ERR_Group_Picture_FileError}</div>');
+								}
+								else {
+									$('#stfos').removeAttr('onclick');
+									var reader = new FileReader();
+									reader.onload = function (e) {
+										$('[id$=stfopi]').attr('src', e.target.result);
+										$('#stfos').attr('onclick','uphotos(2);return false;');
+									};
+									reader.readAsDataURL(input.files[0]);
+								}
+							}
+						}
+						else if (m == 2) {
+							$('#stfo .sky-form .col-sm-4').attr('class','col-sm-12').css('height','300px');
+							$('#stfo .sky-form .col-sm-8').hide();
+							$('[id$=stfopi]').cropper({aspectRatio: 1 / 1, autoCropArea: 0.8});
+							$('#stfos').attr('onclick','uphotos(3);return false;');
+						}
+						else if (m == 3) {
+							var cropData = $('[id$=stfopi]').cropper('getData');
+							$('#stfomd').hide();
+							photoaction(Math.floor(cropData.x),Math.floor(cropData.y),Math.floor(cropData.width));
+						}
+					}
+					function upsha() {
+						$('[id$=stfopi]').cropper('destroy');
+						$('[id$=stform] .sky-form .col-sm-12').attr('class','col-sm-4').removeAttr('style');
+						$('[id$=stform] .sky-form .col-sm-8').show();
+						$('#stfos').attr('onclick','uphotos(1);return false;');
+						uphotos(1);
+					}
+					function upprup() {
+						$('#stfolbl').html($('#stfopr').html());
+						$('#stfopr').remove();
+						$('#stfofs').show();
+					}
+				</script>
+			</apex:outputPanel></apex:outputPanel>
+			<apex:actionFunction action="{!uploadmode}" name="makeuploadmode" rerender="stform" oncomplete="upprup();"/>
+		</apex:form>
+	</div>
+	<script>
+		function uploadps() {
+			$('#stfo').modal('show');
+			if ($('[id$=stform] script').length == 0) {
+				makeuploadmode();
+			}
+			else {
+				upsha();
+			}
+		}
+	</script>
+	</apex:outputPanel>
 </apex:component>

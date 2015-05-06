@@ -114,15 +114,6 @@
 				</script>
 			</div>
 		</apex:outputPanel>
-		<apex:outputPanel layout="block" styleClass="row u-page-block" rendered="{!stepName == 'picture'}">
-			<div class="profile-edit tab-pane">
-				<div class="margin-bottom-10">
-					<chatter:userPhotoUpload showOriginalPhoto="true" />
-				</div>
-				<p>{!$Label.LBL_PictureUploadModal_SizeWarning}</p>
-				<span onclick="$('.chatter-photoupload-pencil-icon')[0].click();" class="btn-u chatter-photoupload-pencil-icon">{!$Label.BTN_Update}</span>
-			</div>
-		</apex:outputPanel>
 		<apex:outputPanel layout="block" styleClass="row u-page-block" rendered="{!stepName == 'tc'}">
 			<div class="sky-form">
 				<apex:outputText value="{!tcText}" escape="false"/>
@@ -147,6 +138,18 @@
 			</div>
 		</apex:outputPanel>
 		</apex:form>
+		<apex:outputPanel layout="block" styleClass="row u-page-block" rendered="{!stepName == 'picture'}">
+			<div class="profile-edit tab-pane">
+				<div class="row">
+					<div class="col-sm-4">
+						<c:CommunityUserPhoto />
+					</div>
+					<div class="col-sm-8">
+						<button id="stfos" type="button" class="btn-u btn-u-primary" onclick="uploadps();return false;">{!$Label.BTN_Update}</button>
+					</div>
+				</div>
+			</div>
+		</apex:outputPanel>
 	</div></apex:outputPanel></div>
 	<apex:outputPanel layout="block" styleClass="alert alert-danger fade in" rendered="{!!ISBLANK(errorMessage)}">{!errorMessage}</apex:outputPanel>
 </apex:define>

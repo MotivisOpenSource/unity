@@ -26,6 +26,41 @@ public with sharing class CommunityFeedNavigationController {
 		return result;
 	}
 
+	// Photo Upload Section
+	public Blob photoBody { get; set; }
+	public String photoName { get; set; }
+	public String photoContentType { get; set; }
+	public Boolean uploadMode { get { return uploadMode == NULL ? false : uploadMode; } set; }
+	public Integer cropX { get; set; }
+	public Integer cropY { get; set; }
+	public Integer cropSize { get; set; }
+
+	public String getUserPhotoUrl() {
+		return [SELECT FullPhotoUrl FROM User WHERE Id = :UserInfo.getUserId()].FullPhotoUrl;
+	}
+
+	public void uploadmode() {
+		uploadMode = true;
+	}
+
+	public PageReference photoaction() {
+		if (photoBody != NULL) {
+			ConnectApi.PhotoInput pi = new ConnectApi.PhotoInput();
+			pi.cropX = cropX;
+			pi.cropY = cropY;
+			pi.cropSize = cropSize;
+			ConnectApi.ChatterUsers.setPhotoWithAttributes(
+				Network.getNetworkId(),
+				UserInfo.getUserId(),
+				pi,
+				new ConnectApi.BinaryInput(photoBody, photoContentType, photoName)
+			);
+		}
+		PageReference pr = new PageReference(ApexPages.currentPage().getUrl());
+		pr.setRedirect(true);
+		return pr;
+	}
+
 	public static void test1() {
 		Integer i = 0;
 		i++;
