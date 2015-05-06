@@ -173,10 +173,12 @@ global without sharing class CommunityShareController {
 																FROM Community_Group_Control_Tag__c 
 																WHERE Group_Control__c IN :availibleGCIds];
 		Map<String, Set<Id>> tagsControllIdAndName = new Map<String, Set<Id>>();
+
 		for(Community_Group_Control_Tag__c groupControlTag : groupControlTags){
 			if(tagsControllIdAndName.get(groupControlTag.Community_Tag__r.Theme_Name__c) != null){
 				tagsControllIdAndName.get(groupControlTag.Community_Tag__r.Theme_Name__c).add(groupControlTag.Group_Control__c);
 			}else{
+
 				tagsControllIdAndName.put(groupControlTag.Community_Tag__r.Theme_Name__c, new Set<Id>{groupControlTag.Group_Control__c});
 			}
 		}
@@ -188,12 +190,14 @@ global without sharing class CommunityShareController {
 			for(Id tControll : tagsControllIdAndName.get(themeName)){
 				wrappers.add(new GroupFinderWrapper(cGroups.get(cgiCGC.get(tControll)), cgiCGC.get(tControll)));
 				tControlls.add(tControll);
+
 			}
 			
 			tagsForGroups.add(new TagsForGroup(themeName, wrappers));
 		}
 		List<GroupFinderWrapper> wrapper = new List<GroupFinderWrapper>();
 		for(Id gc : cgiCGC.keySet()){
+
 			if(!tControlls.contains(gc)){
 				wrapper.add(new GroupFinderWrapper(cGroups.get(cgiCGC.get(gc)), cgiCGC.get(gc)));
 			}

@@ -55,11 +55,16 @@
 							function chckabtn(a) {
 								if (a != '0') {
 									var fa = true;
-									if (a == '2' || a == '4') {
+									if (a == '2') {										
 										fa = confirm('{!$Label.LBL_LeaveGroup_Message}');
 									}
-									else if (a == '6') {
-										fa = confirm('{!$Label.LBL_CancelRequest_Message}');
+									else { 
+										if (a == '4') {
+											fa = confirm('{!$Label.LBL_Confirm_Remove_Manager}');
+										}									 
+										else if (a == '6') {
+											fa = confirm('{!$Label.LBL_CancelRequest_Message}');
+										}
 									}
 									if (fa) {
 										pgmsha(a);

@@ -256,7 +256,6 @@ global without sharing class CommunityFeedController {
 			resultPage = 'ERR"' + errField + '" is required';
 		} else if (layout.name == 'FeedItem.TextPost') {
 			resultPage = postFeed(inParentId4, layout.items[0].value);
-
 		}
 		else if (layout.name == 'FeedItem.ContentPost') {			
 			fei.capabilities = new ConnectApi.FeedElementCapabilitiesInput();
@@ -494,30 +493,27 @@ global without sharing class CommunityFeedController {
 	@RemoteAction
 	global static String werewolfTextRemote(String intxtr, String jsStr) {
 		ChatterActionLayout layout = (ChatterActionLayout)JSON.deserialize(jsStr,ChatterActionLayout.class);			
-		String intxt = layout.items[0].value;
-System.debug('intxt = '+intxt);
-System.debug('layout.items[1].value = '+layout.items[1].value);
-System.debug('layout.items[2].value = '+layout.items[2].value);		
+		String intxt = layout.items[1].value;
 		Body result = new Body();
+		result.messageSegments = new List<MessageSegments>();
 		while(intxt.length() > 0) {
+			MessageSegments msi = new MessageSegments();
+			msi.record = new Record();
 			Integer index = intxt.indexOf('@[');
 			index = index == -1 ? intxt.length() : index;
-			MessageSegments msi = new MessageSegments();
-			result.messageSegments = new List<MessageSegments>();
-System.debug('index ==> '+index);	
 			if (index > 0) {
 				msi.text = intxt.substring(0, index);
+				msi.type = 'Text';
 				result.messageSegments.add(msi);
 				intxt = intxt.substring(index, intxt.length());
 			}
 			else {
 				Integer endIndex = intxt.indexOf(']');
-System.debug('endIndex ==> '+endIndex);
 				if (endIndex != -1) {
 					try {
-						msi.record.id = Id.valueOf(intxt.substring(index + 2, endIndex));
+						msi.type = 'Mention';
+						msi.record.id = intxt.substring(index + 2, endIndex);
 						result.messageSegments.add(msi);
-System.debug('msi.record.id ==> '+msi.record.id);
 					}
 					catch (Exception e) {
 						endIndex = index + 1;
@@ -529,14 +525,12 @@ System.debug('msi.record.id ==> '+msi.record.id);
 				intxt = intxt.substring(endIndex + 1, intxt.length());
 			}
 		}
-System.debug('result ==> '+result);
-System.debug('result.messageSegments ==> '+result.messageSegments);
-		return 'result';
+System.debug('result R ==> '+result);			
+		return json.serialize(result);
 	}
 	
 
 	private static ConnectApi.MessageBodyInput werewolfText(String intxt) {
-System.debug('intxt = '+intxt);		
 		ConnectApi.MessageBodyInput result = new ConnectApi.MessageBodyInput();
 		result.messageSegments = new List<ConnectApi.MessageSegmentInput>();
 		while(intxt.length() > 0) {
@@ -566,6 +560,7 @@ System.debug('intxt = '+intxt);
 				intxt = intxt.substring(endIndex + 1, intxt.length());
 			}
 		}
+	System.debug('result  ==> '+result);	
 		return result;
 	}
 

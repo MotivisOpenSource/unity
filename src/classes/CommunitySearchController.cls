@@ -29,7 +29,7 @@ public with sharing class CommunitySearchController {
 
 	public static Set<Id> performSearch(String query, String sobj) {
 		Set<Id> results = new Set<Id>();
-		String soslStr = 'FIND {' + prepareSoslSearchQuery(query) + '} in ALL FIELDS RETURNING ' + packagePrefix + sobj + ' (' + SOBJECT_FILTER.get(sobj) + ')';
+		String soslStr = 'FIND {' + prepareSoslSearchQuery(query) + '} in ALL FIELDS RETURNING ' + packagePrefix + String.escapeSingleQuotes(sobj) + ' (' + SOBJECT_FILTER.get(sobj) + ')';
 		List<List<sObject>> searchResults = Search.query(soslStr);
 		for (sObject soItem : searchResults[0]) {
 			results.add((Id)soItem.get('Id'));
@@ -199,7 +199,7 @@ public with sharing class CommunitySearchController {
 			rQuery += 		' (SELECT Id, IsNote, Title FROM NotesAndAttachments WHERE IsNote = false ORDER BY CreatedDate DESC LIMIT 1) ';
 			rQuery += 		'FROM Community_Resource__c WHERE';
 			rQuery += (mode == 'resource')
-						?	' Primary_Tag__c = \'' + ApexPages.currentPage().getParameters().get('tr') + '\' AND Status__c = \'active\''
+						?	' Primary_Tag__c = \'' + String.escapeSingleQuotes(ApexPages.currentPage().getParameters().get('tr')) + '\' AND Status__c = \'active\''
 						:	' Id IN :resourcesIds';
 			List<Community_Resource__c> rList = Database.query(rQuery);
 			result = rList.isEmpty() ? new SearchItem() : new SearchItem(rList, resourcePageNum);

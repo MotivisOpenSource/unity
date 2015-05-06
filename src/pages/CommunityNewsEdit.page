@@ -102,7 +102,7 @@
 			$F('[id$=cnpbs1] textarea[id$=Content__c]').closest('tr').css('display',dstl);
 		}
 		var $imagesCache = [];
-		var $imagePartialUrl = "{!$Site.Prefix}/servlet/servlet.ImageServer?oid={!$Organization.Id}&id=";
+		var $imagePartialUrl = "{!JSENCODE($Site.Prefix)}/servlet/servlet.ImageServer?oid={!JSENCODE($Organization.Id)}&id=";
 		function checkimg() {
 			var ef = $F('#imsel1').val();
 			$F('[id*=cnif1]').hide();

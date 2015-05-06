@@ -2,7 +2,7 @@
 <apex:attribute name="ro" type="Boolean" assignTo="{!resourceOnly}" required="false" default="false" description="Show Only Resources" />
 
 <apex:repeat value="{!WrappedThemes}" var="theme">
-	<div class="headline"><h2>{!theme.themeName}</h2> &nbsp;<span id="tagsArrow{!theme.themeId}" class="glyphicon glyphicon-chevron-down" onclick="diplayHideTagsList('{!theme.themeId}')"></span></div>
+	<div class="headline"><h2>{!theme.themeName}</h2> &nbsp;<span id="tagsArrow{!JSENCODE(theme.themeId)}" class="glyphicon glyphicon-chevron-down" onclick="diplayHideTagsList('{!JSENCODE(theme.themeId)}')"></span></div>
 
 	<div id="tagsList{!theme.themeId}" class="row category margin-bottom-20">
 		<apex:repeat value="{!theme.tagColumns}" var="tagColumn">

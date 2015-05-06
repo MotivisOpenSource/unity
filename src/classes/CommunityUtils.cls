@@ -174,7 +174,7 @@ public class CommunityUtils {
 			ga.btnLabel = Label.LBL_Manager;
 			ga.btnIcon = 'fa-star-half-o';
 			ga.title = Label.LBL_Leave_Group;
-			ga.action = '4';
+			ga.action = '2';             //////////////there was 4
 			ga.btnStyle = '';
 		}
 		else if (groupRole == ConnectApi.GroupMembershipType.StandardMember) {

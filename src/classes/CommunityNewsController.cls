@@ -315,7 +315,7 @@ public with sharing class CommunityNewsController {
 	// -- methods --
 	private void initList() {
 		//List<String> communityNewsIdList = new List<String>();
-		String nQuery = 'SELECT Id, Image_Path__c, Title__c, Teaser__c, Entry_Date__c FROM Community_News__c';
+		String nQuery = 'SELECT Id, Image_Path__c, Title__c, Teaser__c, Entry_Date__c, Make_Entry_Sticky__c FROM Community_News__c';
 		nQuery += ' WHERE Entry_Date__c <= TODAY AND Expiration_Date__c > TODAY AND Alert__c = false';
 		Set<Id> cnIds = new Set<Id>();
 		try {
@@ -386,6 +386,7 @@ public with sharing class CommunityNewsController {
 		public String teaser { get; set; }
 		public String imgurl { get; set; }
 		public String posted { get; set; }
+		public String sticky { get; set; }
 
 		public NewsItem(Community_News__c inn) {
 			id = inn.Id;
@@ -393,6 +394,7 @@ public with sharing class CommunityNewsController {
 			teaser = inn.Teaser__c;
 			imgurl = CommunityUtils.checkUrl(inn.Image_Path__c);
 			posted = Label.LBL_Posted + ' ' + inn.Entry_Date__c.format('MM/dd/yyyy');
+			sticky = inn.Make_Entry_Sticky__c == true ? ' sticky' : '';
 		}
 	}
 }
