@@ -132,17 +132,23 @@ public without sharing class CommunityGroupManageController {
 		1 => '2:;: btn-u-blue:;:fa-check:;:' + Label.LBL_Member,
 		2 => '1:;: :;:fa-plus-circle:;:' +Label.LBL_Add,
 		3 => '4:;: :;:fa-star-half-o:;:' + Label.LBL_Manager,
-		4 => '3:;: btn-u-blue:;:fa-check:;:' + Label.LBL_Member,
+		4 => '3:;: btn-u-blue:;:fa-check:;:' + Label.LBL_Member/*,
 		7 => '2:;: btn-u-blue:;:fa-check:;:' + Label.LBL_Member,
-		8 => '1:;: :;:fa-plus-circle:;:' +Label.LBL_Add
+		8 => '1:;: :;:fa-plus-circle:;:' +Label.LBL_Add*/
 	};
 
 	@RemoteAction
 	public static String membership(String inUserId, String inGroupContolId, Integer inMode) {
 		CommunityUtils.membership(inUserId, inGroupContolId, String.valueOf(inMode));
-		List<String> parts = BTN_MAP.get(inMode).split(':;:');
-		String resultHtml = '<button class="btn-u' + parts[1] + '" onclick="msproc(' + parts[0] + ',\'' + inUserId + '\');return false;">';
-		resultHtml += '<i class="fa ' + parts[2] + '"></i>&nbsp;' + parts[3] + '</button>';
+		String resultHtml;
+		if (inMode < 7) {
+			List<String> parts = BTN_MAP.get(inMode).split(':;:');
+			resultHtml = '<button class="btn-u' + parts[1] + '" onclick="msproc(' + parts[0] + ',\'' + inUserId + '\');return false;">';
+			resultHtml += '<i class="fa ' + parts[2] + '"></i>&nbsp;' + parts[3] + '</button>';
+		}
+		else {
+			resultHtml = 'delete';
+		}
 		return resultHtml + '-;-' + inUserId;
 	}
 
@@ -315,14 +321,15 @@ public without sharing class CommunityGroupManageController {
 				}
 			}
 			Integer mlSize = allUsers.size();
-			totalPages = mlSize / MEMBER_PAGE_SIZE + ((Math.mod(mlSize, MEMBER_PAGE_SIZE) == 0) ? 0 : 1);
+			Integer memberPageSize = requestsMode ? 1000 : MEMBER_PAGE_SIZE;
+			totalPages = mlSize / memberPageSize + ((Math.mod(mlSize, memberPageSize) == 0) ? 0 : 1);
 			totalPages = totalPages == 0 ? 1 : totalPages;
 			showPagination = totalPages > 1;
-			pageNumber = pageNumber == NULL ? 1 : pageNumber;
+			pageNumber = pageNumber == NULL ? 1 : (pageNumber > totalPages ? totalPages : pageNumber);
 			hasNext = pageNumber < totalPages;
 			hasPrevious = pageNumber > 1;
-			Integer startCopyInterval = pageNumber > 1 ? ((pageNumber - 1) * MEMBER_PAGE_SIZE) : 0;
-			Integer endCopyInterval = (mlSize <= (startCopyInterval + MEMBER_PAGE_SIZE)) ? mlSize : (startCopyInterval + MEMBER_PAGE_SIZE);
+			Integer startCopyInterval = pageNumber > 1 ? ((pageNumber - 1) * memberPageSize) : 0;
+			Integer endCopyInterval = (mlSize <= (startCopyInterval + memberPageSize)) ? mlSize : (startCopyInterval + memberPageSize);
 			Map<Id, Id> userByContactIdsMap = new Map<Id, Id>();
 			Set<Id> usersIds = new Set<Id>();
 			for (Integer ii = startCopyInterval; ii < endCopyInterval; ii++) {

@@ -43,7 +43,6 @@ public with sharing class CommunityNewsController {
 	public Blob imgBody { get;set; }
 	public String imgFileName { get;set; }
 	public String imgContentType { get;set; }
-	//public Integer rowspanCount { get;set; }
 
 	private String TAGS_INPUT_NAME = 'tags';
 	private String TEMPORARY_UPDATE_NAME = 'TEMPORARY_UPDATE';
@@ -73,14 +72,14 @@ public with sharing class CommunityNewsController {
 					ApexPages.addMessages(e);
 				}
 			}
-			/*else {
+			else {
 				news.Entry_Date__c = Datetime.now();
-			}*/
+			}
 			recordPulled = true;
 		}
 
 		if (!recordPulled && mode != 'view') {
-			List<Attachment> attList = [SELECT Body FROM Attachment WHERE ParentId = :news.Id AND Name = :TEMPORARY_UPDATE_NAME];
+			List<Attachment> attList = [SELECT Body, OwnerId, Owner.Name FROM Attachment WHERE ParentId = :news.Id AND Name = :TEMPORARY_UPDATE_NAME AND OwnerId = :UserInfo.getUserId()];
 			if (attList.size() > 0) {
 				mode = SObjectType.Community_News__c.isUpdateable() ? mode : 'view';
 				if (mode != 'view') {
@@ -123,7 +122,7 @@ public with sharing class CommunityNewsController {
 	}
 
 	private Boolean clearUpdateTemporaryFiles() {
-		List<Attachment> purgeList = [SELECT Id FROM Attachment WHERE ParentId = :news.Id AND Name = :TEMPORARY_UPDATE_NAME];
+		List<Attachment> purgeList = [SELECT Id FROM Attachment WHERE ParentId = :news.Id AND Name = :TEMPORARY_UPDATE_NAME AND OwnerId = :UserInfo.getUserId()];
 		Boolean recordFound = purgeList.size() > 0;
 		if (recordFound) {
 			delete purgeList;
@@ -167,6 +166,7 @@ public with sharing class CommunityNewsController {
 			if (news.Type__c == 'External') {
 				news.Content__c = NULL;
 			}
+			news.Status__c = 'Pending';
 			upsert news;
 			if (noSaveMode) {
 				Database.rollback(sp);
@@ -208,6 +208,7 @@ public with sharing class CommunityNewsController {
 	}
 
 	public PageReference submitSecondStep() {
+		news.Status__c = 'Active';
 		update news;
 		clearUpdateTemporaryFiles();
 		PageReference pr = Page.CommunityNewsDetail;
@@ -316,7 +317,7 @@ public with sharing class CommunityNewsController {
 	private void initList() {
 		//List<String> communityNewsIdList = new List<String>();
 		String nQuery = 'SELECT Id, Image_Path__c, Title__c, Teaser__c, Entry_Date__c, Make_Entry_Sticky__c FROM Community_News__c';
-		nQuery += ' WHERE Entry_Date__c <= TODAY AND Expiration_Date__c > TODAY AND Alert__c = false';
+		nQuery += ' WHERE Entry_Date__c <= TODAY AND Expiration_Date__c > TODAY AND Alert__c = false AND Status__c != \'Pending\'';
 		Set<Id> cnIds = new Set<Id>();
 		try {
 			Map<String, String> pageParams = ApexPages.currentPage().getParameters();

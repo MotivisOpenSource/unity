@@ -188,21 +188,8 @@ public without sharing class CommunityGroupsController {
 
 	@RemoteAction
 	public static Boolean subscriberAction(Id recordId, Boolean isSubscribe) {
-		if (!isSubscribe) {
-			List<EntitySubscription> followings = [
-				Select SubscriberId, ParentId, IsDeleted, Id, CreatedDate, CreatedById
-				From EntitySubscription
-				WHERE SubscriberId =:Userinfo.getUserId()
-				AND ParentId = :recordId
-				LIMIT 1
-			];
-			if (!followings.isEmpty()) {
-				//ConnectApi.Chatter.deleteSubscription(Network.getNetworkId(), followings[0].Id);
-			}
-		} else if (isSubscribe) {
-			//ConnectApi.ChatterUsers.follow(Network.getNetworkId(), 'me', memberId);
-		}
-		return true;
+		CommunityUtils.subscriberUser(recordId,!isSubscribe);
+		return true;		
 	}
 	@RemoteAction
 	public static DiscoverResultClass getGroups(Integer limitSize, Integer startFrom, String currentTab) {
@@ -223,7 +210,7 @@ public without sharing class CommunityGroupsController {
 
 		if (currentTab == 'recommended_groups' && foundData) {
 			User currentUser = [SELECT ContactId, Community_Contact_ID__c FROM User WHERE Id = :UserInfo.getUserId()];
-			String currentContactId = currentUser.ContactId == NULL ? currentUser.Community_Contact_ID__c : currentUser.Community_Contact_ID__c;
+			String currentContactId = currentUser.ContactId == NULL ? currentUser.Community_Contact_ID__c : currentUser.ContactId;
 			Set<Id> userTags = new Set<Id>();
 			if (String.isNotBlank(currentContactId)) {
 				for (Community_Profile_Tag__c cpt : [SELECT Community_Tag__c FROM Community_Profile_Tag__c WHERE Active__c = true AND Contact__c = :currentContactId]) {
@@ -290,71 +277,30 @@ public without sharing class CommunityGroupsController {
 
 		return DiscoverResult;
 	}
+	
+	public static String CreateChatterGroupMember { get {return '1';} set;}
+	public static String DeleteChatterGroupMember { get {return '2';} set;}
+	public static String CreateGroupManager { get {return '3';} set;}
+	public static String DeleteGroupManager { get {return '4';} set;}
+	public static String CreateJoinPrivateGroupRequest { get {return '5';} set;}
+	public static String DeleteJoinPrivateGroupRequest { get {return '6';} set;}
+	public static String AcceptJoinPrivateGroupRequest { get {return '7';} set;}
+	public static String DeclineJoinPrivateGroupRequest { get {return '8';} set;}
 
 	@RemoteAction
-	public static Boolean leaveGroup(String currentChatterGroupId) {
-
+	public static Boolean doGroupAction(String currentChatterGroupId, string doAction) {
 		List<Community_Group_Control__c> communityGroupControllList = [
-			SELECT Id, Chatter_Group_ID__c
-			FROM Community_Group_Control__c
-			WHERE Chatter_Group_ID__c =: currentChatterGroupId
-			LIMIT 1
+		SELECT Id, Chatter_Group_ID__c
+		FROM Community_Group_Control__c
+		WHERE Chatter_Group_ID__c =: currentChatterGroupId
+		LIMIT 1
 		];
 		if (!communityGroupControllList.isEmpty()) {
 			currentChatterGroupId = communityGroupControllList[0].Id;
 		}
-
-		CommunityUtils.membership(UserInfo.getUserId(), currentChatterGroupId, '2'); //remove member
+		CommunityUtils.membership(UserInfo.getUserId(), currentChatterGroupId, doAction);
 		return true;
 	}
-
-	@RemoteAction
-	public static Boolean jointToGroup(String currentChatterGroupId) {
-
-		List<Community_Group_Control__c> communityGroupControllList = [
-			SELECT Id, Chatter_Group_ID__c
-			FROM Community_Group_Control__c
-			WHERE Chatter_Group_ID__c =: currentChatterGroupId
-			LIMIT 1
-		];
-		if (!communityGroupControllList.isEmpty()) {
-			currentChatterGroupId = communityGroupControllList[0].Id;
-		}
-
-		CommunityUtils.membership(UserInfo.getUserId(), currentChatterGroupId, '1'); //add member
-		return true;
-	}
-
-	@RemoteAction
-	public static Boolean requestToJoin(String currentChatterGroupId) {
-		List<Community_Group_Control__c> communityGroupControllList = [
-			SELECT Id, Chatter_Group_ID__c
-			FROM Community_Group_Control__c
-			WHERE Chatter_Group_ID__c =: currentChatterGroupId
-			LIMIT 1
-		];
-		if (!communityGroupControllList.isEmpty()) {
-			currentChatterGroupId = communityGroupControllList[0].Id;
-		}
-		CommunityUtils.membership(UserInfo.getUserId(), currentChatterGroupId, '5');
-		return true;
-	}
-
-	@RemoteAction
-	public static Boolean calcelRequestToJoin(String currentChatterGroupId) {
-		List<Community_Group_Control__c> communityGroupControllList = [
-			SELECT Id, Chatter_Group_ID__c
-			FROM Community_Group_Control__c
-			WHERE Chatter_Group_ID__c =: currentChatterGroupId
-			LIMIT 1
-		];
-		if (!communityGroupControllList.isEmpty()) {
-			currentChatterGroupId = communityGroupControllList[0].Id;
-		}
-		CommunityUtils.membership(UserInfo.getUserId(), currentChatterGroupId, '6');
-		return true;
-	}
-
 
 	public class DiscoverResultClass {
 		public Integer TotalRecords { get; set; }

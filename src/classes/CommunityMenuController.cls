@@ -29,9 +29,8 @@ public with sharing class CommunityMenuController {
 		List<Community_News__c> newsList = [
 			SELECT Id, Name, Teaser__c
 			FROM Community_News__c
-			WHERE Alert__c = true
-			AND Entry_Date__c <= :Now
-			AND Expiration_Date__c >= :Now
+			WHERE Alert__c = true AND Status__c != 'Pending'
+			AND Entry_Date__c <= :Now AND Expiration_Date__c >= :Now
 			LIMIT 1
 		];
 		return newsList.isEmpty() ? '' : newsList[0].Teaser__c;

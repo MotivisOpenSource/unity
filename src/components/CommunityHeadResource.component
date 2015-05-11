@@ -33,7 +33,7 @@
 	
 	<link rel="stylesheet" href="{!$Resource.assets}/css/pages/page_search.css"/>
 	<link rel="stylesheet" href="{!$Resource.assets}/css/pages/profile.css"/>
-	<link rel="stylesheet" href="{!$Resource.assets}/css/app.css"/>	
+	<link rel="stylesheet" href="{!$Resource.assets}/css/app.css"/>
 
 	<!-- CSS Theme -->
 	<link rel="stylesheet" href="{!$Resource.assets}/css/theme-colors/default.css"/>

@@ -10,7 +10,6 @@
 			</ul>
 		</div>
 	</div>
-
 	<apex:outputPanel layout="block" styleClass="profile" id="form">
 		<div class="container content">
 			<div class="row margin-bottom-10">

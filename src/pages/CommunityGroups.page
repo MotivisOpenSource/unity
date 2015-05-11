@@ -42,7 +42,10 @@
 											<li class="{!IF(currentFilter=='recommended_groups', 'active', '')}"><a href="{!$Page.CommunityGroups}?f=recommended_groups">{!$Label.LBL_RecommendedGroups}</a></li>
 										</ul>
 										<div class="tab-content">
-											<div class="tab-pane active" id="groups">
+											<div class="tab-pane active text-center" id="statusgroups">
+												<i class="fa fa-spinner fa-pulse fa-4x"></i>
+											</div>
+											<div class="tab-pane active" id="groups" style="display:none;">
 												<div class="table-search-v2">
 													<!--RESULTS ROW -->
 													<div class="row margin-bottom-20" ng-repeat="cg in chunkedGroups">
@@ -85,7 +88,7 @@
 																		</a>
 																	</li>
 																	<li  ng-show="{{ g.CurrentMemberRole == 'NotAMember' && g.NotAMemberStatus == 'Requested' }}" class="pull-right">
-																		<a class="btn btn-u btn-u-orange btn-xs" ng-click="calcelRequestToJoin(g.GroupId)">
+																		<a class="btn btn-u btn-u-orange btn-xs" ng-click="cancelRequestToJoin(g.GroupId)">
 																			<i class="fa fa-times-circle" style="color:#FFFFFF;"></i>&nbsp;{!$Label.LBL_Requested}
 																		</a>
 																	</li>
@@ -120,6 +123,15 @@
 			<script type="text/javascript" src="{!$Resource.CommunityResources}/js/underscore/underscore-min.js" ></script>
 			<script type="text/javascript" src="{!$Resource.CommunityResources}/js/angularjs/angular.min.js" ></script>
 			<script type="text/javascript">
+				function membershiprequest(ing,inm) {
+					Visualforce.remoting.Manager.invokeAction(
+						'{!$RemoteAction.CommunityGroupsController.doGroupAction}',
+						ing,
+						inm,
+						function(result, event) {
+						}
+					);
+				}
 				var GroupsApp = angular.module('GroupsApp', []);
 				GroupsApp.filter('quickSearch', function() {
 					return function(input, scope) {
@@ -157,6 +169,10 @@
 										} else {
 											deferred.reject(event);
 											$rootScope.getDataStatus = 'Finished';
+										}
+										if ($('#statusgroups').length > 0) {
+											$('#statusgroups').remove();
+											$('#groups').show();
 										}
 									})
 								},
@@ -213,94 +229,56 @@
 						return newArr;
 					}
 
-                    $scope.confirmLeaveGroup = function(groupId) {
-                        if(confirm('{!$Label.LBL_LeaveGroup_Message}')) {
-                            Visualforce.remoting.Manager.invokeAction(
-                                '{!$RemoteAction.CommunityGroupsController.doGroupAction}',
-                                groupId,
-                                '{!DeleteChatterGroupMember}',
-                                function(result, event) {
+					$scope.confirmLeaveGroup = function(groupId) {
+						if(confirm('{!$Label.LBL_LeaveGroup_Message}')) {
+							membershiprequest(groupId,'{!DeleteChatterGroupMember}');
+							$.each($scope.groups, function(i, item){
+								if (item.GroupId == groupId) {
+									item.NotAMemberStatus = item.GroupVisibility == 'Private' ? 'RequestToJoin': 'Join';
+									item.CurrentMemberRole = 'NotAMember';
+									item.GroupMembersCount--;
+								}
+							});
+							$scope.chunkedGroups = $scope.chunk($scope.groups, 2);
+						}
+					}
 
-                                },
-                                { buffer: true, escape: true, timeout: 30000 }
-                            );
-                            //change g.CurrentMemberRole = 'NotAMember' from g.Id
-                            $.each($scope.groups, function(i, item){
-                                if (item.GroupId == groupId) {
-                                    if (item.CurrentMemberRole == 'Admin') {
-                                        item.CurrentMemberRole = 'NotAMember';
-                                        item.NotAMemberStatus = 'Join';   //RequestToJoin
-                                        item.GroupMembersCount--; //
-                                    }
-                                    else if(item.CurrentMemberRole == 'Standard') {
-                                        item.CurrentMemberRole = 'NotAMember';
-                                        item.NotAMemberStatus = 'Join';
-                                        item.GroupMembersCount--;
-                                    }
-                                }
-                            });
-                            $scope.chunkedGroups = $scope.chunk($scope.groups, 2);
-                        }
-                    }
+					$scope.confirmjointToGroup = function(groupId) {
+						membershiprequest(groupId,'{!CreateChatterGroupMember}');
+						$.each($scope.groups, function(i, item){
+							if (item.GroupId == groupId) {
+								item.GroupMembersCount++;
+								item.CurrentMemberRole = 'Standard';
+							}
+						});
+						$scope.chunkedGroups = $scope.chunk($scope.groups, 2);
+					}
 
-                    $scope.confirmjointToGroup = function(groupId) {
-                        Visualforce.remoting.Manager.invokeAction(
-                            '{!$RemoteAction.CommunityGroupsController.doGroupAction}',
-                            groupId,
-                            '{!CreateChatterGroupMember}',
-                            function(result, event) {
-                            },
-                            { buffer: true, escape: true, timeout: 30000 }
-                        );
-                        $.each($scope.groups, function(i, item){
-                            if (item.GroupId == groupId) {
-                                item.GroupMembersCount++;
-                                item.CurrentMemberRole = 'Standard';
-                            }
-                        });
-                        $scope.chunkedGroups = $scope.chunk($scope.groups, 2);
-                    }
+					$scope.requestToJoin = function(groupId) {
+						membershiprequest(groupId,'{!CreateJoinPrivateGroupRequest}');
+						$.each($scope.groups, function(i, item){
+							if (item.GroupId == groupId) {
+								item.CurrentMemberRole = 'NotAMember';
+								item.NotAMemberStatus = 'Requested';
+							}
+						});
+						$scope.chunkedGroups = $scope.chunk($scope.groups, 2);
+					}
 
-                    $scope.requestToJoin = function(groupId) {
-                        Visualforce.remoting.Manager.invokeAction(
-                            '{!$RemoteAction.CommunityGroupsController.doGroupAction}',
-                            groupId,
-                            '{!CreateJoinPrivateGroupRequest}',
-                            function(result, event) {
-                            },
-                            { buffer: true, escape: true, timeout: 30000 }
-                        );
-                        $.each($scope.groups, function(i, item){
-                            if (item.GroupId == groupId) {
-                                item.CurrentMemberRole = 'NotAMember';
-                                item.NotAMemberStatus = 'Requested';
-                            }
-                        });
-                        $scope.chunkedGroups = $scope.chunk($scope.groups, 2);
-                    }
-
-                    $scope.calcelRequestToJoin = function(groupId) {
-                        if(confirm('{!$Label.LBL_CancelRequest_Message}')) {
-                            Visualforce.remoting.Manager.invokeAction(
-                                '{!$RemoteAction.CommunityGroupsController.doGroupAction}',
-                                groupId,
-                                '{!DeleteJoinPrivateGroupRequest}',
-                                function(result, event) {
-                                },
-                                { buffer: true, escape: true, timeout: 30000 }
-                            );
-                            $.each($scope.groups, function(i, item){
-                                if (item.GroupId == groupId) {
-                                    item.CurrentMemberRole = 'NotAMember';
-                                    item.NotAMemberStatus = 'RequestToJoin';
-                                }
-                            });
-                            $scope.chunkedGroups = $scope.chunk($scope.groups, 2);
-                        }
-                    }
+					$scope.cancelRequestToJoin = function(groupId) {
+						if(confirm('{!$Label.LBL_CancelRequest_Message}')) {
+							membershiprequest(groupId,'{!DeleteJoinPrivateGroupRequest}');
+							$.each($scope.groups, function(i, item){
+								if (item.GroupId == groupId) {
+									item.CurrentMemberRole = 'NotAMember';
+									item.NotAMemberStatus = 'RequestToJoin';
+								}
+							});
+							$scope.chunkedGroups = $scope.chunk($scope.groups, 2);
+						}
+					}
 
 				}]);
-
 			</script>
 		</apex:define>
 	</apex:composition>

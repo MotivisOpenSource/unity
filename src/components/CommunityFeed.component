@@ -8,7 +8,7 @@
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/mentions/jquery.events.input.js" ></script>
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/sky-forms/version-2.0.1/js/jquery-ui.min.js"></script>
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/sky-forms/version-2.0.1/js/jquery.validate.min.js"></script> <!--  path contains old version -->
-	<script type="text/javascript" src="../../soap/ajax/33.0/connection.js"></script>	
+	<script type="text/javascript" src="/soap/ajax/33.0/connection.js"></script>	
 
 	<apex:stylesheet value="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.css" />
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.js"></script>
@@ -696,43 +696,51 @@ textarea.form-control {
 									}
 
 									var __sfdcSessionId = '{!GETSESSIONID()}';
-									
-									sforce.connection.serverUrl = '{!$Site.Prefix}/services/Soap/u/33.0'
+									if('{!parentIdForAtt}' == null){
+										enableBtn('mesbtn');
+										$('#postform-error').html('<strong>Error!</strong> You have no permissions for upload');
+										$('#postform-error').show();
+										return null;
+									}
+									sforce.connection.serverUrl = '{!$Site.Prefix}/services/Soap/u/33.0';
 									sforce.connection.sessionId = __sfdcSessionId;
-	
-									var FeedItemInput = new sforce.SObject('FeedItem');
-									FeedItemInput.ParentId = '{!parentId}';
-									FeedItemInput.Type = 'ContentPost';
-									FeedItemInput.ContentData = new sforce.Base64Binary(binary).toString();
-									FeedItemInput.ContentFileName = fName;
-									chataction.layout.items[messageItemIndex].value = text;
-									FeedItemInput.body = parseBody(text, JSON.stringify(chataction.layout));
-									FeedItemInput.NetworkScope = '{!NetworkId}';
 									
-									sforce.connection.create([FeedItemInput],
+									var Attachment = new sforce.SObject('Attachment');
+									Attachment.Name = fName;
+									Attachment.ContentType = fType;
+									Attachment.Body  = new sforce.Base64Binary(binary).toString();
+									Attachment.ParentId = '{!parentIdForAtt}';
+								
+									sforce.connection.create([Attachment],
 									{ 	onSuccess : function(result, source)
 									    {
 									        if (result[0].getBoolean("success"))
 									        {
-									            console.log("Success " + result);
-									            postFile = false;
-												enableBtn('mesbtn');
-									            
-									        }
+									            if($("[name='message']").val()) {
+													$('#message').mentionsInput('val', function(text) {
+														chataction.layout.items[messageItemIndex].value = text;
+														insertAttIntoFeed(result[0].id, JSON.stringify(chataction.layout));
+													});
+												}else{
+														insertAttIntoFeed(result[0].id, "");
+												}
+												postFile = false;
+										    }
 									        else
 									        {
 									        	postFile = false;
 												enableBtn('mesbtn');
-									            console.log("Failure " + result);
+									            $('#postform-error').html('<strong>Error!</strong> ' + result[0].errors.message);
+												$('#postform-error').show();	
 									        }
-									        refreshFeed();
-									        setActiveli();
 									    },
 									    onFailure : function(error, source)
 									    {
 									    	postFile = false;
 											enableBtn('mesbtn');
-									        console.log("an error has occurred " + error);
+											$('#postform-error').html('<strong>Error!</strong> ' + result[0].errors.message);
+											$('#postform-error').show();	
+									        
 									    }
 
 									});
@@ -765,21 +773,27 @@ textarea.form-control {
 				
 			}
 
-			function parseBody(text, jsontext){
-				console.log('text',text);
+			function insertAttIntoFeed(attId, jsontext){
 				Visualforce.remoting.Manager.invokeAction(
-					'{!$RemoteAction.CommunityFeedController.werewolfTextRemote}',
-					text,
+					'{!$RemoteAction.CommunityFeedController.insertAttacmentIntoFeed}',
+					'{!parentId}',
+					attId,
 					jsontext,
 					function(result, event){
 						if(result != undefined){
-							console.log('result',result);
-							//return JSON.parse(result.body);
+							enableBtn('mesbtn');
+							refreshFeed();
+							setActiveli();
+						}else{
+							$('#postform-error').html('<strong>Error!</strong> ');
+							$('#postform-error').show();
 						}
+						
+
 					}
 
 				);
-				return text;
+				
 			}
 
 			function sendPostAction (jsontext, infilebstr, infiletype, infilename) {
@@ -797,7 +811,6 @@ textarea.form-control {
 							div.innerHTML = result;
 							var rm = div.firstChild.nodeValue;
 							if (rm.substring(0, 3) == "ERR") {
-								console.log(rm.substring(3, rm.length));							
 								$('#postform-error').html('<strong>Error!</strong> ' + rm.substring(3, rm.length));
 								$('#postform-error').show();	
 							}
@@ -815,7 +828,7 @@ textarea.form-control {
 						if(!postFile) enableBtn('mesbtn');
 					}
 				);
-				setActiveli();
+				if(!postFile) setActiveli();
 			}
 			function getComments(feedid, token) {
 				Visualforce.remoting.Manager.invokeAction(
@@ -905,7 +918,6 @@ textarea.form-control {
 							'{!$RemoteAction.CommunityFeedController.getUsers}',
 							query,
 							function(result, event) {
-								console.log(result);
 								var div = document.createElement('div');
 								div.innerHTML = result;
 								callback(JSON.parse(div.firstChild.nodeValue));
@@ -1074,11 +1086,9 @@ textarea.form-control {
 
 						},
 						highlight: function(element) {
-							console.log('highlight', element.name);
 							$(element).closest("label[class*='input']").addClass('state-error');
 						},
 						unhighlight: function(element) {
-							console.log('un highlight', element.name);
 							$(element).closest("label[class*='input']").removeClass('state-error');
 						},
 						errorElement: 'div',
@@ -1144,8 +1154,6 @@ textarea.form-control {
 				if(item.text != null && item.type == "Text"){
 					outString += item.text;
 				}
-				console.log("item.record",item.record);
-				console.log("item",item);
 			});
 			return outString;
 		}

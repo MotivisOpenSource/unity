@@ -6,6 +6,10 @@ ul li, ol li {
 .without-menu {
 	height: 95px !important;
 }
+.logopos {
+  position: absolute;
+  bottom: 10px;
+}
 </style>
 
 <!-- For Background Image -->
@@ -20,6 +24,14 @@ ul li, ol li {
 </apex:outputPanel>
 <!-- End For Background Image -->
 
+<apex:outputPanel rendered="{!ISPICKVAL($User.UserType,'Guest')}">
+	<script type="text/javascript">
+		(function() {
+			window.location.href = '{!$Site.Prefix}/login';
+			$('body').hide();
+		})();
+	</script>
+</apex:outputPanel>
 <apex:outputPanel rendered="{!Registration == 'true'}">
 	<script type="text/javascript">
 		(function() {
@@ -73,7 +85,7 @@ ul li, ol li {
 					<span class="sr-only">Toggle navigation</span>
 					<span class="fa fa-bars"></span>
 				</button>
-				<apex:outputLink value="{!$Page.CommunityHome}" styleClass="item active" rendered="{!!ISBLANK($Setup.Community_Template_Settings__c.Header_Logo_ImageID__c)}">
+				<apex:outputLink value="{!$Page.CommunityHome}" styleClass="item active logopos" rendered="{!!ISBLANK($Setup.Community_Template_Settings__c.Header_Logo_ImageID__c)}">
 					<img alt="Logo" src="{!$Site.Prefix}/servlet/servlet.ImageServer?oid={!$Organization.Id}&id={!$Setup.Community_Template_Settings__c.Header_Logo_ImageID__c}"/>
 				</apex:outputLink>
 			</div>

@@ -69,7 +69,6 @@ global without sharing class CommunityHomeNotificationsController {
     	
         List<EntitySubscription> follows = new List<EntitySubscription>();
         Set<Id> followsIds = new Set<Id>();
-
     // get Group_Control 
     // where user is owner or manager
 		List<Community_Group_Manager__c> cGManagers = [SELECT Manager_Role__c, Group_Manager_User__c, Group_Control__c 
@@ -81,6 +80,7 @@ global without sharing class CommunityHomeNotificationsController {
 		for(Community_Group_Manager__c cGManager : cGManagers){
     		managersIds.add(cGManager.Group_Control__c);
 		}
+
 		
         if(userType.equalsIgnoreCase('Standard')){
         	follows = [SELECT Id, ParentId, SubscriberId, NetworkId 
@@ -105,6 +105,7 @@ global without sharing class CommunityHomeNotificationsController {
         	controlsIds.add(gControl.Id);
         	gControlGroups.put(gControl.Id, new List<String>{gControl.Chatter_Group_ID__c, gControl.Name});
         }
+
 
     // get feed from groups
 		List<FeedItem> feeds = [SELECT Id, ParentId, Type, CommentCount, LinkUrl, LastModifiedDate, CreatedById, Visibility 

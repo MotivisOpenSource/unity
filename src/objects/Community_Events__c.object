@@ -436,8 +436,7 @@
         <columns>Start__c</columns>
         <columns>End__c</columns>
         <columns>Teaser__c</columns>
-        <columns>CREATED_DATE</columns>
-        <columns>LAST_UPDATE</columns>
+        <columns>CREATEDBY_USER</columns>
         <filterScope>Everything</filterScope>
         <label>All Events</label>
         <language>en_US</language>

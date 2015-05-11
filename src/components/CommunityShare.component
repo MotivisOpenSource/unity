@@ -8,7 +8,7 @@
 	<style>
 		.addGroups{
 			text-decoration: none !important;
- 		 	color: #2da5da !important;
+ 		 	color: #72c02c !important;
 		}
 		.m-status {
 			color: white;
@@ -84,9 +84,9 @@
 	<button id="shareButton" class="btn-u" data-toggle="modal" data-target="#shareModal" title="{!$Label.BTN_Rechat}" onclick="loadGroupSuggestions();return false;">{!$Label.BTN_Rechat}</button>
 
 	<div class="modal fade in" id="shareModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false" style="display:none;">
-		<i class="fa fa-spinner fa-pulse m-status"></i>
+		<!--<i class="fa fa-spinner fa-pulse m-status"></i>-->
 		<div id="shareModalDialog" class="modal-dialog">
-			<div class="modal-content">
+			<div class="modal-content" style="text-align: left;">
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
 					<h4 class="modal-title" id="myModalLabel">{!$Label.BTN_Rechat}</h4>
@@ -126,17 +126,17 @@
 								</div>
 							</section>
 							<section>
-								<apex:inputCheckbox id="shareOnProfile" title="{!$Label.LBL_Share_on_Profile}"/>
-								&nbsp;<apex:outputLabel for="shareOnProfile" value="{!$Label.LBL_Share_on_Profile}"/>
+								<apex:commandLink value="Add Groups" onclick="getAvailableGroups(false); return false;" styleClass="addGroups"/>
 							</section>
 							<section>
-								<apex:commandLink value="Add Groups" onclick="getAvailableGroups(false); return false;" styleClass="addGroups"/>
+								<apex:inputCheckbox id="shareOnProfile" title="{!$Label.LBL_Share_on_Profile}"/>
+								&nbsp;<apex:outputLabel for="shareOnProfile" value="{!$Label.LBL_Share_on_Profile}"/>
 							</section>
 						</fieldset>
 					</div>
 					<apex:outputPanel id="availGroupsPanel" layout="Block">
 						<apex:inputHidden id="availGroupsOut" value="{!availGroups}" />
-						<div class="panel-group acc-v1" id="accordion-1">
+						<div class="panel-group acc-v1" id="accordion-1" style="padding: 0 30px 5px;">
 							<apex:variable value="{!1}" var="rowNum"/>
 							<apex:repeat value="{!AvailableGroups}" var="ag">
 								<div id="tName" class="panel panel-default" >
@@ -158,12 +158,12 @@
 								</div>
 								<apex:variable var="rowNum" value="{!rowNum + 1}"/>	
 							</apex:repeat>
-							<br/><apex:commandButton id="doneBtn" value="Done" onclick="getAvailableGroups(true); return false;" styleClass="btn-u btn-u-primary"/>
+							<br/><apex:commandButton id="doneBtn" value="{!$Label.LBL_Done}" onclick="getAvailableGroups(true); return false;" styleClass="btn-u btn-u-primary"/>
 						</div>
 					</apex:outputPanel>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn-u btn-u-default margin-right-10" data-dismiss="modal">Close</button>
+					<button type="button" class="btn-u btn-u-default margin-right-10" data-dismiss="modal">{!$label.BTN_Cancel}</button>
 					<apex:commandButton id="shBtn"  value="{!$Label.BTN_Share}" onclick="shareForGroups(); return false;" styleClass="btn-u btn-u-primary"/>
 				</div>
 			</div>
@@ -177,6 +177,7 @@
 				'{!$RemoteAction.CommunityShareController.getGroupsSelector}',
 				query,
 				function(result, event) {
+					if(result == null) return;
 					var div = document.createElement('div');
 					div.innerHTML = result;
 					var gdata = JSON.parse(div.firstChild.nodeValue);

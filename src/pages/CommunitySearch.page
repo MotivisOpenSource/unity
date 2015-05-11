@@ -14,7 +14,9 @@
 					</apex:outputPanel>
 				</div>
 				<apex:outputPanel layout="none" rendered="{!mode != 'none'}">
-
+					<style>
+						.share-list li a i { color:inherit; margin-right:inherit; }
+					</style>
 					<div id="groupresults" >
 						<apex:outputPanel id="gsect" layout="block" styleClass="container content" rendered="{!mode == 'discover' || mode == 'search'}">
 							<div class="headline"><h3>Group results for {!FilterName}</h3></div>
@@ -45,24 +47,26 @@
 										<ul id="gr{!g.GroupId}" class="list-inline share-list" >
 											<li><i class="fa fa-group"></i><span name="folc">{!g.GroupMembersCount}</span>&nbsp;Followers</li>
 											<!--li style="padding-left: 5px;"><i class="fa fa-share"></i><a href="#">Share</a></li-->
-											<apex:outputLink value="javascript:;" onclick="chckabtn('2','{!JSENCODE(g.GroupId)}');" styleClass="btn-u pull-right" rendered="{JSENCODE(!g.CurrentMemberRole) == 'Standard'}">
-												<i class="fa fa-check"></i>&nbsp;{!$Label.LBL_Member}
-											</apex:outputLink>
-											<apex:outputLink value="javascript:;" onclick="chckabtn('4','{!JSENCODE(g.GroupId)}');" styleClass="btn-u pull-right" rendered="{!JSENCODE(g.CurrentMemberRole) == 'Admin'}">
-												<i class="fa fa-star-half-o"></i>&nbsp;{!$Label.LBL_Manager}
-											</apex:outputLink>
-											<apex:outputLink value="javascript:;" onclick="chckabtn('1','{!JSENCODE(g.GroupId)}');" styleClass="btn-u btn-u-blue pull-right" rendered="{!JSENCODE(g.CurrentMemberRole) == 'NotAMember' && JSENCODE(g.NotAMemberStatus) == 'Join'}">
-												<i class="fa fa-plus-circle"></i>&nbsp;{!$Label.BTN_Join}
-											</apex:outputLink>
-											<apex:outputLink value="javascript:;" onclick="chckabtn('5','{!JSENCODE(g.GroupId)}');" styleClass="btn-u btn-u-blue pull-right" rendered="{!JSENCODE(g.CurrentMemberRole) == 'NotAMember' && JSENCODE(g.NotAMemberStatus) == 'RequestToJoin'}">
-												<i class="fa fa-plus-circle"></i>&nbsp;{!$Label.LBL_RequestToJoin}
-											</apex:outputLink>
-											<apex:outputLink value="javascript:;" onclick="chckabtn('6','{!JSENCODE(g.GroupId)}');" styleClass="btn-u btn-u-orange pull-right" rendered="{!JSENCODE(g.CurrentMemberRole) == 'NotAMember' && JSENCODE(g.NotAMemberStatus) == 'Requested'}">
-												<i class="fa fa-times-circle"></i>&nbsp;{!$Label.LBL_Requested}
-											</apex:outputLink>
-											<apex:outputLink value="javascript:;" onclick="chckabtn('0','{!JSENCODE(g.GroupId)}');" styleClass="btn-u pull-right" rendered="{!JSENCODE(g.CurrentMemberRole) == 'Owner'}">
-												<i class="fa fa-star"></i>&nbsp;{!$Label.LBL_Owner}
-											</apex:outputLink>
+											<li class="pull-right">
+												<apex:outputLink value="javascript:;" onclick="chckabtn('2','{!g.GroupId}');" styleClass="btn-u" rendered="{!g.CurrentMemberRole == 'Standard'}">
+													<i class="fa fa-check"></i>&nbsp;{!$Label.LBL_Member}
+												</apex:outputLink>
+												<apex:outputLink value="javascript:;" onclick="chckabtn('4','{!g.GroupId}');" styleClass="btn-u" rendered="{!g.CurrentMemberRole == 'Admin'}">
+													<i class="fa fa-star-half-o"></i>&nbsp;{!$Label.LBL_Manager}
+												</apex:outputLink>
+												<apex:outputLink value="javascript:;" onclick="chckabtn('1','{!g.GroupId}');" styleClass="btn-u btn-u-blue" rendered="{!g.CurrentMemberRole == 'NotAMember' && g.NotAMemberStatus == 'Join'}">
+													<i class="fa fa-plus-circle"></i>&nbsp;{!$Label.BTN_Join}
+												</apex:outputLink>
+												<apex:outputLink value="javascript:;" onclick="chckabtn('5','{!g.GroupId}');" styleClass="btn-u btn-u-blue" rendered="{!g.CurrentMemberRole == 'NotAMember' && g.NotAMemberStatus == 'RequestToJoin'}">
+													<i class="fa fa-plus-circle"></i>&nbsp;{!$Label.LBL_RequestToJoin}
+												</apex:outputLink>
+												<apex:outputLink value="javascript:;" onclick="chckabtn('6','{!g.GroupId}');" styleClass="btn-u btn-u-orange" rendered="{!g.CurrentMemberRole == 'NotAMember' && g.NotAMemberStatus == 'Requested'}">
+													<i class="fa fa-times-circle"></i>&nbsp;{!$Label.LBL_Requested}
+												</apex:outputLink>
+												<apex:outputLink value="javascript:;" onclick="chckabtn('0','{!g.GroupId}');" styleClass="btn-u" rendered="{!g.CurrentMemberRole == 'Owner'}">
+													<i class="fa fa-star"></i>&nbsp;{!$Label.LBL_Owner}
+												</apex:outputLink>
+											</li>
 										</ul>
 									</div>
 								</li>

@@ -89,8 +89,10 @@
 						}
 						else if (m == 3) {
 							var cropData = $('[id$=stfopi]').cropper('getData');
+							var crc = $('[id$=stfopi]').cropper('getImageData');
+							var pin = Math.floor(crc.naturalWidth / crc.width);
 							$('#stfomd').hide();
-							photoaction(Math.floor(cropData.x),Math.floor(cropData.y),Math.floor(cropData.width));
+							photoaction(Math.floor(cropData.x)*pin,Math.floor(cropData.y)*pin,Math.floor(cropData.width)*pin);
 						}
 					}
 					function upsha() {

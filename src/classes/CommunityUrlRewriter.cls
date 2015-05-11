@@ -30,15 +30,15 @@ global without sharing class CommunityUrlRewriter implements Site.UrlRewriter {
 			redirect = Page.CommunityFeed_MyFeed;
 			
 		}
-		
-		if (url.contains(STANDARD_GROUP_DETAIL_PAGE)) {			
-			redirect = Page.CommunityGroupDetailPage;			
-			redirect.getparameters().put('gr', String.valueOf(Id.valueof( myFriendlyUrl.getparameters().get('g') ) ) );				
+
+		if (url.contains(STANDARD_GROUP_DETAIL_PAGE)) {
+			redirect = Page.CommunityGroupDetailPage;
+			redirect.getparameters().put('gr', String.valueOf(Id.valueof( myFriendlyUrl.getparameters().get('g') ) ) );
 			if(myFriendlyUrl.getparameters().get('filter')=='requests') {
 				redirect.setAnchor('#newConversationModal');
-			}								
-		}		
-		
+			}
+		}
+
 		return redirect;
 		/*String url = myFriendlyUrl.getUrl();
 		Boolean noredirect = myFriendlyUrl.getParameters().containsKey('noredirect')

@@ -19,7 +19,6 @@ public with sharing class CommunityTopCategoriesController {
 			(SELECT Id, Name FROM Resource_Tagged_w_Primary__r WHERE Status__c = 'active')
 			FROM Community_Tag__c
 				];
-		String queryString = 'SELECT Id, Name, Icon_Color__c FROM Community_Theme__c';
 		Map<Id,List<Community_Tag__c>> themeTagsMap = new Map<Id,List<Community_Tag__c>>();
 		for (Community_Tag__c tag : allTags) {
 			if (resourceOnly != true || tag.Resource_Tagged_w_Primary__r.size() > 0) {
@@ -29,10 +28,12 @@ public with sharing class CommunityTopCategoriesController {
 				themeTagsMap.get(tag.Community_Theme__c).add(tag);
 			}
 		}
+		String queryString = 'SELECT Id, Name, Icon_Color__c FROM Community_Theme__c';
+		queryString += ' WHERE Theme_Type__c = \'' + (resourceOnly == true ? 'Resource' : 'Interest') + '\'';
 		Set<Id> filteredThemes;
 		if (resourceOnly == true && themeTagsMap.size() > 0) {
 			filteredThemes = themeTagsMap.keySet();
-			queryString += ' WHERE Id IN :filteredThemes';
+			queryString += ' AND Id IN :filteredThemes';
 		}
 		queryString += ' ORDER BY Name';
 		if (resourceOnly != true || themeTagsMap.size() > 0) {

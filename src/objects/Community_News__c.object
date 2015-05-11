@@ -344,6 +344,26 @@
         <unique>false</unique>
     </fields>
     <fields>
+        <fullName>Status__c</fullName>
+        <externalId>false</externalId>
+        <label>Status</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Pending</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Active</fullName>
+                <default>true</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+    </fields>
+    <fields>
         <fullName>Teaser__c</fullName>
         <deprecated>false</deprecated>
         <description>Represents a short description of the News article that will be posted in the Community Portal.</description>
@@ -411,6 +431,7 @@
         <fullName>Alerts_Active</fullName>
         <booleanFilter>(1 AND 2) or (1 and 3)</booleanFilter>
         <columns>NAME</columns>
+        <columns>Alert__c</columns>
         <columns>Title__c</columns>
         <columns>Type__c</columns>
         <columns>Teaser__c</columns>
@@ -468,8 +489,7 @@
         <columns>Entry_Date__c</columns>
         <columns>Expiration_Date__c</columns>
         <columns>Make_Entry_Sticky__c</columns>
-        <columns>Allow_Comments__c</columns>
-        <columns>Comment_Expiration_Date__c</columns>
+        <columns>CREATEDBY_USER</columns>
         <filterScope>Everything</filterScope>
         <filters>
             <field>Entry_Date__c</field>
@@ -521,7 +541,6 @@
         <customTabListAdditionalFields>Make_Entry_Sticky__c</customTabListAdditionalFields>
         <customTabListAdditionalFields>Teaser__c</customTabListAdditionalFields>
         <excludedStandardButtons>ChangeOwner</excludedStandardButtons>
-        <excludedStandardButtons>New</excludedStandardButtons>
         <lookupDialogsAdditionalFields>Title__c</lookupDialogsAdditionalFields>
         <lookupDialogsAdditionalFields>Type__c</lookupDialogsAdditionalFields>
         <lookupDialogsAdditionalFields>Teaser__c</lookupDialogsAdditionalFields>

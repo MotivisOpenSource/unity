@@ -94,7 +94,7 @@
 					</div>
 					<apex:outputPanel layout="block" rendered="{!RequestCount > 0}" styleClass="margin-bottom-20">
 						<a href="#newConversationModal" role="button" data-toggle="modal" onclick="switchToRequestMode();$('[id$=memin]').hide();" style="color:#e9b605;">
-							<span>{!$Label.LBL_Pending} ({!RequestCount})</span>
+							<strong>{!$Label.LBL_Pending} ({!RequestCount})</strong>
 						</a>
 					</apex:outputPanel>
 					<div class="blog-twitter">
@@ -134,67 +134,85 @@
 					</h4>
 				</div>
 				<apex:outputPanel id="memin" layout="block" styleClass="modal-body">
-					<table class="table table-hover" id="groupmembertable">
-						<apex:repeat value="{!members.users}" var="mmbr" id="membermodal">
-							<tr>
-								<td width="50px">
-									<a href="{!$Page.CommunityProfilePage}?id={!mmbr.id}">
-										<apex:image styleClass="rounded-x" style="margin-top: 0px; margin-bottom: 0px" url="{!mmbr.photourl}" width="50px" height="50px"/>
-									</a>
-								</td>
-								<td>
-									<div class="name-location">
+					<section>
+						<label class="input">
+							<i class="icon-append fa fa-search"></i>
+							<apex:inputText id="srchid" value="{!members.query}" html-placeholder="{!$Label.LBL_SearchByName}" onkeyup="searchAction(this);"/>
+						</label>
+					</section>
+					<script>
+						$('[id$=srchid]').keypress(function(event){
+							if (event.keyCode == 10 || event.keyCode == 13) {
+								event.preventDefault();
+							}
+						});
+					</script>
+					<apex:outputPanel id="allpb" layout="block">
+						<apex:outputPanel layout="block" styleClass="alert alert-warning" rendered="{!members.users.size == 0}">
+							<i class="fa fa-exclamation-triangle"></i>&nbsp;&nbsp;{!$Label.LBL_NoUsersFound}
+						</apex:outputPanel>
+						<table class="table table-hover" id="groupmembertable">
+							<apex:repeat value="{!members.users}" var="mmbr" id="membermodal">
+								<tr>
+									<td width="50px">
 										<a href="{!$Page.CommunityProfilePage}?id={!mmbr.id}">
-											<strong>{!mmbr.name}</strong>
-										</a><br/>
-										<span>{!mmbr.role}</span>
-									</div>
-								</td>
-								<td id="cell{!mmbr.id}" class="text-right">
-									<apex:outputPanel layout="none" rendered="{!memberMode && mmbr.follow && mmbr.id != $User.Id}">
-										<button id="{!mmbr.id}" type="button" class="btn btn-u btn-u-blue" onclick="toogleFollowing('{!mmbr.id}');return false;">
-											<i class="fa fa-check"></i>
-											&nbsp;{!$Label.BTN_Following}
-										</button>
-									</apex:outputPanel>
-									<apex:outputPanel layout="none" rendered="{!memberMode && !mmbr.follow && mmbr.id != $User.Id}">
-										<button id="{!mmbr.id}" type="button" class="btn btn-u" onclick="toogleFollowing('{!mmbr.id}');return false;">
-											<i class="fa fa-plus-circle"></i>
-											&nbsp;{!$Label.LBL_Follow}
-										</button>
-									</apex:outputPanel>
-									<apex:outputPanel layout="none" rendered="{!requestMode}">
-										<button class="btn-u" onclick="msproc(7,'{!mmbr.id}');return false;" type="button">
-											<i class="fa fa-plus-circle" ></i>&nbsp;{!$Label.BTN_Accept}
-										</button>
-										<button class="btn-u btn-u-red" onclick="msproc(8,'{!mmbr.id}');return false;" type="button">
-											<i class="fa fa-times-circle" ></i>&nbsp;{!$Label.BTN_Decline}
-										</button>
-									</apex:outputPanel>
-								</td>
-							</tr>
-						</apex:repeat>
-					</table>
-					<apex:outputPanel layout="none" rendered="{!members.showPagination}">
-						<ul class="pager">
-							<apex:outputPanel layout="none" rendered="{!members.hasPrevious}">
-								<li class="previous">
-									<apex:commandLink action="{!members.firstPage}" value="{!$Label.LBL_First}" rerender="memlist" status="statusLoad"/>
-								</li>
-								<li class="previous">
-									<apex:commandLink action="{!members.previousPage}" value="{!$Label.LBL_Previous}" rerender="memlist" styleClass="margin-left-5" status="statusLoad"/>
-								</li>
-							</apex:outputPanel>
-							<li><apex:outputText value="{!$Label.LBL_Page} {!members.pageNumber} {!$Label.LBL_of} {!members.totalPages}"/></li>
-							<apex:outputPanel layout="none" rendered="{!members.hasNext}">
-								<li class="next">
-									<apex:commandLink action="{!members.lastPage}" value="{!$Label.LBL_Last}" rerender="memlist" styleClass="margin-left-5" status="statusLoad"/>
-								</li>
-								<li class="next">
-									<apex:commandLink action="{!members.nextPage}" value="{!$Label.LBL_Next}" rerender="memlist" status="statusLoad"/>
-								</li>
-							</apex:outputPanel>
-						</ul>
+											<apex:image styleClass="rounded-x" style="margin-top: 0px; margin-bottom: 0px" url="{!mmbr.photourl}" width="50px" height="50px"/>
+										</a>
+									</td>
+									<td>
+										<div class="name-location">
+											<a href="{!$Page.CommunityProfilePage}?id={!mmbr.id}">
+												<strong>{!mmbr.name}</strong>
+											</a><br/>
+											<span>{!mmbr.role}</span>
+										</div>
+									</td>
+									<td id="cell{!mmbr.id}" class="text-right">
+										<apex:outputPanel layout="none" rendered="{!memberMode && mmbr.follow && mmbr.id != $User.Id}">
+											<button id="{!mmbr.id}" type="button" class="btn btn-u btn-u-blue" onclick="toogleFollowing('{!mmbr.id}');return false;">
+												<i class="fa fa-check"></i>
+												&nbsp;{!$Label.BTN_Following}
+											</button>
+										</apex:outputPanel>
+										<apex:outputPanel layout="none" rendered="{!memberMode && !mmbr.follow && mmbr.id != $User.Id}">
+											<button id="{!mmbr.id}" type="button" class="btn btn-u" onclick="toogleFollowing('{!mmbr.id}');return false;">
+												<i class="fa fa-plus-circle"></i>
+												&nbsp;{!$Label.LBL_Follow}
+											</button>
+										</apex:outputPanel>
+										<apex:outputPanel layout="none" rendered="{!requestMode}">
+											<button class="btn-u" onclick="msproc(7,'{!mmbr.id}');return false;" type="button">
+												<i class="fa fa-plus-circle" ></i>&nbsp;{!$Label.BTN_Accept}
+											</button>
+											<button class="btn-u btn-u-red" onclick="msproc(8,'{!mmbr.id}');return false;" type="button">
+												<i class="fa fa-times-circle" ></i>&nbsp;{!$Label.BTN_Decline}
+											</button>
+										</apex:outputPanel>
+									</td>
+								</tr>
+							</apex:repeat>
+						</table>
+						<apex:outputPanel layout="none" rendered="{!members.showPagination}">
+							<ul class="pager">
+								<apex:outputPanel layout="none" rendered="{!members.hasPrevious}">
+									<li class="previous">
+										<apex:commandLink action="{!members.firstPage}" value="{!$Label.LBL_First}" rerender="memlist" status="statusLoad"/>
+									</li>
+									<li class="previous">
+										<apex:commandLink action="{!members.previousPage}" value="{!$Label.LBL_Previous}" rerender="memlist" styleClass="margin-left-5" status="statusLoad"/>
+									</li>
+								</apex:outputPanel>
+								<li><apex:outputText value="{!$Label.LBL_Page} {!members.pageNumber} {!$Label.LBL_of} {!members.totalPages}"/></li>
+								<apex:outputPanel layout="none" rendered="{!members.hasNext}">
+									<li class="next">
+										<apex:commandLink action="{!members.lastPage}" value="{!$Label.LBL_Last}" rerender="memlist" styleClass="margin-left-5" status="statusLoad"/>
+									</li>
+									<li class="next">
+										<apex:commandLink action="{!members.nextPage}" value="{!$Label.LBL_Next}" rerender="memlist" status="statusLoad"/>
+									</li>
+								</apex:outputPanel>
+							</ul>
+						</apex:outputPanel>
 					</apex:outputPanel>
 				</apex:outputPanel>
 				<div class="modal-footer">
@@ -202,6 +220,7 @@
 				</div>
 				<apex:actionFunction name="switchToMemberMode" action="{!switchToMemberMode}" rerender="memlist,rightpanel" status="statusLoad"/>
 				<apex:actionFunction name="switchToRequestMode" action="{!switchToRequestMode}" rerender="memlist" status="statusLoad"/>
+				<apex:actionFunction action="{!members.firstPage}" name="firstPage" rerender="allpb" status="statusLoad"/>
 			</apex:form>
 			<script>
 				function msproc(inm,inid) {
@@ -214,6 +233,9 @@
 						inm,
 						function(result, event) {
 							$('#cell'+result).closest('tr').remove();
+							if ($('#groupmembertable tr').length == 0) {
+								$('[id$=allpb]').prepend('<div class="alert alert-success"><i class="fa fa-thumbs-o-up"></i>&nbsp;&nbsp;{!$Label.LBL_PendingRequestsDone_Message}</div>');
+							}
 						}
 					);
 				}
@@ -231,6 +253,11 @@
 						$('#' + inid).removeClass('btn-u-blue').html('<i class="fa fa-plus-circle"></i>&nbsp;{!$Label.LBL_Follow}');
 					}
 				}
+				var searchAction = _.debounce(function(inthis) {
+					if (inthis.value.trim().length != 1) {
+						firstPage();
+					}
+				}, 500);
 			</script>
 		</div>
 	</div>

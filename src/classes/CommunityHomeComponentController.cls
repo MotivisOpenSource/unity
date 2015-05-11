@@ -6,6 +6,7 @@ public with sharing class CommunityHomeComponentController {
 						SELECT Id, Title__c, Teaser__c, Image_Path__c
 						FROM Community_News__c
 						WHERE Feature_on_Home_Page_Slot__c != NULL AND Expiration_Date__c > TODAY
+						AND Status__c != 'Pending' AND Entry_Date__c <= TODAY
 						ORDER BY Feature_on_Home_Page_Slot__c ASC NULLS LAST
 						LIMIT 3
 							]) {
@@ -21,7 +22,7 @@ public with sharing class CommunityHomeComponentController {
 			SELECT Id, Title__c, Teaser__c, Image_Path__c, Entry_Date__c
 			FROM Community_News__c
 			WHERE Entry_Date__c <= TODAY AND Expiration_Date__c > TODAY
-			AND Make_Entry_Sticky__c = true
+			AND Make_Entry_Sticky__c = true AND Status__c != 'Pending'
 			ORDER BY Make_Entry_Sticky__c, Entry_Date__c DESC LIMIT 2
 				];
 		List<News> resultList = new List<News>();

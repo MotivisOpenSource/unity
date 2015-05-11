@@ -125,6 +125,11 @@
 				<button id="bsbtbtn" class="btn-u pull-right" type="button" style="opacity:{!IF(disabledNext,'0.65','1')};" onclick="completeCurrentStep();btnstatus();return false;">
 					{!IF(leftSideBar.LastStep,$Label.BTN_Submit,$Label.LBL_Next)}
 				</button>
+				<apex:outputPanel layout="none" rendered="{!disabledNext}">
+					<script>
+						$('[id$=bsbtbtn]').attr('disabled','disabled');
+					</script>
+				</apex:outputPanel>
 				<script>
 					function chkchkb(el) {
 						if (el.checked) {

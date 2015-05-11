@@ -47,7 +47,7 @@ public with sharing class CommunitySearchController {
 	private static Map<String,String> SOQL_FILTER = new Map<String,String> {
 		'Community_Events__c' => 'Community_Event__c:;: FROM Community_Event_Tag__c WHERE Community_Event__r.Public__c = true',
 		'Community_Group_Control__c' => 'Group_Control__c:;: FROM Community_Group_Control_Tag__c WHERE Group_Control__r.Discoverable__c = true',
-		'Community_News__c' => 'Community_News__c:;: FROM Community_News_Tag__c WHERE Community_News__r.Entry_Date__c <= TODAY AND Community_News__r.Alert__c = false',
+		'Community_News__c' => 'Community_News__c:;: FROM Community_News_Tag__c WHERE Community_News__r.Entry_Date__c <= TODAY AND Community_News__r.Alert__c = false AND Community_News__r.Status__c != \'Pending\'',
 		'Community_Resource__c' => 'Resource__c:;: FROM Community_Resource_Tag__c WHERE Resource__r.Status__c = \'active\''
 	};
 

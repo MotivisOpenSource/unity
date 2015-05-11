@@ -142,8 +142,8 @@ public with sharing class CommunityRegTermsController {
 	}
 
 	public Boolean getDisabledNext() {
-		return (stepName == 'tc' && !tcCheckbox)
-				|| (stepName == 'picture' && (currentUser.FullPhotoUrl == NULL || currentUser.FullPhotoUrl.endsWith('/profilephoto/005/F')));
+		return (stepName == 'tc' && !tcCheckbox);
+/*				|| (stepName == 'picture' && (currentUser.FullPhotoUrl == NULL || currentUser.FullPhotoUrl.endsWith('/profilephoto/005/F')));*/
 	}
 
 	//remote actions

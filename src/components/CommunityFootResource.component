@@ -1,7 +1,5 @@
 <apex:component >
-
 	<!-- JS Global Compulsory -->
-	<!-- <script type="text/javascript" src="{!$Resource.assets}/plugins/jquery/jquery.min.js"></script> -->
 	<apex:includeScript value="{!$Resource.assets}/plugins/jquery/jquery.min.js"/>
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/jquery/jquery-migrate.min.js"></script>
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/bootstrap/js/bootstrap.min.js"></script>
@@ -14,18 +12,21 @@
 	<script type="text/javascript" src="{!$Resource.assets}/js/app.js"></script>
 	<!-- JS Customization -->
 	<script type="text/javascript" src="{!$Resource.assets}/js/custom.js"></script>
+	<!-- JS Implementing Plugins -->
+	<script type="text/javascript">
+		jQuery(document).ready(function() {
+			App.init();
+		});
+		jQuery(document).ready(function ($) {
+			"use strict";
+			$('.contentHolder').perfectScrollbar();
+		});
+	</script>
 
 	<!--[if lt IE 9]>
 		<script src="{!$Resource.assets}/plugins/respond.js"></script>
 		<script src="{!$Resource.assets}/plugins/html5shiv.js"></script>
 		<script src="{!$Resource.assets}/js/plugins/placeholder-IE-fixes.js"></script>
 	<![endif]-->
-
-	<script>
-		jQuery(document).ready(function ($) {
-			"use strict";
-			$('.contentHolder').perfectScrollbar();
-		});
-	</script>
 
 </apex:component>

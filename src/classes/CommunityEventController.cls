@@ -323,7 +323,8 @@ public with sharing class CommunityEventController {
 		Id userId = UserInfo.getUserId();
 		String eQuery = 'SELECT Id, Name__c, Teaser__c, Start__c FROM Community_Events__c';
 		//eQuery += ' WHERE Start__c != NULL';
-		eQuery += ' WHERE Start__c != NULL AND Start__c <= :eNow AND (Public__c = true OR OwnerId = :userId) AND (End__c = NULL OR End__c >= :eNow)';
+		eQuery += ' WHERE (Public__c = true OR OwnerId = :userId) AND ((End__c = NULL AND Start__c != NULL AND Start__c <= :eNow) OR (End__c != NULL OR End__c >= :eNow))';
+		//eQuery += ' WHERE Start__c != NULL AND Start__c <= :eNow AND (Public__c = true OR OwnerId = :userId) AND (End__c = NULL OR End__c >= :eNow)';
 		Set<Id> cnIds = new Set<Id>();
 		try {
 			Map<String, String> pageParams = ApexPages.currentPage().getParameters();
@@ -369,7 +370,7 @@ public with sharing class CommunityEventController {
 		}
 
 		Map<Id,List<Tag>> eventTagsMap = new Map<Id,List<Tag>>();
-		for (Community_Event_Tag__c cetItem2 : [
+		/*for (Community_Event_Tag__c cetItem2 : [
 								SELECT Community_Event__c, Community_Tag__c, Community_Tag__r.Name, Community_Tag__r.Community_Theme__c, Community_Tag__r.Community_Theme__r.Name
 								FROM Community_Event_Tag__c WHERE Community_Tag__c != NULL AND Community_Event__c IN :eventsPageIds
 									]) {
@@ -377,7 +378,7 @@ public with sharing class CommunityEventController {
 				eventTagsMap.put(cetItem2.Community_Event__c, new List<Tag>());
 			}
 			eventTagsMap.get(cetItem2.Community_Event__c).add(new Tag(cetItem2));
-		}
+		}*/
 
 		eventsPage = new List<List<EventItem>>();
 		Integer divider = 1;

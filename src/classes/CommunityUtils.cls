@@ -57,6 +57,17 @@ public class CommunityUtils {
 		// 2 - Delete Chatter Group Member
 		if (inmm < 3) {
 			if (inmm == 2) {
+				// delete manager if exist
+				List<Community_Group_Manager__c> cgmList2 = [SELECT Id FROM Community_Group_Manager__c WHERE Group_Manager_User__c =:inUserId AND Group_Control__c =:cgc.Id];
+				List<EntitySubscription> esList2 = [SELECT Id FROM EntitySubscription WHERE ParentId = :cgc.Id AND SubscriberId = :inUserId LIMIT 1];
+				delete cgmList2;
+				delete esList2;
+				if (cgmList.size() > 0 && cgmList[0].CollaborationRole == 'Admin') {
+					cgmList[0].CollaborationRole = 'Standard';
+					update cgmList;
+				}
+				resultType = ConnectApi.GroupMembershipType.StandardMember;
+				//
 				delete cgmList;
 				resultType = ConnectApi.GroupMembershipType.NotAMember;
 			}

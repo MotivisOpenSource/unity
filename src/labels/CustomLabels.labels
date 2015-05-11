@@ -946,6 +946,13 @@
         <value>Location</value>
     </labels>
     <labels>
+        <fullName>LBL_Locked_Message</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Locked Message</shortDescription>
+        <value>This record is locked by</value>
+    </labels>
+    <labels>
         <fullName>LBL_Logout</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -1191,6 +1198,13 @@
         <value>No upcoming events have been posted to this group.</value>
     </labels>
     <labels>
+        <fullName>LBL_No_share_destination</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Please select the destination for sharing this item</shortDescription>
+        <value>Please select the destination for sharing this item.</value>
+    </labels>
+    <labels>
         <fullName>LBL_NotificationSettings_Message1</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -1287,6 +1301,13 @@
         <protected>true</protected>
         <shortDescription>LBL Pending</shortDescription>
         <value>Pending</value>
+    </labels>
+    <labels>
+        <fullName>LBL_PendingRequestsDone_Message</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL PendingRequestsDone Message</shortDescription>
+        <value>Well done! No requests to review at this time.</value>
     </labels>
     <labels>
         <fullName>LBL_PendingRequestsManager_Title</fullName>
@@ -1718,7 +1739,7 @@
         <fullName>LBL_When</fullName>
         <language>en_US</language>
         <protected>true</protected>
-        <shortDescription>LBL_When</shortDescription>
+        <shortDescription>LBL When</shortDescription>
         <value>When:</value>
     </labels>
     <labels>

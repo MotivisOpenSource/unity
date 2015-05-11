@@ -6,6 +6,12 @@ global without sharing class CommunityFeedController {
 	public String parentId { get { return parentId == NULL ? UserInfo.getUserId() : parentId; } set; }
 	public String feedType { get;set; }
 	public Boolean fullMode { get;set; }
+	public String parentIdForAtt {get {
+			User us = [SELECT Id, ContactId, Community_Contact_ID__c FROM User WHERE Id = :UserInfo.getUserId()];
+			if(us.ContactId != null) return us.ContactId;
+			if(us.Community_Contact_ID__c != null) return us.Community_Contact_ID__c;
+			return null;
+		} set;}
 	public String NetworkId {get { 
 		if(!parentId.startsWith('0F9') && (String.isBlank(feedType) || feedType == '4' || feedType == '5')){
 			return 'AllNetworks';
@@ -216,6 +222,7 @@ global without sharing class CommunityFeedController {
 		fei.subjectId = inParentId3;
 		fei.body = werewolfText(inText3);
 		fei.feedElementType = ConnectApi.FeedElementType.FeedItem;
+		fei.visibility = ConnectApi.FeedItemVisibilityType.AllUsers;
 		String newFeed = json.serialize(ConnectApi.ChatterFeeds.postFeedElement(Network.getNetworkId(), fei, NULL));
 		FeedElementPage fepResult = new FeedElementPage();
 		fepResult.elements = new List<FeedElement> { (FeedElement)JSON.deserialize(newFeed,FeedElement.class) };
@@ -251,6 +258,7 @@ global without sharing class CommunityFeedController {
 		ConnectApi.FeedItemInput fei = new ConnectApi.FeedItemInput();
 		fei.subjectId = inParentId4;
 		fei.feedElementType = ConnectApi.FeedElementType.FeedItem;
+		fei.visibility = ConnectApi.FeedItemVisibilityType.AllUsers;
 		String resultPage;
 		if (String.isNotBlank(errField)) {
 			resultPage = 'ERR"' + errField + '" is required';
@@ -491,42 +499,31 @@ global without sharing class CommunityFeedController {
 	}
 
 	@RemoteAction
-	global static String werewolfTextRemote(String intxtr, String jsStr) {
-		ChatterActionLayout layout = (ChatterActionLayout)JSON.deserialize(jsStr,ChatterActionLayout.class);			
-		String intxt = layout.items[1].value;
-		Body result = new Body();
-		result.messageSegments = new List<MessageSegments>();
-		while(intxt.length() > 0) {
-			MessageSegments msi = new MessageSegments();
-			msi.record = new Record();
-			Integer index = intxt.indexOf('@[');
-			index = index == -1 ? intxt.length() : index;
-			if (index > 0) {
-				msi.text = intxt.substring(0, index);
-				msi.type = 'Text';
-				result.messageSegments.add(msi);
-				intxt = intxt.substring(index, intxt.length());
-			}
-			else {
-				Integer endIndex = intxt.indexOf(']');
-				if (endIndex != -1) {
-					try {
-						msi.type = 'Mention';
-						msi.record.id = intxt.substring(index + 2, endIndex);
-						result.messageSegments.add(msi);
-					}
-					catch (Exception e) {
-						endIndex = index + 1;
-					}
-				}
-				else {
-					endIndex = index + 1;
-				}
-				intxt = intxt.substring(endIndex + 1, intxt.length());
-			}
+	global static String insertAttacmentIntoFeed(String parentId, String attId, String jsStr) {
+		
+		String layoutItemsValue = '';
+		Attachment att = [SELECT Id, Name, ContentType, Body, Description FROM Attachment WHERE Id =:attId LIMIT 1];
+		if(jsStr != null){
+			ChatterActionLayout layout = (ChatterActionLayout)JSON.deserialize(jsStr,ChatterActionLayout.class);
+			layoutItemsValue = layout.items[1].value;		
 		}
-System.debug('result R ==> '+result);			
-		return json.serialize(result);
+		ConnectApi.FeedItemInput fei = new ConnectApi.FeedItemInput();
+		fei.subjectId = parentId;
+		fei.feedElementType = ConnectApi.FeedElementType.FeedItem;
+		fei.visibility = ConnectApi.FeedItemVisibilityType.AllUsers;
+		fei.capabilities = new ConnectApi.FeedElementCapabilitiesInput();
+		fei.capabilities.content = new ConnectApi.ContentCapabilityInput();
+		fei.capabilities.content.title = att.Name;
+		fei.capabilities.content.description = layoutItemsValue;
+		fei.body = werewolfText(layoutItemsValue);
+		
+		String newFeed = json.serialize(ConnectApi.ChatterFeeds.postFeedElement(Network.getNetworkId(), fei, new ConnectApi.BinaryInput(att.Body, att.ContentType, att.Name)));
+		FeedElementPage fepResult = new FeedElementPage();
+		fepResult.elements = new List<FeedElement> { (FeedElement)JSON.deserialize(newFeed,FeedElement.class) };
+		fepResult = initialRoles(fepResult);
+		delete att;
+		return json.serialize(fepResult);
+
 	}
 	
 

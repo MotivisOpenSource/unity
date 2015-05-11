@@ -125,13 +125,13 @@
 									<div class="col-md-8">
 										<h2 class="heading-md">{!$Label.LBL_ManagerGroupMembers}</h2>
 									</div>
-									<apex:outputPanel id="memreqlinks" layout="block" styleClass="col-md-4 text-center">
-										<a href="#newConversationModal" role="button" data-toggle="modal" title="{!$Label.LBL_Add_Remove_Members}" onclick="showMemberDialog(true,false,false);$('[id$=memin]').hide();">
+									<apex:outputPanel id="memreqlinks" layout="block" styleClass="col-md-4 text-left">
+										<a href="#newConversationModal" role="button" data-toggle="modal" title="{!$Label.LBL_Add_Remove_Members}" onclick="initmemmodal(true,false,false);">
 											<span><i class="fa fa-user-plus"></i>&nbsp;{!$Label.LBL_Add_Remove_Members}</span>
 										</a>
 										<apex:outputPanel layout="none" rendered="{!RequestCount > 0}">
 											<br/>
-											<a href="#newConversationModal" role="button" data-toggle="modal" onclick="showMemberDialog(false,false,true);$('[id$=memin]').hide();" style="color:#e9b605;font-weight:bold;">
+											<a href="#newConversationModal" role="button" data-toggle="modal" onclick="initmemmodal(false,false,true);" style="color:#e9b605;font-weight:bold;">
 												<span><i class="fa fa-cart-plus"></i>&nbsp;{!RequestCount}&nbsp;{!$Label.LBL_Pending}</span>
 											</a>
 										</apex:outputPanel>
@@ -211,8 +211,8 @@
 									<div class="col-md-8">
 										<h2 class="heading-md">{!$Label.LBL_MangeGroupManagers}</h2>
 									</div>
-									<div class="col-md-4 text-center">
-										<a href="#newConversationModal" role="button" data-toggle="modal" title="{!$Label.LBL_Update_Managers}" onclick="showMemberDialog(false,true,false);$('[id$=memin]').hide();">
+									<div class="col-md-4 text-left">
+										<a href="#newConversationModal" role="button" data-toggle="modal" title="{!$Label.LBL_Update_Managers}" onclick="initmemmodal(false,true,false);">
 											<span><i class="fa fa-user-plus"></i>&nbsp;{!$Label.LBL_Update_Managers}</span>
 										</a>
 									</div>
@@ -343,7 +343,7 @@
 				<div class="modal-header">
 					<button aria-hidden="true" data-dismiss="modal" class="close" type="button" onclick="doneAction();return false;">&times;</button>
 					<h4 id="newConversationModalLabel" class="modal-title">
-						{!MemberModalTitle}
+						<span id="mmtid">{!MemberModalTitle}</span>
 						<apex:actionStatus id="statusLoad">
 							<apex:facet name="start">
 								&nbsp;<i class="fa fa-spinner fa-pulse"></i>
@@ -351,7 +351,7 @@
 						</apex:actionStatus>
 					</h4>
 				</div>
-				<div class="modal-body" style="min-height:400px;">
+				<div class="modal-body">
 					<apex:outputPanel id="memin" layout="block" rendered="{!memberMode || managerMode || requestMode}">
 						<apex:form >
 							<section>
@@ -360,6 +360,13 @@
 									<apex:inputText id="srchid" value="{!allusers.query}" html-placeholder="{!$Label.LBL_SearchByName}" onkeyup="searchAction(this);"/>
 								</label>
 							</section>
+							<script>
+								$('[id$=srchid]').keypress(function(event){
+									if (event.keyCode == 10 || event.keyCode == 13) {
+										event.preventDefault();
+									}
+								});
+							</script>
 							<apex:outputPanel layout="none" rendered="{!memberMode || managerMode}">
 								<section>
 									<label class="checkbox">
@@ -468,9 +475,17 @@
 										inm,
 										function(result, event) {
 											var temp = result.split('-;-');
-											var div = document.createElement('div');
-											div.innerHTML = temp[0];
-											$('#cell'+temp[1]).html(div.firstChild.nodeValue);
+											if (temp[0] == 'delete') {
+												$('#cell'+temp[1]).closest('tr').remove();
+												if ($('#groupmembertable tr').length == 0) {
+													$('[id$=allpb]').prepend('<div class="alert alert-success"><i class="fa fa-thumbs-o-up"></i>&nbsp;&nbsp;{!$Label.LBL_PendingRequestsDone_Message}</div>');
+												}
+											}
+											else {
+												var div = document.createElement('div');
+												div.innerHTML = temp[0];
+												$('#cell'+temp[1]).html(div.firstChild.nodeValue);
+											}
 										}
 									);
 								}
@@ -540,6 +555,11 @@
 		}
 		function initScrollbars () {
 			$('.contentHolder').perfectScrollbar();
+		}
+		function initmemmodal(p1,p2,p3) {
+			showMemberDialog(p1,p2,p3);
+			$('[id$=memin]').hide();
+			$('#mmtid').remove();
 		}
 	</script>
 	<!--=== End Profile ===-->
