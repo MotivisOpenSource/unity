@@ -44,7 +44,7 @@
 		</li>
 		<apex:outputPanel layout="none" rendered="{!showGroupManager && returnToGroup}">
 			<li class="list-group-item{!IF(pn=='6',' active',' menu-item-link')}">
-				<a href="{!$Page.CommunityGroupDetailPage}?g={!currentGroupId}">
+				<a href="{!$Page.CommunityGroupDetailPage}?gr={!currentGroupId}">
 					<i class="fa fa-comments"></i>
 					{!$Label.LBL_ReturnToGroup}
 				</a>
@@ -52,7 +52,7 @@
 		</apex:outputPanel>
 		<apex:outputPanel layout="none" rendered="{!showGroupManager && !returnToGroup}">
 			<li class="list-group-item{!IF(pn=='6',' active',' menu-item-link')}">
-				<a href="{!$Page.CommunityGroupManager}?g={!currentGroupId}">
+				<a href="{!$Page.CommunityGroupManager}?gr={!currentGroupId}">
 					<i class="fa fa-comments"></i>
 					{!$Label.LBL_GroupManager}
 				</a>

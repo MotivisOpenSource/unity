@@ -33,9 +33,11 @@ global without sharing class CommunityUrlRewriter implements Site.UrlRewriter {
 
 		if (url.contains(STANDARD_GROUP_DETAIL_PAGE)) {
 			redirect = Page.CommunityGroupDetailPage;
-			redirect.getparameters().put('gr', String.valueOf(Id.valueof( myFriendlyUrl.getparameters().get('g') ) ) );
-			if(myFriendlyUrl.getparameters().get('filter')=='requests') {
-				redirect.setAnchor('#newConversationModal');
+			redirect.getParameters().put('gr', String.valueOf(Id.valueof(myFriendlyUrl.getparameters().get('g'))));
+			String filterParam = myFriendlyUrl.getparameters().get('filter');
+			String userParam = myFriendlyUrl.getparameters().get('u');
+			if((String.isNotBlank(filterParam) && filterParam == 'requests') || String.isNotBlank(userParam)) {
+				redirect.getParameters().put('pending', 'true');
 			}
 		}
 

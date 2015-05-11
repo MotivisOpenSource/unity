@@ -38,7 +38,7 @@
 									<div class="profile-blog tag-box-v3 block-grid-v1 rounded">
 										<img class="rounded-x" src="{!g.GroupPhotoUrl}" alt="" />
 										<div class="name-location">
-											<strong><a href="{!$Page.CommunityGroupDetailPage}?g={!g.GroupId}">{!g.GroupName}</a></strong>
+											<strong><a href="{!$Page.CommunityGroupDetailPage}?gr={!g.GroupId}">{!g.GroupName}</a></strong>
 											<span><i class="fa fa-map-marker"></i>{!g.GroupLastActivityDateFormatted}</span>
 										</div>
 										<div class="clearfix margin-bottom-20"></div>
@@ -51,7 +51,7 @@
 												<apex:outputLink value="javascript:;" onclick="chckabtn('2','{!g.GroupId}');" styleClass="btn-u" rendered="{!g.CurrentMemberRole == 'Standard'}">
 													<i class="fa fa-check"></i>&nbsp;{!$Label.LBL_Member}
 												</apex:outputLink>
-												<apex:outputLink value="javascript:;" onclick="chckabtn('4','{!g.GroupId}');" styleClass="btn-u" rendered="{!g.CurrentMemberRole == 'Admin'}">
+												<apex:outputLink value="javascript:;" onclick="chckabtn('2','{!g.GroupId}');" styleClass="btn-u" rendered="{!g.CurrentMemberRole == 'Admin'}">
 													<i class="fa fa-star-half-o"></i>&nbsp;{!$Label.LBL_Manager}
 												</apex:outputLink>
 												<apex:outputLink value="javascript:;" onclick="chckabtn('1','{!g.GroupId}');" styleClass="btn-u btn-u-blue" rendered="{!g.CurrentMemberRole == 'NotAMember' && g.NotAMemberStatus == 'Join'}">

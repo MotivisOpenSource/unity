@@ -20,7 +20,7 @@
 			<h1 class="pull-left">{!$Label.LBL_GroupManager}:&nbsp;{!control.Name}</h1>
 			<ul class="pull-right breadcrumb">
 				<li><a href="{!$Page.CommunityFeed_MyFeed}">{!$Label.NAV_MyFeed}</a></li>
-				<li><a href="{!$Page.CommunityGroupDetailPage}?g={!chatterGroup.Id}">{!control.Name}</a></li>
+				<li><a href="{!$Page.CommunityGroupDetailPage}?gr={!chatterGroup.Id}">{!control.Name}</a></li>
 				<li class="active">{!$Label.LBL_GroupManager}</li>
 			</ul>
 		</div><!--/container-->

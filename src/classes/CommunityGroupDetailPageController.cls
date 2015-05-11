@@ -41,9 +41,17 @@ public without sharing class CommunityGroupDetailPageController {
 	}
 
 	public String groupMode { get; set; }
-	public void performGroupMembershipAction() {
+	public PageReference performGroupMembershipAction() {
+		PageReference pr;
+		ConnectApi.GroupMembershipType oldGroupRole = groupRole;
 		groupRole = CommunityUtils.membership(UserInfo.getUserId(), control.Id, groupMode);
 		initMembers();
+		if (groupRole == ConnectApi.GroupMembershipType.NotAMember) {
+			pr = Page.CommunityGroupDetailPage;
+			pr.getParameters().put('gr', chatterGroup.Id);
+			pr.setRedirect(true);
+		}
+		return pr;
 	}
 
 	@RemoteAction
@@ -100,8 +108,8 @@ public without sharing class CommunityGroupDetailPageController {
 
 	public String getUrlForCreateEvent() {
 		return prepareUrl(Page.CommunityEventEdit.getUrl())
-			+ '?g=' + chatterGroup.Id + '&retURL='
-			+ EncodingUtil.urlEncode(prepareUrl(Page.CommunityGroupDetailPage.getUrl()) + '?g=' + chatterGroup.Id, 'UTF-8');
+			+ '?gr=' + chatterGroup.Id + '&retURL='
+			+ EncodingUtil.urlEncode(prepareUrl(Page.CommunityGroupDetailPage.getUrl()) + '?gr=' + chatterGroup.Id, 'UTF-8');
 	}
 
 	private String prepareUrl(String inUncouthUrl) {
@@ -111,6 +119,10 @@ public without sharing class CommunityGroupDetailPageController {
 	public Integer getRequestCount() {
 		return (groupRole == ConnectApi.GroupMembershipType.GroupOwner || groupRole == ConnectApi.GroupMembershipType.GroupManager)
 				? CommunityUtils.getRequestJoinGroupCount(chatterGroup.Id) : 0;
+	}
+
+	public Boolean getShowPendingMembers() {
+		return ApexPages.currentPage().getParameters().containsKey('pending');
 	}
 
 	public class GroupEvent {

@@ -107,6 +107,7 @@
 												<header>{!$Label[ot.sectionLabel]}</header>
 												<div class="margin-bottom-15"></div>
 												<dl class="dl-horizontal"><apex:repeat value="{!ot.fi}" var="otfi">
+													<apex:outputPanel rendered="{!otfi.isAccessible}" layout="none">
 													<dt class="margin-bottom-10"><strong>{!otfi.label}</strong></dt>
 													<dd>
 														<span id="vfld{!index}">
@@ -126,6 +127,7 @@
 															</div>
 														</apex:outputPanel>
 													</dd>
+													</apex:outputPanel>
 													<apex:variable var="index" value="{!index + 1}"/>
 													
 												</apex:repeat></dl>

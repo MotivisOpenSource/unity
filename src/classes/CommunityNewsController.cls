@@ -316,8 +316,9 @@ public with sharing class CommunityNewsController {
 	// -- methods --
 	private void initList() {
 		//List<String> communityNewsIdList = new List<String>();
+		Datetime nNow = Datetime.now();
 		String nQuery = 'SELECT Id, Image_Path__c, Title__c, Teaser__c, Entry_Date__c, Make_Entry_Sticky__c FROM Community_News__c';
-		nQuery += ' WHERE Entry_Date__c <= TODAY AND Expiration_Date__c > TODAY AND Alert__c = false AND Status__c != \'Pending\'';
+		nQuery += ' WHERE Entry_Date__c <= :nNow AND Expiration_Date__c > :nNow AND Alert__c = false AND Status__c != \'Pending\'';
 		Set<Id> cnIds = new Set<Id>();
 		try {
 			Map<String, String> pageParams = ApexPages.currentPage().getParameters();

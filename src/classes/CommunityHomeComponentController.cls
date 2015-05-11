@@ -5,8 +5,8 @@ public with sharing class CommunityHomeComponentController {
 		for (Community_News__c cnItem : [
 						SELECT Id, Title__c, Teaser__c, Image_Path__c
 						FROM Community_News__c
-						WHERE Feature_on_Home_Page_Slot__c != NULL AND Expiration_Date__c > TODAY
-						AND Status__c != 'Pending' AND Entry_Date__c <= TODAY
+						WHERE Feature_on_Home_Page_Slot__c != NULL AND Expiration_Date__c > :Datetime.now()
+						AND Status__c != 'Pending' AND Entry_Date__c <= :Datetime.now()
 						ORDER BY Feature_on_Home_Page_Slot__c ASC NULLS LAST
 						LIMIT 3
 							]) {
@@ -21,7 +21,7 @@ public with sharing class CommunityHomeComponentController {
 		List<Community_News__c> cnList = [
 			SELECT Id, Title__c, Teaser__c, Image_Path__c, Entry_Date__c
 			FROM Community_News__c
-			WHERE Entry_Date__c <= TODAY AND Expiration_Date__c > TODAY
+			WHERE Entry_Date__c <= :Datetime.now() AND Expiration_Date__c > :Datetime.now()
 			AND Make_Entry_Sticky__c = true AND Status__c != 'Pending'
 			ORDER BY Make_Entry_Sticky__c, Entry_Date__c DESC LIMIT 2
 				];

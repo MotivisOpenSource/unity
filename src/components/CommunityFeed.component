@@ -1148,7 +1148,7 @@ textarea.form-control {
 					if(item.record.id.indexOf("005") == 0){
 						outString += '<a href="{!$Page.CommunityProfilePage}?id='+item.record.id+'">@'+item.name+'</a>';
 					}else{
-						outString += '<a href="{!$Page.CommunityGroupDetailPage}?g='+item.record.id+'">@'+item.name+'</a>';
+						outString += '<a href="{!$Page.CommunityGroupDetailPage}?gr='+item.record.id+'">@'+item.name+'</a>';
 					}
 				}
 				if(item.text != null && item.type == "Text"){

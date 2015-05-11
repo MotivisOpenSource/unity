@@ -53,7 +53,7 @@
 															<div class="profile-blog">
 																<img class="rounded-x" ng-src="{{ g.GroupPhotoUrl }}" src="/s.gif" alt="" />
 																<div class="name-location">
-																	<strong><a href="{!$Page.CommunityGroupDetailPage}?g={{ g.GroupId }}">{{ g.GroupName }}</a></strong>
+																	<strong><a href="{!$Page.CommunityGroupDetailPage}?gr={{ g.GroupId }}">{{ g.GroupName }}</a></strong>
 																	<span><i class="fa fa-map-marker"></i>{{ g.GroupLastActivityDateFormatted }}</span>
 																</div>
 																<div class="clearfix margin-bottom-20"></div>

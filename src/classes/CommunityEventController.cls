@@ -241,7 +241,7 @@ public with sharing class CommunityEventController {
 			ctsc.filterName = Community_Event_Tag__c.Community_Event__c.getDescribe().getName();
 			ctsc.saveTags(tagsIdsString);
 
-			String groupId = ApexPages.currentPage().getParameters().get('g');
+			String groupId = ApexPages.currentPage().getParameters().get('gr');
 			if (groupId != NULL) {
 				List<Community_Event_Tag__c> communityEventTagList = [
 					SELECT Id, Community_Tag__c
@@ -319,11 +319,11 @@ public with sharing class CommunityEventController {
 
 	// -- methods --
 	private void initList() {
-		Datetime eNow = Datetime.now();
+		//Datetime eNow = Datetime.now();
 		Id userId = UserInfo.getUserId();
 		String eQuery = 'SELECT Id, Name__c, Teaser__c, Start__c FROM Community_Events__c';
 		//eQuery += ' WHERE Start__c != NULL';
-		eQuery += ' WHERE (Public__c = true OR OwnerId = :userId) AND ((End__c = NULL AND Start__c != NULL AND Start__c <= :eNow) OR (End__c != NULL OR End__c >= :eNow))';
+		eQuery += ' WHERE (Public__c = true OR OwnerId = :userId) AND ((End__c = NULL AND Start__c != NULL AND Start__c <= TODAY) OR (End__c != NULL AND End__c >= TODAY))';
 		//eQuery += ' WHERE Start__c != NULL AND Start__c <= :eNow AND (Public__c = true OR OwnerId = :userId) AND (End__c = NULL OR End__c >= :eNow)';
 		Set<Id> cnIds = new Set<Id>();
 		try {
