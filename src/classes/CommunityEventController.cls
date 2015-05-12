@@ -1,4 +1,12 @@
 public with sharing class CommunityEventController {
+
+	public Boolean permissions {get{
+		if(CommunityUtils.isModifyAllData() || SObjectType.Community_Events__c.isCreateable()){
+			return true;
+		}
+		return false;
+		} set;}
+
 	private String datetimeToUTC(DateTime dati) {
 		String dt = dati.format('yyyy-MM-dd HH:mm:ss','Etc/UTC');
 
@@ -17,6 +25,15 @@ public with sharing class CommunityEventController {
 			(this.event.Street_Address__c != NULL ? this.event.Street_Address__c : '')
 		});
 	}
+
+	public String getStartDate(){
+		return event.Start__c.format('MM/dd/yyyy @ h.mm a').replace(' AM', 'am').replace(' PM','pm');
+	}
+
+	public String getEndDate(){
+		return event.End__c.format('MM/dd/yyyy @ h.mm a').replace(' AM', 'am').replace(' PM','pm');
+	}
+
 	public PageReference downloadICS() {
 		String docName = String.format('{0}.ics', new List<String> { this.event.Name__c });
 		Document att = NULL;

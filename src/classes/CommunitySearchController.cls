@@ -237,7 +237,7 @@ public with sharing class CommunitySearchController {
 			resultAction.groupId = grId;
 			Integer gi = Integer.valueOf(mc);
 			resultAction.memberCount = String.valueOf(
-				ngr == ConnectApi.GroupMembershipType.NotAMember
+				(ngr == ConnectApi.GroupMembershipType.NotAMember && action != '6')
 				? gi - 1
 				: (ngr == ConnectApi.GroupMembershipType.StandardMember ? gi + 1 : gi)
 			);

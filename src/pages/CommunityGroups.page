@@ -60,42 +60,25 @@
 																<p>{{ g.GroupDescription }}</p>
 																<hr />
 																<ul class="list-inline share-list" >
-																	<li><i class="fa fa-group"></i><a href="#">{{ g.GroupMembersCount }} Followers</a></li>
+																	<li><i class="fa fa-group"></i><a href="#">{{ g.GroupMembersCount }} {!$Label.LBL_Followers}</a></li>
 																	<!--li><i class="fa fa-share"></i><a href="#">Share</a></li-->
-																<!-- 	<li ng-show="{{ g.CurrentMemberRole == 'NotAMember' }}">
-																		<a title="Follow" class="btn-u" ng-click="confirmjointToGroup(g.GroupId)">
-																			<i class="fa fa-plus-circle" style="color:#FFFFFF;"></i>Follow
-																		</a>
-																	</li> -->
-																	<li ng-show="{{ g.CurrentMemberRole == 'Standard' }}" class="pull-right">
-																		<a  class="btn-u" ng-click="confirmLeaveGroup(g.GroupId)" style="margin-left:3px;">
-																			<span><i class="fa fa-check" style="color:#FFFFFF;"></i>&nbsp;{!$Label.LBL_Member}</span>
-																		</a>
+																	<li ng-show="{{ g.CurrentMemberRole == 'Owner' }}" class="gr-plus">
+																		<i class="fa fa-star"></i>{!$Label.LBL_Owner}
 																	</li>
-																	<li ng-show="{{ g.CurrentMemberRole == 'Owner' }}" class="pull-right">
-																		<a  class="btn-u" style="margin-left:3px;">
-																			<span><i class="fa fa-star" style="color:#FFFFFF;"></i>&nbsp;{!$Label.LBL_Owner}</span>
-																		</a>
+																	<li ng-show="{{ g.CurrentMemberRole == 'Standard' }}" class="gr-plus">
+																		<i class="fa fa-check-circle"></i><a ng-click="confirmLeaveGroup(g.GroupId)">{!$Label.LBL_Member}</a>
 																	</li>
-																	<li ng-show="{{ g.CurrentMemberRole == 'Admin' }}" class="pull-right">
-																		<a  class="btn-u" style="margin-left:3px;" ng-click="confirmLeaveGroup(g.GroupId)" >
-																			<span><i class="fa fa-star-half-o" style="color:#FFFFFF;"></i>&nbsp;{!$Label.LBL_Manager}</span>
-																		</a>
+																	<li ng-show="{{ g.CurrentMemberRole == 'Admin' }}" class="gr-plus">
+																		<i class="fa fa-star-half-o"></i><a ng-click="confirmLeaveGroup(g.GroupId)">{!$Label.LBL_Manager}</a>
 																	</li>
-																	<li  ng-show="{{ g.CurrentMemberRole == 'NotAMember' && g.NotAMemberStatus == 'Join' }}" class="pull-right">
-																		<a class="btn btn-u btn-u-blue btn-xs" ng-click="confirmjointToGroup(g.GroupId)">
-																			<i class="fa fa-plus-circle" style="color:#FFFFFF;"></i>&nbsp;{!$Label.BTN_Join}
-																		</a>
+																	<li ng-show="{{ g.CurrentMemberRole == 'NotAMember' && g.NotAMemberStatus == 'Join' }}" class="bl-plus">
+																		<i class="fa fa-plus-circle"></i><a ng-click="confirmjointToGroup(g.GroupId)">{!$Label.BTN_Join}</a>
 																	</li>
-																	<li  ng-show="{{ g.CurrentMemberRole == 'NotAMember' && g.NotAMemberStatus == 'Requested' }}" class="pull-right">
-																		<a class="btn btn-u btn-u-orange btn-xs" ng-click="cancelRequestToJoin(g.GroupId)">
-																			<i class="fa fa-times-circle" style="color:#FFFFFF;"></i>&nbsp;{!$Label.LBL_Requested}
-																		</a>
+																	<li ng-show="{{ g.CurrentMemberRole == 'NotAMember' && g.NotAMemberStatus == 'Requested' }}" class="or-plus">
+																		<i class="fa fa-times-circle"></i><a ng-click="cancelRequestToJoin(g.GroupId)">{!$Label.LBL_Requested}</a>
 																	</li>
-																	<li  ng-show="{{ g.CurrentMemberRole == 'NotAMember' && g.NotAMemberStatus == 'RequestToJoin' }}" class="pull-right">
-																		<a class="btn btn-u btn-u-blue btn-xs" ng-click="requestToJoin(g.GroupId)">
-																			<i class="fa fa-plus-circle" style="color:#FFFFFF;"></i>&nbsp;{!$Label.LBL_RequestToJoin}
-																		</a>
+																	<li ng-show="{{ g.CurrentMemberRole == 'NotAMember' && g.NotAMemberStatus == 'RequestToJoin' }}" class="bl-plus">
+																		<i class="fa fa-minus-circle"></i><a ng-click="requestToJoin(g.GroupId)">{!$Label.LBL_RequestToJoin}</a>
 																	</li>
 																</ul>
 															</div>

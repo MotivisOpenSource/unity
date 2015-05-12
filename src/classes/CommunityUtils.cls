@@ -180,13 +180,17 @@ public class CommunityUtils {
 			ga.title = '';
 			ga.action = '0';
 			ga.btnStyle = '';
+			ga.lnkStyle = 'gr-plus';
+			ga.lnkIcon = 'fa-star';
 		}
 		else if (groupRole == ConnectApi.GroupMembershipType.GroupManager) {
 			ga.btnLabel = Label.LBL_Manager;
 			ga.btnIcon = 'fa-star-half-o';
 			ga.title = Label.LBL_Leave_Group;
-			ga.action = '2';             //////////////there was 4
+			ga.action = '2';
 			ga.btnStyle = '';
+			ga.lnkStyle = 'gr-plus';
+			ga.lnkIcon = 'fa-star-half-o';
 		}
 		else if (groupRole == ConnectApi.GroupMembershipType.StandardMember) {
 			ga.btnLabel = Label.LBL_Member;
@@ -194,20 +198,25 @@ public class CommunityUtils {
 			ga.title = Label.LBL_Leave_Group;
 			ga.action = '2';
 			ga.btnStyle = '';
+			ga.lnkIcon = 'fa-check-circle';
+			ga.lnkStyle = 'gr-plus';
 		}
 		else if (groupRole == ConnectApi.GroupMembershipType.NotAMember) {
 			if (publicGroup) {
 				ga.btnLabel = Label.BTN_Join;
 				ga.title = Label.BTN_Join;
 				ga.action = '1';
+				ga.lnkIcon = 'fa-plus-circle';
 			}
 			else {
 				ga.btnLabel = Label.LBL_RequestToJoin;
 				ga.title = Label.LBL_RequestToJoin;
 				ga.action = '5';
+				ga.lnkIcon = 'fa-minus-circle';
 			}
 			ga.btnStyle = ' btn-u-blue';
 			ga.btnIcon = 'fa-plus-circle';
+			ga.lnkStyle = 'bl-plus';
 		}
 		else if (groupRole == ConnectApi.GroupMembershipType.NotAMemberPrivateRequested) {
 			ga.btnLabel = Label.LBL_Requested;
@@ -215,6 +224,8 @@ public class CommunityUtils {
 			ga.title = Label.LBL_Leave_Group;
 			ga.action = '6';
 			ga.btnStyle = ' btn-u-orange';
+			ga.lnkStyle = 'or-plus';
+			ga.lnkIcon = 'fa-times-circle';
 		}
 		return ga;
 	}
@@ -331,6 +342,8 @@ public class CommunityUtils {
 		public String btnStyle { get; set; }
 		public String groupId { get; set; }
 		public String memberCount { get; set; }
+		public String lnkIcon { get; set; }
+		public String lnkStyle { get; set; }
 	}
 
 	public static void test1() {

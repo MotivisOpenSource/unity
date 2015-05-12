@@ -416,20 +416,40 @@ global without sharing class CommunityFeedController {
 	@RemoteAction
 	global static String getUsers(String query) {
 		List<MentionUser> result = new List<MentionUser>();
-		query = query + '%';
+		Map<String, Community_Group_Control__c> groupsMap = new Map<String, Community_Group_Control__c>();
+		Map<String, String> groupsMapPhoto = new Map<String, String>();
+		query = '%' + query + '%';
 		for (User u : [
 				SELECT Id, Name, SmallPhotoUrl, Contact.Primary_Role__c
 				FROM User WHERE (ContactId != NULL OR Community_Contact_ID__c != NULL) AND isActive = true 
 				AND (FirstName LIKE :query OR LastName LIKE :query)]) {
 			result.add(new MentionUser(u));
 		}
-		for (Community_Group_Control__c cgc : [
-				SELECT Chatter_Group_ID__c, Name
-				FROM Community_Group_Control__c
-				WHERE Chatter_Group_ID__c != NULL AND Name LIKE :query
-					]) {
-			result.add(new MentionUser(cgc));
+		
+		List<Community_Group_Control__c> cgcList = [
+													SELECT Chatter_Group_ID__c, Name
+													FROM Community_Group_Control__c
+													WHERE Chatter_Group_ID__c != NULL AND Name LIKE :query
+													];
+		for (Community_Group_Control__c cgc : cgcList) {
+			groupsMap.put(cgc.Chatter_Group_ID__c, cgc);
+
 		}
+		Set<String> groupsNames = new Set<String>();
+		List<String> groupsIds = new List<String>();
+		groupsIds.addAll(groupsMap.keySet());
+
+		for(CollaborationGroup cg : [SELECT Id, SmallPhotoUrl FROM CollaborationGroup WHERE Id IN :groupsIds]){
+			groupsMapPhoto.put(cg.Id, cg.SmallPhotoUrl);
+		}
+
+		groupsNames.addAll(CommunityShareController.getNamesOfAvailableGroups(groupsIds));
+		for(String ids : groupsMap.keySet()){
+			if(groupsNames.contains(groupsMap.get(ids).Name)){
+				result.add(new MentionUser(groupsMap.get(ids), groupsMapPhoto.get(ids)));
+			}
+		} 
+		result.sort();
 		return json.serialize(result);
 	}
 
@@ -784,7 +804,7 @@ global without sharing class CommunityFeedController {
 		return outStr;
 	}
 
-	public class MentionUser {
+	global class MentionUser implements Comparable{
 		public String id { get; set; }
 		public String name { get; set; }
 		public String avatar { get; set; }
@@ -799,11 +819,18 @@ global without sharing class CommunityFeedController {
 			type = 'user';
 		}
 
-		public MentionUser(Community_Group_Control__c incgc) {
+		public MentionUser(Community_Group_Control__c incgc, String smallPhotoUrl) {
 			id = incgc.Chatter_Group_ID__c;
 			name = incgc.Name;
-			avatar = CommunityUtils.checkUrl('/profilephoto/0F9/F');
+			avatar = smallPhotoUrl;//CommunityUtils.checkUrl('/profilephoto/0F9/F');
 			type = 'group';
+		}
+
+		global Integer compareTo(Object compareTo) {
+	    	MentionUser compareToEmp = (MentionUser)compareTo;
+	        if (this.name == compareToEmp.name) return 0;
+	        if (this.name > compareToEmp.name) return 1;
+	        return -1;   
 		}
 	}
 	

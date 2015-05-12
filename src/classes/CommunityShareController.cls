@@ -205,7 +205,9 @@ global without sharing class CommunityShareController {
 			for(ConnectApi.BatchResult batchResult : batchResults){
 				if (batchResult.isSuccess()) {
 			        ConnectApi.ChatterGroup aGroup = (ConnectApi.ChatterGroup) batchResult.getResult();
-			        if(String.valueOf(aGroup.myRole) != 'NotAMember' && String.valueOf(aGroup.myRole) != 'NotAMemberPrivateRequested'){
+			        if((String.valueOf(aGroup.myRole) != 'NotAMember' 
+			        	&& String.valueOf(aGroup.myRole) != 'NotAMemberPrivateRequested' 
+			        	&& String.valueOf(aGroup.visibility) == 'PrivateAccess') || String.valueOf(aGroup.visibility) == 'PublicAccess'){
 			        	groupsNames.add(aGroup.name);
 			        }
 			    }
