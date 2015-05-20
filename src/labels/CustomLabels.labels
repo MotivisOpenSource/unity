@@ -106,6 +106,13 @@
         <value>Edit</value>
     </labels>
     <labels>
+        <fullName>BTN_Edit_Event</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>BTN Edit Event</shortDescription>
+        <value>Edit Event</value>
+    </labels>
+    <labels>
         <fullName>BTN_Edit_Resource</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -246,6 +253,13 @@
         <value>You may only have one record in each slot at any given time.  Please check your other News records to make sure there aren’t any overlapping records.</value>
     </labels>
     <labels>
+        <fullName>ERR_Cant_Found_Group</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>ERR Cant Found Group</shortDescription>
+        <value>Can`t found group:</value>
+    </labels>
+    <labels>
         <fullName>ERR_Community_Profile</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -293,6 +307,13 @@
         <protected>true</protected>
         <shortDescription>ERR NotGroupManager</shortDescription>
         <value>You do not have the permission to view this page.</value>
+    </labels>
+    <labels>
+        <fullName>ERR_Please_Select_Group</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>ERR Please Select Group</shortDescription>
+        <value>Please select a group</value>
     </labels>
     <labels>
         <fullName>ERR_Pole_SameValueWarning</fullName>
@@ -1462,6 +1483,13 @@
         <protected>true</protected>
         <shortDescription>Registration Terms Title</shortDescription>
         <value>Terms &amp; Conditions</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Related_Tags</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Related Tags</shortDescription>
+        <value>Related Tags</value>
     </labels>
     <labels>
         <fullName>LBL_RequestToJoin</fullName>

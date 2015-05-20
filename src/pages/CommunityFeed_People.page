@@ -214,7 +214,6 @@
 							}
 							input = output;
 						}
-						console.log(input.length);
 						scope.page.totalRecords = input.length;
 						return input;
 					}
@@ -285,7 +284,6 @@
 						if (def != null) {
 							$scope.inProgress = false;
 							def.then(function(result) {
-									console.log(result);
 									if ($scope.inProgress == true) {
 										$scope.followUnfollow();
 									}
@@ -303,7 +301,6 @@
 						if (def != null) {
 							$scope.inProgress = false;
 							def.then(function(result) {
-									console.log(result);
 									$scope.allPeople = result;
 									$scope.page.currentPage = 1;
 									$scope.page.totalRecords = result.length;

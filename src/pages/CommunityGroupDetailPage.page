@@ -55,13 +55,13 @@
 							function chckabtn(a) {
 								if (a != '0') {
 									var fa = true;
-									if (a == '2') {										
+									if (a == '2') {
 										fa = confirm('{!$Label.LBL_LeaveGroup_Message}');
 									}
 									else { 
 										if (a == '4') {
 											fa = confirm('{!$Label.LBL_Confirm_Remove_Manager}');
-										}									 
+										}
 										else if (a == '6') {
 											fa = confirm('{!$Label.LBL_CancelRequest_Message}');
 										}
@@ -224,6 +224,7 @@
 				<apex:actionFunction name="switchToRequestMode" action="{!switchToRequestMode}" rerender="memlist" status="statusLoad"/>
 				<apex:actionFunction action="{!members.firstPage}" name="firstPage" rerender="allpb" status="statusLoad"/>
 			</apex:form>
+			<script>typeof(_) != 'undefined' || document.write('<script src="{!$Resource.CommunityResources}/js/underscore/underscore-min.js">')</script>
 			<script>
 				function msproc(inm,inid) {
 					$('#cell'+inid+' .btn-u').removeAttr('onclick');

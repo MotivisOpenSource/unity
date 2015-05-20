@@ -14,7 +14,7 @@
 			</ul>
 		</div>
 	</div>
-	<apex:outputPanel layout="block" styleClass="profile" id="form">
+	<apex:outputPanel layout="block" styleClass="profile" id="form" rendered="{!$ObjectType.Community_News__c.accessible}">
 		<div class="container content">
 			<div class="row margin-bottom-10">
 				<div class="col-md-6 text-left">

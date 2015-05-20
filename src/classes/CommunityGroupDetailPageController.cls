@@ -4,6 +4,7 @@ public without sharing class CommunityGroupDetailPageController {
 	public CollaborationGroup chatterGroup { get; set; }
 
 	private ConnectApi.GroupMembershipType groupRole;
+	private String initialRequestMember;
 
 	// CONSTRUCTOR
 	public CommunityGroupDetailPageController() {
@@ -13,6 +14,14 @@ public without sharing class CommunityGroupDetailPageController {
 			groupRole = ConnectApi.ChatterGroups.getGroup(Network.getNetworkId(), chatterGroup.Id).MyRole;
 		}
 		initMembers();
+		// check for single request
+		try {
+			String uids = ApexPages.currentPage().getParameters().get('u');
+			if (String.isNotBlank(uids)) {
+				initialRequestMember = [SELECT Name FROM User WHERE Id =:Id.valueOf(uids)].Name;
+			}
+		}
+		catch (Exception e) {}
 	}
 
 	public Boolean memberMode { get { return memberMode == NULL ? false : memberMode; } set; }
@@ -34,6 +43,11 @@ public without sharing class CommunityGroupDetailPageController {
 		memberMode = NULL;
 		requestMode = true;
 		initMembers();
+		if (String.isNotBlank(initialRequestMember)) {
+			members.query = initialRequestMember;
+			initialRequestMember = NULL;
+			members.init();
+		}
 	}
 
 	public Boolean getHideFeedComponent() {

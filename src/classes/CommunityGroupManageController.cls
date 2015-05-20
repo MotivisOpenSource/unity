@@ -263,9 +263,6 @@ public without sharing class CommunityGroupManageController {
 			List<User> allUsers;
 			if (allMode) {
 				String mQuery = 'SELECT Id, Name, ContactId, City, Country, Community_Contact_ID__c, SmallPhotoUrl FROM User WHERE (ContactId != NULL OR Community_Contact_ID__c != NULL) AND isActive = true';
-				/*if (String.isNotBlank(query)) {
-					mQuery += ' AND (FirstName LIKE \'' + String.escapeSingleQuotes(query) + '%\' OR LastName LIKE \'' + String.escapeSingleQuotes(query) + '%\')';
-				}*/
 				mQuery = checkQuery(mQuery, '');
 				if (columnSort > 0) {
 					List<String> orderList = new List<String> {'','Name'};
@@ -276,10 +273,7 @@ public without sharing class CommunityGroupManageController {
 			else if (membersMode) {
 				String mQuery2 = 'SELECT MemberId, Member.Name, Member.Id, Member.ContactId, Member.City, Member.Country, Member.Community_Contact_ID__c, Member.SmallPhotoUrl FROM CollaborationGroupMember';
 				mQuery2 += ' WHERE CollaborationGroupId =\'' + gIdChatter + '\' AND (Member.ContactId != NULL OR Member.Community_Contact_ID__c != NULL) AND Member.isActive = true';
-				/*if (String.isNotBlank(query)) {
-					mQuery2 += ' AND (Member.FirstName LIKE \'' + String.escapeSingleQuotes(query) + '%\' OR Member.LastName LIKE \'' + String.escapeSingleQuotes(query) + '%\')';
-				}*/
-				mQuery2 = checkQuery(mQuery2, 'Member.Group_Manager_User__r.');
+				mQuery2 = checkQuery(mQuery2, 'Member.');
 				if (columnSort > 0) {
 					List<String> orderList = new List<String> {'','Member.Name'};
 					mQuery2 += ' ORDER BY ' + orderList[columnSort] + (ascSort ? ' ASC' : ' DESC');
@@ -292,9 +286,6 @@ public without sharing class CommunityGroupManageController {
 			else if (managersMode) {
 				String mQuery3 = 'SELECT Group_Manager_User__c, Group_Manager_User__r.Id, Group_Manager_User__r.Name, Group_Manager_User__r.ContactId, Group_Manager_User__r.City, Group_Manager_User__r.Country, Group_Manager_User__r.Community_Contact_ID__c, Group_Manager_User__r.SmallPhotoUrl FROM Community_Group_Manager__c';
 				mQuery3 += ' WHERE Group_Control__c =\'' + gIdControl + '\' AND (Group_Manager_User__r.ContactId != NULL OR Group_Manager_User__r.Community_Contact_ID__c != NULL) AND Group_Manager_User__r.isActive = true';
-				/*if (String.isNotBlank(query)) {
-					mQuery3 += ' AND (Group_Manager_User__r.FirstName LIKE \'' + String.escapeSingleQuotes(query) + '%\' OR Group_Manager_User__r.LastName LIKE \'' + String.escapeSingleQuotes(query) + '%\')';
-				}*/
 				mQuery3 = checkQuery(mQuery3, 'Group_Manager_User__r.');
 				if (columnSort > 0) {
 					List<String> orderList = new List<String> {'','Group_Manager_User__r.Name'};
@@ -313,9 +304,6 @@ public without sharing class CommunityGroupManageController {
 				allUsers = new List<User>();
 				if (initialFoundUsers.size() > 0) {
 					String mQuery4 = 'SELECT Id, Name, ContactId, City, Country, Community_Contact_ID__c, SmallPhotoUrl FROM User WHERE Id IN :initialFoundUsers';
-					/*if (String.isNotBlank(query)) {
-						mQuery4 += ' AND (FirstName LIKE \'' + String.escapeSingleQuotes(query) + '%\' OR LastName LIKE \'' + String.escapeSingleQuotes(query) + '%\')';
-					}*/
 					mQuery4 = checkQuery(mQuery4, '');
 					if (columnSort > 0) {
 						List<String> orderList = new List<String> {'','Name'};

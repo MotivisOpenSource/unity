@@ -17,6 +17,9 @@ global with sharing class CommunityTagSelectorController {
 			}
 		}
 		String query = 'SELECT Id, Community_Tag__c FROM ' + objectType + ' WHERE ' + filterName + ' =: objectId';
+		if (objectType.endsWith('Community_Event_Tag__c__')) {
+			query += ' AND Community_Group_Control__c = NULL';
+		}
 		List<sObject> deleteList = new List<sObject>();
 		for (SObject obj : Database.query(query)) {
 			if (tagsIdsSet.contains((String)obj.get('Community_Tag__c'))) {
@@ -27,7 +30,8 @@ global with sharing class CommunityTagSelectorController {
 			}
 		}
 		if (!deleteList.isEmpty()) {
-			delete deleteList;
+			DeleteTagsWithoutSharing dt = new DeleteTagsWithoutSharing();
+			dt.deleteTags(deleteList);
 		}
 		tagsIdsList.addAll(tagsIdsSet);
 		for (String tagId : tagsIdsList) {
@@ -106,7 +110,11 @@ global with sharing class CommunityTagSelectorController {
 	global static String getExistingTags(String recordId, String objType, String filterName) {
 		Set<String> tagIds = new Set<String>();
 		if (String.isNotBlank(recordId)) {
-			for (SObject obj : Database.query('SELECT Id, Community_Tag__c FROM ' + objType + ' WHERE ' + filterName + ' =:recordId')) {
+			String etQuery = 'SELECT Id, Community_Tag__c FROM ' + objType + ' WHERE ' + filterName + ' =:recordId';
+			if (objType.endsWith('Community_Event_Tag__c')) {
+				etQuery += ' AND Community_Group_Control__c = NULL';
+			}
+			for (SObject obj : Database.query(etQuery)) {
 				tagIds.add((String) obj.get('Community_Tag__c'));
 			}
 		}
@@ -117,6 +125,13 @@ global with sharing class CommunityTagSelectorController {
 			}
 		}
 		return JSON.serialize(existingTags);
+	}
+
+	public without sharing class DeleteTagsWithoutSharing{
+
+		public void deleteTags(List<sObject> deleteList){
+			delete deleteList;
+		}
 	}
 
 		public static void test1() {

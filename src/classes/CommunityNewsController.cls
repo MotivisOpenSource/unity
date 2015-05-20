@@ -97,7 +97,7 @@ public with sharing class CommunityNewsController {
 		if (!recordPulled) {
 			List<String> fieldList = new List<String> {
 				'Id', 'Name', 'Image_Path__c', 'Title__c', 'Teaser__c', 'Content__c', 'URL__c', 'Allow_Comments__c', 'Comment_Expiration_Date__c',
-				'Make_Entry_Sticky__c', 'Entry_Date__c', 'Expiration_Date__c', 'Type__c', 'Content__c'
+				'Make_Entry_Sticky__c', 'Entry_Date__c', 'Expiration_Date__c', 'Type__c', 'Content__c', 'UserRecordAccess.HasEditAccess'
 			};
 			String pp = CommunityUtils.getPackagePrefix();
 			Boolean isPP = String.isNotBlank(pp);
@@ -300,6 +300,10 @@ public with sharing class CommunityNewsController {
 
 	private String prepareUrl(String inUncouthUrl) {
 		return String.isNotBlank(Site.getPathPrefix()) ? inUncouthUrl.replace('/apex/', Site.getPathPrefix() + '/') : inUncouthUrl;
+	}
+
+	public Boolean getUpdateableCurrentNews() {
+		return SObjectType.Community_News__c.isUpdateable() && news.UserRecordAccess.HasEditAccess;
 	}
 
 	// LIST SECTION

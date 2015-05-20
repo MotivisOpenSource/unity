@@ -22,16 +22,15 @@
 			<div class="row text-center margin-bottom-20">
 				<div id="eventData" class="pull-left" style="text-align: left; padding-left:35px;">
 					<h3 style = "margin-bottom:0px">{!event.Name__c}</h3>
-					<span style = "font-style: italic;">{!$ObjectType.Community_Events__c.Fields.Start__c.Label}: {!StartDate} / {!$ObjectType.Community_Events__c.Fields.End__c.Label}: {!EndDate}
-					</span>
+					<span style = "font-style: italic;" id="startEndDate">{!$ObjectType.Community_Events__c.Fields.Start__c.Label}: {!StartDate} / {!$ObjectType.Community_Events__c.Fields.End__c.Label}: {!EndDate}</span>
 				</div>
 				<div style="float:right;">
 					<apex:form id="theform" style="text-align: right; padding-right: 15px;">
 						<c:CommunityFollow parentId="{!event.Id}"/>
 						<c:CommunityShare sO="{!event}"/>
-						<apex:outputLink value="{!urlForEditEvent}" rendered="{!$ObjectType.Community_Events__c.Updateable && permissions}" styleClass="btn-u">{!$Label.BTN_Edit}</apex:outputLink>
-						<apex:outputPanel layout="none" rendered="{!$ObjectType.Community_Events__c.Updateable && permissions }">&nbsp;</apex:outputPanel>
-						<apex:outputLink value="{!urlForCloneEvent}" styleClass="btn-u" rendered="{!permissions}">{!$Label.BTN_Clone}</apex:outputLink>
+						<apex:outputLink value="{!urlForEditEvent}" rendered="{!permissionsEdit}" styleClass="btn-u">{!$Label.BTN_Edit}</apex:outputLink>
+						<apex:outputPanel layout="none" rendered="{!permissionsEdit}">&nbsp;</apex:outputPanel>
+						<apex:outputLink value="{!urlForCloneEvent}" styleClass="btn-u" rendered="{!permissionsClone}">{!$Label.BTN_Clone}</apex:outputLink>
 					</apex:form>
 				</div>
 			</div>
@@ -41,15 +40,20 @@
 						<apex:outputField value="{!event.Description__c}"/>
 						<hr/>
 						<br/>
+						<apex:repeat value="{!fieldset}" var="fs">
+							<apex:outputPanel layout="none">
+								<dt><strong>{!IF(fs.fieldPath=='Street_Address__c',$Label.LBL_Location,fs.label)}</strong></dt>
+								<dd><apex:outputField value="{!event[fs.fieldPath]}"/></dd>
+								<hr/>
+							</apex:outputPanel>
+						</apex:repeat>
 						<br/>
 						<span id = "groupsSection">
 							<hr/>
-							<p><strong>{!$Label.LBL_Groups}</strong></p>
-							<div>
-								<apex:repeat value="{!eventTagList}" var="group">
-									<apex:outputLink value="{!$Page.CommunityGroupDetailPage}?gc={!group.Community_Group_Control__r.Id}" rendered="{!group.Community_Group_Control__c != NULL}">{!group.Community_Group_Control__r.Name}</apex:outputLink>
+							<span style="float:left;"><strong>{!$Label.LBL_Event_Group}:&nbsp;</strong></span>
+							<div style="color: #72c02c">
+								<apex:outputLink value="{!$Page.CommunityGroupDetailPage}?gc={!RelatedToEventGroup.Id}" rendered="{!RelatedToEventGroup != NULL}">{!RelatedToEventGroup.Name}</apex:outputLink>
 									&nbsp;&nbsp;
-								</apex:repeat>
 							</div>
 							<hr/>
 						</span>
@@ -88,6 +92,11 @@
 	$(document).ready(function(){
 		if(!$("#groupsSection").find("a").size()) $("#groupsSection").hide();
 		if(!$("#tagsSection").find("a").size()) $("#tagsSection").hide();
+		if({!permissionShareBanned}) $("#shareButton").hide();
+		if($("#startEndDate").text().split("End: ")[1] == ""){
+			$("#startEndDate").text($("#startEndDate").text().split("/ End: ")[0]);
+		}
+		console.log("#permissionShareBanned",{!permissionShareBanned});
 	});
 </script>
 </apex:page>

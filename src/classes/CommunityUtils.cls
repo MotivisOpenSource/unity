@@ -45,6 +45,22 @@ public class CommunityUtils {
 		return canCreateGroup;
 	}
 
+	public static Set<String> checkFLSFields(String objectType, Set<String> collectedFields){
+		String pref = CommunityUtils.getPackagePrefix();
+		String obj = pref + objectType;
+		Set<String> result = new Set<String>();
+		Map<String, Schema.SObjectField> mapEventFields = Schema.getGlobalDescribe().get(obj).getDescribe().fields.getMap();
+		if(collectedFields == NULL){
+			collectedFields = mapEventFields.keySet();
+		}
+		for(String collectedField : collectedFields){
+			if(mapEventFields.get(collectedField) != NULL && mapEventFields.get(collectedField).getDescribe().isAccessible()){
+				result.add(pref + collectedField);
+			}
+		}
+		return result;
+	}
+
 	// inUserId - user to proccess
 	// inGroupContolId - group control to reference
 	// inMode - action mode
@@ -331,6 +347,35 @@ public class CommunityUtils {
 		}
 		return resultpr;
 	}
+	
+	/*
+	* metod for getting Available Groups to user (it means he is a member of group )
+	*/
+	public static List<String> getNamesOfAvailableGroups(List<String> groupIds){
+		 List<String> groupsNames = new List<String>();
+		  try{
+		   List<ConnectApi.BatchResult> batchResults = ConnectApi.ChatterGroups.getGroupBatch(Network.getNetworkId(), groupIds);
+		   for(ConnectApi.BatchResult batchResult : batchResults){
+		    if (batchResult.isSuccess()) {
+		           ConnectApi.ChatterGroup aGroup = (ConnectApi.ChatterGroup) batchResult.getResult();
+		           if((String.valueOf(aGroup.myRole) != 'NotAMember' 
+		            && String.valueOf(aGroup.myRole) != 'NotAMemberPrivateRequested' 
+		            && String.valueOf(aGroup.visibility) == 'PrivateAccess') || String.valueOf(aGroup.visibility) == 'PublicAccess'){
+		            groupsNames.add(aGroup.name);
+		           }
+		       }
+		       else {
+		           // Operation failed. Print errors.
+		           System.debug('FAILURE');
+		           System.debug(batchResult.getErrorMessage());
+		       }
+		   }
+		  }catch(Exception e){
+		   System.debug('FAILURE: '+e.getMessage());
+		  }
+		  return groupsNames;
+		 }
+	
 
 	//wrapper classes
 

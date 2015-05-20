@@ -25,8 +25,8 @@
 					<apex:form id="theform" styleClass="pull-right">
 						<c:CommunityFollow parentId="{!news.Id}"/>
 						<c:CommunityShare sO="{!news}"/>
-						<apex:outputLink value="{!urlForEditNews}" styleClass="btn-u" rendered="{!$ObjectType.Community_News__c.Updateable}">{!$Label.BTN_Edit}</apex:outputLink>
-						<apex:outputPanel layout="none" rendered="{!$ObjectType.Community_News__c.Updateable && $ObjectType.Community_News__c.Createable}">&nbsp;</apex:outputPanel>
+						<apex:outputLink value="{!urlForEditNews}" styleClass="btn-u" rendered="{!UpdateableCurrentNews}">{!$Label.BTN_Edit}</apex:outputLink>
+						<apex:outputPanel layout="none" rendered="{!UpdateableCurrentNews && $ObjectType.Community_News__c.Createable}">&nbsp;</apex:outputPanel>
 						<apex:outputLink value="{!urlForCloneNews}" styleClass="btn-u" rendered="{!$ObjectType.Community_News__c.Createable}">{!$Label.BTN_Clone}</apex:outputLink>
 					</apex:form>
 				</div>

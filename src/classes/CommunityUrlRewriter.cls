@@ -38,60 +38,13 @@ global without sharing class CommunityUrlRewriter implements Site.UrlRewriter {
 			String userParam = myFriendlyUrl.getparameters().get('u');
 			if((String.isNotBlank(filterParam) && filterParam == 'requests') || String.isNotBlank(userParam)) {
 				redirect.getParameters().put('pending', 'true');
+				if (String.isNotBlank(userParam)) {
+					redirect.getParameters().put('u', userParam);
+				}
 			}
 		}
 
 		return redirect;
-		/*String url = myFriendlyUrl.getUrl();
-		Boolean noredirect = myFriendlyUrl.getParameters().containsKey('noredirect')
-			&& EncodingUtil.base64Decode(myFriendlyUrl.getParameters().get('noredirect')).toString() == 'true'
-			? true : false;
-
-		if ( !noredirect &&
-			(url.contains(STANDARD_CHATTER_PAGE) || url.contains(STANDARD_USER_DETAIL_PAGE)
-			|| url.contains(STANDARD_GROUP_DETAIL_PAGE) || url.contains(STANDARD_DIRECT_MESSAGE)
-			|| url.contains(STANDARD_CONTACT_PAGE)
-			))
-		{
-			PageReference redirect = Page.LearningCommunity;
-			if (url.contains(STANDARD_GROUP_DETAIL_PAGE)) {
-				String groupId = '';
-				Pattern myP = Pattern.compile('[\\?&]g=([^&]*)');
-				Matcher myM = myP.matcher(url);
-				if (myM.find()) {
-					groupId = myM.group(1);
-					redirect.getparameters().put('g', groupId);
-				}
-			} else if (url.contains(STANDARD_USER_DETAIL_PAGE)) {
-				String uId = '';
-				Pattern myP = Pattern.compile('[\\?&]u=([^&]*)');
-				Matcher myM = myP.matcher(url);
-				if (myM.find()) {
-					uId = myM.group(1);
-					redirect.getparameters().put('u', uId);
-				}
-				redirect.getparameters().put('p', 'user');
-			} else if (url.contains(STANDARD_DIRECT_MESSAGE)) {
-				String cId = '';
-				Pattern myP = Pattern.compile('[\\?&]deepLinkInfo=([^&]*)');
-				Matcher myM = myP.matcher(url);
-				if (myM.find()) {
-					cId = myM.group(1);
-					redirect.getparameters().put('c', cId);
-				}
-			} else {
-				redirect.getparameters().put('p', 'user');
-			}
-
-			Blob urlBlob = Blob.valueOf(url);
-			Blob redirectBlob = Blob.valueOf(redirect.getUrl());
-
-			PageReference pr = Page.CommunityRedirector;
-			pr.setRedirect( true );
-			pr.getParameters().put('standardURL', EncodingUtil.base64Encode(urlBlob));
-			pr.getParameters().put('customURL', EncodingUtil.base64Encode(redirectBlob));
-			return pr;
-		}*/
 	}
 
 	global List<PageReference> generateUrlFor(List<PageReference> mySalesforceUrls) {
