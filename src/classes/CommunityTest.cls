@@ -92,7 +92,7 @@ private class CommunityTest {
 		crc2.getTags();
 	}
 
-	
+	@IsTest(SeeAllData=true)
 	static void test_CommunityGroupCreate() {
 		Community_Theme__c cth = new Community_Theme__c(Name='t',Theme_Type__c='Interest');
 		insert cth;
@@ -178,13 +178,128 @@ private class CommunityTest {
 	}
 
 	static testMethod void test_CommunityEventController() {
-		CommunityEventController.test1();
-	}
+		Account acc = new Account(Name='testAccount');
+		insert acc;
+		Contact con = new Contact(LastName='TCLN', MailingPostalCode='99013', email='testc@testdomain.com', AccountId=acc.Id, Primary_Role__c='Student');
+		insert con;
+		Profile profile = [SELECT Id FROM Profile WHERE Name = 'System Administrator'];
+		User u = new User(alias='alias', email='email@email.com', emailencodingkey='UTF-8', lastname='lastname', firstname = 'firstName', languagelocalekey='en_US',
+			localesidkey='en_US', profileid = profile.Id, timezonesidkey='America/Los_Angeles', username='ttsde.tedf2@testmail.com',
+			FederationIdentifier='TestContactName.TestContactLastname2', Community_Contact_ID__c=con.Id);
+		insert u;
+		Community_Theme__c cth = new Community_Theme__c(Name='t',Theme_Type__c='Interest');
+		insert cth;
+		Community_Tag__c ct = new Community_Tag__c(Name='t',Community_Theme__c=cth.Id);
+		insert ct;
 
-	static testMethod void test_CommunityFeed_MyMessagesController() {
-		CommunityFeed_MyMessagesController.test1();
-	}
+		Community_Events__c event = new Community_Events__c();
+		event.Name__c = 'Event Test';
+		event.Start__c = system.now();
+		event.End__c = system.now().addDays(2);
+		event.Description__c = 'Description';
+		event.Public__c = true;
+		insert event;
 
+		Community_Event_Tag__c evt = new Community_Event_Tag__c();
+		evt.Community_Event__c = event.id;
+		evt.Community_Tag__c = ct.id;
+		insert evt;
+
+		CommunityEventController cecE = new CommunityEventController();
+		CommunityEventController cec = new CommunityEventController(new ApexPages.StandardController(event));
+		Boolean ed = cec.permissionsEdit;
+		Boolean cl = cec.permissionsClone;
+		Boolean sb = cec.permissionShareBanned;
+		
+		PageReference pr1 = cec.initFromView();
+		System.assertEquals(true, pr1 != null);
+		cec.initFromEdit();
+		cec.initFromList();
+		String googleCalendar = cec.getGoogleCalendarCreateEventHref();
+		System.assertEquals(true, googleCalendar.length() > 0);
+		ApexPages.currentPage().getParameters().put('tags',ct.Id);
+
+		cec.downloadICS();
+		cec.getStartDate();
+		cec.getEndDate();
+
+		cec.eventsNextPage();
+		cec.edit();
+		cec.eventsLastPage();
+		cec.eventsPreviousPage();
+		cec.eventsFirstPage();
+		String uEE = cec.urlForEditEvent;
+		String uNE = cec.urlForNewEvent;
+		String uCE = cec.urlForCloneEvent;
+		cec.getTodayStr();
+		cec.getAllGroupsInStringArray();
+		cec.getTitle();
+
+		PageReference pr2 = cec.cancel();
+		System.assertEquals(true, pr2 != null);
+		PageReference pr3 = cec.submit();
+		System.assertEquals(true, pr3 != null);
+
+		ApexPages.currentPage().getParameters().put('cloneId',event.Id);
+		cec.initFromView();
+
+	}
+	
+	@IsTest(SeeAllData=true)
+	static void test_CommunityFeed_MyMessagesController() {
+		Account acc = new Account(Name='testAccount');
+		insert acc;
+		Contact con = new Contact(LastName='TCLN', MailingPostalCode='99013', email='testc@testdomain.com', AccountId=acc.Id, Primary_Role__c='Student');
+		insert con;
+		Profile profile = [SELECT Id FROM Profile WHERE Name = 'System Administrator'];
+		User u = new User(alias='alias', email='email@email.com', emailencodingkey='UTF-8', lastname='lastname', firstname = 'firstName', languagelocalekey='en_US',
+			localesidkey='en_US', profileid = profile.Id, timezonesidkey='America/Los_Angeles', username='ttsde.tedf2@testmail.com',
+			FederationIdentifier='TestContactName.TestContactLastname2', Community_Contact_ID__c=con.Id);
+		insert u;	
+		
+		FeedItem feedIt = new FeedItem();
+		feedIt.Title = 'Test Feed';
+		feedIt.Body = 'Test Body';
+		feedIt.ParentId = u.id;
+		insert feedIt;
+
+
+		CollaborationGroup gr = [SELECT Id, Name FROM CollaborationGroup LIMIT 1];
+		System.assertEquals(true, gr != null);
+		
+		CommunityFeed_MyMessagesController cfMMC = new CommunityFeed_MyMessagesController();
+		Integer mpp = cfMMC.MessagesPerPage;
+		String spt = cfMMC.SelectedPageToken;
+		List<CommunityFeed_MyMessagesController.ChatterConversation> conv = cfMMC.getConversations('', spt, 5);
+		cfMMC.showMoreConversations();
+		CommunityFeed_MyMessagesController.searchUsers('');
+
+
+		CommunityFeed_MyMessagesController.ChatterGroupMember cgm2 = new CommunityFeed_MyMessagesController.ChatterGroupMember(u, false);
+		CommunityFeed_MyMessagesController.ChatterGroupMember cgm3 = new CommunityFeed_MyMessagesController.ChatterGroupMember(u, false, '');
+		CommunityFeed_MyMessagesController.ChatterGroupMember cgm4 = new CommunityFeed_MyMessagesController.ChatterGroupMember(new CollaborationGroupMember());
+		CommunityFeed_MyMessagesController.ChatterMessageSegment cms = new CommunityFeed_MyMessagesController.ChatterMessageSegment('txt','Text');
+
+		
+		Test.startTest();
+			ApexPages.currentPage().getParameters().put('c',conv[0].ConversationId);
+			CommunityFeed_MyMessagesController cfMMC_1 = new CommunityFeed_MyMessagesController();
+			String npt = cfMMC_1.NextPageToken;
+		
+			cfMMC_1.loadOlderMessages();
+			cfMMC_1.newConversation('test 2', u.id);
+			CommunityFeed_MyMessagesController.sendMessage('message',u.id);
+			cfMMC_1.SearchQuery = 'test';
+			System.assertEquals(true, true);
+			//cfMMC_1.doSearchMessages();
+			//cfMMC_1.searchConversations(spt, 5, 'testQuery');
+			//cfMMC_1.markConversationRead();
+			
+
+		Test.stopTest();
+		
+	}
+	
 	static testMethod void test_CommunityFeed_PeopleController() {
 		CommunityFeed_PeopleController.test1();
 	}
