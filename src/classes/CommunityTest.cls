@@ -1,4 +1,4 @@
-@isTest
+@isTest(SeeAllData=true)
 private class CommunityTest {
 /*Page Controllers Tests*/
 
@@ -92,7 +92,7 @@ private class CommunityTest {
 		crc2.getTags();
 	}
 
-	@IsTest(SeeAllData=true)
+	
 	static void test_CommunityGroupCreate() {
 		Community_Theme__c cth = new Community_Theme__c(Name='t',Theme_Type__c='Interest');
 		insert cth;

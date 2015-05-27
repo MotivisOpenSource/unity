@@ -1,4 +1,4 @@
-@isTest
+@isTest(SeeAllData=true)
 private class CommunityTest4 {
 /*Utility Class Tests*/
 

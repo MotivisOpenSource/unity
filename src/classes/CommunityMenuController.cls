@@ -75,7 +75,7 @@ public with sharing class CommunityMenuController {
 	public static void test1() {
 		
 		//add user and account
-		Account acc = new Account(Name='testAccount');
+		Account acc = new Account(Name='testAccount1');
 		insert acc;
 		Contact con = new Contact(LastName='TCLN', MailingPostalCode='99013', email='testc@testdomain.com', AccountId=acc.Id, Primary_Role__c='Student');
 		insert con;

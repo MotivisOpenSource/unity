@@ -229,6 +229,14 @@ public without sharing class CommunityGroupManageController {
 		return null;
 	}
 
+	public Boolean accepted { get; set; }
+	public String requesterId { get; set; }
+	public void performRequestAction() {
+		CommunityUtils.membership(requesterId, String.valueOf(control.Id), (accepted == true ? '7' : '8'));
+		accepted = NULL;
+		requesterId = NULL;
+		msShow();
+	}
 
 	public class MemberPage {
 		transient public List<Member> users { get;set; }
