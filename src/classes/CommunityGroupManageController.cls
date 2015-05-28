@@ -197,40 +197,15 @@ public without sharing class CommunityGroupManageController {
 	private final static Integer MEMBER_PAGE_SIZE = 10;
 	public MemberPage members { get;set; }
 	public MemberPage managers { get;set; }
-/*
-	public PageReference updateMemberField() {
-		for(Member currentM : members.users) {
-			if(currentM.id == updateMemberId) {
-				if(updateMemberFieldName.equalsIgnoreCase('member')) {
-					currentM.member = Boolean.valueOf(updateMemberFieldValue);
-				}
-				if(updateMemberFieldName.equalsIgnoreCase('manager')) {
-					currentM.manager = Boolean.valueOf(updateMemberFieldValue);
-				}
-				break;
-			}
-		}
-		for(Member currentM : managers.users) {
-			if(currentM.id == updateMemberId) {
-				if(updateMemberFieldName.equalsIgnoreCase('member')) {
-					currentM.member = Boolean.valueOf(updateMemberFieldValue);
-				}
-				if(updateMemberFieldName.equalsIgnoreCase('manager')) {
-					currentM.manager = Boolean.valueOf(updateMemberFieldValue);
-				}
-				break;
-			}
-		}
-		return null;
-	}
-*/
+
 	public Boolean accepted { get; set; }
 	public String requesterId { get; set; }
 	public void performRequestAction() {
 		CommunityUtils.membership(requesterId, String.valueOf(control.Id), (accepted == true ? '7' : '8'));
 		accepted = NULL;
 		requesterId = NULL;
-		msShow();
+		//msShow();
+		allusers.init();
 	}
 
 	public class MemberPage {

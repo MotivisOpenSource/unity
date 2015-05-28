@@ -94,7 +94,8 @@ public without sharing class CommunityGroupDetailPageController {
 		CommunityUtils.membership(requesterId, String.valueOf(control.Id), (accepted == true ? '7' : '8'));
 		accepted = NULL;
 		requesterId = NULL;
-		initMembers();
+		//initMembers();
+		members.init();
 	}
 
 	public CommunityUtils.GroupAction getActionButton() {
