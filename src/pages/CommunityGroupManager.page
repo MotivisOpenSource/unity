@@ -452,6 +452,10 @@
 								</apex:outputPanel>
 							</apex:outputPanel>
 							<apex:actionFunction action="{!allusers.firstPage}" name="firstPage" rerender="allpb" status="statusLoad"/>
+							<apex:actionFunction action="{!performRequestAction}" name="accdeca" rerender="allpb">
+								<apex:param name="accepted" assignTo="{!accepted}" value=""/>
+								<apex:param name="requesterId" assignTo="{!requesterId}" value=""/>
+							</apex:actionFunction>
 						</apex:form>
 						<script>
 							var searchAction = _.debounce(function(inthis) {
@@ -463,31 +467,24 @@
 								if(inm!=4||confirm('{!$Label.LBL_Confirm_Remove_Manager}')) {
 									if (inm<7) {
 										$('#cell' + inid + ' i').attr('class','fa fa-spinner fa-pulse');
-									}
-									else {
-										$('#cell'+inid+' .btn-u').removeAttr('onclick');
-										$('#cell'+inid+' i.'+((inm==7)?'fa-plus-circle':'fa-times-circle')).attr('class','fa fa-spinner fa-pulse');
-									}
-									Visualforce.remoting.Manager.invokeAction(
-										MS_PROC_RA_STRING,
-										inid,
-										'{!control.Id}',
-										inm,
-										function(result, event) {
-											var temp = result.split('-;-');
-											if (temp[0] == 'delete') {
-												$('#cell'+temp[1]).closest('tr').remove();
-												if ($('#groupmembertable tr').length == 0) {
-													$('[id$=allpb]').prepend('<div class="alert alert-success"><i class="fa fa-thumbs-o-up"></i>&nbsp;&nbsp;{!$Label.LBL_PendingRequestsDone_Message}</div>');
-												}
-											}
-											else {
+										Visualforce.remoting.Manager.invokeAction(
+											MS_PROC_RA_STRING,
+											inid,
+											'{!control.Id}',
+											inm,
+											function(result, event) {
+												var temp = result.split('-;-');
 												var div = document.createElement('div');
 												div.innerHTML = temp[0];
 												$('#cell'+temp[1]).html(div.firstChild.nodeValue);
 											}
-										}
-									);
+										);
+									}
+									else if ($('#groupmembertable .fa-spinner').length == 0) {
+										$('#cell'+inid+' .btn-u').removeAttr('onclick');
+										$('#cell'+inid+' i.'+((inm==7)?'fa-plus-circle':'fa-times-circle')).attr('class','fa fa-spinner fa-pulse');
+										accdeca(inm == 7, inid);
+									}
 								}
 							}
 						</script>

@@ -141,14 +141,9 @@ public without sharing class CommunityGroupManageController {
 	public static String membership(String inUserId, String inGroupContolId, Integer inMode) {
 		CommunityUtils.membership(inUserId, inGroupContolId, String.valueOf(inMode));
 		String resultHtml;
-		if (inMode < 7) {
-			List<String> parts = BTN_MAP.get(inMode).split(':;:');
-			resultHtml = '<button class="btn-u' + parts[1] + '" onclick="msproc(' + parts[0] + ',\'' + inUserId + '\');return false;">';
-			resultHtml += '<i class="fa ' + parts[2] + '"></i>&nbsp;' + parts[3] + '</button>';
-		}
-		else {
-			resultHtml = 'delete';
-		}
+		List<String> parts = BTN_MAP.get(inMode).split(':;:');
+		resultHtml = '<button class="btn-u' + parts[1] + '" onclick="msproc(' + parts[0] + ',\'' + inUserId + '\');return false;">';
+		resultHtml += '<i class="fa ' + parts[2] + '"></i>&nbsp;' + parts[3] + '</button>';
 		return resultHtml + '-;-' + inUserId;
 	}
 
@@ -202,7 +197,7 @@ public without sharing class CommunityGroupManageController {
 	private final static Integer MEMBER_PAGE_SIZE = 10;
 	public MemberPage members { get;set; }
 	public MemberPage managers { get;set; }
-
+/*
 	public PageReference updateMemberField() {
 		for(Member currentM : members.users) {
 			if(currentM.id == updateMemberId) {
@@ -228,7 +223,7 @@ public without sharing class CommunityGroupManageController {
 		}
 		return null;
 	}
-
+*/
 	public Boolean accepted { get; set; }
 	public String requesterId { get; set; }
 	public void performRequestAction() {
@@ -321,7 +316,7 @@ public without sharing class CommunityGroupManageController {
 				}
 			}
 			Integer mlSize = allUsers.size();
-			Integer memberPageSize = requestsMode ? 1000 : MEMBER_PAGE_SIZE;
+			Integer memberPageSize = MEMBER_PAGE_SIZE;
 			totalPages = mlSize / memberPageSize + ((Math.mod(mlSize, memberPageSize) == 0) ? 0 : 1);
 			totalPages = totalPages == 0 ? 1 : totalPages;
 			showPagination = totalPages > 1;

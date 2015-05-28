@@ -223,24 +223,19 @@
 				<apex:actionFunction name="switchToMemberMode" action="{!switchToMemberMode}" rerender="memlist,rightpanel" status="statusLoad"/>
 				<apex:actionFunction name="switchToRequestMode" action="{!switchToRequestMode}" rerender="memlist" status="statusLoad"/>
 				<apex:actionFunction action="{!members.firstPage}" name="firstPage" rerender="allpb" status="statusLoad"/>
+				<apex:actionFunction action="{!performRequestAction}" name="accdeca" rerender="allpb">
+					<apex:param name="accepted" assignTo="{!accepted}" value=""/>
+					<apex:param name="requesterId" assignTo="{!requesterId}" value=""/>
+				</apex:actionFunction>
 			</apex:form>
 			<script>typeof(_) != 'undefined' || document.write('<script src="{!$Resource.CommunityResources}/js/underscore/underscore-min.js">')</script>
 			<script>
 				function msproc(inm,inid) {
-					$('#cell'+inid+' .btn-u').removeAttr('onclick');
-					$('#cell'+inid+' i.'+((inm==7)?'fa-plus-circle':'fa-times-circle')).attr('class','fa fa-spinner fa-pulse');
-					Visualforce.remoting.Manager.invokeAction(
-						'{!$RemoteAction.CommunityGroupDetailPageController.membership}',
-						inid,
-						'{!control.Id}',
-						inm,
-						function(result, event) {
-							$('#cell'+result).closest('tr').remove();
-							if ($('#groupmembertable tr').length == 0) {
-								$('[id$=allpb]').prepend('<div class="alert alert-success"><i class="fa fa-thumbs-o-up"></i>&nbsp;&nbsp;{!$Label.LBL_PendingRequestsDone_Message}</div>');
-							}
-						}
-					);
+					if ($('#groupmembertable .fa-spinner').length == 0) {
+						$('#cell'+inid+' .btn-u').removeAttr('onclick');
+						$('#cell'+inid+' i.'+((inm==7)?'fa-plus-circle':'fa-times-circle')).attr('class','fa fa-spinner fa-pulse');
+						accdeca(inm == 7, inid);
+					}
 				}
 				function toogleFollowing(inid) {
 					Visualforce.remoting.Manager.invokeAction(
