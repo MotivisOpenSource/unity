@@ -9,17 +9,26 @@
 <apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
 <apex:define name="body">
 	<apex:form >
-		<apex:pageBlock >
-			<apex:pageMessages id="pageMessages"/>
-			<apex:pageBlockButtons >
+		<div class="row margin-bottom-10">
+			<div class="col-md-6 text-left" style="padding-left:35px;">
+				<h2>{!Title}</h2>
+			</div>
+			<div class="col-md-6 text-right" style="padding-right:25px;">
 				<apex:commandButton action="{!Submit}" value="{!$Label.BTN_Submit}" styleClass="btn-u"/>
 				&nbsp;
 				<apex:outputLink value="{!IF(ISBLANK($CurrentPage.parameters.retURL),$Page.CommunityEventsList,JSENCODE($CurrentPage.parameters.retURL))}" styleClass="btn-u">{!$Label.BTN_Cancel}</apex:outputLink>
-			</apex:pageBlockButtons>
+			</div>
+		</div>
+		<apex:pageBlock >
+			<apex:pageMessages id="pageMessages"/>
 			<apex:pageBlockSection id="cnpbs1" columns="1" collapsible="false">
 				<apex:repeat value="{!fieldset}" var="fs">
 					<apex:inputField value="{!event[fs.fieldPath]}" required="{!OR(fs.required, fs.dbrequired)}"/>
 				</apex:repeat>
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="{!$Label.LBL_Event_Group}"/>
+					<apex:input value="{!connectedGroupStr}" list="{!AllGroupsInStringArray}" />
+				</apex:pageBlockSectionItem>
 				<apex:pageBlockSectionItem >
 					<apex:outputLabel value="{!$Label.LBL_Select_Tags}"/>
 					<c:CommunityTagSelector oId="{!event.Id}" oType="{!$ObjectType.Community_Event_Tag__c.Name}" fName="{!$ObjectType.Community_Event_Tag__c.Fields.Community_Event__c.Name}"/>
