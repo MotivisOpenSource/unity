@@ -353,7 +353,56 @@ private class CommunityTest {
 	}
 
 	static testMethod void test_CommunityGroupManageController() {
-		CommunityGroupManageController.test1();
+		Account acc = new Account(Name='testAccount');
+		insert acc;
+		Contact con = new Contact(LastName='TCLN', MailingPostalCode='99013', email='testc67@testdomain.com', AccountId=acc.Id, Primary_Role__c='Student');
+		insert con;
+		Profile profile = [SELECT Id FROM Profile WHERE Name = 'System Administrator'];
+		User u = new User(alias='alias', email='testc67@testdomain.com', emailencodingkey='UTF-8', lastname='lastname', firstname = 'firstName', languagelocalekey='en_US',
+			localesidkey='en_US', profileid = profile.Id, timezonesidkey='America/Los_Angeles', username='ttsde.tedf67@testmail.com',
+			FederationIdentifier='TestContactName.TestContactLastname76', Community_Contact_ID__c=con.Id);
+		insert u;
+		Community_Group_Control__c c1 = new Community_Group_Control__c(
+			Name = 'Test Private',
+			Type__c = 'Private'
+		);
+		insert c1;
+		ApexPages.currentPage().getParameters().put('gc',c1.Id);
+		CommunityGroupManageController cgmc = new CommunityGroupManageController();
+		System.RunAs(u) {
+			CommunityUtils.membership(u.Id, c1.Id, '5');
+		}
+		System.assert(cgmc.getRequestCount() == 1, true);
+		cgmc.msShowPlus();
+		cgmc.getMemberModalTitle();
+		cgmc.getShowChangeOwnerLink();
+		cgmc.getStat();
+		cgmc.getUserCanAccess();
+		cgmc.requestMode = true;
+		cgmc.msShowPlus();
+		cgmc.editModeAction();
+		System.assert(cgmc.editMode, true);
+		cgmc.submitAction();
+		cgmc.cancelAction();
+
+		String urls = cgmc.urlForGroupReturn;
+		urls = cgmc.urlForEvent;
+		urls = cgmc.groupImageUrl;
+		Integer tsize = cgmc.pageSize;
+		cgmc.accepted = true;
+		cgmc.requesterId = u.Id;
+		cgmc.allusers.query = 'lastname';
+		cgmc.performRequestAction();
+		CommunityGroupManageController.membership(String.valueOf(u.Id), String.valueOf(c1.Id), 3);
+		cgmc.ownerString = u.Id;
+		cgmc.changeOwner();
+		cgmc.allusers.column();
+		cgmc.allusers.nextPage();
+		cgmc.allusers.lastPage();
+		cgmc.allusers.previousPage();
+		cgmc.allusers.firstPage();
+		cgmc.allusers.newOwner(u.Id);
+		cgmc.msDone();
 	}
 
 	static testMethod void test_CommunityGroupsController() {

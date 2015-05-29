@@ -414,6 +414,13 @@
         <value>Answer</value>
     </labels>
     <labels>
+        <fullName>LBL_Assign_New_Owner</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Assign New Owner</shortDescription>
+        <value>Assign New Owner</value>
+    </labels>
+    <labels>
         <fullName>LBL_Banner_Caption</fullName>
         <language>en_US</language>
         <protected>true</protected>
