@@ -434,4 +434,3 @@ public with sharing class CommunityFeed_MyMessagesController {
 		return msg.ConversationId;
 	}
 }
-

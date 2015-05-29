@@ -159,4 +159,54 @@ public without sharing class CommunityGroupDetailPageController {
 			ftime = ince.Start__c == NULL ? '' : ince.Start__c.format();
 		}
 	}
+
+	public static void test1() {	
+		Community_Theme__c cth = new Community_Theme__c(Name='t',Theme_Type__c='Interest');
+		insert cth;
+		Community_Tag__c ct = new Community_Tag__c(Name='t',Community_Theme__c=cth.Id);
+		insert ct;
+		
+		//add user and account
+		Account acc = new Account(Name='testAccount');
+		insert acc;
+		Contact con = new Contact(LastName='TCLN', MailingPostalCode='99013', email='testc@testdomain.com', AccountId=acc.Id, Primary_Role__c='Student');
+		insert con;
+		Profile profile = [SELECT Id FROM Profile WHERE Name = 'System Administrator'];
+		User u = new User(alias='alias', email='email@email.com', emailencodingkey='UTF-8', lastname='lastname', firstname = 'firstName', languagelocalekey='en_US',
+			localesidkey='en_US', profileid = profile.Id, timezonesidkey='America/Los_Angeles', username='ttsde.tedf2@testmail.com',
+			FederationIdentifier='TestContactName.TestContactLastname2', Community_Contact_ID__c=con.Id);
+		insert u;
+		Test.setCurrentPage(Page.CommunityGroupDetailPage);
+		// add group
+		CommunityGroupCreateController cgcc = new CommunityGroupCreateController(new ApexPages.StandardController(new Community_Group_Control__c()));
+		cgcc.initFromCreate();
+		cgcc.getDisabledNext();
+		cgcc.doSubmit();
+		cgcc.currentGroup.Name = 'cc';
+		cgcc.currentGroup.Type__c = 'Public';
+		cgcc.currentGroup.Description__c = 'd';
+		cgcc.currentGroup.Discoverable__c = true;
+		CommunityGroupCreateController.checkAvailability(cgcc.currentGroup.Name);
+		cgcc.doSubmit();
+
+		List<CollaborationGroup> li = [SELECT Id, Name FROM CollaborationGroup ];
+		ApexPages.currentPage().getParameters().put('gr',li[0].Id);
+		CommunityGroupDetailPageController cgc1 = new CommunityGroupDetailPageController();
+		ApexPages.currentPage().getParameters().put('u',u.Id);
+		System.debug('ID  ' + li[0].Id);
+		CommunityGroupDetailPageController cgc = new CommunityGroupDetailPageController();
+		System.debug('chatterGroup  ' + cgc.chatterGroup);
+		cgc.getUrlForCreateEvent();
+		cgc.switchToMemberMode();
+		cgc.switchToRequestMode();
+		cgc.getHideFeedComponent();
+		cgc.getShowPendingMembers();
+		cgc.getActionButton();
+		cgc.getEvents();
+		Boolean b = cgc.showCreateEvent;
+		cgc.groupMode = '1';
+		cgc.performGroupMembershipAction();
+		
+	}
+	
 }

@@ -221,7 +221,6 @@ private class CommunityTest2 {
 		CommunityHomeComponentController.News news1 = new CommunityHomeComponentController.News(cnews);
 		news1.getImagePath();
 	}
-	
 	@isTest(SeeAllData=true)
 	static void test_CommunityShareController() {
 		CommunityShareController.test1();

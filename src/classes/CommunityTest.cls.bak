@@ -299,7 +299,7 @@ private class CommunityTest {
 		Test.stopTest();
 		
 	}
-
+	
 	static testMethod void test_CommunityFeed_PeopleController() {
 		CommunityFeed_PeopleController.test1();
 	}
