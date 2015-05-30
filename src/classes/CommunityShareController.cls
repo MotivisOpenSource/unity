@@ -298,6 +298,7 @@ global without sharing class CommunityShareController {
 
 	}
 
+	/*
 	public static void test1() {
 		CommunityShareController cscNews = new CommunityShareController();
 		CommunityShareController cscEvents = new CommunityShareController();
@@ -317,5 +318,6 @@ global without sharing class CommunityShareController {
 			
 		//csc.init();
 	}
+	*/
 	
 }

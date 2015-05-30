@@ -563,7 +563,7 @@ global without sharing class CommunityFeedController {
 		fei.capabilities.content.title = att.Name;
 		fei.capabilities.content.description = layoutItemsValue;
 		fei.body = werewolfText(layoutItemsValue);
-		
+	
 		String newFeed = json.serialize(ConnectApi.ChatterFeeds.postFeedElement(Network.getNetworkId(), fei, new ConnectApi.BinaryInput(att.Body, att.ContentType, att.Name)));
 		FeedElementPage fepResult = new FeedElementPage();
 		fepResult.elements = new List<FeedElement> { (FeedElement)JSON.deserialize(newFeed,FeedElement.class) };

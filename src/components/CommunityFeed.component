@@ -722,7 +722,7 @@ textarea.form-control {
 														insertAttIntoFeed(result[0].id, JSON.stringify(chataction.layout));
 													});
 												}else{
-														insertAttIntoFeed(result[0].id, "");
+														insertAttIntoFeed(result[0].id, null);
 												}
 												postFile = false;
 										    }
@@ -738,7 +738,7 @@ textarea.form-control {
 									    {
 									    	postFile = false;
 											enableBtn('mesbtn');
-											$('#postform-error').html('<strong>Error!</strong> ' + result[0].errors.message);
+											$('#postform-error').html('<strong>Error!</strong> ' + error[0].errors.message);
 											$('#postform-error').show();	
 									        
 									    }

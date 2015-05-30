@@ -41,7 +41,7 @@ private class CommunityTest {
 		cnc3.mode = 'view';
 		cnc3.init();
 		cnc3.cancel();
-		cnc3.edit();
+		//cnc3.edit();
 		Boolean b = cnc3.allowComments;
 		String tst = cnc3.urlForEditNews;
 		tst = cnc3.urlForNewNews;
@@ -270,8 +270,6 @@ private class CommunityTest {
 		CommunityFeed_MyMessagesController cfMMC = new CommunityFeed_MyMessagesController();
 		Integer mpp = cfMMC.MessagesPerPage;
 		String spt = cfMMC.SelectedPageToken;
-		List<CommunityFeed_MyMessagesController.ChatterConversation> conv = cfMMC.getConversations('', spt, 5);
-		cfMMC.showMoreConversations();
 		CommunityFeed_MyMessagesController.searchUsers('');
 
 
@@ -282,13 +280,13 @@ private class CommunityTest {
 
 		
 		Test.startTest();
+			List<CommunityFeed_MyMessagesController.ChatterConversation> conv = cfMMC.getConversations('', spt, 5);
 			ApexPages.currentPage().getParameters().put('c',conv[0].ConversationId);
 			CommunityFeed_MyMessagesController cfMMC_1 = new CommunityFeed_MyMessagesController();
 			String npt = cfMMC_1.NextPageToken;
-		
+			//cfMMC.showMoreConversations();
 			cfMMC_1.loadOlderMessages();
 			cfMMC_1.newConversation('test 2', u.id);
-			CommunityFeed_MyMessagesController.sendMessage('message',u.id);
 			cfMMC_1.SearchQuery = 'test';
 			System.assertEquals(true, true);
 			//cfMMC_1.doSearchMessages();
@@ -301,7 +299,26 @@ private class CommunityTest {
 	}
 
 	static testMethod void test_CommunityFeed_PeopleController() {
-		CommunityFeed_PeopleController.test1();
+		Account acc = new Account(Name='testAccount');
+		insert acc;
+		Contact con = new Contact(LastName='TCLN', MailingPostalCode='99013', email='testc@testdomain.com', AccountId=acc.Id, Primary_Role__c='Student');
+		insert con;
+		Profile profile = [SELECT Id FROM Profile WHERE Name = 'System Administrator'];
+		User u = new User(alias='alias', email='email@email.com', emailencodingkey='UTF-8', lastname='lastname', firstname = 'firstName', languagelocalekey='en_US',
+			localesidkey='en_US', profileid = profile.Id, timezonesidkey='America/Los_Angeles', username='ttsde.tedf2@testmail.com',
+			FederationIdentifier='TestContactName.TestContactLastname2', Community_Contact_ID__c=con.Id);
+		insert u;
+		User u1 = new User(alias='alias1', email='email1@email.com', emailencodingkey='UTF-8', lastname='lastname1', firstname = 'firstName1', languagelocalekey='en_US',
+			localesidkey='en_US', profileid = profile.Id, timezonesidkey='America/Los_Angeles', username='ttsde.tedf21@testmail.com',
+			FederationIdentifier='TestContactName.TestContactLastname21', Community_Contact_ID__c=con.Id);
+		insert u1;	
+
+		EntitySubscription es = new EntitySubscription(ParentId = u1.Id, SubscriberId = u.Id);
+		insert es;
+		List<CommunityFeed_PeopleController.UserItem> lUI = CommunityFeed_PeopleController.getPeoples();
+		System.assertEquals(true, lUI.size() > 0);
+		CommunityFeed_PeopleController.subscriberAction(u.Id, true);
+		CommunityFeed_PeopleController cfpc = new CommunityFeed_PeopleController();
 	}
 	@isTest(SeeAllData=true)
 	static void test_CommunityGroupDetailPageController() {
@@ -335,6 +352,8 @@ private class CommunityTest {
 
 		List<CollaborationGroup> li = [SELECT Id, Name FROM CollaborationGroup ];
 		ApexPages.currentPage().getParameters().put('gr',li[0].Id);
+		Community_Group_Control__c grControll = new Community_Group_Control__c(Chatter_Group_ID__c = li[0].Id); 
+		insert grControll;
 		CommunityGroupDetailPageController cgc1 = new CommunityGroupDetailPageController();
 		ApexPages.currentPage().getParameters().put('u',u.Id);
 		System.debug('ID  ' + li[0].Id);

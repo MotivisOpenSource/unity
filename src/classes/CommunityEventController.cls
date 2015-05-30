@@ -322,6 +322,11 @@ public with sharing class CommunityEventController {
 			}
 			else {
 				// create group				
+				if(!validateGroupStr(connectedGroupStr)){
+					ApexPages.Message myMsg = new ApexPages.Message(ApexPages.Severity.ERROR, Label.ERR_Please_Select_Group);
+					ApexPages.addMessage(myMsg);
+					return NULL;
+				}			
 				List<Community_Group_Control__c> communityGroupControll = [
 						SELECT Id, Chatter_Group_ID__c
 						FROM Community_Group_Control__c
@@ -355,6 +360,16 @@ public with sharing class CommunityEventController {
 		}
 		return NULL;
 	}
+
+	public Boolean validateGroupStr(String groupStr){
+		String[] groupsInStringArray = getAllGroupsInStringArray();
+		for(String groupNameStr : groupsInStringArray){
+			if (groupStr.equalsIgnoreCase(groupNameStr)){
+				return true;
+			}
+		}
+		return false;
+	} 
 
 	public List<Schema.FieldSetMember> fieldset {
 		get {

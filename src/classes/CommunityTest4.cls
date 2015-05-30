@@ -4,9 +4,9 @@ private class CommunityTest4 {
 
 	static testMethod void test_CommunityUrlRewriter() {
 		CommunityUrlRewriter rewriter = new CommunityUrlRewriter();
-    	System.assert(rewriter.generateUrlFor(null) == null);
-    	List<CollaborationGroup> cg = [SELECT Id, Name FROM CollaborationGroup LIMIT 1];
-    	List<User> us = [SELECT Id, Name FROM User LIMIT 1];
+		System.assert(rewriter.generateUrlFor(null) == null);
+		List<CollaborationGroup> cg = [SELECT Id, Name FROM CollaborationGroup LIMIT 1];
+		List<User> us = [SELECT Id, Name FROM User LIMIT 1];
 		rewriter.mapRequestUrl(new PageReference('https://motivis-developer-edition.ap2.force.com/studentcommunity/_ui/core/chatter/groups/GroupProfilePage?g='+cg[0].ID+'&filter=requests&fromEmail=1'));
 		rewriter.mapRequestUrl(new PageReference('https://motivis-developer-edition.ap2.force.com/studentcommunity/_ui/core/chatter/groups/GroupProfilePage?g='+cg[0].ID+'&u='+us[0].ID+'&fromEmail=1'));
 		rewriter.mapRequestUrl(new PageReference('https://motivis-developer-edition.ap2.force.com/studentcommunity/_ui/core/userprofile/?u='+us[0].Id));
@@ -14,7 +14,6 @@ private class CommunityTest4 {
 	}
 
 	static testMethod void test_CommunityUtils() {
-		System.Debug('TEST 4 RUN!!!!!!!!!!!!!!!!');
 		Community_Theme__c cth = new Community_Theme__c(Name='t',Theme_Type__c='Interest');
 		insert cth;
 		Community_Tag__c ct = new Community_Tag__c(Name='t',Community_Theme__c=cth.Id);
@@ -45,10 +44,6 @@ private class CommunityTest4 {
 			CommunityUtils.getPackagePrefix();
 		}
 		System.runAs(u1) {
-	        // The following code runs as user 'u' 
-	        System.debug('Current User: ' + UserInfo.getUserName());
-	        System.debug('Current Profile: ' + UserInfo.getProfileId()); 
-	      			
 			CommunityUtils.isModifyAllData();
 			CommunityUtils.isViewAllData();
 			CommunityUtils.canCreateGroup();
@@ -78,14 +73,14 @@ private class CommunityTest4 {
 			ga.groupId = '6';
 			ga.memberCount = '7';
 			ga.lnkIcon = '8';
-			ga.lnkStyle = '9';			
+			ga.lnkStyle = '9';
 			
 			List<Community_Group_Control__c> availibleGroupsControll = [SELECT Chatter_Group_ID__c, Id
-	                 FROM Community_Group_Control__c
-	                 WHERE Status__c = 'Approved'];
+					 FROM Community_Group_Control__c
+					 WHERE Status__c = 'Approved'];
 			List<String> groupIds = new List<String>();
 			for (Community_Group_Control__c aGroup : availibleGroupsControll){
-			    groupIds.add(aGroup.Chatter_Group_ID__c); 
+				groupIds.add(aGroup.Chatter_Group_ID__c); 
 			}		
 			CommunityUtils.getNamesOfAvailableGroups(groupIds);
 			
@@ -102,8 +97,7 @@ private class CommunityTest4 {
 			string hour = '12';
 			string minute = '20';
 			string second = '20';
-			string stringDate = year + '-' + month + '-' + day + ' ' + hour + ':' 
-			    + minute +  ':' + second;
+			string stringDate = year + '-' + month + '-' + day + ' ' + hour + ':' + minute +  ':' + second;
 			
 			CommunityUtils.checkNewsOverlapInterval(' IsDeleted=false ', Datetime.valueOf(stringDate), Datetime.valueOf(stringDate));
 			CommunityUtils.checkNewsOverlapInterval(' IsDeleted=false ', null, Datetime.valueOf(stringDate));
