@@ -211,32 +211,6 @@ public with sharing class CommunityRegTermsController {
 			return '?step=' + String.valueOf(step);
 		}
 	}
-
-	public static void test1() {
-		Community_Theme__c cth = new Community_Theme__c(Name='t',Theme_Type__c='Interest');
-		insert cth;
-		Community_Tag__c ct = new Community_Tag__c(Name='t',Community_Theme__c=cth.Id);
-		insert ct;
-		
-		//add user and account
-		Account acc = new Account(Name='testAccount');
-		insert acc;
-		Contact con = new Contact(LastName='TCLN', MailingPostalCode='99013', email='testc@testdomain.com', AccountId=acc.Id, Primary_Role__c='Student');
-		insert con;
-		Profile profile = [SELECT Id FROM Profile WHERE Name = 'System Administrator'];
-		User u = new User(alias='alias', email='email@email.com', emailencodingkey='UTF-8', lastname='lastname', firstname = 'firstName', languagelocalekey='en_US',
-			localesidkey='en_US', profileid = profile.Id, timezonesidkey='America/Los_Angeles', username='ttsde.tedf2@testmail.com',
-			FederationIdentifier='TestContactName.TestContactLastname2', Community_Contact_ID__c=con.Id);
-		insert u;
-		System.runAs(u) {
-		Test.setCurrentPage(Page.CommunityRegTerms);
-		CommunityRegTermsController crtc = new CommunityRegTermsController();
-		//crtc.currentUser = u;
-		//crtc.currentContact = con;
-		//crtc.currentProfile = profile;
-		
-		crtc.init();
-		}
-	}
+	
 
 }

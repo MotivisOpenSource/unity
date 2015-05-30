@@ -320,14 +320,9 @@ private class CommunityTest {
 		CommunityFeed_PeopleController.subscriberAction(u.Id, true);
 		CommunityFeed_PeopleController cfpc = new CommunityFeed_PeopleController();
 	}
+	
 	@isTest(SeeAllData=true)
 	static void test_CommunityGroupDetailPageController() {
-		Community_Theme__c cth = new Community_Theme__c(Name='t',Theme_Type__c='Interest');
-		insert cth;
-		Community_Tag__c ct = new Community_Tag__c(Name='t',Community_Theme__c=cth.Id);
-		insert ct;
-		
-		//add user and account
 		Account acc = new Account(Name='testAccount');
 		insert acc;
 		Contact con = new Contact(LastName='TCLN', MailingPostalCode='99013', email='testc@testdomain.com', AccountId=acc.Id, Primary_Role__c='Student');
@@ -336,29 +331,41 @@ private class CommunityTest {
 		User u = new User(alias='alias', email='email@email.com', emailencodingkey='UTF-8', lastname='lastname', firstname = 'firstName', languagelocalekey='en_US',
 			localesidkey='en_US', profileid = profile.Id, timezonesidkey='America/Los_Angeles', username='ttsde.tedf2@testmail.com',
 			FederationIdentifier='TestContactName.TestContactLastname2', Community_Contact_ID__c=con.Id);
-		insert u;
-		Test.setCurrentPage(Page.CommunityGroupDetailPage);
-		// add group
-		CommunityGroupCreateController cgcc = new CommunityGroupCreateController(new ApexPages.StandardController(new Community_Group_Control__c()));
-		cgcc.initFromCreate();
-		cgcc.getDisabledNext();
-		cgcc.doSubmit();
-		cgcc.currentGroup.Name = 'cc';
-		cgcc.currentGroup.Type__c = 'Public';
-		cgcc.currentGroup.Description__c = 'd';
-		cgcc.currentGroup.Discoverable__c = true;
-		CommunityGroupCreateController.checkAvailability(cgcc.currentGroup.Name);
-		cgcc.doSubmit();
-
-		List<CollaborationGroup> li = [SELECT Id, Name FROM CollaborationGroup ];
-		ApexPages.currentPage().getParameters().put('gr',li[0].Id);
-		Community_Group_Control__c grControll = new Community_Group_Control__c(Chatter_Group_ID__c = li[0].Id); 
-		insert grControll;
-		CommunityGroupDetailPageController cgc1 = new CommunityGroupDetailPageController();
+		insert u;		
+		Community_Theme__c cth = new Community_Theme__c(Name='t',Theme_Type__c='Interest');
+		insert cth;
+		Community_Tag__c ct = new Community_Tag__c(Name='t',Community_Theme__c=cth.Id);
+		insert ct;					
+		CollaborationGroup cg = new CollaborationGroup();
+		cg.Name = 'newgroup';
+		cg.CollaborationType = 'Public' ;
+		insert cg;			
+		Community_Group_Control__c group1 = new Community_Group_Control__c(Name='1212t',Discoverable__c=true,Type__c='Public',Network__c='Internal', Chatter_Group_ID__c=cg.Id);
+		insert 	group1;			
+		Community_Group_Control__c c1 = new Community_Group_Control__c(
+			Name = 'Test Private',
+			Type__c = 'Private'
+		);
+		insert c1;
+		System.RunAs(u) {
+			CommunityGroupDetailPageController.membership(u.Id, c1.Id, 5);
+			/*
+			Test.setCurrentPage(Page.CommunityGroupDetailPage);	
+			ApexPages.currentPage().getParameters().put('gr',group1.Chatter_Group_ID__c);
+			ApexPages.currentPage().getParameters().put('u',u.Id);
+			CommunityGroupDetailPageController.membership(u.Id, c1.Id, 5);
+			CommunityGroupDetailPageController cgc2 = new CommunityGroupDetailPageController();
+			cgc2.control = group1;
+			cgc2.accepted = false;
+			cgc2.requesterId = u.Id;
+			cgc2.performRequestAction();
+			*/			
+		}		
+		Test.setCurrentPage(Page.CommunityGroupDetailPage);	
+		ApexPages.currentPage().getParameters().put('gr',group1.Chatter_Group_ID__c);
 		ApexPages.currentPage().getParameters().put('u',u.Id);
-		System.debug('ID  ' + li[0].Id);
+		CommunityGroupDetailPageController.toggleSubscriber(u.Id);
 		CommunityGroupDetailPageController cgc = new CommunityGroupDetailPageController();
-		System.debug('chatterGroup  ' + cgc.chatterGroup);
 		cgc.getUrlForCreateEvent();
 		cgc.switchToMemberMode();
 		cgc.switchToRequestMode();
@@ -368,7 +375,19 @@ private class CommunityTest {
 		cgc.getEvents();
 		Boolean b = cgc.showCreateEvent;
 		cgc.groupMode = '1';
-		cgc.performGroupMembershipAction();		
+		cgc.performGroupMembershipAction();	
+		cgc.getRequestCount();		
+		Community_Events__c event = new Community_Events__c();
+		event.Name__c = 'Event Test';
+		event.Start__c = system.now();
+		event.End__c = system.now().addDays(2);
+		event.Description__c = 'Description';
+		event.Public__c = true;
+		insert event;
+		CommunityGroupDetailPageController.GroupEvent ge = new CommunityGroupDetailPageController.GroupEvent(event);
+		cgc.control = group1;
+		cgc.accepted = false;
+		cgc.requesterId = u.Id;	
 	}
 
 	static testMethod void test_CommunityGroupManageController() {
@@ -429,7 +448,52 @@ private class CommunityTest {
 	}
 
 	static testMethod void test_CommunityRegTermsController() {
-		CommunityRegTermsController.test1();
+		Community_Theme__c cth = new Community_Theme__c(Name='t',Theme_Type__c='Interest');
+		insert cth;
+		Community_Tag__c ct = new Community_Tag__c(Name='t',Community_Theme__c=cth.Id);
+		insert ct;
+		
+		//add user and account
+		Account acc = new Account(Name='testAccount');
+		insert acc;
+		Contact con = new Contact(LastName='TCLN', MailingPostalCode='99013', email='testc@testdomain.com', AccountId=acc.Id, Primary_Role__c='Student');
+		insert con;
+		Profile profile = [SELECT Id FROM Profile WHERE Name = 'System Administrator'];
+		User u = new User(alias='alias', email='email@email.com', emailencodingkey='UTF-8', lastname='lastname', firstname = 'firstName', languagelocalekey='en_US',
+			localesidkey='en_US', profileid = profile.Id, timezonesidkey='America/Los_Angeles', username='ttsde.tedf2@testmail.com',
+			FederationIdentifier='TestContactName.TestContactLastname2', Community_Contact_ID__c=con.Id);
+		insert u;
+		System.runAs(u) {
+			Test.setCurrentPage(Page.CommunityRegTerms);
+			CommunityRegTermsController crtc = new CommunityRegTermsController();
+						
+			crtc.stepName = 'info';
+			crtc.init();
+			crtc.completeCurrentStep();
+			crtc.stepName = 'interest';
+			crtc.init();
+			crtc.completeCurrentStep();
+			crtc.stepName = 'picture';
+			crtc.init();
+			crtc.completeCurrentStep();
+			crtc.stepName = 'tc';
+			crtc.init();
+			crtc.completeCurrentStep();
+			crtc.stepName = 'info';
+			crtc.init();
+			crtc.completeCurrentStep();
+			crtc.stepName = 'info';
+			crtc.init();
+			crtc.completeCurrentStep();
+			crtc.checkAndPrepareMenu();
+			crtc.getDisabledNext();
+		
+			CommunityRegTermsController.Menu leftSideBar = new CommunityRegTermsController.Menu();	
+				leftSideBar.getLastStep();
+				leftSideBar.getCurrentStepName();	
+			CommunityRegTermsController.MenuItem mi = new CommunityRegTermsController.MenuItem( 'n', true, true, 1);
+			mi.getStepParam();			
+		}
 	}
 
 	static testMethod void test_CommunitySearchController() {
