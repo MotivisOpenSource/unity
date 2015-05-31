@@ -348,18 +348,7 @@ private class CommunityTest {
 		);
 		insert c1;
 		System.RunAs(u) {
-			CommunityGroupDetailPageController.membership(u.Id, c1.Id, 5);
-			/*
-			Test.setCurrentPage(Page.CommunityGroupDetailPage);	
-			ApexPages.currentPage().getParameters().put('gr',group1.Chatter_Group_ID__c);
-			ApexPages.currentPage().getParameters().put('u',u.Id);
-			CommunityGroupDetailPageController.membership(u.Id, c1.Id, 5);
-			CommunityGroupDetailPageController cgc2 = new CommunityGroupDetailPageController();
-			cgc2.control = group1;
-			cgc2.accepted = false;
-			cgc2.requesterId = u.Id;
-			cgc2.performRequestAction();
-			*/			
+			CommunityGroupDetailPageController.membership(u.Id, c1.Id, 5);						
 		}		
 		Test.setCurrentPage(Page.CommunityGroupDetailPage);	
 		ApexPages.currentPage().getParameters().put('gr',group1.Chatter_Group_ID__c);
@@ -496,7 +485,8 @@ private class CommunityTest {
 		}
 	}
 
-	static testMethod void test_CommunitySearchController() {
+	@isTest(SeeAllData=true)
+	static void test_CommunitySearchController() {
 		CommunitySearchController.test1();
 	}
 }
