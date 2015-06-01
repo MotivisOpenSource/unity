@@ -111,10 +111,8 @@ global with sharing class CommunityTagSelectorController {
 		Set<String> tagIds = new Set<String>();
 		if (String.isNotBlank(recordId)) {
 			String etQuery = 'SELECT Id, Community_Tag__c FROM ' + objType + ' WHERE ' + filterName + ' =:recordId';
-			if (objType.endsWith('Community_Event_Tag__c')) {
-				etQuery += ' AND Community_Group_Control__c = NULL';
-			}
-			etQuery = CommunityUtils.systemTagFilter(' AND Community_Tag__r.Community_Theme__r.Theme_Type__c', etQuery);
+			etQuery += objType.endsWith('Community_Event_Tag__c') ? ' AND Community_Group_Control__c = NULL' : '';
+			etQuery += CommunityUtils.accessSystemTagLevel() > 1 ? '' : ' AND Community_Tag__r.Community_Theme__r.Theme_Type__c != \'System\'';
 			for (SObject obj : Database.query(etQuery)) {
 				tagIds.add((String) obj.get('Community_Tag__c'));
 			}
