@@ -365,43 +365,4 @@ public without sharing class CommunityGroupsController {
 			this.GroupVisibility = groupDetail.Type__c;
 		}
 	}
-
-	public static void test1() {
-		Account acc = new Account(Name='testAccount');
-		insert acc;
-		Contact con = new Contact(LastName='TCLN', MailingPostalCode='99013', email='testc@testdomain.com', AccountId=acc.Id, Primary_Role__c='Student');
-		insert con;
-		Profile profile = [SELECT Id FROM Profile WHERE Name = 'System Administrator'];
-		User u = new User(alias='alias', email='email@email.com', emailencodingkey='UTF-8', lastname='lastname', firstname = 'firstName', languagelocalekey='en_US',
-			localesidkey='en_US', profileid = profile.Id, timezonesidkey='America/Los_Angeles', username='ttsde.tedf2@testmail.com',
-			FederationIdentifier='TestContactName.TestContactLastname2', Community_Contact_ID__c=con.Id);
-		insert u;
-		Community_Theme__c cth = new Community_Theme__c(Name='t',Theme_Type__c='Interest');
-		insert cth;
-		Community_Tag__c ct = new Community_Tag__c(Name='t',Community_Theme__c=cth.Id);
-		insert ct;
-		
-		System.runAs(u) {
-			CollaborationGroup cg = new CollaborationGroup();
-			cg.Name = 'newgroup';
-			cg.CollaborationType = 'Public' ;
-			insert cg;
-			Community_Group_Control__c group1 = new Community_Group_Control__c(Name='1212t',Discoverable__c=true,Type__c='Public',Network__c='Internal', Chatter_Group_ID__c=cg.Id);
-			insert 	group1;
-			
-			Community_Group_Control_Tag__c groupTag = new Community_Group_Control_Tag__c(Group_Control__c=group1.Id,Community_Tag__c=ct.Id);
-			insert groupTag;
-			
-			insert new Community_Profile_Tag__c(Community_Tag__c=ct.Id,Active__c=true,Contact__c=con.Id);
-			
-			Test.setCurrentPage(Page.CommunityGroups);
-			ApexPages.currentPage().getParameters().put('f','all_groups');
-			
-			CommunityGroupsController cgc = new CommunityGroupsController();
-			CommunityGroupsController.getGroups(100, 1, 'all_groups');
-			CommunityGroupsController.getGroups(100, 1, 'recommended_groups');
-			CommunityGroupsController.getGroups(100, 1, 'my_groups');
-		}
-	}
-
 }

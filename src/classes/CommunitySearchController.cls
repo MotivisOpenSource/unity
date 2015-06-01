@@ -434,48 +434,5 @@ public with sharing class CommunitySearchController {
 		public String fdate { get; set; }
 		public String detailUrl { get; set; }
 		public String linkUrl { get; set; }
-	}
-
-	public static void test1() {
-		
-		
-		Test.setCurrentPage(Page.CommunitySearch);
-		CommunitySearchController csc1 = new CommunitySearchController();
-		ApexPages.currentPage().getParameters().put('s','cat');
-		CommunitySearchController csc2 = new CommunitySearchController();
-		csc2.getFilterName();
-		SyStem.Debug([SELECT Id, Name FROM Community_Group_Control__c]);
-				
-		ApexPages.currentPage().getParameters().put('tr','tr');
-		CommunitySearchController csc3 = new CommunitySearchController();
-		ApexPages.currentPage().getParameters().put('t','t');
-		CommunitySearchController csc4 = new CommunitySearchController();		
-		
-		csc1.getNews();
-		csc1.getEvents();
-		csc1.getGroups();
-		csc1.getResources();
-		
-		SearchItem s21 = csc2.getNews();
-		SearchItem s22 = csc2.getEvents();
-		SearchItem s23 = csc2.getGroups();
-		SearchItem s24 = csc2.getResources();
-		csc2.getFilterName();
-		
-		SearchItem s3 = csc3.getNews();
-		csc3.getEvents();
-		csc3.getGroups();
-		
-		csc4.getNews();
-		csc4.getEvents();
-		csc4.getGroups();
-		csc4.getResources();
-		csc4.getFilterName();
-		
-		CommunitySearchController.SearchItem si1 = new CommunitySearchController.SearchItem([SELECT ID, NAME__c, Teaser__c, Start__c FROM Community_Events__c],1);
-		CommunitySearchController.SearchItem si2 = new CommunitySearchController.SearchItem([SELECT ID, Title__c, Teaser__c, Entry_Date__c,Image_Path__c FROM Community_News__c],1);
-		CommunitySearchController.SearchItem si3 = new CommunitySearchController.SearchItem([SELECT ID, Name, Description__c, Link__c FROM Community_Resource__c],1);
-		//CommunitySearchController.SearchItem si4 = new CommunitySearchController.SearchItem([SELECT ID, Name FROM ChatterGroupDetail],1);
-		
-	}
+	}	
 }

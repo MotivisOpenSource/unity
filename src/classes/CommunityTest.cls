@@ -430,7 +430,48 @@ private class CommunityTest {
 	}
 
 	static testMethod void test_CommunityGroupsController() {
-		CommunityGroupsController.test1();
+		Account acc = new Account(Name='testAccount');
+		insert acc;
+		Contact con = new Contact(LastName='TCLN', MailingPostalCode='99013', email='testc@testdomain.com', AccountId=acc.Id, Primary_Role__c='Student');
+		insert con;
+		Profile profile = [SELECT Id FROM Profile WHERE Name = 'System Administrator'];
+		User u = new User(alias='alias', email='email@email.com', emailencodingkey='UTF-8', lastname='lastname', firstname = 'firstName', languagelocalekey='en_US',
+			localesidkey='en_US', profileid = profile.Id, timezonesidkey='America/Los_Angeles', username='ttsde.tedf2@testmail.com',
+			FederationIdentifier='TestContactName.TestContactLastname2', Community_Contact_ID__c=con.Id);
+		insert u;
+		Community_Theme__c cth = new Community_Theme__c(Name='t',Theme_Type__c='Interest');
+		insert cth;
+		Community_Tag__c ct = new Community_Tag__c(Name='t',Community_Theme__c=cth.Id);
+		insert ct;
+		
+		System.runAs(u) {
+			CollaborationGroup cg = new CollaborationGroup();
+			cg.Name = 'newgroup';
+			cg.CollaborationType = 'Public' ;
+			insert cg;
+			Community_Group_Control__c group1 = new Community_Group_Control__c(Name='1212t',Discoverable__c=true,Type__c='Public',Network__c='Internal', Chatter_Group_ID__c=cg.Id);
+			insert 	group1;
+			
+			Community_Group_Control_Tag__c groupTag = new Community_Group_Control_Tag__c(Group_Control__c=group1.Id,Community_Tag__c=ct.Id);
+			insert groupTag;
+			
+			insert new Community_Profile_Tag__c(Community_Tag__c=ct.Id,Active__c=true,Contact__c=con.Id);
+			
+			Test.setCurrentPage(Page.CommunityGroups);
+			ApexPages.currentPage().getParameters().put('f','all_groups');
+			
+			CommunityGroupsController cgc = new CommunityGroupsController();
+			CommunityGroupsController.getGroups(100, 0, 'all_groups');
+			CommunityGroupsController.getGroups(100, 0, 'recommended_groups');
+			CommunityGroupsController.getGroups(100, 0, 'my_groups');
+			
+			cgc.getShowCreateGroupBtn();
+			String s1 = cgc.currentFilter;	
+			//String s2 = cgc.GroupPhotoUrl;					
+		}
+		CommunityGroupsController.getGroups(100, 0, 'all_groups');
+		CommunityGroupsController.getGroups(100, 0, 'recommended_groups');
+		CommunityGroupsController.getGroups(100, 0, 'my_groups');
 	}
 
 	static testMethod void test_CommunityRegTermsController() {
@@ -483,7 +524,37 @@ private class CommunityTest {
 	}
 
 	@isTest(SeeAllData=true)
-	static void test_CommunitySearchController() {
-		CommunitySearchController.test1();
+	static void test_CommunitySearchController() {		
+		Test.setCurrentPage(Page.CommunitySearch);
+		CommunitySearchController csc1 = new CommunitySearchController();
+		ApexPages.currentPage().getParameters().put('s','cat');
+		CommunitySearchController csc2 = new CommunitySearchController();
+		csc2.getFilterName();
+		SyStem.Debug([SELECT Id, Name FROM Community_Group_Control__c]);				
+		ApexPages.currentPage().getParameters().put('tr','tr');
+		CommunitySearchController csc3 = new CommunitySearchController();
+		ApexPages.currentPage().getParameters().put('t','t');
+		CommunitySearchController csc4 = new CommunitySearchController();		
+		csc1.getNews();
+		csc1.getEvents();
+		csc1.getGroups();
+		csc1.getResources();		
+		CommunitySearchController.SearchItem s21 = csc2.getNews();
+		CommunitySearchController.SearchItem s22 = csc2.getEvents();
+		CommunitySearchController.SearchItem s23 = csc2.getGroups();
+		CommunitySearchController.SearchItem s24 = csc2.getResources();
+		csc2.getFilterName();		
+		CommunitySearchController.SearchItem s3 = csc3.getNews();
+		csc3.getEvents();
+		csc3.getGroups();		
+		csc4.getNews();
+		csc4.getEvents();
+		csc4.getGroups();
+		csc4.getResources();
+		csc4.getFilterName();		
+		CommunitySearchController.SearchItem si1 = new CommunitySearchController.SearchItem([SELECT ID, NAME__c, Teaser__c, Start__c FROM Community_Events__c],1);
+		CommunitySearchController.SearchItem si2 = new CommunitySearchController.SearchItem([SELECT ID, Title__c, Teaser__c, Entry_Date__c,Image_Path__c FROM Community_News__c],1);
+		CommunitySearchController.SearchItem si3 = new CommunitySearchController.SearchItem([SELECT ID, Name, Description__c, Link__c FROM Community_Resource__c],1);		
+		CommunitySearchController.SearchItem si4 = new CommunitySearchController.SearchItem(new List<CommunityGroupsController.ChatterGroupDetail>(),0);		
 	}
 }
