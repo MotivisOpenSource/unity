@@ -263,6 +263,17 @@ public class CommunityUtils {
 		return ga;
 	}
 
+	//method for insert prefix if not in feedItem
+	public static String checkURLforPref(String inUrl){
+		String spp = Site.getPathPrefix();
+		if(String.isNotBlank(spp)){
+			inUrl = !inUrl.startsWith(Site.getPathPrefix()) ? spp + inUrl : inUrl;
+		}else{
+			inUrl = inUrl.split('/').size() > 2 ? inUrl.split('/',3)[2] : inUrl;
+		}
+		return inUrl;
+	}
+
 	private static String noImgUrl;
 	public static String checkUrl(String inUrl) {
 		if (String.isBlank(inUrl)) {

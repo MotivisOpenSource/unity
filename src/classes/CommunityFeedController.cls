@@ -644,7 +644,7 @@ global without sharing class CommunityFeedController {
 		public String likeId { get { return (capabilities.chatterLikes != NULL && capabilities.chatterLikes.isLikedByCurrentUser) ? capabilities.chatterLikes.myLike.id : ''; } }
 		public String bookmarkStatus { get { return (capabilities.bookmarks != NULL && capabilities.bookmarks.isBookmarkedByCurrentUser) ? 'true' : ''; } }
 		public Boolean showLink { get { return capabilities.link != NULL; } }
-		public String linkHref { get { return capabilities.link != NULL ? capabilities.link.url : ''; } }
+		public String linkHref { get { return capabilities.link != NULL ? CommunityUtils.checkURLforPref(capabilities.link.url) : ''; } }
 		public String linkName { get { return capabilities.link != NULL ? capabilities.link.urlName : ''; } }
 
 		public Boolean showContent { get { return capabilities.content != NULL; } }
