@@ -559,7 +559,7 @@ h4.media-heading {
 						var tt = JSON.parse(div.firstChild.nodeValue);
 						$('#cfcmp').append(template(tt));
 						enableBtn('shmbtn');
-						$('#shmbtn').css('display',tt.showMore?'block':'none').click(function(){loadFeeds(tt.nextPageToken);});
+						$('#shmbtn').css('display',tt.showMore?'block':'none').attr('onclick','loadFeeds(\'' + tt.nextPageToken + '\');return false;');
 					}
 				);
 				initValidator();
@@ -844,7 +844,7 @@ h4.media-heading {
 						var template = _.template($('#ttp21').html() + $('#ttp2').html());
 						var tt = JSON.parse(div.firstChild.nodeValue);
 						$('#c'+tt.feedId).prepend(template(tt));
-						$('#l'+tt.feedId).css('display',tt.showNextComments?'block':'none').click(function(){getComments(tt.feedId,tt.nextPageToken)});
+						$('#l'+tt.feedId).css('display',tt.showNextComments?'block':'none').attr('onclick','getComments(\'' + tt.feedId + '\',\'' + tt.nextPageToken + '\');return false;');
 					}
 				);
 			}

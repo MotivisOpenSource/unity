@@ -31,9 +31,11 @@ public class CommunityUtils {
 		String editPS = 'Edit_System_Tags';
 		String viewPS = 'View_System_Tags';
 		Set<String> psSet = new Set<String> {editPS, viewPS};
+		String pp = getPackagePrefix();
+		pp = (pp != NULL) ? pp.replace('__','') : '';
 		for (PermissionSetAssignment psa2 : [
 					SELECT PermissionSet.Name FROM PermissionSetAssignment
-					WHERE AssigneeId = :UserInfo.getUserId() AND PermissionSet.NamespacePrefix = :getPackagePrefix() AND PermissionSet.Name IN :psSet
+					WHERE AssigneeId = :UserInfo.getUserId() AND PermissionSet.NamespacePrefix = :pp AND PermissionSet.Name IN :psSet
 						]) {
 			resultLevel = (psa2.PermissionSet.Name == viewPS && resultLevel < 2) ? 1 : 2;
 		}

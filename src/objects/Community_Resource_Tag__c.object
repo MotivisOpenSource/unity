@@ -66,7 +66,7 @@
             <filterItems>
                 <field>Community_Tag__c.Community_Theme__r.Theme_Type__c</field>
                 <operation>equals</operation>
-                <value>Interest</value>
+                <value>Interest, System</value>
             </filterItems>
             <infoMessage>You can only select Tags where Theme Type = Interest.</infoMessage>
             <isOptional>false</isOptional>

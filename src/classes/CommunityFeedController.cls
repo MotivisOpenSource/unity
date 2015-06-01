@@ -65,7 +65,7 @@ global without sharing class CommunityFeedController {
 					ConnectApi.FeedDensity.FewerUpdates,
 					inPageToken2,
 					PAGE_SIZE,
-					ConnectApi.FeedSortOrder.CreatedDateDesc
+					ConnectApi.FeedSortOrder.LastModifiedDateDesc
 				);
 		String result = json.serialize(fep);
 		FeedElementPage fepResult = (FeedElementPage)JSON.deserialize(result,FeedElementPage.class);

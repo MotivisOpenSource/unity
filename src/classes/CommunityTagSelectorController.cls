@@ -17,9 +17,8 @@ global with sharing class CommunityTagSelectorController {
 			}
 		}
 		String query = 'SELECT Id, Community_Tag__c FROM ' + objectType + ' WHERE ' + filterName + ' =: objectId';
-		if (objectType.endsWith('Community_Event_Tag__c__')) {
-			query += ' AND Community_Group_Control__c = NULL';
-		}
+		query += objectType.endsWith('Community_Event_Tag__c__') ? ' AND Community_Group_Control__c = NULL' : '';
+		query += CommunityUtils.accessSystemTagLevel() > 1 ? '' : ' AND Community_Tag__r.Community_Theme__r.Theme_Type__c != \'System\'';
 		List<sObject> deleteList = new List<sObject>();
 		for (SObject obj : Database.query(query)) {
 			if (tagsIdsSet.contains((String)obj.get('Community_Tag__c'))) {
@@ -30,7 +29,7 @@ global with sharing class CommunityTagSelectorController {
 			}
 		}
 		if (!deleteList.isEmpty()) {
-			DeleteTagsWithoutSharing dt = new DeleteTagsWithoutSharing();
+			SecurityWrapper dt = new SecurityWrapper();
 			dt.deleteTags(deleteList);
 		}
 		tagsIdsList.addAll(tagsIdsSet);
@@ -129,7 +128,7 @@ global with sharing class CommunityTagSelectorController {
 		return JSON.serialize(existingTags);
 	}
 
-	public without sharing class DeleteTagsWithoutSharing{
+	public without sharing class SecurityWrapper{
 
 		public void deleteTags(List<sObject> deleteList){
 			delete deleteList;

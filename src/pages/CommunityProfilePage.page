@@ -57,7 +57,7 @@
 							</apex:outputPanel>
 							<apex:outputPanel layout="none" rendered="{!!current}">
 								<ul class="nav nav-justified nav-tabs">
-									<li class="active"><a data-toggle="tab" href="#profile">{!$Label.LBL_EditProfile}</a></li>
+									<li class="active"><a data-toggle="tab" href="#profile">{!$Label.LBL_Profile}</a></li>
 									<li><a data-toggle="tab" href="#feed">{!$Label.LBL_Feed}</a></li>
 								</ul>
 							</apex:outputPanel>

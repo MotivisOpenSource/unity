@@ -1604,6 +1604,13 @@
         <value>Group is private</value>
     </labels>
     <labels>
+        <fullName>LBL_Profile</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Profile</shortDescription>
+        <value>Profile</value>
+    </labels>
+    <labels>
         <fullName>LBL_ProfilePosts</fullName>
         <language>en_US</language>
         <protected>true</protected>
