@@ -1,9 +1,7 @@
 public class CommunityUtils {
 
 	public static Boolean isModifyAllData() {
-
 		Boolean Result = [SELECT PermissionsModifyAllData FROM Profile WHERE Id =: UserInfo.getProfileId()].PermissionsModifyAllData;
-
 		if (Result != true) {
 			for (PermissionSetAssignment psa : [SELECT PermissionSet.PermissionsModifyAllData FROM PermissionSetAssignment WHERE AssigneeId = :UserInfo.getUserId()]) {
 				if (psa.PermissionSet.PermissionsModifyAllData == true) {
@@ -12,14 +10,11 @@ public class CommunityUtils {
 				}
 			}
 		}
-
 		return Result;
 	}
 
 	public static Boolean isViewAllData() {
-
 		Boolean Result = [SELECT PermissionsViewAllData FROM Profile WHERE Id =: UserInfo.getProfileId()].PermissionsViewAllData;
-
 		if (Result != true) {
 			for (PermissionSetAssignment psa : [SELECT PermissionSet.PermissionsViewAllData FROM PermissionSetAssignment WHERE AssigneeId = :UserInfo.getUserId()]) {
 				if (psa.PermissionSet.PermissionsViewAllData == true) {
@@ -28,8 +23,28 @@ public class CommunityUtils {
 				}
 			}
 		}
-
 		return Result;
+	}
+
+	public static Integer accessSystemTagLevel() {
+		Integer resultLevel = 0;
+		String editPS = 'Edit_System_Tags';
+		String viewPS = 'View_System_Tags';
+		Set<String> psSet = new Set<String> {editPS, viewPS};
+		for (PermissionSetAssignment psa2 : [
+					SELECT PermissionSet.Name FROM PermissionSetAssignment
+					WHERE AssigneeId = :UserInfo.getUserId() AND PermissionSet.NamespacePrefix = :getPackagePrefix() AND PermissionSet.Name IN :psSet
+						]) {
+			resultLevel = (psa2.PermissionSet.Name == viewPS && resultLevel < 2) ? 1 : 2;
+		}
+		return resultLevel;
+	}
+
+	public static String systemTagFilter(String inGlue, String inMs) {
+		if (accessSystemTagLevel() == 0) {
+			inMs += inGlue + ' != \'System\'';
+		}
+		return inMs;
 	}
 
 	public static Boolean canCreateGroup() {
@@ -356,22 +371,27 @@ public class CommunityUtils {
 		try {
 			List<ConnectApi.BatchResult> batchResults = ConnectApi.ChatterGroups.getGroupBatch(Network.getNetworkId(), groupIds);
 			for(ConnectApi.BatchResult batchResult : batchResults){
-			if (batchResult.isSuccess()) {
-		           ConnectApi.ChatterGroup aGroup = (ConnectApi.ChatterGroup) batchResult.getResult();
-		           if((String.valueOf(aGroup.myRole) != 'NotAMember' 
-		            && String.valueOf(aGroup.myRole) != 'NotAMemberPrivateRequested' 
-		            && String.valueOf(aGroup.visibility) == 'PrivateAccess') || String.valueOf(aGroup.visibility) == 'PublicAccess') {
-		            groupsNames.add(aGroup.name);
-		           }
-			   }		      
-		   }
-		} 
-		catch(Exception e) {
-		  	System.debug('FAILURE: '+e.getMessage());
+				if (batchResult.isSuccess()) {
+					ConnectApi.ChatterGroup aGroup = (ConnectApi.ChatterGroup) batchResult.getResult();
+					if((String.valueOf(aGroup.myRole) != 'NotAMember' 
+						&& String.valueOf(aGroup.myRole) != 'NotAMemberPrivateRequested' 
+						&& String.valueOf(aGroup.visibility) == 'PrivateAccess') || String.valueOf(aGroup.visibility) == 'PublicAccess'){
+						groupsNames.add(aGroup.name);
+					}
+				}
+				else {
+					// Operation failed. Print errors.
+					System.debug('FAILURE');
+					System.debug(batchResult.getErrorMessage());
+				}
+			}
+		}
+		catch(Exception e){
+			System.debug('FAILURE: '+e.getMessage());
 		}
 		return groupsNames;
 	}
-	
+
 
 	//wrapper classes
 
@@ -386,5 +406,4 @@ public class CommunityUtils {
 		public String lnkIcon { get; set; }
 		public String lnkStyle { get; set; }
 	}
-	
 }
