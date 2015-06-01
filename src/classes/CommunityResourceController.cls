@@ -105,11 +105,10 @@ public with sharing class CommunityResourceController {
 					'?tr=' + ctList[0].Id
 						});
 			}
-			List<Community_Resource_Tag__c> crtList = [
-				SELECT Community_Tag__c, Community_Tag__r.Name, Community_Tag__r.Community_Theme__r.Name
-				FROM Community_Resource_Tag__c WHERE Resource__c = :resource.Id AND Community_Tag__c !=:primaryTagId
-					];
-			for (Community_Resource_Tag__c crtItem : crtList) {
+			String rQuery = 'SELECT Community_Tag__c, Community_Tag__r.Name, Community_Tag__r.Community_Theme__r.Name';
+			rQuery += ' FROM Community_Resource_Tag__c WHERE Resource__c = \'' + resource.Id + '\' AND Community_Tag__c != \'' + primaryTagId + '\'';
+			rQuery = CommunityUtils.systemTagFilter(' AND Community_Tag__r.Community_Theme__r.Theme_Type__c', rQuery);
+			for (Community_Resource_Tag__c crtItem : Database.query(rQuery)) {
 				result.add(new List<String> {
 					crtItem.Community_Tag__r.Community_Theme__r.Name + ' > ' + crtItem.Community_Tag__r.Name,
 					'?tr=' + crtItem.Community_Tag__c

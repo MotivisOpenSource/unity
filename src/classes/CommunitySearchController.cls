@@ -202,6 +202,7 @@ public with sharing class CommunitySearchController {
 			rQuery += (mode == 'resource')
 						?	' Primary_Tag__c = \'' + String.escapeSingleQuotes(ApexPages.currentPage().getParameters().get('tr')) + '\' AND Status__c = \'active\''
 						:	' Id IN :resourcesIds';
+			rQuery += ' ORDER BY Sort__c NULLS LAST, Name';
 			List<Community_Resource__c> rList = Database.query(rQuery);
 			result = rList.isEmpty() ? new SearchItem() : new SearchItem(rList, resourcePageNum);
 		}
@@ -478,9 +479,3 @@ public with sharing class CommunitySearchController {
 		
 	}
 }
-
-
-
-
-
-

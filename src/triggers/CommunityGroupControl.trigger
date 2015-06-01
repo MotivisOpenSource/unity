@@ -83,6 +83,12 @@ trigger CommunityGroupControl on Community_Group_Control__c (before insert, afte
 		Map<String, Community_Group_Control__c> checkUniqueNamesMap2 = new Map<String, Community_Group_Control__c>();
 		Map<String,String> changedCollaborationType = new Map<String,String>();
 		Set<Id> excludeCurrentGroupControls = new Set<Id>();
+
+		// change owner collections
+		Map<Id,Id> chatterGroupsWithNewOwners = new Map<Id,Id>();
+		Map<Id,Id> groupControlsWithNewOwners = new Map<Id,Id>();
+		List<Community_Group_Control__c> groupControlsList = new List<Community_Group_Control__c>();
+
 		for (Community_Group_Control__c cgcItem2 : Trigger.new) {
 			if (cgcItem2.Name != Trigger.oldMap.get(cgcItem2.Id).Name) {
 				if (checkUniqueNamesMap2.containsKey(cgcItem2.Name)) {
@@ -92,9 +98,20 @@ trigger CommunityGroupControl on Community_Group_Control__c (before insert, afte
 				checkUniqueNamesMap2.put(cgcItem2.Name, cgcItem2);
 				excludeCurrentGroupControls.add(cgcItem2.Id);
 			}
+
+			// Change owner block
 			if (cgcItem2.Type__c != Trigger.oldMap.get(cgcItem2.Id).Type__c && cgcItem2.Chatter_Group_ID__c != NULL) {
 				changedCollaborationType.put(cgcItem2.Chatter_Group_ID__c, cgcItem2.Type__c);
 			}
+			if (cgcItem2.OwnerId != Trigger.oldMap.get(cgcItem2.Id).OwnerId) {
+				groupControlsList.add(cgcItem2);
+				groupControlsWithNewOwners.put(cgcItem2.Id, cgcItem2.OwnerId);
+				if (cgcItem2.Chatter_Group_ID__c != NULL) {
+					Id tId = Id.valueOf(cgcItem2.Chatter_Group_ID__c);
+					chatterGroupsWithNewOwners.put(tId, cgcItem2.OwnerId);
+				}
+			}
+
 		}
 		if (validationPassed2 && checkUniqueNamesMap2.size() > 0) {
 			for (Community_Group_Control__c cgcItem3 : [SELECT Name FROM Community_Group_Control__c WHERE Name IN :checkUniqueNamesMap2.keySet() AND Id NOT IN :excludeCurrentGroupControls]) {
@@ -108,6 +125,86 @@ trigger CommunityGroupControl on Community_Group_Control__c (before insert, afte
 				cgItem.CollaborationType = changedCollaborationType.get(cgItem.Id);
 			}
 			update cgList;
+		}
+
+		// Change owner block
+		if (validationPassed2 && groupControlsWithNewOwners.size() > 0) {
+			Set<Id> newLuckyOnes = new Set<Id>();
+			newLuckyOnes.addAll(groupControlsWithNewOwners.values());
+			Set<String> groupManagersUniqueId = new Set<String>();
+			for (Community_Group_Manager__c cgmItem : [
+								SELECT Group_Manager_User__c, Group_Control__c FROM Community_Group_Manager__c
+								WHERE Group_Manager_User__c IN :newLuckyOnes AND Group_Control__c IN :groupControlsWithNewOwners.keySet()]) {
+				groupManagersUniqueId.add('' + cgmItem.Group_Control__c + cgmItem.Group_Manager_User__c);
+			}
+
+			Set<String> groupSubscriptionUniqueId = new Set<String>();
+			for (EntitySubscription esItem : [
+								SELECT ParentId, SubscriberId FROM EntitySubscription
+								WHERE SubscriberId IN :newLuckyOnes AND ParentId IN :groupControlsWithNewOwners.keySet()]) {
+				groupSubscriptionUniqueId.add('' + esItem.ParentId + esItem.SubscriberId);
+			}
+
+			Set<String> existingChatterGroupManagers = new Set<String>();
+			Map<String,CollaborationGroupMember> chatterMemberUniqueIdMap = new Map<String,CollaborationGroupMember>();
+			if (chatterGroupsWithNewOwners.size() > 0) {
+				for (CollaborationGroupMember cgmItem2 : [
+								SELECT Id, MemberId, CollaborationGroupId, CollaborationRole FROM CollaborationGroupMember
+								WHERE MemberId IN :newLuckyOnes AND CollaborationGroupId IN :chatterGroupsWithNewOwners.keySet()]) {
+					chatterMemberUniqueIdMap.put('' + cgmItem2.CollaborationGroupId + cgmItem2.MemberId, cgmItem2);
+				}
+			}
+
+			List<Community_Group_Manager__c> cgmListToInsert = new List<Community_Group_Manager__c>();
+			List<EntitySubscription> subscriptionsListToInsert = new List<EntitySubscription>();
+			List<CollaborationGroupMember> chatterMembersToUpsert = new List<CollaborationGroupMember>();
+			for (Community_Group_Control__c cgcItem : groupControlsList) {
+				if (!groupManagersUniqueId.contains('' + cgcItem.Id + cgcItem.OwnerId)) {
+					cgmListToInsert.add(new Community_Group_Manager__c(
+						Group_Manager_User__c = cgcItem.OwnerId,
+						Group_Control__c = cgcItem.Id
+					));
+				}
+				if (!groupSubscriptionUniqueId.contains('' + cgcItem.Id + cgcItem.OwnerId)) {
+					subscriptionsListToInsert.add(new EntitySubscription(
+						SubscriberId = cgcItem.OwnerId,
+						ParentId = cgcItem.Id
+					));
+				}
+				CollaborationGroupMember tCgm = chatterMemberUniqueIdMap.get('' + cgcItem.Chatter_Group_ID__c + cgcItem.OwnerId);
+				if (tCgm == NULL) {
+					chatterMembersToUpsert.add(new CollaborationGroupMember(
+						MemberId = cgcItem.OwnerId,
+						CollaborationGroupId = cgcItem.Chatter_Group_ID__c,
+						CollaborationRole = 'Admin'
+					));
+				}
+				else if (tCgm.CollaborationRole != 'Admin') {
+					tCgm.CollaborationRole = 'Admin';
+					chatterMembersToUpsert.add(tCgm);
+				}
+			}
+
+			if (chatterMembersToUpsert.size() > 0) {
+				upsert chatterMembersToUpsert;
+			}
+			if (cgmListToInsert.size() > 0) {
+				insert cgmListToInsert;
+			}
+			try {
+				if (subscriptionsListToInsert.size() > 0) {
+					insert subscriptionsListToInsert;
+				}
+			}
+			catch (Exception e) {}
+
+			if (chatterGroupsWithNewOwners.size() > 0) {
+				List<CollaborationGroup> updateOwnerList = [SELECT Id, OwnerId FROM CollaborationGroup WHERE Id IN :chatterGroupsWithNewOwners.keySet()];
+				for (CollaborationGroup cgItem : updateOwnerList) {
+					cgItem.OwnerId = chatterGroupsWithNewOwners.get(cgItem.Id);
+				}
+				update updateOwnerList;
+			}
 		}
 	}
 }

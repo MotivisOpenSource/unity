@@ -35,7 +35,7 @@ global with sharing class CommunityTagSelectorController {
 		}
 		tagsIdsList.addAll(tagsIdsSet);
 		for (String tagId : tagsIdsList) {
-			SObject obj = Schema.getGlobalDescribe().get(objectType).newSObject();
+			SObject obj = (SObject)Type.forName(objectType).newInstance();
 			obj.put(filterName, objectId);
 			obj.put(Community_Tag__c.getSObjectType().getDescribe().getName(), tagId);
 			sObjectUpdateList.add(obj);
@@ -64,7 +64,8 @@ global with sharing class CommunityTagSelectorController {
 	}
 
 	private static List<Community_Tag__c> getTagsLocal(String q, String themeType) {
-		String tagQuery = 'SELECT Id, Name, Community_Theme__c, Community_Theme__r.Name FROM Community_Tag__c WHERE Community_Theme__r.Theme_Type__c = \'' + themeType + '\'';
+		String tagQuery = 'SELECT Id, Name, Community_Theme__c, Community_Theme__r.Name FROM Community_Tag__c WHERE Community_Theme__r.Theme_Type__c IN (\'';
+		tagQuery += themeType + (CommunityUtils.accessSystemTagLevel() == 2 ? '\',\'System\')' : '\')');
 		if (q != NULL) {
 			List<String> queries = q.split(',');
 			String tQuery = queries.get(queries.size()-1).trim();
@@ -114,6 +115,7 @@ global with sharing class CommunityTagSelectorController {
 			if (objType.endsWith('Community_Event_Tag__c')) {
 				etQuery += ' AND Community_Group_Control__c = NULL';
 			}
+			etQuery = CommunityUtils.systemTagFilter(' AND Community_Tag__r.Community_Theme__r.Theme_Type__c', etQuery);
 			for (SObject obj : Database.query(etQuery)) {
 				tagIds.add((String) obj.get('Community_Tag__c'));
 			}

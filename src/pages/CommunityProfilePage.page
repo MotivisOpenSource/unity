@@ -17,11 +17,6 @@
 	font-weight:bold;
 	vertical-align: middle;
 }
-/*profile.css*/
-.profile .profile-edit dt {
-	text-align: inherit;
-	white-space: normal;
-}
 </style>
 	<!--=== Profile ===-->
 	<div class="profile">
@@ -36,6 +31,18 @@
 				<div class="col-md-9">
 					<!--Profile Body-->
 					<div class="profile-body margin-bottom-20">
+						<apex:outputPanel layout="block" styleClass="row margin-bottom-20" rendered="{!!current}">
+							<div class="col-md-6">
+								<h2 class="heading-md"><strong>{!StudentName}</strong></h2>
+							</div>
+							<div class="col-md-6">
+								<apex:form id="btnaction">
+									<apex:commandLink action="{!subscribeUser}" styleClass="btn-u {!IF(isSubscribe,'btn-u-blue','')} pull-right margin-right-5" rerender="btnaction" onclick="$(this).find('i').attr('class','fa fa-spinner fa-pulse');">
+										<i class="fa {!IF(isSubscribe,'fa-check','fa-plus-circle')}"></i>&nbsp;{!IF(isSubscribe,$Label.BTN_Following,$Label.LBL_Follow)}
+									</apex:commandLink>
+								</apex:form>
+							</div>
+						</apex:outputPanel>
 						<div class="tab-v1">
 							<apex:outputPanel layout="none" rendered="{!current}">
 								<ul class="nav nav-justified nav-tabs">
@@ -48,42 +55,22 @@
 									<li><a data-toggle="tab" href="#digest">{!$Label.LBL_DigestSettings_Title}</a></li>
 								</ul>
 							</apex:outputPanel>
+							<apex:outputPanel layout="none" rendered="{!!current}">
+								<ul class="nav nav-justified nav-tabs">
+									<li class="active"><a data-toggle="tab" href="#profile">{!$Label.LBL_EditProfile}</a></li>
+									<li><a data-toggle="tab" href="#feed">{!$Label.LBL_Feed}</a></li>
+								</ul>
+							</apex:outputPanel>
 							<apex:pageMessages id="pageMessages"/>
 								<div class="tab-content">
 									<div id="profile" class="profile-edit tab-pane fade in active">
-										<apex:form id="btnaction">
-											<div class="margin-bottom-20">
-												<apex:outputPanel layout="none" rendered="{!current}">
-													<h2 class="heading-md">{!$Label.LBL_ManageDetails_Title}</h2>
-												</apex:outputPanel>
-												<apex:outputPanel layout="none" rendered="{!!current}">
-													<h2 class="heading-md">{!StudentName}</h2>
-												</apex:outputPanel>
-												<!--<div style="text-align:right;">-->
-    												<apex:outputPanel rendered="{!!current && !isSubscribe}">
-    													<button id="follow" class="btn-u pull-right margin-right-5"  onclick="clbtn();return false;"><i class="fa fa-plus-circle"></i>&nbsp;Follow</button>
-    												</apex:outputPanel>
-    												<apex:outputPanel rendered="{!!current && isSubscribe}">
-    													<button id="unfollow" class="btn-u btn-u-blue pull-right margin-right-5" onclick="clbtn();return false;"><i class="fa fa-check"></i>&nbsp;Following</button>
-    												</apex:outputPanel>
-    												<script type="text/javascript">
-    													function clbtn() {
-    														subscribe();
-    														$('[id$=follow] i').attr('class','fa fa-spinner fa-pulse');
-    													}
-    												</script>
-    												<apex:actionFunction action="{!subscribeUser}" name="subscribe" rerender="btnaction">
-    												</apex:actionFunction>
-    												
-    											<!--</div>-->
-    										
-											</div>
-										
-										</apex:form>
-									
+									<div class="margin-bottom-20">
+										<apex:outputPanel layout="none" rendered="{!current}">
+											<h2 class="heading-md">{!$Label.LBL_ManageDetails_Title}</h2>
+										</apex:outputPanel>
+									</div>
 									<apex:form id="theform" rendered="{!allOk}">
 										<apex:variable var="index" value="{!0}"/>
-									
 										<div class="margin-bottom-10" style="text-align:right;">
 											<apex:repeat value="{!profiles}" var="p">
 												<apex:commandLink action="{!init}" value="{!p.name}" rendered="{!!p.active}" rerender="theform" immediate="true" styleClass="btn-u btn-u-sm btn-u-default margin-right-5" status="statusLoad">
@@ -99,7 +86,6 @@
 												</apex:actionStatus>
 											</div>
 										</div>
-										
 										<apex:variable var="index" value="{!0}"/>
 										<apex:repeat value="{!overviewTab}" var="ot">
 											<apex:outputPanel layout="block" rendered="{!ot.ShowSection}" styleClass="sky-form">
@@ -369,6 +355,11 @@
 										}
 									</script>
 								</div>
+								</apex:outputPanel>
+								<apex:outputPanel layout="none" rendered="{!!current}">
+									<div id="feed" class="profile-edit tab-pane fade">
+										<c:CommunityFeed pid="{!currentUserId}"/>
+									</div>
 								</apex:outputPanel>
 							</div>
 						</div>

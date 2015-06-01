@@ -39,7 +39,7 @@
 							<apex:inputFile id="updfit265" value="{!fb}" fileName="{!fn}" contentType="{!ft}" onchange="this.parentNode.nextSibling.value = this.files[0].name"/>
 							Browse
 						</div><input id="fit265" type="text"/>
-						<div class="note note-error">{!$Label.LBL_File_Upload_Size_Limit}.</div>
+						<!--div class="note note-error">{!$Label.LBL_File_Upload_Size_Limit}.</div-->
 					</label>
 				</section>
 				<section id="updl" style="display:none;">
@@ -55,6 +55,9 @@
 				<button type="button" class="btn-u" onclick="submitDialog();return false;">{!$Label.BTN_Save}</button>
 			</div>
 			<script>
+				var LPCREATEMODE = {!cm};
+				var FSERROR = '{!$Label.LBL_File_Upload_Size_Limit}';
+				var REQERROR = '{!$Label.LBL_Required_Field}';
 				function showSection(sid) {
 					$('#upd1').hide();
 					$('#'+sid).show();
@@ -65,29 +68,62 @@
 					$('section[id*=upd]').hide();
 					$('#updb').hide();
 					$('#upd1').show();
-					$('#rf265').remove();
-					$('label.state-error').removeClass('state-error');
+					clearError();
 					$('[id$=it265]').removeAttr('required').val('');
+					if (LPCREATEMODE) {
+						$('#reslname').text('');
+					}
 					return false;
 				}
 				function submitDialog() {
-					var rd = $('[id$=it265][required=required]').val();
-					if (rd.trim() == '') {
-						if ($('label.state-error').length == 0) {
-							$('[id$=it265][required=required]').closest('label').addClass('state-error');
-							$('[id$=it265][required=required]').closest('section').append('<div id="rf265" class="note note-error">This is a required field.</div>');
+					if (validateInput()) {
+						LPCREATEMODE ? $('#closemodal').click() : submitResource();
+					}
+				}
+				function validateInput() {
+					var cr = $('[id$=it265][required=required]');
+					var it = cr[0];
+					var et = '';
+					var ei = '';
+					clearError();
+					if (it.type == 'file') {
+						if (it.files.length > 0) {
+							it.parentNode.nextSibling.value = it.files[0].name;
+							et = it.files[0].name;
+							if (it.files[0].size > 10485760) {
+								et = FSERROR;
+								ei = 'srf265';
+							}
+						}
+						else {
+							et = REQERROR;
+							ei = 'rf265';
 						}
 					}
-					else if ({!cm}) {
-						$('#rf265').remove();
-						$('label.state-error').removeClass('state-error');
-						$('#closemodal').click();
-						$('#reslname').text(rd);
-						$('#reserr').remove();
+					else if (it.value.trim() == '') {
+						et = REQERROR;
+						ei = 'rf265';
 					}
 					else {
-						submitResource();
+						et = it.value;
 					}
+					if (ei == '') {
+						if (LPCREATEMODE) {
+							$('#reslname').text(et);
+							$('#reserr').remove();
+						}
+						return true;
+					}
+					else {
+						cr.closest('label').addClass('state-error');
+						cr.closest('section').append('<small class="help-block" id="'+ei+'" class="note note-error">'+et+'</small>');
+						//cr.closest('[class*=col-sm]').append('<small class="help-block" id="'+ei+'" class="note note-error">'+et+'</small>');
+						return false;
+					}
+				}
+				function clearError() {
+					$('[id$=rf265]').remove();
+					$('label.state-error').removeClass('state-error');
 				}
 			</script>
 		</div>

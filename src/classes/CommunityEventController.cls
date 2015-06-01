@@ -232,7 +232,8 @@ public with sharing class CommunityEventController {
 				query += sep + cfItem;
 				sep = ', ';
 			}
-			query += ', (select Id, Community_Tag__c, Group_Type__c, Community_Tag__r.Community_Theme__r.Name, Community_Tag__r.Name, Community_Group_Control__r.Name, Community_Group_Control__r.Group_Control_SF_ID__c from Events_Tag_Joins__r WHERE Community_Group_Control__c = NULL AND Community_Tag__c != NULL) ';
+			String tagSubQuery = 'SELECT Id, Community_Tag__c, Group_Type__c, Community_Tag__r.Community_Theme__r.Name, Community_Tag__r.Name, Community_Group_Control__r.Name, Community_Group_Control__r.Group_Control_SF_ID__c FROM Events_Tag_Joins__r WHERE Community_Group_Control__c = NULL AND Community_Tag__c != NULL';
+			query += ', (' + CommunityUtils.systemTagFilter(' AND Community_Tag__r.Community_Theme__r.Theme_Type__c', tagSubQuery) + ')';
 			query += ' FROM Community_Events__c WHERE Id = \'' + event.Id + '\'';
 			event = Database.query(query);
 			if (mode == 'view') {

@@ -347,9 +347,6 @@ private class CommunityTest {
 			Type__c = 'Private'
 		);
 		insert c1;
-		System.RunAs(u) {
-			CommunityGroupDetailPageController.membership(u.Id, c1.Id, 5);						
-		}		
 		Test.setCurrentPage(Page.CommunityGroupDetailPage);	
 		ApexPages.currentPage().getParameters().put('gr',group1.Chatter_Group_ID__c);
 		ApexPages.currentPage().getParameters().put('u',u.Id);

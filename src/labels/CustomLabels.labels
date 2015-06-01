@@ -1,11 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
     <labels>
+        <fullName>About_Me</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>About Me</shortDescription>
+        <value>About Me</value>
+    </labels>
+    <labels>
         <fullName>BTN_Accept</fullName>
         <language>en_US</language>
         <protected>true</protected>
         <shortDescription>BTN Accept</shortDescription>
         <value>Accept</value>
+    </labels>
+    <labels>
+        <fullName>BTN_All_Groups</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>BTN_All_Groups</shortDescription>
+        <value>All Groups</value>
     </labels>
     <labels>
         <fullName>BTN_AskToJoin</fullName>
@@ -148,6 +162,13 @@
         <value>Join</value>
     </labels>
     <labels>
+        <fullName>BTN_My_Groups</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>BTN_My_Groups</shortDescription>
+        <value>My Groups</value>
+    </labels>
+    <labels>
         <fullName>BTN_New_Group</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -174,6 +195,13 @@
         <protected>true</protected>
         <shortDescription>BTN Rechat</shortDescription>
         <value>Share This Item</value>
+    </labels>
+    <labels>
+        <fullName>BTN_Recommended_Groups</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>BTN_Recommended_Groups</shortDescription>
+        <value>Recommended Groups</value>
     </labels>
     <labels>
         <fullName>BTN_Save</fullName>
@@ -239,6 +267,13 @@
         <value>Upload Resource</value>
     </labels>
     <labels>
+        <fullName>Contact</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Contact</shortDescription>
+        <value>Contact</value>
+    </labels>
+    <labels>
         <fullName>ERR_1_Breaking_News</fullName>
         <language>en_US</language>
         <protected>false</protected>
@@ -288,6 +323,13 @@
         <value>You have exceeded the file size of 8mb or used incorrect file type.</value>
     </labels>
     <labels>
+        <fullName>ERR_Max_Group_Size_Exceeded</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>ERR Max Group Size Exceeded</shortDescription>
+        <value>Maximum group size was exceeded</value>
+    </labels>
+    <labels>
         <fullName>ERR_MissingPermission</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -335,6 +377,104 @@
         <protected>true</protected>
         <shortDescription>ERR: Profile RecordType</shortDescription>
         <value>This contact already has a Community Profile with this Record Type.</value>
+    </labels>
+    <labels>
+        <fullName>Feed_Nav_AllGroups</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Feed Nav AllGroups</shortDescription>
+        <value>All Group</value>
+    </labels>
+    <labels>
+        <fullName>Feed_Nav_AllPeople</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Feed Nav AllPeople</shortDescription>
+        <value>All People Testing</value>
+    </labels>
+    <labels>
+        <fullName>Feed_Nav_Bookmarked</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Feed Nav Bookmarked</shortDescription>
+        <value>Bookmarked</value>
+    </labels>
+    <labels>
+        <fullName>Feed_Nav_Feed</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Feed Nav Feed</shortDescription>
+        <value>Feed</value>
+    </labels>
+    <labels>
+        <fullName>Feed_Nav_Groups</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Feed Nav Groups</shortDescription>
+        <value>Groups</value>
+    </labels>
+    <labels>
+        <fullName>Feed_Nav_Messages</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Feed Nav Messages</shortDescription>
+        <value>Messages</value>
+    </labels>
+    <labels>
+        <fullName>Feed_Nav_MyGroups</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Feed Nav MyGroups</shortDescription>
+        <value>My Groups</value>
+    </labels>
+    <labels>
+        <fullName>Feed_Nav_People</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Feed Nav People</shortDescription>
+        <value>People</value>
+    </labels>
+    <labels>
+        <fullName>Feed_Nav_RecentlyViewed</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Feed Nav RecentlyViewed</shortDescription>
+        <value>Recently Viewed</value>
+    </labels>
+    <labels>
+        <fullName>Feed_Nav_RecommendedGroups</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Feed Nav RecommendedGroups</shortDescription>
+        <value>Recommended Groups</value>
+    </labels>
+    <labels>
+        <fullName>Feed_Nav_ToMe</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Feed Nav ToMe</shortDescription>
+        <value>To Me</value>
+    </labels>
+    <labels>
+        <fullName>Feed_Nav_WhatIFollow</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Feed Nav WhatIFollow</shortDescription>
+        <value>What I Follow</value>
+    </labels>
+    <labels>
+        <fullName>Feed_Nav_WhoIFollow</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Feed Nav WhoIFollow</shortDescription>
+        <value>Who I Follow</value>
+    </labels>
+    <labels>
+        <fullName>Feeds_Time</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Feeds Time</shortDescription>
+        <value>more than a year;a year ago; months ago;a month ago; weeks ago;a week ago; days ago;yesterday; hours ago;a hour ago; minutes ago;a minute ago</value>
     </labels>
     <labels>
         <fullName>LBL_About_Me</fullName>
@@ -477,6 +617,13 @@
         <value>Change My Password</value>
     </labels>
     <labels>
+        <fullName>LBL_Change_Owner</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Change Owner</shortDescription>
+        <value>Change Owner</value>
+    </labels>
+    <labels>
         <fullName>LBL_Choice</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -587,6 +734,20 @@
         <protected>true</protected>
         <shortDescription>LBL Current News Title</shortDescription>
         <value>Current News Articles</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Current_Owner</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Current Owner</shortDescription>
+        <value>Current Owner</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Daily_Digest</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>LBL Daily Digest</shortDescription>
+        <value>Daily Digest</value>
     </labels>
     <labels>
         <fullName>LBL_Delete</fullName>
@@ -1149,6 +1310,13 @@
         <value>My Group Events</value>
     </labels>
     <labels>
+        <fullName>LBL_My_Groups</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL My Groups</shortDescription>
+        <value>My Groups</value>
+    </labels>
+    <labels>
         <fullName>LBL_My_News</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -1513,6 +1681,13 @@
         <value>Requested</value>
     </labels>
     <labels>
+        <fullName>LBL_Required_Field</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Required Field</shortDescription>
+        <value>This is a required field</value>
+    </labels>
+    <labels>
         <fullName>LBL_ResourceResultsTitle</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -1539,6 +1714,13 @@
         <protected>true</protected>
         <shortDescription>LBL ReturnToGroup</shortDescription>
         <value>Return To Group</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Return_to_Group</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Return to Group</shortDescription>
+        <value>Return to Group</value>
     </labels>
     <labels>
         <fullName>LBL_SaveChanges_Success</fullName>
@@ -1603,6 +1785,13 @@
         <value>Select Tags</value>
     </labels>
     <labels>
+        <fullName>LBL_Share</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Share</shortDescription>
+        <value>Share</value>
+    </labels>
+    <labels>
         <fullName>LBL_Share_AddGroup</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -1629,6 +1818,13 @@
         <protected>true</protected>
         <shortDescription>LBL Share Link Url</shortDescription>
         <value>Link URL</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Share_Placeholder</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Share Placeholder</shortDescription>
+        <value>Say something about this link</value>
     </labels>
     <labels>
         <fullName>LBL_Share_To_A_Group</fullName>
@@ -1764,6 +1960,13 @@
         <value>Verify New Password</value>
     </labels>
     <labels>
+        <fullName>LBL_Weekly_Digest</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>LBL Weekly Digest</shortDescription>
+        <value>Weekly Digest</value>
+    </labels>
+    <labels>
         <fullName>LBL_WhatIFollow</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -1790,6 +1993,27 @@
         <protected>true</protected>
         <shortDescription>MSG Group Name Available</shortDescription>
         <value>The Group Name you have selected is available.</value>
+    </labels>
+    <labels>
+        <fullName>Messages_BTN_NewMessage</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Messages_BTN_NewMessage</shortDescription>
+        <value>New Message</value>
+    </labels>
+    <labels>
+        <fullName>Messages_PageTitle</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Messages_PageTitle</shortDescription>
+        <value>My Messages</value>
+    </labels>
+    <labels>
+        <fullName>Messages_SearchAllMessages</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Messages_SearchAllMessages</shortDescription>
+        <value>Search All Messages</value>
     </labels>
     <labels>
         <fullName>NAV_Discover</fullName>
@@ -1832,5 +2056,40 @@
         <protected>true</protected>
         <shortDescription>NAV Resources</shortDescription>
         <value>Resources</value>
+    </labels>
+    <labels>
+        <fullName>People_Follow</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>People_Follow</shortDescription>
+        <value>Follow</value>
+    </labels>
+    <labels>
+        <fullName>People_Following</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>People_Following</shortDescription>
+        <value>Following</value>
+    </labels>
+    <labels>
+        <fullName>People_Name</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>People_Name</shortDescription>
+        <value>Name</value>
+    </labels>
+    <labels>
+        <fullName>People_PeopleIFollow</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>People_PeopleIFollow</shortDescription>
+        <value>People I Follow</value>
+    </labels>
+    <labels>
+        <fullName>People_TypeAName</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>People_TypeAName</shortDescription>
+        <value>Type a Name</value>
     </labels>
 </CustomLabels>

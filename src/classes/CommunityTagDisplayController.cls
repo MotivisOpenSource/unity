@@ -15,6 +15,7 @@ public with sharing class CommunityTagDisplayController {
 	public List<Tag> getTags(String rPage) {
 		List<Tag> result = new List<Tag>();
 		String query = 'SELECT Id, Community_Tag__c FROM ' + objectType + ' WHERE ' + filterName + ' =: objectId';
+		query = CommunityUtils.systemTagFilter(' AND Community_Tag__r.Community_Theme__r.Theme_Type__c', query);
 		List<SObject> sObjectList = Database.query(query);
 		Set<String> tagIds = new Set<String>();
 		for (SObject obj : sObjectList) {

@@ -112,7 +112,9 @@ public with sharing class CommunityProfilePageController {
 			}
 			List<String> fieldList = new List<String>();
 			fieldList.addAll(profileFields);
-			currentProfile = Database.query('SELECT ' + String.join(fieldList, ', ') + ' FROM Community_Profile__c WHERE Id =\'' + currentProfile.Id + '\'');
+			SecurityWrapper sw = new SecurityWrapper();
+			List<sObject> tempList = sw.databaseQuery('SELECT ' + String.join(fieldList, ', ') + ' FROM Community_Profile__c WHERE Id =\'' + currentProfile.Id + '\'');
+			currentProfile = (Community_Profile__c)tempList[0];
 		}
 		catch (Exception e) {
 			allOk = false;
@@ -493,7 +495,7 @@ public with sharing class CommunityProfilePageController {
 	}
 	
 	public Boolean getIsSubscribe() { 
-	    List<EntitySubscription> followings = [
+		List<EntitySubscription> followings = [
 				Select SubscriberId, ParentId, IsDeleted, Id, CreatedDate, CreatedById
 				From EntitySubscription
 				WHERE SubscriberId =:Userinfo.getUserId()
@@ -504,6 +506,12 @@ public with sharing class CommunityProfilePageController {
 	}
 
 	public void subscribeUser(){ 
-	    CommunityUtils.subscriberUser(currentUserId,!getIsSubscribe());
+		CommunityUtils.subscriberUser(currentUserId,!getIsSubscribe());
+	}
+
+	private without sharing class SecurityWrapper {
+		public List<SObject> databaseQuery(String inQueryStr) {
+			return Database.query(inQueryStr);
+		}
 	}
 }

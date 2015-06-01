@@ -371,7 +371,7 @@
 								<section>
 									<label class="checkbox">
 										<apex:inputCheckbox value="{!showOnlyMode}">
-											<apex:actionSupport event="onchange" action="{!msShow}" rerender="allpb" status="statusLoad"/>
+											<apex:actionSupport event="onchange" action="{!msShow}" rerender="memback" status="statusLoad"/>
 										</apex:inputCheckbox>
 										<i></i>{!IF(memberMode,$Label.LBL_ShowMembersOnly,$Label.LBL_ShowManagersOnly)}
 									</label>
@@ -396,6 +396,12 @@
 													<button class="btn btn-default" type="button">
 														<i class="fa fa-star" ></i>&nbsp;{!$Label.LBL_Owner}
 													</button>
+													<apex:outputLink value="javascript:;" onclick="changeowner('start');" rendered="{!showChangeOwnerLink}">
+														<br/><small><i class="fa fa-key" ></i>&nbsp;{!$Label.LBL_Change_Owner}</small>
+													</apex:outputLink>
+													<apex:outputPanel rendered="{!changeOwnerMode}">
+														<br/><small>{!$Label.LBL_Current_Owner}</small>
+													</apex:outputPanel>
 												</apex:outputPanel>
 												<apex:outputPanel layout="none" rendered="{!!us.owner && memberMode && !us.member}">
 													<button class="btn-u" onclick="msproc(1,'{!us.id}');return false;" type="button">
@@ -407,15 +413,17 @@
 														<i class="fa fa-check" ></i>&nbsp;{!$Label.LBL_Member}
 													</button>
 												</apex:outputPanel>
-												<apex:outputPanel layout="none" rendered="{!!us.owner && managerMode && !us.manager}">
-													<button class="btn-u btn-u-blue" onclick="msproc(3,'{!us.id}');return false;" type="button">
-														<i class="fa fa-check" ></i>&nbsp;{!$Label.LBL_Member}
-													</button>
-												</apex:outputPanel>
-												<apex:outputPanel layout="none" rendered="{!!us.owner && managerMode && us.manager}">
-													<button class="btn-u" onclick="msproc(4,'{!us.id}');return false;" type="button">
-														<i class="fa fa-star-half-o" ></i>&nbsp;{!$Label.LBL_Manager}
-													</button>
+												<apex:outputPanel layout="none" rendered="{!!us.owner && managerMode}">
+													<apex:outputPanel layout="none" rendered="{!!us.manager}">
+														<button class="btn-u btn-u-blue" onclick="msproc(3,'{!us.id}');return false;" type="button">
+															<i class="fa fa-check" ></i>&nbsp;{!$Label.LBL_Member}
+														</button>
+													</apex:outputPanel>
+													<apex:outputPanel layout="none" rendered="{!us.manager}">
+														<button class="btn-u" onclick="msproc(4,'{!us.id}');return false;" type="button">
+															<i class="fa fa-star-half-o" ></i>&nbsp;{!$Label.LBL_Manager}
+														</button>
+													</apex:outputPanel>
 												</apex:outputPanel>
 												<apex:outputPanel layout="none" rendered="{!requestMode}">
 													<button class="btn-u" onclick="msproc(7,'{!us.id}');return false;" type="button">
@@ -426,6 +434,16 @@
 													</button>
 												</apex:outputPanel>
 											</td>
+											<apex:outputPanel layout="none" rendered="{!managerMode && changeOwnerMode}">
+												<td style="width:20px;">
+													<apex:outputPanel layout="none" rendered="{!!us.owner}">
+														<label class="radio">
+															<input type="radio" name="{!us.id}" onclick="radiogaga(this);"/>
+															<i class="rounded-x"></i>
+														</label>
+													</apex:outputPanel>
+												</td>
+											</apex:outputPanel>
 										</tr>
 									</apex:repeat>
 								</table>
@@ -451,7 +469,7 @@
 									</ul>
 								</apex:outputPanel>
 							</apex:outputPanel>
-							<apex:actionFunction action="{!allusers.firstPage}" name="firstPage" rerender="allpb" status="statusLoad"/>
+							<apex:actionFunction action="{!allusers.firstPage}" name="firstPage" rerender="allpb,mbtns" status="statusLoad"/>
 							<apex:actionFunction action="{!performRequestAction}" name="accdeca" rerender="allpb">
 								<apex:param name="accepted" assignTo="{!accepted}" value=""/>
 								<apex:param name="requesterId" assignTo="{!requesterId}" value=""/>
@@ -490,18 +508,34 @@
 						</script>
 					</apex:outputPanel>
 				</div>
-				<div class="modal-footer">
-					<button data-dismiss="modal" type="button" class="btn-u" id="closeDialogButton" value="{!$Label.LBL_Done}" onclick="doneAction();return false;">{!$Label.LBL_Done}</button>
-				</div>
+				<apex:outputPanel id="mbtns" layout="block" styleClass="modal-footer">
+					<apex:outputPanel layout="none" rendered="{!!changeOwnerMode}">
+						<button data-dismiss="modal" type="button" class="btn-u" id="closeDialogButton" value="{!$Label.LBL_Done}" onclick="doneAction();return false;">{!$Label.LBL_Done}</button>
+					</apex:outputPanel>
+					<apex:outputPanel layout="none" rendered="{!changeOwnerMode}">
+						<button type="button" class="btn-u btn-u-default" value="{!$Label.BTN_Cancel}" onclick="changeowner('cancel');">{!$Label.BTN_Cancel}</button>
+						<button id="owabtn" type="button" class="btn-u" value="{!$Label.BTN_Save}" onclick="changeowner(this.name);" disabled="disabled" style="opacity:0.65">{!$Label.BTN_Save}</button>
+						<script>
+							function radiogaga(elem) {
+								$('#groupmembertable [type=radio]').prop('checked',false);
+								$(elem).prop('checked',true);
+								$('#owabtn').attr('name',elem.name).removeAttr('disabled').css('opacity','1');
+							}
+						</script>
+					</apex:outputPanel>
+				</apex:outputPanel>
 			</apex:outputPanel>
 		</div>
 	</div>
 	<apex:form >
 		<apex:actionFunction action="{!msDone}" name="doneAction" rerender="memlist,manlist,memreqlinks"/>
-		<apex:actionFunction action="{!msShow}" name="showMemberDialog" rerender="memback" status="statusLoad">
+		<apex:actionFunction action="{!msShowPlus}" name="showMemberDialog" rerender="memback" status="statusLoad">
 			<apex:param name="memberMode" assignTo="{!memberMode}" value="" />
 			<apex:param name="managerMode" assignTo="{!managerMode}" value="" />
 			<apex:param name="requestMode" assignTo="{!requestMode}" value="" />
+		</apex:actionFunction>
+		<apex:actionFunction action="{!changeOwner}" name="changeowner" rerender="memback" status="statusLoad">
+			<apex:param name="ownerString" assignTo="{!ownerString}" value=""/>
 		</apex:actionFunction>
 	</apex:form>
 	<script>

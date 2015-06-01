@@ -17,17 +17,17 @@
 				<apex:commandButton action="{!Submit}" value="{!$Label.BTN_Submit}" styleClass="btn-u"/>
 				&nbsp;
 				<apex:outputLink value="{!IF(ISBLANK($CurrentPage.parameters.retURL),$Page.CommunityEventsList,JSENCODE($CurrentPage.parameters.retURL))}" styleClass="btn-u">{!$Label.BTN_Cancel}</apex:outputLink>
-			</div>
+				</div>
 		</div>
 		<apex:pageBlock >
-			<apex:pageMessages id="pageMessages"/>
+		    <apex:pageMessages id="pageMessages"/>			
 			<apex:pageBlockSection id="cnpbs1" columns="1" collapsible="false">
 				<apex:repeat value="{!fieldset}" var="fs">
 					<apex:inputField value="{!event[fs.fieldPath]}" required="{!OR(fs.required, fs.dbrequired)}"/>
 				</apex:repeat>
 				<apex:pageBlockSectionItem >
 					<apex:outputLabel value="{!$Label.LBL_Event_Group}"/>
-					<apex:input value="{!connectedGroupStr}" list="{!AllGroupsInStringArray}" />
+					<apex:input value="{!connectedGroupStr}" list="{!AllGroupsInStringArray}" />			
 				</apex:pageBlockSectionItem>
 				<apex:pageBlockSectionItem >
 					<apex:outputLabel value="{!$Label.LBL_Select_Tags}"/>

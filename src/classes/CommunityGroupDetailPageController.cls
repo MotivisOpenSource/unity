@@ -83,11 +83,6 @@ public without sharing class CommunityGroupDetailPageController {
 		return '';
 	}
 
-	@RemoteAction
-	public static String membership(String inUserId, String inGroupContolId, Integer inMode) {
-		CommunityUtils.membership(inUserId, inGroupContolId, String.valueOf(inMode));
-		return inUserId;
-	}
 	public Boolean accepted { get; set; }
 	public String requesterId { get; set; }
 	public void performRequestAction() {

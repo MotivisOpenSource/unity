@@ -183,7 +183,10 @@ textarea.form-control {
 :-moz-placeholder           {color:#b0b0b0;}/* Firefox 18- */
 :-ms-input-placeholder      {color:#b0b0b0;}
 
-
+h4.media-heading {
+	display: inherit;
+}
+.btn-u:hover { transition: min-width 0s; }
 	</style>
 	<apex:outputPanel id="simple" layout="block" styleClass="row" rendered="{!!fullMode}" style="display:none;">
 		<div id="cfcmp" class="col-sm-12 profile margin-bottom-20">
@@ -247,7 +250,7 @@ textarea.form-control {
 						<textarea name="message" id="message" class="form-control share" onclick="checkmi(this);"></textarea>
 					</div>
 					<div class="text-right">
-						<button type="button" class="btn btn-u" id="mesbtn" onclick="postFeed($('#message').val());">
+						<button type="button" class="btn-u" id="mesbtn" onclick="postFeed($('#message').val());">
 							<i class="fa fa-spinner fa-pulse" style="display:none;"></i>
 							<span>Share</span>
 						</button>
@@ -349,7 +352,7 @@ textarea.form-control {
 								<% }); %>
 							</ul>
 							<% if (!p2.capabilities.poll.myChoiceId || changeVoteId != null) {%>
-								<input class="btn btn-u disabled" type="button" value="Vote" title="Vote" onclick="vote(this);" id="vote_<%= p2.id %>" disabled="disabled">
+								<input class="btn-u" type="button" value="Vote" title="Vote" onclick="vote(this);" id="vote_<%= p2.id %>" disabled="disabled">
 							<%}%>
 							<span class="pollvotecount"><%=p2.capabilities.poll.totalVoteCount%> votes</span>
 							<% if (p2.capabilities.poll.myChoiceId && changeVoteId == null) {%>
@@ -426,7 +429,7 @@ textarea.form-control {
 							<div class="media-body">
 								<textarea id="a<%= p2.id %>" class="form-control margin-bottom-5" onclick="checkmi(this);" onkeyup="checkbtn(this,'#b<%= p2.id %>');"></textarea>
 								<ul class="list-inline pull-right">
-									<button type="button" class="btn btn-u disabled" id="b<%= p2.id %>" onclick="postComment($('#a<%= p2.id %>').val(),'<%= p2.id %>');" disabled="disabled">
+									<button type="button" class="btn-u" id="b<%= p2.id %>" onclick="postComment($('#a<%= p2.id %>').val(),'<%= p2.id %>');" disabled="disabled" style="opacity:0.75;">
 										<i class="fa fa-spinner fa-pulse" style="display:none;"></i>
 										<span>Comment</span>
 									</button>
@@ -488,7 +491,7 @@ textarea.form-control {
 			</div>
 			<% if (rc.post) { %>
 			<div class="text-right">
-				<button type="submit" value="submit" class="submit btn btn-u" id="mesbtn" onclick="postAction($('#message').val());return false;" >
+				<button type="submit" value="submit" class="submit btn-u" id="mesbtn" onclick="postAction($('#message').val());return false;" >
 					<i class="fa fa-spinner fa-pulse" style="display:none;"></i>
 					<span><%= rc.btntxt %></span>
 				</button>
@@ -496,7 +499,7 @@ textarea.form-control {
 			<% } else { %>
 			</div>
 			<div class="text-right">
-				<button type="button" class="btn btn-u" id="mesbtn" onclick="postAction(''); return false;">
+				<button type="button" class="btn-u" id="mesbtn" onclick="postAction(''); return false;">
 					<i class="fa fa-spinner fa-pulse" style="display:none;"></i>
 					<span><%= rc.btntxt %></span>
 				</button>
@@ -663,7 +666,6 @@ textarea.form-control {
 				$('#postform-error').hide();	
 				disableBtn('mesbtn');
 				var messageItemIndex = -1;
-				
 				var fBaseStr = null;
 				var fType = null;
 				var fName = null;
@@ -722,7 +724,7 @@ textarea.form-control {
 														insertAttIntoFeed(result[0].id, JSON.stringify(chataction.layout));
 													});
 												}else{
-														insertAttIntoFeed(result[0].id, null);
+														insertAttIntoFeed(result[0].id, "");
 												}
 												postFile = false;
 										    }
@@ -738,7 +740,7 @@ textarea.form-control {
 									    {
 									    	postFile = false;
 											enableBtn('mesbtn');
-											$('#postform-error').html('<strong>Error!</strong> ' + error[0].errors.message);
+											$('#postform-error').html('<strong>Error!</strong> ' + result[0].errors.message);
 											$('#postform-error').show();	
 									        
 									    }
@@ -874,7 +876,7 @@ textarea.form-control {
 				checkmi($('#a'+inid)[0]);
 			}
 			function disableBtn(inid,inm) {
-				$('#'+inid).attr('disabled','disabled').addClass('disabled');
+				$('#'+inid).attr('disabled','disabled').css('opacity','0.75');
 				if (inm==undefined) {
 					$('#'+inid).css('min-width',$('#'+inid).css('width'))
 				}
@@ -882,7 +884,7 @@ textarea.form-control {
 				$('#'+inid+' i').show();
 			}
 			function enableBtn(inid) {
-				$('#'+inid).removeAttr('disabled').removeClass('disabled');
+				$('#'+inid).removeAttr('disabled').css('opacity','1');;
 				$('#'+inid+' i').hide();
 				$('#'+inid+' span').show();
 			}
@@ -934,10 +936,10 @@ textarea.form-control {
 			}
 			function checkbtn(element,btnid) {
 				if (element.value.trim()=='') {
-					$(btnid).attr('disabled','disabled').addClass('disabled');
+					$(btnid).attr('disabled','disabled').css('opacity','0.75');;
 				}
 				else if ($(btnid).attr('disabled')) {
-					$(btnid).removeAttr('disabled').removeClass('disabled');
+					$(btnid).removeAttr('disabled').css('opacity','1');;
 				}
 			}
 			var chataction = {loading:false};
