@@ -1179,6 +1179,5 @@ global without sharing class CommunityFeedController {
 			}
 		}
 		return JSON.serialize(result);
-	}
-	
+	}	
 }

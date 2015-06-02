@@ -1,4 +1,4 @@
-@isTest(SeeAllData=true)
+@isTest
 private class CommunityTest {
 /*Page Controllers Tests*/
 
@@ -91,9 +91,8 @@ private class CommunityTest {
 		crc2.init();
 		crc2.getTags();
 	}
-
-	@IsTest(SeeAllData=true)
-	static void test_CommunityGroupCreate() {
+	
+	static testMethod void test_CommunityGroupCreate() {
 		Community_Theme__c cth = new Community_Theme__c(Name='t',Theme_Type__c='Interest');
 		insert cth;
 		Community_Tag__c ct = new Community_Tag__c(Name='t',Community_Theme__c=cth.Id);
@@ -262,7 +261,11 @@ private class CommunityTest {
 		feedIt.Body = 'Test Body';
 		feedIt.ParentId = u.id;
 		insert feedIt;
-
+		
+		CollaborationGroup cg = new CollaborationGroup();
+		cg.Name = 'newgroup';
+		cg.CollaborationType = 'Public' ;
+		insert cg;	
 
 		CollaborationGroup gr = [SELECT Id, Name FROM CollaborationGroup LIMIT 1];
 		System.assertEquals(true, gr != null);
@@ -297,8 +300,9 @@ private class CommunityTest {
 		Test.stopTest();
 		
 	}
-
-	static testMethod void test_CommunityFeed_PeopleController() {
+	
+	@IsTest(SeeAllData=true)
+	static void test_CommunityFeed_PeopleController() {
 		Account acc = new Account(Name='testAccount');
 		insert acc;
 		Contact con = new Contact(LastName='TCLN', MailingPostalCode='99013', email='testc@testdomain.com', AccountId=acc.Id, Primary_Role__c='Student');
@@ -321,7 +325,7 @@ private class CommunityTest {
 		CommunityFeed_PeopleController cfpc = new CommunityFeed_PeopleController();
 	}
 	
-	@isTest(SeeAllData=true)
+	@IsTest(SeeAllData=true)
 	static void test_CommunityGroupDetailPageController() {
 		Account acc = new Account(Name='testAccount');
 		insert acc;
@@ -523,7 +527,7 @@ private class CommunityTest {
 		}
 	}
 
-	@isTest(SeeAllData=true)
+	@IsTest(SeeAllData=true)
 	static void test_CommunitySearchController() {		
 		Test.setCurrentPage(Page.CommunitySearch);
 		CommunitySearchController csc1 = new CommunitySearchController();

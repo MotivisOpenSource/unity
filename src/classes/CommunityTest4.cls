@@ -1,10 +1,14 @@
-@isTest(SeeAllData=true)
+@isTest
 private class CommunityTest4 {
 /*Utility Class Tests*/
 
 	static testMethod void test_CommunityUrlRewriter() {
 		CommunityUrlRewriter rewriter = new CommunityUrlRewriter();
 		System.assert(rewriter.generateUrlFor(null) == null);
+		CollaborationGroup cg1 = new CollaborationGroup();
+		cg1.Name = 'newgroup';
+		cg1.CollaborationType = 'Public' ;
+		insert cg1;		
 		List<CollaborationGroup> cg = [SELECT Id, Name FROM CollaborationGroup LIMIT 1];
 		List<User> us = [SELECT Id, Name FROM User LIMIT 1];
 		rewriter.mapRequestUrl(new PageReference('https://motivis-developer-edition.ap2.force.com/studentcommunity/_ui/core/chatter/groups/GroupProfilePage?g='+cg[0].ID+'&filter=requests&fromEmail=1'));
@@ -13,7 +17,8 @@ private class CommunityTest4 {
 		
 	}
 
-	static testMethod void test_CommunityUtils() {
+	@IsTest(SeeAllData=true)
+	static void test_CommunityUtils() {
 		Community_Theme__c cth = new Community_Theme__c(Name='t',Theme_Type__c='Interest');
 		insert cth;
 		Community_Tag__c ct = new Community_Tag__c(Name='t',Community_Theme__c=cth.Id);
