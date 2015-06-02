@@ -26,6 +26,7 @@ public with sharing class UnityAdminController {
 	}
 
 	public void editCR() {
+		cr = (Community_Registration__c)populateDefault(cr, SObjectType.Community_Registration__c);
 		crEdit = true;
 	}
 
@@ -40,7 +41,8 @@ public with sharing class UnityAdminController {
 	}
 
 	public void cancelCR() {
-		cr = Community_Registration__c.getOrgDefaults();
+		//cr = Community_Registration__c.getOrgDefaults();
+		cr = (Community_Registration__c)populateDefault(Community_Registration__c.getOrgDefaults(), SObjectType.Community_Registration__c);
 		crEdit = false;
 	}
 
@@ -57,6 +59,7 @@ public with sharing class UnityAdminController {
 	}
 
 	public void editCS() {
+		cs = (Community_Settings__c)populateDefault(cs, SObjectType.Community_Settings__c);
 		csEdit = true;
 	}
 
@@ -71,7 +74,8 @@ public with sharing class UnityAdminController {
 	}
 
 	public void cancelCS() {
-		cs = Community_Settings__c.getOrgDefaults();
+		//cs = Community_Settings__c.getOrgDefaults();
+		cs = (Community_Settings__c)populateDefault(Community_Settings__c.getOrgDefaults(), SObjectType.Community_Settings__c);
 		csEdit = false;
 	}
 
@@ -88,6 +92,7 @@ public with sharing class UnityAdminController {
 	}
 
 	public void editCTS() {
+		cts = (Community_Template_Settings__c)populateDefault(cts, SObjectType.Community_Template_Settings__c);
 		ctsEdit = true;
 	}
 
@@ -102,7 +107,30 @@ public with sharing class UnityAdminController {
 	}
 
 	public void cancelCTS() {
-		cts = Community_Template_Settings__c.getOrgDefaults();
+		//cts = Community_Template_Settings__c.getOrgDefaults();
+		cts = (Community_Template_Settings__c)populateDefault(Community_Template_Settings__c.getOrgDefaults(), SObjectType.Community_Template_Settings__c);
 		ctsEdit = false;
+	}
+
+	// Populates empty custom setting with default values
+	private SObject populateDefault(SObject incs, Schema.DescribeSObjectResult dsor) {
+		if (incs.get('Id') == NULL) {
+			Savepoint sp = Database.setSavepoint();
+			try {
+				insert incs;
+				List<String> flds = new List<String>();
+				for (Schema.SObjectField df : dsor.fields.getMap().values()) {
+					Schema.DescribeFieldResult dfr = df.getDescribe();
+					if (dfr.getName().endsWith('__c')) {
+						flds.add(dfr.getName());
+					}
+				}
+				incs = Database.query('SELECT ' + String.join(flds, ', ') + ' FROM ' + dsor.getName() + ' WHERE Id = \'' + (String)incs.get('Id') + '\'');
+				incs.put('Id', NULL);
+			}
+			catch (Exception e) {}
+			Database.rollback(sp);
+		}
+		return incs;
 	}
 }
