@@ -52,10 +52,10 @@ trigger CommunityGroupControl on Community_Group_Control__c (before insert, afte
 	}
 
 	if (Trigger.isAfter && Trigger.isInsert) {
-		Map<Id, Id> GroupControlIdByChatterGroupId = new Map<Id, Id>();
+		Map<Id, Community_Group_Control__c> GroupControlIdByChatterGroupId = new Map<Id, Community_Group_Control__c>();
 		for (Community_Group_Control__c cgcItem : Trigger.new) {
 			if (cgcItem.Chatter_Group_ID__c != NULL) {
-				GroupControlIdByChatterGroupId.put(Id.valueOf(cgcItem.Chatter_Group_ID__c), cgcItem.Id);
+				GroupControlIdByChatterGroupId.put(Id.valueOf(cgcItem.Chatter_Group_ID__c), cgcItem);
 			}
 		}
 		if (GroupControlIdByChatterGroupId.size() > 0) {
@@ -65,10 +65,12 @@ trigger CommunityGroupControl on Community_Group_Control__c (before insert, afte
 						FROM CollaborationGroupMember
 						WHERE CollaborationGroupId IN :GroupControlIdByChatterGroupId.keySet()]
 							) {
+				Community_Group_Control__c cgcFromMap = GroupControlIdByChatterGroupId.get(cgmItem.CollaborationGroupId);
 				membersCommunityGroup.add(
 					new Community_Group_Manager__c(
-						Group_Control__c = GroupControlIdByChatterGroupId.get(cgmItem.CollaborationGroupId),
-						Group_Manager_User__c = cgmItem.MemberId
+						Group_Control__c = cgcFromMap.Id,
+						Group_Manager_User__c = cgmItem.MemberId,
+						Manager_Role__c = (cgcFromMap.OwnerId == cgmItem.MemberId ? 'Owner' : 'Manager')
 					)
 				);
 			}
@@ -132,9 +134,20 @@ trigger CommunityGroupControl on Community_Group_Control__c (before insert, afte
 			Set<Id> newLuckyOnes = new Set<Id>();
 			newLuckyOnes.addAll(groupControlsWithNewOwners.values());
 			Set<String> groupManagersUniqueId = new Set<String>();
+			List<Community_Group_Manager__c> cgmListToUpsert = new List<Community_Group_Manager__c>();
 			for (Community_Group_Manager__c cgmItem : [
-								SELECT Group_Manager_User__c, Group_Control__c FROM Community_Group_Manager__c
-								WHERE Group_Manager_User__c IN :newLuckyOnes AND Group_Control__c IN :groupControlsWithNewOwners.keySet()]) {
+								SELECT Id, Group_Manager_User__c, Group_Control__c, Manager_Role__c FROM Community_Group_Manager__c
+								WHERE (Group_Manager_User__c IN :newLuckyOnes OR Manager_Role__c = 'Owner')
+									AND Group_Control__c IN :groupControlsWithNewOwners.keySet()]) {
+				Id currentNewGroupOwnerId = groupControlsWithNewOwners.get(cgmItem.Group_Control__c);
+				if (cgmItem.Group_Manager_User__c != currentNewGroupOwnerId && cgmItem.Manager_Role__c == 'Owner') {
+					cgmItem.Manager_Role__c = 'Manager';
+					cgmListToUpsert.add(cgmItem);
+				}
+				if (cgmItem.Group_Manager_User__c == currentNewGroupOwnerId && cgmItem.Manager_Role__c != 'Owner') {
+					cgmItem.Manager_Role__c = 'Owner';
+					cgmListToUpsert.add(cgmItem);
+				}
 				groupManagersUniqueId.add('' + cgmItem.Group_Control__c + cgmItem.Group_Manager_User__c);
 			}
 
@@ -155,14 +168,14 @@ trigger CommunityGroupControl on Community_Group_Control__c (before insert, afte
 				}
 			}
 
-			List<Community_Group_Manager__c> cgmListToInsert = new List<Community_Group_Manager__c>();
 			List<EntitySubscription> subscriptionsListToInsert = new List<EntitySubscription>();
 			List<CollaborationGroupMember> chatterMembersToUpsert = new List<CollaborationGroupMember>();
 			for (Community_Group_Control__c cgcItem : groupControlsList) {
 				if (!groupManagersUniqueId.contains('' + cgcItem.Id + cgcItem.OwnerId)) {
-					cgmListToInsert.add(new Community_Group_Manager__c(
+					cgmListToUpsert.add(new Community_Group_Manager__c(
 						Group_Manager_User__c = cgcItem.OwnerId,
-						Group_Control__c = cgcItem.Id
+						Group_Control__c = cgcItem.Id,
+						Manager_Role__c = 'Owner'
 					));
 				}
 				if (!groupSubscriptionUniqueId.contains('' + cgcItem.Id + cgcItem.OwnerId)) {
@@ -188,8 +201,8 @@ trigger CommunityGroupControl on Community_Group_Control__c (before insert, afte
 			if (chatterMembersToUpsert.size() > 0) {
 				upsert chatterMembersToUpsert;
 			}
-			if (cgmListToInsert.size() > 0) {
-				insert cgmListToInsert;
+			if (cgmListToUpsert.size() > 0) {
+				upsert cgmListToUpsert;
 			}
 			try {
 				if (subscriptionsListToInsert.size() > 0) {

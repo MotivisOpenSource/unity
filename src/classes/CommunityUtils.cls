@@ -134,7 +134,7 @@ public class CommunityUtils {
 					update cgmList;
 				}
 				if (cgmList2.size() == 0) {
-					insert new Community_Group_Manager__c(Group_Manager_User__c = inUserId, Group_Control__c = cgc.Id);
+					insert new Community_Group_Manager__c(Group_Manager_User__c = inUserId, Group_Control__c = cgc.Id, Manager_Role__c = 'Manager');
 				}
 				if (esList2.size() == 0) {
 					insert new EntitySubscription(ParentId = cgc.Id, SubscriberId = inUserId, NetworkId = Network.getNetworkId());
@@ -272,7 +272,6 @@ public class CommunityUtils {
 		}else{
 			inUrl = (inUrl.startsWith('/') && inUrl.split('/').size() > 2) ? inUrl.split('/',3)[2] : inUrl;
 		}
-		
 		return inUrl;
 	}
 
