@@ -1,4 +1,4 @@
-<apex:component controller="CommunityMenuController">
+<apex:component controller="CommunityMenuController" access = "global">
 <style>
 ul li, ol li {
 	margin-left:0;

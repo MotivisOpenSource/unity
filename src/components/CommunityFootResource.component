@@ -1,4 +1,4 @@
-<apex:component >
+<apex:component access = "global">
 	<!-- JS Global Compulsory -->
 	<apex:includeScript value="{!$Resource.assets}/plugins/jquery/jquery.min.js"/>
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/jquery/jquery-migrate.min.js"></script>

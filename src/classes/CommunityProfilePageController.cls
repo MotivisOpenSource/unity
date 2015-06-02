@@ -1,4 +1,4 @@
-public with sharing class CommunityProfilePageController {
+global with sharing class CommunityProfilePageController {
 
 	public Boolean allOk { get;set; }
 	public Boolean current { get;set; }
@@ -274,7 +274,7 @@ public with sharing class CommunityProfilePageController {
 
 	//remote actions
 	@RemoteAction
-	public static String toggle(String inid, Boolean sel) {
+	global static String toggle(String inid, Boolean sel) {
 		User currentUserLocal3 = [SELECT ContactId, Community_Contact_ID__c, FullPhotoUrl FROM User WHERE Id =:UserInfo.getUserId()];
 		Id ccId = currentUserLocal3.ContactId != NULL ? currentUserLocal3.ContactId : currentUserLocal3.Community_Contact_ID__c;
 		if (ccId != NULL) {
@@ -291,7 +291,7 @@ public with sharing class CommunityProfilePageController {
 	}
 
 	@RemoteAction
-	public static String toggleUserNotification(String fieldName) {
+	global static String toggleUserNotification(String fieldName) {
 		NetworkMember nm = Database.query('SELECT Id, ' + fieldName + ' FROM NetworkMember WHERE MemberId =\'' + UserInfo.getUserId() + '\' AND NetworkId =\'' + Network.getNetworkId() + '\'');
 		Boolean tb = (Boolean)nm.get(fieldName) == true;
 		nm.put(fieldName, !tb);
@@ -300,7 +300,7 @@ public with sharing class CommunityProfilePageController {
 	}
 
 	@RemoteAction
-	public static String toggleUserDigest(String groupId, String freq) {
+	global static String toggleUserDigest(String groupId, String freq) {
 		if (String.isBlank(groupId)) {
 			NetworkMember nm = [SELECT Id, DefaultGroupNotificationFrequency FROM NetworkMember WHERE MemberId = :UserInfo.getUserId() AND NetworkId = :Network.getNetworkId()];
 			nm.DefaultGroupNotificationFrequency = freq;

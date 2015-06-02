@@ -1,4 +1,4 @@
-public with sharing class CommunityRegTermsController {
+global with sharing class CommunityRegTermsController {
 
 	public Menu leftSideBar { get; set; }
 	private User currentUser;
@@ -148,7 +148,7 @@ public with sharing class CommunityRegTermsController {
 
 	//remote actions
 	@RemoteAction
-	public static String toggle(String inid, Boolean sel) {
+	global static String toggle(String inid, Boolean sel) {
 		return CommunityProfilePageController.toggle(inid, sel);
 	}
 
