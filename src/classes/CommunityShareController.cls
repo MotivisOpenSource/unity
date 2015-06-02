@@ -68,8 +68,8 @@ global without sharing class CommunityShareController {
 			}
 			String networkId = Network.getNetworkId();
 			Network nRec = [SELECT UrlPathPrefix FROM Network WHERE Id = :networkId];
-			String cprefix = '/' + nRec.UrlPathPrefix + '/';
-			
+			String cprefix = nRec.UrlPathPrefix != null ? '/' + nRec.UrlPathPrefix + '/' : '/';
+	
 			List<CollaborationGroup> cgrec = new List<CollaborationGroup>();
 
 			if(gcSet2.isEmpty() && !shareLinkProfile){

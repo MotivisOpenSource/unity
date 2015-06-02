@@ -266,11 +266,13 @@ public class CommunityUtils {
 	//method for insert prefix if not in feedItem
 	public static String checkURLforPref(String inUrl){
 		String spp = Site.getPathPrefix();
+		
 		if(String.isNotBlank(spp)){
-			inUrl = !inUrl.startsWith(Site.getPathPrefix()) ? spp + inUrl : inUrl;
+			inUrl = (inUrl.startsWith('/') && !inUrl.startsWith(Site.getPathPrefix())) ? spp + inUrl : inUrl;
 		}else{
-			inUrl = inUrl.split('/').size() > 2 ? inUrl.split('/',3)[2] : inUrl;
+			inUrl = (inUrl.startsWith('/') && inUrl.split('/').size() > 2) ? inUrl.split('/',3)[2] : inUrl;
 		}
+		
 		return inUrl;
 	}
 
