@@ -295,6 +295,12 @@ public with sharing class CommunityEventController {
 			}
 			upsert event;
 			
+			if(!String.isBlank(connectedGroupStr) && !validateGroupStr(connectedGroupStr)){
+				ApexPages.Message myMsg = new ApexPages.Message(ApexPages.Severity.ERROR, Label.ERR_Please_Select_Group);
+				ApexPages.addMessage(myMsg);
+				return NULL;
+			}	
+
 			String tagsIdsString = ApexPages.currentPage().getParameters().get(TAGS_INPUT_NAME);
 			CommunityTagSelectorController ctsc = new CommunityTagSelectorController();
 			ctsc.objectId = event.Id;
@@ -323,11 +329,6 @@ public with sharing class CommunityEventController {
 			}
 			else {
 				// create group				
-				if(!validateGroupStr(connectedGroupStr)){
-					ApexPages.Message myMsg = new ApexPages.Message(ApexPages.Severity.ERROR, Label.ERR_Please_Select_Group);
-					ApexPages.addMessage(myMsg);
-					return NULL;
-				}			
 				List<Community_Group_Control__c> communityGroupControll = [
 						SELECT Id, Chatter_Group_ID__c
 						FROM Community_Group_Control__c
