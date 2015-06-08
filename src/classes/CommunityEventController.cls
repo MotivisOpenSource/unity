@@ -22,6 +22,8 @@ public with sharing class CommunityEventController {
 
 	} set;}
 
+	public List<Schema.FieldSetMember> fieldsetRes { get; set; }
+
 	private String datetimeToUTC(DateTime dati) {
 		String dt = dati.format('yyyy-MM-dd HH:mm:ss','Etc/UTC');
 
@@ -42,11 +44,11 @@ public with sharing class CommunityEventController {
 	}
 
 	public String getStartDate(){
-		return event.Start__c != NULL ? event.Start__c.format('MM/dd/yyyy @ h.mm a').replace(' AM', 'am').replace(' PM','pm') : NULL;
+		return event.Start__c != NULL ? event.Start__c.format('MM/dd/yyyy @ h:mm a').replace(' AM', ' am').replace(' PM',' pm') : NULL;
 	}
 
 	public String getEndDate(){
-		return event.End__c != NULL ? event.End__c.format('MM/dd/yyyy @ h.mm a').replace(' AM', 'am').replace(' PM','pm') : NULL;
+		return event.End__c != NULL ? event.End__c.format('MM/dd/yyyy @ h:mm a').replace(' AM', ' am').replace(' PM',' pm') : NULL;
 	}
 
 	public PageReference downloadICS() {
@@ -171,11 +173,15 @@ public with sharing class CommunityEventController {
 		Set<String> checkFieldSet = new Set<String>();
 		checkFieldSet.addAll(checkFieldList);
 		checkFieldSet = CommunityUtils.checkFLSFields('Community_Events__c', checkFieldSet);
+		Boolean stateBool = false;
+		Boolean zipBool = false;
 		for (String chfItem : checkFieldList) {
 			if(checkFieldSet.contains(CommunityUtils.getPackagePrefix() + chfItem)){
 				try{
 					if (String.isNotBlank((String)e.get(chfItem))) {
 						listToConcat.add((String)e.get(chfItem));
+						if(chfItem.containsIgnoreCase('State')) stateBool = true;
+						if(chfItem.containsIgnoreCase('Zip')) 	zipBool = true;
 					}
 				}catch(Exception exp){
 					continue;
@@ -186,6 +192,10 @@ public with sharing class CommunityEventController {
 		if (listToConcat.size() > 0) {
 			result = String.join(listToConcat, ', ');
 		}
+		if(stateBool && zipBool){
+			result = result.substring(0, result.lastIndexOf(','))+result.substring(result.lastIndexOf(',')+1);
+		}
+
 		return result;
 	}
 
@@ -239,6 +249,21 @@ public with sharing class CommunityEventController {
 			if (mode == 'view') {
 				event.Street_Address__c = formatEventLocation(event);
 			}
+			
+			fieldsetRes = fieldset;
+			if(event.Street_Address__c == NULL){
+				Integer pos = 0;
+				for(Schema.FieldSetMember fsA : fieldset){
+					if(fsA.getLabel().containsIgnoreCase('Street Address')){
+						break;
+					}
+					pos++;
+				}
+				fieldsetRes.remove(pos);
+			}
+			
+			
+
 		}
 		if (ApexPages.currentPage().getParameters().get('cloneId') != NULL) {
 			try {
