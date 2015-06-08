@@ -3,6 +3,7 @@
 	<apex:attribute name="ft" type="String" assignTo="{!feedType}" required="false" description="Feed Type" />
 	<apex:attribute name="fm" type="Boolean" assignTo="{!fullMode}" required="false" default="true" description="Feed Type" />
 	<apex:attribute name="sjcb" type="Boolean" required="false" default="false" description="show Join the Conversation button" />
+	<apex:attribute name="tf" type="Boolean" required="false" default="false" description="show feeds from" />
 	<script src="{!$Resource.CommunityResources}/js/underscore/underscore-min.js"></script>
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/mentions/jquery.mentionsInput.js" ></script>
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/mentions/jquery.events.input.js" ></script>
@@ -221,7 +222,11 @@ h4.media-heading {
 			<div class="comment">
 				<img src="<%= p.actor.photo.smallPhotoUrl %>" alt=""/>
 				<div class="overflow-h">
-					<strong><%= p.actor.displayName %> <%= p.actor.role !== null ?  '(' + p.actor.role + ')': '' %> <small class="pull-right"><%= p.dateStr %></small></strong> 
+					<strong><%= p.actor.displayName %> <%= p.actor.role !== null ?  '(' + p.actor.role + ')': '' %> <small class="pull-right"><%= p.dateStr %></small></strong>
+					<% if(p.parentType != null && {!tf}){ %>
+						<p><strong><a class="<%= p.parentIcon %>" href="<%= p.parentLink %>" style="font-weight: bold;"> <%= p.parentType %> - <%= p.parentName %> <% if(p.parentAcssesType != null){ %> (<%= p.parentAcssesType %>) <% } %></a>
+						</strong></p>
+					<% } %>	 
 					<p><% print(wrapnl(p.body.text)); %></p>
 					<ul class="list-inline comment-list">
 						<li><i class="fa fa-comments"></i> <a href="#"><%= p.total %></a></li>
@@ -274,6 +279,10 @@ h4.media-heading {
 						<strong><a href="{!$Page.CommunityProfilePage}?id=<%= p2.actor.id %>"><%= p2.actor.displayName %> <%= p2.actor.role !== null ?  '(' + p2.actor.role + ')': '' %></a></strong>
 						<small><%= p2.dateStr %></small>
 					</h4>
+					<% if(p2.parentType != null && {!tf}){ %>
+						<p><strong><a class="<%= p2.parentIcon %>" href="<%= p2.parentLink %>" style="font-weight: bold;"> <%= p2.parentType %> - <%= p2.parentName %> <% if(p2.parentAcssesType != null){ %> (<%= p2.parentAcssesType %>) <% } %></a>
+						</strong></p>
+					<% } %>	
 					<% if (!p2.showLink && !p2.showContent && !p2.capabilities.poll) { %>
 						<p>	<% var p2p = parseFeedBody(p2.body);
 							print(wrapnl(p2p)); %>

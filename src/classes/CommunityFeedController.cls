@@ -70,6 +70,7 @@ global without sharing class CommunityFeedController {
 		String result = json.serialize(fep);
 		FeedElementPage fepResult = (FeedElementPage)JSON.deserialize(result,FeedElementPage.class);
 		fepResult = initialRoles(fepResult);
+		fepResult = initialParentId(fepResult);
 		if(Test.isRunningTest()){
 			testResult = result;
 		}
@@ -107,6 +108,92 @@ global without sharing class CommunityFeedController {
 		}
 		return new List<String>(UsersIds);
 	}
+
+	public static FeedElementPage initialParentId(FeedElementPage currentFeedPage){
+		List<String> feedsItemsIds = new List<String>();
+		Map<String, String> feedIdParentId = new Map<String, String>();
+		Map<String, List<String>> parentTypeParentId = new Map<String, List<String>>();
+
+		for(FeedElement fe : currentFeedPage.elements){
+			feedsItemsIds.add(fe.Id);
+		}
+
+		for(FeedItem fItem : [SELECT Id, ParentId FROM FeedItem WHERE Id IN :feedsItemsIds Limit 10000]){
+			String sobjectName = fItem.ParentId.getSObjectType().getDescribe().getName();
+			if(parentTypeParentId.get(sobjectName) != null){
+				parentTypeParentId.get(sobjectName).add(fItem.ParentId);
+			}else{
+				parentTypeParentId.put(sobjectName, new List<String>{fItem.ParentId});
+			}
+			feedIdParentId.put(fItem.Id, fItem.ParentId);
+		}
+		Map<String, List<String>> mapParents = getParentsNames(parentTypeParentId);
+		Map<String, List<String>> feedIdParentNameId = new Map<String, List<String>>();
+
+		for(String fIdpId : feedIdParentId.keySet()){
+			String pId = feedIdParentId.get(fIdpId);
+			for(String mpId : mapParents.keySet()){
+				if(pId.equals(mpId)){
+					feedIdParentNameId.put(fIdpId, mapParents.get(mpId));
+				}
+			}
+			
+		}
+		
+		for(FeedElement fe : currentFeedPage.elements){
+			if(feedIdParentNameId.get(fe.Id) != null ){
+				fe.parentType = feedIdParentNameId.get(fe.Id)[0];
+				fe.parentName = feedIdParentNameId.get(fe.Id)[1];
+				fe.parentAcssesType = feedIdParentNameId.get(fe.Id)[2];
+				fe.parentLink = feedIdParentNameId.get(fe.Id)[3];
+				fe.parentIcon = feedIdParentNameId.get(fe.Id)[4];
+			}
+		}
+
+		return currentFeedPage;
+	}
+
+	public static Map<String, List<String>> getParentsNames(Map<String, List<String>> parentTypeParentId){
+		Map<String, List<String>> parentIdNameGroupType = new Map<String, List<String>>();
+		
+		for(String typeParent : parentTypeParentId.keySet()){
+
+			if(typeParent.containsIgnoreCase('CollaborationGroup')){
+				List<String> groupsIds = parentTypeParentId.get(typeParent);
+				List<CollaborationGroup> cGroups = [SELECT Id, Name, CollaborationType FROM CollaborationGroup WHERE Id IN :groupsIds];
+				for(CollaborationGroup cGroup : cGroups){
+					parentIdNameGroupType.put(cGroup.Id, new List<String>{Label.LBL_Digest_Group, cGroup.Name, cGroup.CollaborationType, prepareUrl(Page.CommunityGroupDetailPage.getUrl())+'?gr='+cGroup.Id, 'fa fa-users'});
+				}
+				
+			}
+			if(typeParent.containsIgnoreCase('Community_Group_Control')){
+				List<String> groupsManagerIds = parentTypeParentId.get(typeParent);
+				List<Community_Group_Control__c> groupsM = [SELECT Id, Name, Type__c, Chatter_Group_ID__c FROM Community_Group_Control__c WHERE Id IN :groupsManagerIds];
+				for(Community_Group_Control__c groupM : groupsM){
+					parentIdNameGroupType.put(groupM.Id, new List<String>{label.LBL_Manager, groupM.Name, groupM.Type__c, prepareUrl(Page.CommunityGroupManager.getUrl())+'?gr='+groupM.Chatter_Group_ID__c, 'fa fa-comments'});
+				}
+				
+			}
+			if(typeParent.containsIgnoreCase('Community_News')){
+				List<String> newsIds = parentTypeParentId.get(typeParent);
+				List<Community_News__c> cNews = [SELECT Id, Title__c FROM Community_News__c WHERE Id IN :newsIds];
+				for(Community_News__c cNew : cNews){
+					parentIdNameGroupType.put(cNew.Id, new List<String>{label.LBL_News, cNew.Title__c, null, prepareUrl(Page.CommunityNewsDetail.getUrl())+'?id='+cNew.Id, 'fa fa-newspaper-o'});
+				}
+				
+			}
+			if(typeParent.containsIgnoreCase('Community_Events')){
+				List<String> eventsIds = parentTypeParentId.get(typeParent);
+				List<Community_Events__c> cEvents = [SELECT Id, Name__c FROM Community_Events__c WHERE Id IN :eventsIds];
+				for(Community_Events__c cEvent : cEvents){
+					parentIdNameGroupType.put(cEvent.Id, new List<String>{Label.LBL_Events, cEvent.Name__c, null, prepareUrl(Page.CommunityEventDetail.getUrl())+'?id='+cEvent.Id, 'fa fa-calendar'});
+				}
+				
+			}
+		}
+		return parentIdNameGroupType;
+	}
+		
 
 	public static FeedElementPage initialRoles(FeedElementPage currentFeedPage) {
 		List<String> Ids = getUsersIdsForElement(currentFeedPage, null);
@@ -652,6 +739,13 @@ global without sharing class CommunityFeedController {
 		public Boolean flagged { get { return (showFlag && capabilities.moderation != NULL && capabilities.moderation.moderationFlags != NULL) ? capabilities.moderation.moderationFlags.flaggedByMe : false; } }
 		public String flagStatus { get { return flagged ? 'true' : ''; } }
 		public String flagStyle { get { return flagged ? ' active' : ''; } }
+
+		public String parentType { get; set; }
+		public String parentName { get; set; }
+		public String parentLink { get; set; }
+		public String parentAcssesType { get; set; }
+		public String parentIcon { get; set; }
+				
 	}
 
 	public class Body {
