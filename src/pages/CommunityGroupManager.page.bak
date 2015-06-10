@@ -319,23 +319,6 @@
 										</apex:repeat>
 										<hr/>
 									</dl>
-									<apex:outputPanel layout="block" styleClass="row u-page-block">
-										<div class="col-sm-11 sky-form" style="padding-top:15px;" >
-											<section>
-												<label class="input" id="tagViewPanel">
-													<c:CommunityTagDisplay oId="{!control.Id}" oType="{!$ObjectType.Community_Group_Control_Tag__c.Name}" fName="{!$ObjectType.Community_Group_Control_Tag__c.Fields.Group_Control__c.Name}"/>
-												</label>
-												<label class="input" id="tagEditPanel" style="display:none;">
-													<c:CommunityTagSelector oId="{!control.Id}" oType="{!$ObjectType.Community_Group_Control_Tag__c.Name}" fName="{!$ObjectType.Community_Group_Control_Tag__c.Fields.Group_Control__c.Name}" mt="{!tagsCount}"/>
-												</label>
-											</section>
-										</div>
-										<div class="col-sm-1 sky-form"  style="padding-top:15px;" id="editPencil" >
-											<apex:outputLink value="javascript:void(0);" styleClass="pull-right" onclick="$('[id$=tagViewPanel]').hide();$('[id$=tagEditPanel]').show();$('[id$=btnblk]').show();$('[id$=editPencil]').hide();">
-												<i class="fa fa-pencil"></i>
-											</apex:outputLink>
-										</div>
-									</apex:outputPanel>	
 									<apex:outputPanel layout="block" id="btnblk" style="display:none;">
 										<apex:commandButton action="{!cancelAction}" value="{!$Label.BTN_Cancel}" rerender="theform" status="statusLoad" styleClass="btn-u btn-u-sm btn-u-default margin-right-5"/>
 										<apex:commandButton action="{!submitAction}" value="{!$Label.BTN_Save_Changes}" rerender="theform,pageMessages" status="statusLoad" styleClass="btn-u"/>

@@ -56,7 +56,6 @@ public without sharing class CommunityGroupManageController {
 	}
 
 	public void submitAction() {
-		saveGroupTags();
 		try {
 			update control;
 			control = pullGroupControlRecord(true);
@@ -417,23 +416,7 @@ public without sharing class CommunityGroupManageController {
 			manager = inManager;
 		}
 	}
-	
-	public Integer getTagsCount() {
-		Community_Settings__c cs = Community_Settings__c.getInstance();
-		return Integer.valueOf(cs.Create_Group_Max_Tags__c);
-	}
-	
-	private final String TAGS_INPUT_NAME = 'tags';
-	
-	public void saveGroupTags () {
-		String tagsIdsString = ApexPages.currentPage().getParameters().get(TAGS_INPUT_NAME);
-		CommunityTagSelectorController ctsc = new CommunityTagSelectorController();
-		ctsc.objectId = control.Id;
-		ctsc.objectType = Community_Group_Control_Tag__c.getSObjectType().getDescribe().getName();
-		ctsc.filterName = Community_Group_Control_Tag__c.Group_Control__c.getDescribe().getName();
-		ctsc.saveTags(tagsIdsString);
-	}
-	
+
 	public class Statistic {
 		public Integer totalMembers { get; set; }
 		public Integer newThisWeek { get; set; }

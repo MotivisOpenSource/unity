@@ -7,9 +7,6 @@ public with sharing class CommunityTagDisplayController {
 			if (Community_News_Tag__c.class.equals(Type.forName(objectType))) {
 				return getTags(Page.CommunityNews.getUrl());
 			}
-			if (Community_Group_Control_Tag__c.class.equals(Type.forName(objectType))) {
-				return getTags(Page.CommunityGroupManager.getUrl());
-			}
 			return NULL;
 		}
 		set;

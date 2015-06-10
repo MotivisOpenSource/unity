@@ -53,11 +53,11 @@
 															<div class="profile-blog">
 																<img class="rounded-x" ng-src="{{ g.GroupPhotoUrl }}" src="/s.gif" alt="" />
 																<div class="name-location">
-																	<strong><a href="{!$Page.CommunityGroupDetailPage}?gr={{ g.GroupId }}"><div ng-bind-html="g.GroupName"></div></a></strong>
+																	<strong><a href="{!$Page.CommunityGroupDetailPage}?gr={{ g.GroupId }}">{{ g.GroupName }}</a></strong>
 																	<span><i class="fa fa-map-marker"></i>{{ g.GroupLastActivityDateFormatted }}</span>
 																</div>
 																<div class="clearfix margin-bottom-20"></div>
-																<p><div ng-bind-html="g.GroupDescription"></div></p>
+																<p>{{ g.GroupDescription }}</p>
 																<hr />
 																<ul class="list-inline share-list" >
 																	<li><i class="fa fa-group"></i><a href="#">{{ g.GroupMembersCount }} {!$Label.LBL_Followers}</a></li>
@@ -105,7 +105,6 @@
 		<apex:define name="scripts">
 			<script type="text/javascript" src="{!$Resource.CommunityResources}/js/underscore/underscore-min.js" ></script>
 			<script type="text/javascript" src="{!$Resource.CommunityResources}/js/angularjs/angular.min.js" ></script>
-			<script type="text/javascript" src="//code.angularjs.org/1.4.0/angular-sanitize.js"></script> 
 			<script type="text/javascript">
 				function membershiprequest(ing,inm) {
 					Visualforce.remoting.Manager.invokeAction(
@@ -116,7 +115,7 @@
 						}
 					);
 				}
-				var GroupsApp = angular.module('GroupsApp', ['ngSanitize']);
+				var GroupsApp = angular.module('GroupsApp', []);
 				GroupsApp.filter('quickSearch', function() {
 					return function(input, scope) {
 						var searchWords = scope.quickSearchQuery.match(/(\w){2,}/g);

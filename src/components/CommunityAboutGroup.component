@@ -1,0 +1,79 @@
+<apex:component controller="CommunityAboutGroupComponentController" allowDML="true">
+<apex:attribute name="currentGroupId" description="Current Group Control Id" type="String" required="true" assignTo="{!currentGroupControlId}"/>
+<apex:attribute name="currentGroupRole" description="role of the user to this group" type="String" required="true" assignTo="{!groupRole}"/>
+<!-- javascript -->
+<script type="text/javascript">
+
+function switchToEditMode() {
+	$('#showID').hide();
+	$('#editID').show();
+	$('#btnSaveID').show();
+	$('#btnEditID').hide();
+}
+
+function remowestatusOfLoad() {
+	
+	$('#statusOfLoad').remove();
+}
+function reloadPage() {	
+	location.reload();	
+}
+
+
+</script>
+<!-- end javascript -->
+<!-- Begin Default Content REMOVE THIS -->
+	<!-- start modal button -->				
+	<div class="margin-bottom-10">	 			        
+					<button class="btn-u" data-toggle="modal" data-target="#responsive" title="click me" onClick="getData();return false;" >About this group</button>
+					<apex:form >
+						<apex:actionFunction name="getData" action="{!getGroupControl}" rerender="aboutGroupId" onComplete="remowestatusOfLoad();"/>        
+					</apex:form>
+                    <div class="modal fade" id="responsive" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+                                    <h4 class="modal-title" id="myModalLabel4">About</h4>
+                                </div> 
+                                	<div class="tab-pane active text-center" id="statusOfLoad">
+												<i class="fa fa-spinner fa-pulse fa-4x"></i>
+										</div>
+                                <apex:form id="aboutGroupId" styleClass="sky-form" >  
+                                	<apex:pageMessages />
+	                                <div class="modal-body" id="modalID1212" >
+	                                <dl class="dl-horizontal" style="margin-left:-100px;">
+	                                    	<div id="showID">
+                                        		<apex:repeat value="{!objFields}" var="fild">
+                                        			<dt class="margin-bottom-10"><strong>{!fild.Label}</strong></dt>
+	                                        		<dd>                                  													         
+														<apex:outputField value="{!groupDetails[fild.fieldPath]}" style="display:{!canEdit}"/>
+													</dd>										 
+												</apex:repeat>
+											</div>	
+											<div id="editID" style="display:none">
+												<apex:repeat value="{!objFields}" var="fild1">
+	                                        		<dt class="margin-bottom-10"><strong>{!fild1.Label}</strong></dt>
+	                                        		<dd>	
+											        	<apex:inputField value="{!groupDetails[fild1.fieldPath]}" required="{!OR(fild1.required, fild1.dbrequired)}" style="display:{!canEdit}"/>
+											        </dd>
+												</apex:repeat>
+											</div>
+	                                    </dl>
+	                                </div>
+	                                <apex:actionFunction name="saveData" action="{!saveData}" onComplete="reloadPage();"/>
+	                                <div class="modal-footer">
+	                                	<button type="button" class="btn-u btn-u-default" data-dismiss="modal">Close</button>
+	                                    <button id="btnEditID" type="button" class="btn-u btn-u-primary" onClick="switchToEditMode();return false;" style="display:{!canEdit}">Edit</button>
+	                                    <button id="btnSaveID" type="submit" class="btn-u btn-u-primary" onClick="saveData();" data-dismiss="modal" style="display:none">Save changes</button>
+	                                </div>
+	                                
+                                </apex:form>                
+                               
+                            </div>
+                        </div>
+                    </div>
+                </div>
+	<!-- end modal button -->
+<!-- End Default Content REMOVE THIS -->
+</apex:component>

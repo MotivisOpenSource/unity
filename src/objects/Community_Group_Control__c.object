@@ -155,6 +155,26 @@
         </displayedFields>
         <label>EditGroup</label>
     </fieldSets>
+    <fieldSets>
+        <fullName>ViewGroup</fullName>
+        <description>it uset on group page to display group description</description>
+        <displayedFields>
+            <field>Name</field>
+            <isFieldManaged>false</isFieldManaged>
+            <isRequired>false</isRequired>
+        </displayedFields>
+        <displayedFields>
+            <field>Description__c</field>
+            <isFieldManaged>false</isFieldManaged>
+            <isRequired>false</isRequired>
+        </displayedFields>
+        <displayedFields>
+            <field>Discoverable__c</field>
+            <isFieldManaged>false</isFieldManaged>
+            <isRequired>false</isRequired>
+        </displayedFields>
+        <label>ViewGroup</label>
+    </fieldSets>
     <fields>
         <fullName>Chatter_Group_ID__c</fullName>
         <caseSensitive>true</caseSensitive>

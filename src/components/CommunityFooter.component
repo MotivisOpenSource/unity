@@ -1,4 +1,4 @@
-<apex:component access = "global">
+<apex:component access="global">
 <div class="footer-v1">
     <!--div class="footer">
         <div class="container">

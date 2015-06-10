@@ -3,17 +3,8 @@ public without sharing class CommunityGroupDetailPageController {
 	public Community_Group_Control__c control { get; set; }
 	public CollaborationGroup chatterGroup { get; set; }
 
-	public ConnectApi.GroupMembershipType groupRole { get; set; }
+	private ConnectApi.GroupMembershipType groupRole;
 	private String initialRequestMember;
-	
-	public String groupRoleString {
-		get {		
-			System.Debug(String.valueOf(groupRole).removeStart('Group'));
-			return String.valueOf(groupRole).removeStart('Group');
-		}		
-		set;
-	}
-	
 
 	// CONSTRUCTOR
 	public CommunityGroupDetailPageController() {

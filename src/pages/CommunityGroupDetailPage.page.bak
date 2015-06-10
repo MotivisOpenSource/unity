@@ -27,7 +27,6 @@
 				<!--Left Sidebar-->
 				<div class="col-md-3 md-margin-bottom-20">
 					<div class="chatter-photo"><c:CommunityUserPhoto current="false" photoUrl="{!chatterGroup.FullPhotoUrl}" fmode="true"/></div>
-					<c:CommunityAboutGroup currentGroupId="{!control.Id}" currentGroupRole="{!groupRoleString}"/>
 					<c:CommunityFeedNavigation currentGroupId="{!chatterGroup.Id}" pn="5"/>
 				</div>
 				<!--End Left Sidebar-->

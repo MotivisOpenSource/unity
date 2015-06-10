@@ -130,60 +130,6 @@ public with sharing class CommunityResourceController {
 		}
 		return resultList;
 	}
-	//wrapper
-	public class ThemeWrapper {
-		public String name { get; set; }
-		public List<TagWrapper> tags { get; set; }
-
-		public ThemeWrapper(String n) {
-			tags = new List<TagWrapper>();
-			name = n;
-		}
-	}
-	public class TagWrapper {
-		public String id { get; set; }
-		public String name { get; set; }
-		public String fullname { get; set; }
-
-		public TagWrapper(String i, String n, String t) {
-			id = i;
-			name = n;
-			fullname = t + ' > ' + n;
-		}
-	}
-	public List<ThemeWrapper> getAvailablePriTags() {
-		Map<Id, ThemeWrapper> themesMap = new Map<Id, ThemeWrapper>();
-		List<ThemeWrapper> sortedList = new List<ThemeWrapper>();
-		for (Community_Tag__c ctItem : CommunityTagSelectorController.getTagsLocal(NULL, 'Resource')) {
-			if (!themesMap.containsKey(ctItem.Community_Theme__c)) {
-				ThemeWrapper tw = new ThemeWrapper(ctItem.Community_Theme__r.Name);
-				sortedList.add(tw);
-				themesMap.put(ctItem.Community_Theme__c, tw);
-			}
-			themesMap.get(ctItem.Community_Theme__c).tags.add(new TagWrapper(
-				ctItem.Id,
-				ctItem.Name,
-				ctItem.Community_Theme__r.Name
-			));
-		}
-		return sortedList;
-	}
-	
-	/*	
-	public List<Community_Tag__c> getListPrimTag() {
-		String themeType = 'Resource';
-		String q = null;
-		String tagQuery = 'SELECT Id, Name, Community_Theme__c, Community_Theme__r.Name FROM Community_Tag__c WHERE Community_Theme__r.Theme_Type__c IN (\'';
-		tagQuery += themeType + (CommunityUtils.accessSystemTagLevel() == 2 ? '\',\'System\')' : '\')');
-		if (q != NULL) {
-			List<String> queries = q.split(',');
-			String tQuery = queries.get(queries.size()-1).trim();
-			tagQuery += ' AND (Name LIKE \'%' + tQuery + '%\' OR Community_Theme__r.Name LIKE \'%' + tQuery + '%\')';
-		}
-		tagQuery += ' ORDER BY Community_Theme__r.Name, Name';
-		return database.query(tagQuery);
-	}
-	*/	
 
 	public String getUrlForEditResource() {
 		return prepareUrl(Page.CommunityResourceEdit.getUrl())

@@ -70,7 +70,7 @@
                 <div class="headline">
                     <h2><i class="fa fa-comments-o"></i>&nbsp;{!$Label.LBL_My_Discussions}</h2>
                 </div>
-                <c:CommunityFeed sjcb="true" fm="false" tf="true"/>
+                <c:CommunityFeed sjcb="true" fm="false"/>
                  <!-- Discussions -->
             </div>
             <!-- End Content -->

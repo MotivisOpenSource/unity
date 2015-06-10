@@ -30,7 +30,6 @@
 				</apex:pageBlockSectionItem>
 				<apex:pageBlockSectionItem >
 					<apex:outputLabel value="{!$ObjectType.Community_Resource__c.Fields.Primary_Tag__c.Label}"/>
-					<apex:outputPanel >
 					<apex:outputPanel layout="block" styleClass="requiredInput">
 						<div class="requiredBlock" style="height:36px;"></div>
 						<div class="div-like-input clearfix">
@@ -41,40 +40,7 @@
 							<input id="ptag" name="ptag" style="display:none" visibility="hidden" required="required"/>
 							<apex:inputHidden value="{!resource.Primary_Tag__c}" id="ptag"/>
 						</div>
-					</apex:outputPanel>					
-					<div class="panel-link">
-					<!-- div class="panel panel-success" -->
-						<div class="panel-heading" onclick="toggleTagSection(this);">
-							<i id="tagicon" class="fa fa-caret-right"></i>&nbsp;<span>What primary tags can I use?</span>
-						</div>
-						<div id="tagsectionPrim" class="panel-body" style="display:none;">
-							<div class="panel-group acc-v1" id="accordion-2">
-								<apex:variable value="{!1}" var="rowNumPrim"/>
-								<apex:repeat value="{!AvailablePriTags}" var="themePrim">
-									<div class="panel panel-default">
-										<div class="panel-heading">
-											<h4 class="panel-title">
-												<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#accordion-2" href="#collapsePrim-{!rowNumPrim}" aria-expanded="false">
-													{!themePrim.name}
-												</a>
-											</h4>
-										</div>
-										<div id="collapsePrim-{!rowNumPrim}" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
-											<div class="panel-body">
-												<ul class="list-unstyled blog-tags">
-													<apex:repeat value="{!themePrim.tags}" var="tagPrim">
-														<li><a href="javascript:;" onclick="addPrimTag('{!tagPrim.id}','{!JSENCODE(tagPrim.fullname)}');"><i class="fa fa-tags"></i>&nbsp;{!tagPrim.name}</a></li>
-													</apex:repeat>
-												</ul>
-											</div>
-										</div>
-									</div>
-									<apex:variable var="rowNumPrim" value="{!rowNumPrim + 1}"/>
-								</apex:repeat>
-							</div>
-						</div>
-					</div>					
-				</apex:outputPanel>
+					</apex:outputPanel>
 				</apex:pageBlockSectionItem>
 				<apex:pageBlockSectionItem >
 					<apex:outputLabel value="{!$Label.LBL_Select_Tags}"/>
@@ -98,23 +64,6 @@
 			if ($('#reslname').text().trim() == '') {
 				$('#reslname').text($('[id$=it265]')[2].value);
 			}
-			var $jc = jQuery.noConflict();
-			function removePrimTag(inp) {
-				//alert('remove ' + inp);
-				$jc('#'+inp).remove();
-				$jc('#ptag').val($jc('#ptag').val().replace(inp+',' ,''));
-				$jc('#ptin').show();
-								
-			}			
-			function addPrimTag(tid,fn) {
-				if($('#ptcon > span').length === 0) {
-					var span = '<span id="'+tid+'" class="item guestItem"><span>'+fn+'</span><a href="javascript:void(0);" onclick="removePrimTag(\''+tid+'\')" class="remove"><img src="/s.gif"></a></span>';
-					$jc('#ptin').before(span);
-					$jc('#ptin').hide();
-					$jc('[id$=ptag]').val(tid);				
-				}
-				else alert('Only one tag can be added!');				
-			}			
 		</script>
 	</apex:form>
 </apex:define>

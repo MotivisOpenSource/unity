@@ -40,7 +40,7 @@
 						<apex:outputField value="{!event.Description__c}"/>
 						<hr/>
 						<br/>
-						<apex:repeat value="{!fieldsetRes}" var="fs">
+						<apex:repeat value="{!fieldset}" var="fs">
 							<apex:outputPanel layout="none">
 								<dt><strong>{!IF(fs.fieldPath=='Street_Address__c',$Label.LBL_Location,fs.label)}</strong></dt>
 								<dd><apex:outputField value="{!event[fs.fieldPath]}"/></dd>
