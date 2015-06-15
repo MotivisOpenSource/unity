@@ -173,4 +173,35 @@ private class CommunityTest4 {
 		String RegTerms = Label.LBL_RegTerms_Title;
 		String leaveLabel = Label.LBL_LeavePage_Message;
 	}
+	
+	static testMethod void test_AboutGroupComponentController() {
+		Community_Theme__c cth = new Community_Theme__c(Name='t',Theme_Type__c='Interest');
+		insert cth;
+		Community_Tag__c ct = new Community_Tag__c(Name='t',Community_Theme__c=cth.Id);
+		insert ct;		
+		ApexPages.currentPage().getParameters().put('tags',ct.Id);
+		CollaborationGroup cg = new CollaborationGroup();
+		cg.Name = 'newgroup';
+		cg.CollaborationType = 'Public' ;
+		insert cg;			
+		Community_Group_Control__c cgc = new Community_Group_Control__c(Name='1212t',Discoverable__c=true,Type__c='Public',Network__c='Internal', Chatter_Group_ID__c=cg.Id);
+		insert cgc; 
+		ApexPages.currentPage().getParameters().put('gc',cgc.Id); 
+		ApexPages.currentPage().getParameters().put('gr',cg.Id);  	
+		CommunityAboutGroupComponentController cagcc = new CommunityAboutGroupComponentController();
+		cagcc.control = CommunityAboutGroupComponentController.pullGroupControlRecord();
+		cagcc.currentGroupControlId = cagcc.control.Id;
+		System.Debug(cagcc.control);
+		cagcc.groupRole = 'Owner';
+		String s = cagcc.canEdit;
+		cagcc.getTagsCount();
+		cagcc.submitAction();		
+		cagcc.cancelAction();
+		cagcc.control.Discoverable__c = false;
+		cagcc.submitAction();
+		ApexPages.currentPage().getParameters().put('gc',null); 
+		ApexPages.currentPage().getParameters().put('gr',null);
+		cagcc.control = CommunityAboutGroupComponentController.pullGroupControlRecord();  	
+		cagcc.allOk = true;	
+	}
 }

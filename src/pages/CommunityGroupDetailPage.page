@@ -9,14 +9,16 @@
 
 	<!--=== Breadcrumbs ===-->
 	<div class="breadcrumbs margin-bottom-10">
-		<div class="container">
-			<h1 class="pull-left">{!control.Name}</h1>
-			<ul class="pull-right breadcrumb">
-				<li><a href="{!$Page.CommunityHome}">Home</a></li>
-				<li><a href="{!$Page.CommunityGroups}">{!$Label.LBL_Groups}</a></li>
-				<li class="active">{!control.Name}</li>
-			</ul>
-		</div><!--/container-->
+	    <div class="container">
+	        <apex:outputPanel id="containerHead">
+    			<h1 class="pull-left">{!control.Name}</h1>
+    			<ul class="pull-right breadcrumb">
+    				<li><a href="{!$Page.CommunityHome}">Home</a></li>
+    				<li><a href="{!$Page.CommunityGroups}">{!$Label.LBL_Groups}</a></li>
+    				<li class="active">{!control.Name}</li>
+    			</ul>
+    		</apex:outputPanel>
+		</div>
 	</div><!--/breadcrumbs-->
 	<!--=== End Breadcrumbs ===-->
 
@@ -28,6 +30,9 @@
 				<div class="col-md-3 md-margin-bottom-20">
 					<div class="chatter-photo"><c:CommunityUserPhoto current="false" photoUrl="{!chatterGroup.FullPhotoUrl}" fmode="true"/></div>
 					<c:CommunityAboutGroup currentGroupId="{!control.Id}" currentGroupRole="{!groupRoleString}"/>
+					<apex:form >
+					    <apex:actionFunction action="{!refreshGroupControl}" name="refreshGroup" rerender="containerHead"/>
+					</apex:form>
 					<c:CommunityFeedNavigation currentGroupId="{!chatterGroup.Id}" pn="5"/>
 				</div>
 				<!--End Left Sidebar-->

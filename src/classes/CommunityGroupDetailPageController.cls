@@ -151,6 +151,11 @@ public without sharing class CommunityGroupDetailPageController {
 	public Boolean getShowPendingMembers() {
 		return ApexPages.currentPage().getParameters().containsKey('pending');
 	}
+	
+	public void refreshGroupControl() {
+	    control = CommunityGroupManageController.pullGroupControlRecord(false);
+	}
+	
 
 	public class GroupEvent {
 		public String id { get; set; }

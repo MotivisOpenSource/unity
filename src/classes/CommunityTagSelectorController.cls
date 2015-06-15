@@ -64,7 +64,7 @@ global with sharing class CommunityTagSelectorController {
 
 	public static List<Community_Tag__c> getTagsLocal(String q, String themeType) {
 		String tagQuery = 'SELECT Id, Name, Community_Theme__c, Community_Theme__r.Name FROM Community_Tag__c WHERE Community_Theme__r.Theme_Type__c IN (\'';
-		tagQuery += themeType + (CommunityUtils.accessSystemTagLevel() == 2 ? '\',\'System\')' : '\')');
+		tagQuery += themeType + ( (themeType == 'Interest' && CommunityUtils.accessSystemTagLevel() == 2) ? '\',\'System\')' : '\')');
 		if (q != NULL) {
 			List<String> queries = q.split(',');
 			String tQuery = queries.get(queries.size()-1).trim();
