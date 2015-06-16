@@ -707,7 +707,7 @@ h4.media-heading {
 									}
 
 									var __sfdcSessionId = '{!GETSESSIONID()}';
-									if('{!parentIdForAtt}' == null){
+									if('{!JSENCODE(parentIdForAtt)}' == null){
 										enableBtn('mesbtn');
 										$('#postform-error').html('<strong>Error!</strong> You have no permissions for upload');
 										$('#postform-error').show();
@@ -720,7 +720,7 @@ h4.media-heading {
 									Attachment.Name = fName;
 									Attachment.ContentType = fType;
 									Attachment.Body  = new sforce.Base64Binary(binary).toString();
-									Attachment.ParentId = '{!parentIdForAtt}';
+									Attachment.ParentId = '{!JSENCODE(parentIdForAtt)}';
 								
 									sforce.connection.create([Attachment],
 									{ 	onSuccess : function(result, source)
@@ -960,9 +960,36 @@ h4.media-heading {
 					$('#palist a').removeClass('curr');
 					$(element).addClass('curr');
 					$(element).find('i').removeClass(element.name).addClass('fa-spinner fa-pulse');
+					// params for invoke remote actions
+					var resultLayout = null;
+					var invokeActionStr = '{!$RemoteAction.CommunityFeedController.actionLayout}';
+					var invokeActionParam = element.id;
+					// for not FeedItem actions
+					if(element.id.indexOf("FeedItem") == -1) {
+						invokeActionStr = '{!$RemoteAction.CommunityFeedController.actionLayoutSForce}'
+						var namesActionsPref = ['{!packagePrefix}'+element.id];
+						var namesActions = [element.id];
+						var __sfdcSessionId = '{!GETSESSIONID()}';
+						sforce.connection.serverUrl = '{!$Site.Prefix}/services/Soap/u/33.0';
+						sforce.connection.sessionId = __sfdcSessionId;
+						var resultLayoutSF = new sforce.SObject('QuickAction.DescribeQuickActionResult');
+						resultLayoutSF = sforce.connection.describeQuickActions(namesActions);
+						if(resultLayoutSF == ''){
+							resultLayoutSF = sforce.connection.describeQuickActions(namesActionsPref);
+						}
+						var stringResult = namesActions + "," + resultLayoutSF[0].targetSobjectType;
+
+						_.each(resultLayoutSF[0].layout.layoutRows, function(rows){
+							stringResult +=","+rows.layoutItems[0].label+':'+rows.layoutItems[0].required;
+						});
+						
+						resultLayout = JSON.stringify(stringResult);
+						invokeActionParam = resultLayout;
+					}
+
 					Visualforce.remoting.Manager.invokeAction(
-						'{!$RemoteAction.CommunityFeedController.actionLayout}',
-						element.id,
+						invokeActionStr,
+						invokeActionParam,
 						function(result, event) {
 							var div = document.createElement('div');
 							div.innerHTML = result;
@@ -1000,6 +1027,7 @@ h4.media-heading {
 							}
 						}
 					);
+
 				}
 			}
 			function addPollChoiceInputElement (t) {

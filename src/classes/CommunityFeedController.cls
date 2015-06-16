@@ -8,6 +8,7 @@ global without sharing class CommunityFeedController {
 	public String parentId { get { return parentId == NULL ? UserInfo.getUserId() : parentId; } set; }
 	public String feedType { get;set; }
 	public Boolean fullMode { get;set; }
+	public String packagePrefix { get{ return CommunityUtils.getPackagePrefix();} }
 	public String parentIdForAtt {get {
 			User us = [SELECT Id, ContactId, Community_Contact_ID__c FROM User WHERE Id = :UserInfo.getUserId()];
 			if(us.ContactId != null) return us.ContactId;
@@ -160,9 +161,9 @@ global without sharing class CommunityFeedController {
 
 			if(typeParent.containsIgnoreCase('CollaborationGroup')){
 				List<String> groupsIds = parentTypeParentId.get(typeParent);
-				List<CollaborationGroup> cGroups = [SELECT Id, Name, CollaborationType FROM CollaborationGroup WHERE Id IN :groupsIds];
-				for(CollaborationGroup cGroup : cGroups){
-					parentIdNameGroupType.put(cGroup.Id, new List<String>{Label.LBL_Digest_Group, cGroup.Name, cGroup.CollaborationType, prepareUrl(Page.CommunityGroupDetailPage.getUrl())+'?gr='+cGroup.Id, 'fa fa-users'});
+				List<Community_Group_Control__c> cGroups = [SELECT Id, Name, Type__c, Chatter_Group_ID__c FROM Community_Group_Control__c WHERE Chatter_Group_ID__c IN :groupsIds];
+				for(Community_Group_Control__c cGroup : cGroups){
+					parentIdNameGroupType.put(cGroup.Chatter_Group_ID__c, new List<String>{Label.LBL_Digest_Group, cGroup.Name, cGroup.Type__c, prepareUrl(Page.CommunityGroupDetailPage.getUrl())+'?gr='+cGroup.Chatter_Group_ID__c, 'fa fa-users'});
 				}
 				
 			}
@@ -1168,6 +1169,7 @@ global without sharing class CommunityFeedController {
 				items.add(cali);
 			}
 		}
+
 		public ChatterActionLayout(String n,  String obn, Boolean bf, List<ChatterActionLayoutItem> i, Boolean af, Boolean p, String bt) {
 			this.name = n;
 			this.objectName = obn;
@@ -1262,16 +1264,61 @@ global without sharing class CommunityFeedController {
 
 	@RemoteAction
 	global static String actionLayout(String name) {
-		ChatterActionLayout result;
+		ChatterActionLayout result; 
 		if (ACTION_LAYOUT.containsKey(name)) {
 			result = ACTION_LAYOUT.get(name);
 		}
-		else {
+		/*else {
 			List<QuickAction.DescribeQuickActionResult> dqar = QuickAction.describeQuickActions(new List<String> {name});
 			if (dqar.size() == 1) {
 				result = new ChatterActionLayout(dqar[0]);
 			}
-		}
+		}*/
 		return JSON.serialize(result);
-	}	
+	}
+
+	@RemoteAction
+	global static String actionLayoutSForce(String describeQA) {
+		ChatterActionLayout result; 
+		
+		if(describeQA != null){
+			String dqa = (String)JSON.deserialize(describeQA, String.class);
+			Map<String, Boolean> nameReq = new Map<String, Boolean>();
+			List<String> splitSTR = dqa.split(',');
+			List<String> fieldNames = new List<String>();
+			String fName = splitSTR[0];
+			String objName = splitSTR[1];
+			for(Integer i = 2; i < splitSTR.size(); i++){
+				String fNameSplit = splitSTR[i].split(':')[0].replaceAll(' ','_')+'__c';
+				Boolean fReqSplit =  Boolean.valueOf(splitSTR[i].split(':')[1]);
+				fieldNames.add(fNameSplit);
+				nameReq.put(fNameSplit, fReqSplit);
+			}
+			
+			SObjectType objectType = Schema.getGlobalDescribe().get(objName);
+			Map<String,Schema.SObjectField> mfields = objectType.getDescribe().fields.getMap();
+			List<ChatterActionLayoutItem> chatActionLI = new List<ChatterActionLayoutItem>();
+
+			for(String fieldName : fieldNames){
+				Schema.DescribeFieldResult dfr = mfields.get(fieldName).getDescribe();
+				LayoutComponent lc = new LayoutComponent();
+				lc.details = new LayoutComponentDetail();
+				lc.details.type = String.valueOf(dfr.getType()).toLowerCase();
+				chatActionLI.add(new ChatterActionLayoutItem(
+					dfr.getLabel(),
+					dfr.getName(),
+					lc.getFieldType(),
+					lc.getInputType(),
+					String.valueOf(dfr.getDefaultValue()),
+					'false',
+					nameReq.get(fieldName),
+					lc.getValidationClass()));
+			}
+			result = new ChatterActionLayout(fName, objName, null, chatActionLI, null, false, 'Save'); 
+		}
+
+		return JSON.serialize(result);
+	}
+
+	
 }
