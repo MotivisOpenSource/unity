@@ -358,7 +358,7 @@
 								</apex:outputPanel>
 								<apex:outputPanel layout="none" rendered="{!!current}">
 									<div id="feed" class="profile-edit tab-pane fade">
-										<c:CommunityFeed pid="{!currentUserId}"/>
+										<c:CommunityFeed pid="{!currentUserId}" tf="true"/>
 									</div>
 								</apex:outputPanel>
 							</div>
