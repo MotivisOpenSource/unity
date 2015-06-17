@@ -91,6 +91,9 @@ trigger CommunityGroupControl on Community_Group_Control__c (before insert, afte
 		Map<Id,Id> groupControlsWithNewOwners = new Map<Id,Id>();
 		List<Community_Group_Control__c> groupControlsList = new List<Community_Group_Control__c>();
 
+		// change name in chatter group collection
+		Map<Id, String> chatterGroupToNewNameMap = new Map<Id, String>();
+
 		for (Community_Group_Control__c cgcItem2 : Trigger.new) {
 			if (cgcItem2.Name != Trigger.oldMap.get(cgcItem2.Id).Name) {
 				if (checkUniqueNamesMap2.containsKey(cgcItem2.Name)) {
@@ -99,6 +102,9 @@ trigger CommunityGroupControl on Community_Group_Control__c (before insert, afte
 				}
 				checkUniqueNamesMap2.put(cgcItem2.Name, cgcItem2);
 				excludeCurrentGroupControls.add(cgcItem2.Id);
+				if (cgcItem2.Chatter_Group_ID__c != NULL) {
+					chatterGroupToNewNameMap.put(cgcItem2.Chatter_Group_ID__c, cgcItem2.Name);
+				}
 			}
 
 			// Change owner block
@@ -120,6 +126,13 @@ trigger CommunityGroupControl on Community_Group_Control__c (before insert, afte
 				checkUniqueNamesMap2.get(cgcItem3.Name).addError(Label.ERR_Dup_Group_Name);
 				validationPassed2 = false;
 			}
+		}
+		if (validationPassed2 && chatterGroupToNewNameMap.size() > 0) {
+			List<CollaborationGroup> changeNameList = [SELECT Id, Name FROM CollaborationGroup WHERE Id IN :chatterGroupToNewNameMap.keySet()];
+			for (CollaborationGroup cgItem : changeNameList) {
+				cgItem.Name = chatterGroupToNewNameMap.get(cgItem.Id);
+			}
+			update changeNameList;
 		}
 		if (validationPassed2 && changedCollaborationType.size() > 0) {
 			List<CollaborationGroup> cgList = [SELECT Id, CollaborationType FROM CollaborationGroup WHERE Id IN :changedCollaborationType.keySet()];
