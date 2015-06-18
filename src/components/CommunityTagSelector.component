@@ -183,7 +183,7 @@
 	</div>
 
 	<script>
-		var $jc = jQuery.noConflict();
+ 		//var $ = jQuery.noConflict();
 		var searchTags = _.debounce(function(query, process) {
 			Visualforce.remoting.Manager.invokeAction(
 				'{!$RemoteAction.CommunityTagSelectorController.getTags}',
@@ -203,7 +203,7 @@
 				}
 			);
 		}, 300);
-		$jc(document).ready(function() {
+		$(document).ready(function() {
 			Visualforce.remoting.Manager.invokeAction(
 				'{!$RemoteAction.CommunityTagSelectorController.getExistingTags}',
 				'{!objectId}',
@@ -215,12 +215,12 @@
 					var mdata = JSON.parse(div.firstChild.nodeValue);
 					_.each(mdata, function (tag, ix, list) {
 						var span = '<span id="'+tag.id+'" class="item guestItem"><span>'+tag.fullname+'</span><a href="javascript:void(0);" onclick="removeTag(\''+tag.id+'\')" class="remove"><img src="/s.gif"></a></span>';
-						$jc('#tagsInput').before(span);
-						$jc('#tags').val($jc('#tags').val() + tag.id + ',')
+						$('#tagsInput').before(span);
+						$('#tags').val($('#tags').val() + tag.id + ',')
 					});
 				}
 			);
-			$jc('#tagsInput').typeahead({
+			$('#tagsInput').typeahead({
 				source:function (query, process) {
 					searchTags(query, process);
 				},
@@ -235,18 +235,18 @@
 			});
 		});
 		function removeTag(inp) {
-			$jc('#tagsContainer #'+inp).remove();
-			$jc('#tags').val($jc('#tags').val().replace(inp+',' ,''));
-			if ({!mt} >= 0 && $jc('#tagsContainer span.item').length <= {!mt} && $jc('#sectionnote').length > 0) {
-				$jc('#sectionnote').remove();
-				$jc('[id$=sbtbtn]').css('opacity','1').removeAttr('disabled');
+			$('#tagsContainer #'+inp).remove();
+			$('#tags').val($('#tags').val().replace(inp+',' ,''));
+			if ({!mt} >= 0 && $('#tagsContainer span.item').length <= {!mt} && $('#sectionnote').length > 0) {
+				$('#sectionnote').remove();
+				$('[id$=sbtbtn]').css('opacity','1').removeAttr('disabled');
 			}
-			if ({!mt} != -1 && $jc('#tagsContainer span.item').length == 0) {
-				$jc('[id$=sbtbtn]').css('opacity','0.65').attr('disabled','disabled');
+			if ({!mt} != -1 && $('#tagsContainer span.item').length == 0) {
+				$('[id$=sbtbtn]').css('opacity','0.65').attr('disabled','disabled');
 			}
 		}
 		function toggleTagSection(el) {
-			var par = $jc(el).parent();
+			var par = $(el).parent();
 			if (par.attr('class') == 'panel-link') {
 				par.attr('class','panel panel-success');
 				par.find('.panel-body').show();
@@ -261,18 +261,18 @@
 		function addtti(tid,fn) {
 			if ($('span[id='+tid+']').length == 0) {
 				var span = '<span id="'+tid+'" class="item guestItem"><span>'+fn+'</span><a href="javascript:void(0);" onclick="removeTag(\''+tid+'\')" class="remove"><img src="/s.gif"></a></span>';
-				$jc('#tagsInput').before(span);
-				$jc('#tags').val($jc('#tags').val() + tid + ',');
+				$('#tagsInput').before(span);
+				$('#tags').val($('#tags').val() + tid + ',');
 				if ({!mt} >= 0) {
-					if ($jc('#tagsContainer span.item').length > {!mt}) {
-						if ($jc('#sectionnote').length == 0) {
+					if ($('#tagsContainer span.item').length > {!mt}) {
+						if ($('#sectionnote').length == 0) {
 							var txt = 'You are reached maximum of '+'{!mt}'+' Tag(s) for this group. You must remove a tag in order to add a tag.';
-							$jc('.div-like-input').after('<div id="sectionnote" class="alert alert-danger fade in">'+txt+'</div>');
-							$jc('[id$=sbtbtn]').css('opacity','0.65').attr('disabled','disabled');
+							$('.div-like-input').after('<div id="sectionnote" class="alert alert-danger fade in">'+txt+'</div>');
+							$('[id$=sbtbtn]').css('opacity','0.65').attr('disabled','disabled');
 						}
 					}
 					else {
-						$jc('[id$=sbtbtn]').css('opacity','1').removeAttr('disabled');
+						$('[id$=sbtbtn]').css('opacity','1').removeAttr('disabled');
 					}
 				}
 			}
@@ -299,7 +299,7 @@
 					}
 				);
 			}, 300);
-			$jc('#ptin').typeahead({
+			$('#ptin').typeahead({
 				source:function (query, process) {
 					searchTagsResource(query, process);
 				},
@@ -307,10 +307,10 @@
 					_.each(tags_map, function (tag, ix, list) {
 						if ((tag.fullname) == item) {
 							var span = '<span id="'+tag.id+'" class="item guestItem"><span>'+item+'</span><a href="javascript:void(0);" onclick="removePrimaryTag(\''+tag.id+'\')" class="remove"><img src="/s.gif"></a></span>';
-							$jc('#ptin').before(span);
-							$jc('#ptin').hide();
-							$jc('[id$=ptag]').val(tag.id);
-							if ($jc('#tagsContainer #'+tag.id).length > 0) {
+							$('#ptin').before(span);
+							$('#ptin').hide();
+							$('[id$=ptag]').val(tag.id);
+							if ($('#tagsContainer #'+tag.id).length > 0) {
 								removeTag(tag.id);
 							}
 						}
@@ -319,9 +319,9 @@
 				}
 			});
 			function removePrimaryTag(inp) {
-				$jc('#ptcon #'+inp).remove();
-				$jc('[id$=ptag]').val('');
-				$jc('#ptin').show();
+				$('#ptcon #'+inp).remove();
+				$('[id$=ptag]').val('');
+				$('#ptin').show();
 			}
 		</script>
 	</apex:outputPanel>
