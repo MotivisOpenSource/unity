@@ -151,7 +151,7 @@
 							<apex:outputPanel layout="none" rendered="{!FileDetail.modifiable}"><li>
 								<a href="#cglayout" onclick="upver('{!FileDetail.versionId}');" role="button" data-toggle="modal"><i class='fa fa-pencil'></i>{!$Label.BTN_Edit}</a>
 							</li></apex:outputPanel>
-							<li class="file-actions"><a>
+							<li><a>
 								<span id="{!FileDetail.versionId}" onclick="followa(this,{!FileDetail.following});"><i class="fa fa-plus-circle{!IF(FileDetail.following,' active','')}"></i></span>
 								{!$Label.LBL_Follow}
 							</a></li>
