@@ -1118,7 +1118,7 @@ global without sharing class CommunityFeedController {
 	public List<ChatterActionItem> getAvailableActions() {
 		Map<String, String> actionAvailable = getAvailableQuickActions();
 		List<ChatterActionItem> resultList = new List<ChatterActionItem>();
-		showFileUpload = showFileUpload && Community_Settings__c.getInstance().Chatter_Action_Disable_Group_Files__c != true;
+		showFileUpload = showFileUpload == true && Community_Settings__c.getInstance().Chatter_Action_Disable_Group_Files__c != true;
 		for (List<String> caa : CHATTER_ACTIONS) {
 			if (actionAvailable.containsKey(caa[3]) && (caa[3] != 'File' || showFileUpload)) {
 				resultList.add(new ChatterActionItem(caa[0],caa[1],caa[2]));

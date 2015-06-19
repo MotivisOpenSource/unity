@@ -129,8 +129,8 @@
 		</apex:repeat>
 	</apex:outputPanel>
 	<script>
-		appendGroups();
 		var showMoreBusy = true;
+		appendGroups();
 		function chckabtn(a,gid) {
 			if (a != '0') {
 				var fa = true;
