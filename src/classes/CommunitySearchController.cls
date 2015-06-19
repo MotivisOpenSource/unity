@@ -166,7 +166,6 @@ public with sharing class CommunitySearchController {
 		SearchItem result;
 		if (groupPageNum != 0) {
 			Set<Id> groupsIds = filterObjects('Community_Group_Control__c');
-			System.Debug('11111111111111111112:'+groupsIds);
 			if (!groupsIds.isEmpty()) {
 				List<Community_Group_Control__c> gList = [
 					SELECT Id, Name, Chatter_Group_ID__c, Discoverable__c, Description__c, Type__c

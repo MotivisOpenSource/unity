@@ -40,7 +40,7 @@
 				<!-- Center -->
 				<div class="col-md-7 md-margin-bottom-20">
 					<div id="feed" class="profile-edit">
-						<c:CommunityFeed pid="{!chatterGroup.Id}" rendered="{!!HideFeedComponent}"/>
+						<c:CommunityFeed pid="{!chatterGroup.Id}" rendered="{!!HideFeedComponent}" fu="true"/>
 						<apex:outputPanel layout="block" styleClass="alert alert-danger fade in" rendered="{!HideFeedComponent}">
 							<i class="fa fa-exclamation-triangle"></i>&nbsp;&nbsp;{!$Label.LBL_PrivateGroup}
 						</apex:outputPanel>
@@ -118,6 +118,25 @@
 							<p>{!$Label.LBL_No_Upcoming_Events_Group}</p>
 						</apex:outputPanel>
 					</div>
+					<apex:outputPanel layout="none" rendered="{!showFilesSection}">
+						<div class="headline"><h4>{!$Label.LBL_Group_Files}</h4></div>
+						<apex:outputPanel layout="none" rendered="{!FilesController.filesTotal > 0}">
+							<a href="{!$Page.CommunityGroupFiles}?gr={!chatterGroup.Id}">
+								<span>{!$Label.LBL_Show_All} ({!FilesController.filesTotal})</span>
+							</a>
+							<ul class="list-unstyled">
+								<apex:repeat value="{!FilesController.FileList}" var="fs">
+									<li>
+										<i class="fa {!fs.aicon}"></i>&nbsp;
+										<a href="{!$Page.CommunityGroupFiles}?f={!fs.documentId}&gr={!chatterGroup.Id}" role="button" data-toggle="modal">{!fs.ShortName}</a>
+									</li>
+								</apex:repeat>
+							</ul>
+						</apex:outputPanel>
+						<apex:outputPanel layout="block" rendered="{!FilesController.filesTotal == 0}" styleClass="blog-twitter">
+							<div class="tag-box tag-box-v6"><p>{!$Label.LBL_Files_NoFilesMessage}</p></div>
+						</apex:outputPanel>
+					</apex:outputPanel>
 				</apex:outputPanel>
 				<!-- End Right Sidebar-->
 			</apex:outputPanel>

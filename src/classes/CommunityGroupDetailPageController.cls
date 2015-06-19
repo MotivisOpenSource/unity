@@ -157,6 +157,21 @@ public without sharing class CommunityGroupDetailPageController {
 	}
 	
 
+	public Boolean showFilesSection {
+		get {
+			return getHideFeedComponent() != true && Community_Settings__c.getInstance().Chatter_Action_Disable_Group_Files__c != true;
+		}
+	}
+
+	public CommunityGroupFilesController getFilesController() {
+		CommunityGroupFilesController cgfc = new CommunityGroupFilesController();
+		if (showFilesSection) {
+			cgfc.chatterGroupId = chatterGroup.Id;
+			cgfc.init();
+		}
+		return cgfc;
+	}
+
 	public class GroupEvent {
 		public String id { get; set; }
 		public String name { get; set; }

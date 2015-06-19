@@ -9,7 +9,6 @@ public without sharing class CommunityGroupsController {
 	private final String CurrentCommunityId = Network.getNetworkId();
 
 	public CommunityGroupsController() {
-
 	}
 
 	public Boolean getShowCreateGroupBtn() {
@@ -23,8 +22,6 @@ public without sharing class CommunityGroupsController {
 		Map<Id,CollaborationGroup> CollaborationGroupMap = new Map<Id,CollaborationGroup>();
 		Map<Id,CollaborationGroupMember> CollaborationGroupMemberMap = new Map<Id,CollaborationGroupMember>();
 		List<CollaborationGroupMember> CollaborationGroupMemberList = new List<CollaborationGroupMember>();
-//		Map<Id, Community_Group_Manager__c> GroupControlMembershipMap = new Map<Id, Community_Group_Manager__c>();
-//		List<Community_Group_Manager__c> GroupControlMembershipList = new List<Community_Group_Manager__c>();
 		List<CollaborationGroupMemberRequest> GroupMemberRequestList = new List<CollaborationGroupMemberRequest>();
 		Map<Id, CollaborationGroupMemberRequest> GroupMemberRequestMap = new Map<Id, CollaborationGroupMemberRequest>();
 		Set<Id> ChatterGroupIdSet = new Set<Id>();
@@ -36,7 +33,6 @@ public without sharing class CommunityGroupsController {
 			if (Item.Chatter_Group_ID__c != NULL) {
 				ChatterGroupIdSet.add(Item.Chatter_Group_ID__c);
 			}
-//			GroupControlSet.add(Item.Id);
 		}
 
 		if (!ChatterGroupIdSet.isEmpty()) {
@@ -94,30 +90,10 @@ public without sharing class CommunityGroupsController {
 				GroupMemberRequestMap.put(Item.CollaborationGroupID, Item);
 			}
 		}
-/*
-		if (!GroupControlSet.isEmpty()) {
-			GroupControlMembershipList = [
-				SELECT Manager_Role__c, Group_Control__c
-				FROM Community_Group_Manager__c
-				WHERE Group_Control__c IN: GroupControlSet
-				AND Group_Membership_SF_ID__c =: UserInfo.getUserId()
-			];
-		}
 
-		if (!GroupControlMembershipList.isEmpty()) {
-			for (Community_Group_Manager__c Item : GroupControlMembershipList) {
-				if (Item.Manager_Role__c != NULL) {
-					GroupControlMembershipMap.put(Item.Group_Control__c, Item);
-				}
-			}
-		}
-*/
 		for (Community_Group_Control__c Item : GroupControlList) {
-
 			if (collaborationGroupMap.get(Item.Chatter_Group_ID__c) != NULL) {
-
 				ChatterGroupDetail groupDetail = new ChatterGroupDetail(Item);
-
 				groupDetail.GroupMembersCount = collaborationGroupMap.get(Item.Chatter_Group_ID__c).MemberCount;
 				groupDetail.GroupLastActivityDate = collaborationGroupMap.get(Item.Chatter_Group_ID__c).LastFeedModifiedDate;
 				groupDetail.GroupId = Item.Chatter_Group_ID__c;
@@ -125,8 +101,6 @@ public without sharing class CommunityGroupsController {
 					groupDetail.GroupPhotoUrl = collaborationGroupMap.get(Item.Chatter_Group_ID__c).FullPhotoUrl;
 				}
 				groupDetail.GroupLastActivityDate = collaborationGroupMap.get(Item.Chatter_Group_ID__c).LastFeedModifiedDate;
-				groupDetail.GroupLastActivityDateFormatted = groupDetail.formatActivityDate();
-
 				if (collaborationGroupMap.get(Item.Chatter_Group_ID__c).Owner.Id == UserInfo.getUserId()) {
 					groupDetail.CurrentMemberRole = 'Owner';
 				}
@@ -174,25 +148,28 @@ public without sharing class CommunityGroupsController {
 	}
 
 	public static DiscoverResultClass getDiscoverResultClassForGroups(Integer size, List<Community_Group_Control__c> GroupControlList) {
-
 		List<ChatterGroupDetail> ChatterGroupDetailList = new List<ChatterGroupDetail>();
 		DiscoverResultClass Result = new DiscoverResultClass();
-
 		ChatterGroupDetailList = CommunityGroupsController.getChatterGroupDetailList(GroupControlList);
 		if (!ChatterGroupDetailList.isEmpty()) {
 			Result = new DiscoverResultClass(size, ChatterGroupDetailList);
 		}
-
 		return Result;
 	}
 
 	@RemoteAction
 	public static Boolean subscriberAction(Id recordId, Boolean isSubscribe) {
 		CommunityUtils.subscriberUser(recordId,!isSubscribe);
-		return true;		
+		return true;
 	}
-	@RemoteAction
-	public static DiscoverResultClass getGroups(Integer limitSize, Integer startFrom, String currentTab) {
+
+	private static Integer PAGE_SIZE = 6;
+	public Integer startFrom { get { return startFrom == NULL ? 0 : startFrom; } set; }
+	public Integer limitSize { get { return PAGE_SIZE; } }
+	public String searchQuery { get; set; }
+
+	public DiscoverResultClass getGroups() {
+		String currentTab = currentFilter;
 
 		String gQuery = 'SELECT Id, Name, Chatter_Group_ID__c, Discoverable__c, Description__c, Type__c FROM Community_Group_Control__c';
 		Boolean foundData = false;
@@ -255,6 +232,9 @@ public without sharing class CommunityGroupsController {
 
 		DiscoverResultClass DiscoverResult;
 		if (foundData) {
+			if (String.isNotBlank(searchQuery)) {
+				gQuery += ' AND Name LIKE \'%' + String.escapeSingleQuotes(searchQuery) + '%\'';
+			}
 			gQuery += ' ORDER BY Name';
 			List<Community_Group_Control__c> allFoundGroupsList = Database.query(gQuery);
 			Integer allSize = allFoundGroupsList.size();
@@ -268,6 +248,7 @@ public without sharing class CommunityGroupsController {
 					groupsPage.add(allFoundGroupsList[ii]);
 				}
 				DiscoverResult = CommunityGroupsController.getDiscoverResultClassForGroups(allSize, groupsPage);
+				DiscoverResult.hasMore = allSize > endCopyInterval;
 			}
 		}
 
@@ -277,43 +258,23 @@ public without sharing class CommunityGroupsController {
 
 		return DiscoverResult;
 	}
-	
-	public static String CreateChatterGroupMember { get {return '1';} set;}
-	public static String DeleteChatterGroupMember { get {return '2';} set;}
-	public static String CreateGroupManager { get {return '3';} set;}
-	public static String DeleteGroupManager { get {return '4';} set;}
-	public static String CreateJoinPrivateGroupRequest { get {return '5';} set;}
-	public static String DeleteJoinPrivateGroupRequest { get {return '6';} set;}
-	public static String AcceptJoinPrivateGroupRequest { get {return '7';} set;}
-	public static String DeclineJoinPrivateGroupRequest { get {return '8';} set;}
 
 	@RemoteAction
-	public static Boolean doGroupAction(String currentChatterGroupId, string doAction) {
-		List<Community_Group_Control__c> communityGroupControllList = [
-		SELECT Id, Chatter_Group_ID__c
-		FROM Community_Group_Control__c
-		WHERE Chatter_Group_ID__c =: currentChatterGroupId
-		LIMIT 1
-		];
-		if (!communityGroupControllList.isEmpty()) {
-			currentChatterGroupId = communityGroupControllList[0].Id;
-		}
-		CommunityUtils.membership(UserInfo.getUserId(), currentChatterGroupId, doAction);
-		return true;
+	public static CommunityUtils.GroupAction membershipGroup(String mc, String grId, String action) {
+		return CommunitySearchController.membershipGroup(mc, grId, action);
 	}
 
 	public class DiscoverResultClass {
-		public Integer TotalRecords { get; set; }
+		public Integer totalRecords { get { return totalRecords == NULL ? 0 : totalRecords; } set; }
 		public List<ChatterGroupDetail> Groups  { get; set; }
-		public Boolean HasMore { get; set; }
+		public Boolean hasMore { get { return hasMore == NULL ? false : hasMore; } set; }
 
 		public DiscoverResultClass(Integer total, List<ChatterGroupDetail> groupsList) {
-			this.TotalRecords = total;
-			this.Groups = groupsList;
+			totalRecords = total;
+			Groups = groupsList;
 		}
 
-		public DiscoverResultClass() {
-		}
+		public DiscoverResultClass() {}
 	}
 
 	public class ChatterGroupDetail {
@@ -323,46 +284,25 @@ public without sharing class CommunityGroupsController {
 		public String GroupDescription { get; set; }
 		public String GroupPhotoUrl {
 			get {
-				if (String.isBlank(this.GroupPhotoUrl)) {
-					this.GroupPhotoUrl = '/profilephoto/0F9/F';
-				}
-				this.GroupPhotoUrl = this.GroupPhotoUrl.replace(Site.getBaseUrl(), '');
-				return this.GroupPhotoUrl;
+				return String.isBlank(GroupPhotoUrl) ? '/profilephoto/0F9/F' : GroupPhotoUrl.replace(Site.getBaseUrl(), '');
 			}
 			set;
 		}
-		public String GroupVisibility { get; set; }
-		public List<Community_Events__c> UpcomingEvents { get; set; }
 		public String CurrentMemberRole { get; set; }
 		public Integer GroupMembersCount {get;set;}
 		public Datetime GroupLastActivityDate { get; set; }
-		public String GroupLastActivityDateFormatted { get {
-				if (String.isBlank(this.GroupLastActivityDateFormatted) && this.GroupLastActivityDate != NULL) {
-					this.GroupLastActivityDateFormatted = formatActivityDate();
-				}
-				return this.GroupLastActivityDateFormatted;
+		public String GroupLastActivityDateFormatted {
+			get {
+				return GroupLastActivityDate == NULL ? '' : String.format('{0} at {1}',new List<String> {GroupLastActivityDate.format('MMMMM d, yyyy'),this.GroupLastActivityDate.format('HH:mm a')});
 			}
-			set;
-		}
-		private String formatActivityDate() {
-			return String.format('{0} at {1}',
-				new List<String> {
-					this.GroupLastActivityDate.format('MMMMM d, yyyy'),
-					this.GroupLastActivityDate.format('HH:mm a')
-				}
-			);
 		}
 		public String NotAMemberStatus {get;set;}
 
 		public ChatterGroupDetail(Community_Group_Control__c groupDetail) {
-			this.GroupId = NULL;
-			if (groupDetail.Chatter_Group_ID__c != NULL) {
-				this.GroupId = groupDetail.Chatter_Group_ID__c;
-			}
+			this.GroupId = groupDetail.Chatter_Group_ID__c;
 			this.GroupControlId = groupDetail.Id;
 			this.GroupName = groupDetail.Name;
 			this.GroupDescription = groupDetail.Description__c;
-			this.GroupVisibility = groupDetail.Type__c;
 		}
 	}
 }

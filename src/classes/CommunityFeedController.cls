@@ -8,6 +8,7 @@ global without sharing class CommunityFeedController {
 	public String parentId { get { return parentId == NULL ? UserInfo.getUserId() : parentId; } set; }
 	public String feedType { get;set; }
 	public Boolean fullMode { get;set; }
+	public Boolean showFileUpload { get;set; }
 	public String packagePrefix { get{ return CommunityUtils.getPackagePrefix();} }
 	public String parentIdForAtt {get {
 			User us = [SELECT Id, ContactId, Community_Contact_ID__c FROM User WHERE Id = :UserInfo.getUserId()];
@@ -1107,7 +1108,7 @@ global without sharing class CommunityFeedController {
 	};
 	private static Map<String, String> getAvailableQuickActions() {
 		Map<String, String> result = new Map<String, String>();
-		List<QuickAction.DescribeAvailableQuickActionResult> result2 = QuickAction.DescribeAvailableQuickActions('Global'); 
+		List<QuickAction.DescribeAvailableQuickActionResult> result2 = QuickAction.DescribeAvailableQuickActions('Global');
 		for (QuickAction.DescribeAvailableQuickActionResult qa : result2) {
 			result.put(qa.getLabel(), qa.getName());
 		}
@@ -1117,8 +1118,9 @@ global without sharing class CommunityFeedController {
 	public List<ChatterActionItem> getAvailableActions() {
 		Map<String, String> actionAvailable = getAvailableQuickActions();
 		List<ChatterActionItem> resultList = new List<ChatterActionItem>();
+		showFileUpload = showFileUpload && Community_Settings__c.getInstance().Chatter_Action_Disable_Group_Files__c != true;
 		for (List<String> caa : CHATTER_ACTIONS) {
-			if (actionAvailable.containsKey(caa[3])) {
+			if (actionAvailable.containsKey(caa[3]) && (caa[3] != 'File' || showFileUpload)) {
 				resultList.add(new ChatterActionItem(caa[0],caa[1],caa[2]));
 			}
 		}

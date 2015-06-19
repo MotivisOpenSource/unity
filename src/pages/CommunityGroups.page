@@ -1,269 +1,195 @@
 <apex:page controller="CommunityGroupsController" showHeader="false" sideBar="false" standardStylesheets="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false">
-	<apex:composition template="{!$Site.Template}">
-		<apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
-		<apex:define name="body">
-			<div class="profile" ng-app="GroupsApp" ng-controller="GroupsController">
-				<div class="container content">
-					<div class="row">
-						<!--LEFT-->
-						<div class="col-md-3 md-margin-bottom-40">
-							<c:CommunityUserPhoto />
-							<c:CommunityFeedNavigation pn="5"/>
+<apex:composition template="{!$Site.Template}">
+<apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
+<apex:define name="body">
+	<apex:includeScript value="{!$Resource.CommunityResources}/js/underscore/underscore-min.js"/>
+	<div class="profile" ng-app="GroupsApp" ng-controller="GroupsController">
+		<div class="container content"><div class="row">
+			<!--LEFT-->
+			<div class="col-md-3 md-margin-bottom-40">
+				<c:CommunityUserPhoto />
+				<c:CommunityFeedNavigation pn="5"/>
+			</div>
+			<!--LEFT-->
+			<!--MIDDLE-->
+			<div class="col-md-9">
+				<div class="profile-body margin-bottom-20">
+					<div class="row margin-bottom-20">
+						<div class="col-md-6 ">
+							<apex:form><div class="input-group">
+								<apex:inputText id="gsid" value="{!searchQuery}" html-placeholder="{!$Label.LBL_SearchByName}" onkeyup="sgsa(this);" styleClass="form-control"/>
+								<span class="input-group-btn">
+									<button id="quickSearchButton" class="btn-u" style="min-width:40px;">
+										<apex:actionStatus id="searchLoad">
+											<apex:facet name="start">
+												<i class="fa fa-spinner fa-pulse"></i>
+											</apex:facet>
+											<apex:facet name="stop">
+												<i class="fa fa-search"></i>
+											</apex:facet>
+										</apex:actionStatus>
+									</button>
+								</span>
+								<apex:actionFunction name="searchaction" rerender="hdnrrarea,snmbtn" status="searchLoad" oncomplete="preparesearch();">
+									<apex:param name="sf" assignTo="{!startFrom}" value=""/>
+								</apex:actionFunction>
+								<script>
+									$('[id$=gsid]').keypress(function(event){
+										if (event.keyCode == 10 || event.keyCode == 13) {
+											event.preventDefault();
+										}
+									});
+									var sgsa = _.debounce(function(inthis) {
+										if (inthis.value.trim().length != 1) {
+											searchaction(0);
+										}
+									}, 500);
+								</script>
+							</div></apex:form>
 						</div>
-						<!--LEFT-->
-						<!--MIDDLE-->
-						<div class="col-md-9">
-							<div class="profile-body margin-bottom-20">
-								<!--CENTER-->
-								<!--QUICK SEARCH -->
-								<div class="row margin-bottom-20">
-									<div class="col-md-6 ">
-										<div class="input-group">
-											<input ng-model="quickSearchQuery" class="form-control" placeholder="Type a Name..." value="" id="quickSearchInput" />
-											<span class="input-group-btn">
-												<button id="quickSearchButton" class="btn-u">
-													<i class="fa fa-search"></i>
-												</button>
-											</span>
-										</div>
-									</div>
-									<div class="col-md-6 ">
-										<apex:outputPanel layout="none" rendered="{!ShowCreateGroupBtn}">
-											<a href="{!$Page.CommunityGroupCreate}" class="btn-u">{!$Label.BTN_Create_Group}</a>
+						<apex:outputPanel layout="block" styleClass="col-md-6" rendered="{!ShowCreateGroupBtn}">
+							<a href="{!$Page.CommunityGroupCreate}" class="btn-u">{!$Label.BTN_Create_Group}</a>
+						</apex:outputPanel>
+					</div>
+					<div class="tab-v1">
+						<ul class="nav nav-tabs">
+							<li class="{!IF(currentFilter=='all_groups', 'active', '')}"><a  href="{!$Page.CommunityGroups}?f=all_groups">{!$Label.LBL_AllGroups}</a></li>
+							<li class="{!IF(currentFilter=='my_groups', 'active', '')}"><a href="{!$Page.CommunityGroups}?f=my_groups" >{!$Label.LBL_MyGroups}</a></li>
+							<li class="{!IF(currentFilter=='recommended_groups', 'active', '')}"><a href="{!$Page.CommunityGroups}?f=recommended_groups">{!$Label.LBL_RecommendedGroups}</a></li>
+						</ul>
+						<div class="tab-content">
+							<div class="tab-pane active" id="groups">
+								<div class="table-search-v2">
+									<apex:outputPanel id="snmbtn">
+										<apex:outputPanel layout="block" rendered="{!Groups.hasMore}" styleClass="row">
+											<button id="showMore" class="btn-u btn-u-default btn-block conversation_nav" onclick="makeshm({!startFrom + limitSize}); return false;">
+												<apex:actionStatus id="shmLoad">
+													<apex:facet name="start">
+														<i class="fa fa-spinner fa-pulse"></i>
+													</apex:facet>
+													<apex:facet name="stop">
+														{!$Label.LBL_ShowMore}
+													</apex:facet>
+												</apex:actionStatus>
+											</button>
 										</apex:outputPanel>
-									</div>
+										<apex:outputPanel layout="block" styleClass="alert alert-warning" rendered="{!Groups.totalRecords == 0}">
+											<i class="fa fa-exclamation-triangle"></i>&nbsp;&nbsp;{!$Label.LBL_NoGroupsFound}
+										</apex:outputPanel>
+									</apex:outputPanel>
 								</div>
-								<!--QUICK SEARCH -->
-								<apex:outputPanel id="centerContent" layout="block">
-									<div class="tab-v1">
-										<ul class="nav nav-tabs">
-											<li class="{!IF(currentFilter=='all_groups', 'active', '')}"><a  href="{!$Page.CommunityGroups}?f=all_groups">{!$Label.LBL_AllGroups}</a></li>
-											<li class="{!IF(currentFilter=='my_groups', 'active', '')}"><a href="{!$Page.CommunityGroups}?f=my_groups" >{!$Label.LBL_MyGroups}</a></li>
-											<li class="{!IF(currentFilter=='recommended_groups', 'active', '')}"><a href="{!$Page.CommunityGroups}?f=recommended_groups">{!$Label.LBL_RecommendedGroups}</a></li>
-										</ul>
-										<div class="tab-content">
-											<div class="tab-pane active text-center" id="statusgroups">
-												<i class="fa fa-spinner fa-pulse fa-4x"></i>
-											</div>
-											<div class="tab-pane active" id="groups" style="display:none;">
-												<div class="table-search-v2">
-													<!--RESULTS ROW -->
-													<div class="row margin-bottom-20" ng-repeat="cg in chunkedGroups">
-														<div class="col-sm-6 sm-margin-bottom-20"  ng-repeat="g in cg | quickSearch:this">
-															<div class="profile-blog">
-																<img class="rounded-x" ng-src="{{ g.GroupPhotoUrl }}" src="/s.gif" alt="" />
-																<div class="name-location">
-																	<strong><a href="{!$Page.CommunityGroupDetailPage}?gr={{ g.GroupId }}"><div ng-bind-html="g.GroupName"></div></a></strong>
-																	<span><i class="fa fa-map-marker"></i>{{ g.GroupLastActivityDateFormatted }}</span>
-																</div>
-																<div class="clearfix margin-bottom-20"></div>
-																<p><div ng-bind-html="g.GroupDescription"></div></p>
-																<hr />
-																<ul class="list-inline share-list" >
-																	<li><i class="fa fa-group"></i><a href="#">{{ g.GroupMembersCount }} {!$Label.LBL_Followers}</a></li>
-																	<!--li><i class="fa fa-share"></i><a href="#">Share</a></li-->
-																	<li ng-show="{{ g.CurrentMemberRole == 'Owner' }}" class="gr-plus">
-																		<i class="fa fa-star"></i>{!$Label.LBL_Owner}
-																	</li>
-																	<li ng-show="{{ g.CurrentMemberRole == 'Standard' }}" class="gr-plus">
-																		<i class="fa fa-check-circle"></i><a ng-click="confirmLeaveGroup(g.GroupId)">{!$Label.LBL_Member}</a>
-																	</li>
-																	<li ng-show="{{ g.CurrentMemberRole == 'Admin' }}" class="gr-plus">
-																		<i class="fa fa-star-half-o"></i><a ng-click="confirmLeaveGroup(g.GroupId)">{!$Label.LBL_Manager}</a>
-																	</li>
-																	<li ng-show="{{ g.CurrentMemberRole == 'NotAMember' && g.NotAMemberStatus == 'Join' }}" class="bl-plus">
-																		<i class="fa fa-plus-circle"></i><a ng-click="confirmjointToGroup(g.GroupId)">{!$Label.BTN_Join}</a>
-																	</li>
-																	<li ng-show="{{ g.CurrentMemberRole == 'NotAMember' && g.NotAMemberStatus == 'Requested' }}" class="or-plus">
-																		<i class="fa fa-times-circle"></i><a ng-click="cancelRequestToJoin(g.GroupId)">{!$Label.LBL_Requested}</a>
-																	</li>
-																	<li ng-show="{{ g.CurrentMemberRole == 'NotAMember' && g.NotAMemberStatus == 'RequestToJoin' }}" class="bl-plus">
-																		<i class="fa fa-minus-circle"></i><a ng-click="requestToJoin(g.GroupId)">{!$Label.LBL_RequestToJoin}</a>
-																	</li>
-																</ul>
-															</div>
-														</div>
-													</div>
-													<div class="row">
-														<button id="showMore" class="btn-u btn-u-default btn-block conversation_nav" ng-show="hasMore == true;" ng-disabled="hasMore == false;" ng-click="updateGroupsScope();">Show More...</button>
-													</div>
-													<!--RESULTS ROW -->
-												</div>
-											</div>
-
-										</div>
-									</div>
-								</apex:outputPanel>
-								<!--CENTER-->
 							</div>
 						</div>
-						<!--MIDDLE-->
 					</div>
 				</div>
 			</div>
-		</apex:define>
-		<apex:define name="scripts">
-			<script type="text/javascript" src="{!$Resource.CommunityResources}/js/underscore/underscore-min.js" ></script>
-			<script type="text/javascript" src="{!$Resource.CommunityResources}/js/angularjs/angular.min.js" ></script>
-			<script type="text/javascript" src="//code.angularjs.org/1.4.0/angular-sanitize.js"></script> 
-			<script type="text/javascript">
-				function membershiprequest(ing,inm) {
+			<!--MIDDLE-->
+		</div></div>
+	</div>
+	<apex:form>
+		<apex:actionFunction name="showmoreaction" rerender="hdnrrarea,snmbtn" status="shmLoad" oncomplete="appendGroups();">
+			<apex:param name="sf" assignTo="{!startFrom}" value=""/>
+		</apex:actionFunction>
+	</apex:form>
+	<apex:outputPanel layout="block" id="hdnrrarea" style="display:none">
+		<apex:repeat value="{!Groups.Groups}" var="g">
+			<div class="col-sm-6 sm-margin-bottom-20">
+				<div class="profile-blog">
+					<img class="rounded-x" src="{!g.GroupPhotoUrl}" alt="" />
+					<div class="name-location">
+						<strong><a href="{!$Page.CommunityGroupDetailPage}?gr={!g.GroupId}">{!g.GroupName}</a></strong>
+						<span><i class="fa fa-map-marker"></i>{!g.GroupLastActivityDateFormatted}</span>
+					</div>
+					<div class="clearfix margin-bottom-20"></div>
+					<p>{!g.GroupDescription}</p>
+					<hr />
+					<ul id="gr{!g.GroupId}" class="list-inline share-list" >
+						<li><i class="fa fa-group"></i><span name="folc">{!g.GroupMembersCount}</span>&nbsp;{!$Label.LBL_Followers}</li>
+						<apex:outputPanel layout="none" rendered="{!g.CurrentMemberRole == 'Owner'}">
+							<li class="gr-plus"><i class="fa fa-star"></i>{!$Label.LBL_Owner}</li>
+						</apex:outputPanel>
+						<apex:outputPanel layout="none" rendered="{!g.CurrentMemberRole == 'Standard'}">
+							<li class="gr-plus"><i class="fa fa-check-circle"></i><a href="javascript:;" onclick="chckabtn('2','{!g.GroupId}');">{!$Label.LBL_Member}</a></li>
+						</apex:outputPanel>
+						<apex:outputPanel layout="none" rendered="{!g.CurrentMemberRole == 'Admin'}">
+							<li class="gr-plus"><i class="fa fa-star-half-o"></i><a href="javascript:;" onclick="chckabtn('2','{!g.GroupId}');">{!$Label.LBL_Manager}</a></li>
+						</apex:outputPanel>
+						<apex:outputPanel layout="none" rendered="{!g.CurrentMemberRole == 'NotAMember' && g.NotAMemberStatus == 'Join'}">
+							<li class="bl-plus"><i class="fa fa-plus-circle"></i><a href="javascript:;" onclick="chckabtn('1','{!g.GroupId}');">{!$Label.BTN_Join}</a></li>
+						</apex:outputPanel>
+						<apex:outputPanel layout="none" rendered="{!g.CurrentMemberRole == 'NotAMember' && g.NotAMemberStatus == 'Requested'}">
+							<li class="or-plus"><i class="fa fa-times-circle"></i><a href="javascript:;" onclick="chckabtn('6','{!g.GroupId}');">{!$Label.LBL_Requested}</a></li>
+						</apex:outputPanel>
+						<apex:outputPanel layout="none" rendered="{!g.CurrentMemberRole == 'NotAMember' && g.NotAMemberStatus == 'RequestToJoin'}">
+							<li class="bl-plus"><i class="fa fa-minus-circle"></i><a href="javascript:;" onclick="chckabtn('5','{!g.GroupId}');">{!$Label.LBL_RequestToJoin}</a></li>
+						</apex:outputPanel>
+					</ul>
+				</div>
+			</div>
+		</apex:repeat>
+	</apex:outputPanel>
+	<script>
+		appendGroups();
+		var showMoreBusy = true;
+		function chckabtn(a,gid) {
+			if (a != '0') {
+				var fa = true;
+				if (a == '2' || a == '4') {
+					fa = confirm('{!$Label.LBL_LeaveGroup_Message}');
+				}
+				else if (a == '6') {
+					fa = confirm('{!$Label.LBL_CancelRequest_Message}');
+				}
+				if (fa) {
+					$('#gr' + gid + ' [class$=plus] i').attr('class','fa fa-spinner fa-pulse');
 					Visualforce.remoting.Manager.invokeAction(
-						'{!$RemoteAction.CommunityGroupsController.doGroupAction}',
-						ing,
-						inm,
+						'{!$RemoteAction.CommunityGroupsController.membershipGroup}',
+						$('#gr' + gid + ' [name=folc]').text(),
+						gid,
+						a,
 						function(result, event) {
+							var ihtml = '<li><i class="fa fa-group"></i><span name="folc">'+result.memberCount+'</span>&nbsp;{!$Label.LBL_Followers}</li>';
+							ihtml += '<li class="'+result.lnkStyle+'"><i class="fa '+result.lnkIcon+'"></i><a href="javascript:;"';
+							ihtml += ' onclick="chckabtn(\''+result.action+'\',\''+result.groupId+'\');">'+result.btnLabel+'</a></li>';
+							$('#gr' + gid).html(ihtml);
 						}
 					);
 				}
-				var GroupsApp = angular.module('GroupsApp', ['ngSanitize']);
-				GroupsApp.filter('quickSearch', function() {
-					return function(input, scope) {
-						var searchWords = scope.quickSearchQuery.match(/(\w){2,}/g);
-						if (searchWords) {
-							var reText = '';
-							for (var i = 0; i < searchWords.length; i++) {
-								reText += '(?=.*'+searchWords[i]+')';
-							}
-							var re = new RegExp(reText, "ig");
-							var output = [];
-							for (var j = 0; j < input.length; j++) {
-								if (input[j].GroupName.match(re) != null) {
-									output.push(input[j]);
-								}
-							}
-							input = output;
-						}
-						return input;
-					}
-				});
-				GroupsApp.factory('getGroups', ['$q', '$rootScope', function($q, $rootScope) {
-					return function(limit, offset) {
-						var deferred = $q.defer();
-						if ($rootScope.getDataStatus != 'InProgress') {
-							$rootScope.getDataStatus = 'InProgress';
-							Visualforce.remoting.Manager.invokeAction(
-								'{!$RemoteAction.CommunityGroupsController.getGroups}',
-								limit, offset, '{!JSENCODE($CurrentPage.parameters.f)}',
-								function(result, event) {
-									$rootScope.$apply(function() {
-										if (event.status) {
-											deferred.resolve(result);
-											$rootScope.getDataStatus = 'Finished';
-										} else {
-											deferred.reject(event);
-											$rootScope.getDataStatus = 'Finished';
-										}
-										if ($('#statusgroups').length > 0) {
-											$('#statusgroups').remove();
-											$('#groups').show();
-										}
-									})
-								},
-								{ buffer: true, escape: true, timeout: 30000 }
-							);
-						} else {
-							deferred = null;
-							return null;
-						}
-						return deferred.promise;
-					}
-				}]);
-				GroupsApp.controller('GroupsController', ['$scope', '$filter', 'getGroups', function($scope, $filter, getGroups) {
-					$scope.quickSearchQuery = '';
-					$scope.page = {
-						pageSize: 6,
-						recordsTotal: function() {
-							return $scope.groups.length;
-						},
-						showMore: function() {
-
-						}
-					};
-					$scope.hasMore = false;
-					$scope.groups = [];
-
-					$scope.updateGroupsScope = function () {
-						var def = getGroups($scope.page.pageSize, $scope.page.recordsTotal());
-						if (def != null) {
-							$scope.inProgress = false;
-							def.then(function(result) {
-									$.each(result.Groups, function(i, item){
-										$scope.groups.push(item);
-									});
-									$scope.hasMore = result.TotalRecords - $scope.groups.length > 0;
-									$scope.chunkedGroups = $scope.chunk($scope.groups, 2);
-									if ($scope.inProgress == true) {
-										$scope.updateGroupsScope();
-									}
-								},
-								function(error){
-								}
-							);
-						} else {
-							$scope.inProgress = true;
-						}
-					};
-					$scope.updateGroupsScope();
-					$scope.chunk = function(arr, size) {
-						var newArr = [];
-						for (var i=0; i<arr.length; i+=size) {
-							newArr.push(arr.slice(i, i+size));
-						}
-						return newArr;
-					}
-
-					$scope.confirmLeaveGroup = function(groupId) {
-						if(confirm('{!$Label.LBL_LeaveGroup_Message}')) {
-							membershiprequest(groupId,'{!DeleteChatterGroupMember}');
-							$.each($scope.groups, function(i, item){
-								if (item.GroupId == groupId) {
-									item.NotAMemberStatus = item.GroupVisibility == 'Private' ? 'RequestToJoin': 'Join';
-									item.CurrentMemberRole = 'NotAMember';
-									item.GroupMembersCount--;
-								}
-							});
-							$scope.chunkedGroups = $scope.chunk($scope.groups, 2);
-						}
-					}
-
-					$scope.confirmjointToGroup = function(groupId) {
-						membershiprequest(groupId,'{!CreateChatterGroupMember}');
-						$.each($scope.groups, function(i, item){
-							if (item.GroupId == groupId) {
-								item.GroupMembersCount++;
-								item.CurrentMemberRole = 'Standard';
-							}
-						});
-						$scope.chunkedGroups = $scope.chunk($scope.groups, 2);
-					}
-
-					$scope.requestToJoin = function(groupId) {
-						membershiprequest(groupId,'{!CreateJoinPrivateGroupRequest}');
-						$.each($scope.groups, function(i, item){
-							if (item.GroupId == groupId) {
-								item.CurrentMemberRole = 'NotAMember';
-								item.NotAMemberStatus = 'Requested';
-							}
-						});
-						$scope.chunkedGroups = $scope.chunk($scope.groups, 2);
-					}
-
-					$scope.cancelRequestToJoin = function(groupId) {
-						if(confirm('{!$Label.LBL_CancelRequest_Message}')) {
-							membershiprequest(groupId,'{!DeleteJoinPrivateGroupRequest}');
-							$.each($scope.groups, function(i, item){
-								if (item.GroupId == groupId) {
-									item.CurrentMemberRole = 'NotAMember';
-									item.NotAMemberStatus = 'RequestToJoin';
-								}
-							});
-							$scope.chunkedGroups = $scope.chunk($scope.groups, 2);
-						}
-					}
-
-				}]);
-			</script>
-		</apex:define>
-	</apex:composition>
+			}
+		}
+		function appendGroups() {
+			var fg = $('.table-search-v2 .row.margin-bottom-20').last();
+			var activerow;
+			if (fg.length > 0 && fg.last().find('.col-sm-6').length < 2) {
+				activerow = fg.last();
+			}
+			$('[id$=hdnrrarea] .col-sm-6').each(function(index,el) {
+				if (activerow == undefined || activerow.find('.col-sm-6').length > 1) {
+					activerow = $('<div/>', { class:'row margin-bottom-20' }).insertBefore('[id$=snmbtn]');
+				}
+				$(el).clone().appendTo(activerow);
+			});
+			$('[id$=hdnrrarea] .col-sm-6').remove();
+			showMoreBusy = false;
+		}
+		function preparesearch() {
+			$('.table-search-v2 .row.margin-bottom-20').remove();
+			appendGroups();
+		}
+		function makeshm(v) {
+			if (!showMoreBusy) {
+				showMoreBusy = true;
+				showmoreaction(v);
+			}
+		}
+		$(document).ready(function(){
+			$(window).scroll(function() {
+				if($(window).scrollTop() == $(document).height() - $(window).height()) {
+					$('#showMore').click();
+				}
+			});
+		});
+	</script>
+</apex:define>
+</apex:composition>
 </apex:page>

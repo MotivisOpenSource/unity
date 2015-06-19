@@ -443,39 +443,24 @@ private class CommunityTest {
 			localesidkey='en_US', profileid = profile.Id, timezonesidkey='America/Los_Angeles', username='ttsde.tedf2@testmail.com',
 			FederationIdentifier='TestContactName.TestContactLastname2', Community_Contact_ID__c=con.Id);
 		insert u;
-		Community_Theme__c cth = new Community_Theme__c(Name='t',Theme_Type__c='Interest');
+		Community_Theme__c cth = new Community_Theme__c(Name='t', Theme_Type__c='Interest');
 		insert cth;
-		Community_Tag__c ct = new Community_Tag__c(Name='t',Community_Theme__c=cth.Id);
+		Community_Tag__c ct = new Community_Tag__c(Name='t' ,Community_Theme__c=cth.Id);
 		insert ct;
-		
+		insert new Community_Profile_Tag__c(Community_Tag__c=ct.Id, Active__c=true ,Contact__c=con.Id);
 		System.runAs(u) {
-			CollaborationGroup cg = new CollaborationGroup();
-			cg.Name = 'newgroup';
-			cg.CollaborationType = 'Public' ;
-			insert cg;
-			Community_Group_Control__c group1 = new Community_Group_Control__c(Name='1212t',Discoverable__c=true,Type__c='Public',Network__c='Internal', Chatter_Group_ID__c=cg.Id);
-			insert 	group1;
-			
-			Community_Group_Control_Tag__c groupTag = new Community_Group_Control_Tag__c(Group_Control__c=group1.Id,Community_Tag__c=ct.Id);
-			insert groupTag;
-			
-			insert new Community_Profile_Tag__c(Community_Tag__c=ct.Id,Active__c=true,Contact__c=con.Id);
-			
-			Test.setCurrentPage(Page.CommunityGroups);
+			Community_Group_Control__c cgcr = new Community_Group_Control__c(Name='1212t', Discoverable__c=true, Type__c='Public', Network__c='Internal');
+			insert cgcr;
+			insert new Community_Group_Control_Tag__c(Group_Control__c=cgcr.Id, Community_Tag__c=ct.Id);
 			ApexPages.currentPage().getParameters().put('f','all_groups');
-			
 			CommunityGroupsController cgc = new CommunityGroupsController();
-			CommunityGroupsController.getGroups(100, 0, 'all_groups');
-			CommunityGroupsController.getGroups(100, 0, 'recommended_groups');
-			CommunityGroupsController.getGroups(100, 0, 'my_groups');
-			
+			cgc.getGroups();
+			ApexPages.currentPage().getParameters().put('f','recommended_groups');
+			cgc.getGroups();
+			ApexPages.currentPage().getParameters().put('f','my_groups');
+			cgc.getGroups();
 			cgc.getShowCreateGroupBtn();
-			String s1 = cgc.currentFilter;	
-			//String s2 = cgc.GroupPhotoUrl;					
 		}
-		CommunityGroupsController.getGroups(100, 0, 'all_groups');
-		CommunityGroupsController.getGroups(100, 0, 'recommended_groups');
-		CommunityGroupsController.getGroups(100, 0, 'my_groups');
 	}
 
 	static testMethod void test_CommunityRegTermsController() {
@@ -534,11 +519,11 @@ private class CommunityTest {
 		ApexPages.currentPage().getParameters().put('s','cat');
 		CommunitySearchController csc2 = new CommunitySearchController();
 		csc2.getFilterName();
-		SyStem.Debug([SELECT Id, Name FROM Community_Group_Control__c]);				
+		SyStem.Debug([SELECT Id, Name FROM Community_Group_Control__c]);
 		ApexPages.currentPage().getParameters().put('tr','tr');
 		CommunitySearchController csc3 = new CommunitySearchController();
 		ApexPages.currentPage().getParameters().put('t','t');
-		CommunitySearchController csc4 = new CommunitySearchController();		
+		CommunitySearchController csc4 = new CommunitySearchController();
 		csc1.getNews();
 		csc1.getEvents();
 		csc1.getGroups();
@@ -560,5 +545,56 @@ private class CommunityTest {
 		CommunitySearchController.SearchItem si2 = new CommunitySearchController.SearchItem([SELECT ID, Title__c, Teaser__c, Entry_Date__c,Image_Path__c FROM Community_News__c],1);
 		CommunitySearchController.SearchItem si3 = new CommunitySearchController.SearchItem([SELECT ID, Name, Description__c, Link__c FROM Community_Resource__c],1);		
 		CommunitySearchController.SearchItem si4 = new CommunitySearchController.SearchItem(new List<CommunityGroupsController.ChatterGroupDetail>(),0);		
+	}
+
+	@IsTest(SeeAllData=true)
+	static void test_CommunityGroupFilesController() {
+		Community_Group_Control__c cgc = new Community_Group_Control__c(Name='tstgrp', Type__c='Public', Discoverable__c=true);
+		insert cgc;
+		ApexPages.currentPage().getParameters().put('gc',cgc.Id);
+		CommunityGroupFilesController cgfc = new CommunityGroupFilesController();
+		cgfc.initFromPage();
+		cgfc.getCommunityId();
+		System.assert(cgfc.chatterGroup != NULL, true);
+		insert new FeedItem(
+			ParentId = cgfc.chatterGroup.Id,
+			ContentFileName = 'tst',
+			ContentData = EncodingUtil.base64Decode('/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////2wBDAf//////////////////////////////////////////////////////////////////////////////////////wAARCAAMABADASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAQAC/8QAGRAAAwADAAAAAAAAAAAAAAAAAAERElFx/8QAFAEBAAAAAAAAAAAAAAAAAAAAAP/EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDEQA/ADF6KOGp0IB//9k='),
+			Body = 'tst'
+		);
+		cgfc.fileQuery = 'tst';
+		cgfc.searchAction();
+		cgfc.mode = 'detail';
+		System.assert(cgfc.getFileDetail().getShortName() == 'tst' , true);
+		String vId = cgfc.getFileDetail().versionId;
+		String dId = cgfc.getFileDetail().documentId;
+		cgfc.mode = 'list';
+		cgfc.shareChoice = cgfc.chatterGroup.Id;
+		cgfc.shareComment = 'cmnt';
+		cgfc.stack = vId;
+		cgfc.shareAction();
+		cgfc.modal = 'update';
+		cgfc.modeAction();
+		cgfc.updateAction();
+		System.assert(!cgfc.filesHasNext, true);
+		System.assert(!cgfc.filesHasPrevious, true);
+		cgfc.filesPageNumber = 0;
+		cgfc.filesNextPage();
+		cgfc.filesPageNumber = 2;
+		cgfc.filesPreviousPage();
+		cgfc.filesPageNumber = 0;
+		cgfc.filesLastPage();
+		cgfc.filesPageNumber = 2;
+		cgfc.filesFirstPage();
+		CommunityGroupFilesController.getGroupsSelector('jaime');
+		CommunityGroupFilesController.getPeoplesSelector('cersei');
+		CommunityGroupFilesController.subscriberAction(vId, false);
+		cgfc.modal = 'sharegroup';
+		cgfc.getAvailableGroups();
+		cgfc.modal = 'newversion';
+		ApexPages.currentPage().getParameters().put('f', cgfc.getParentDocumentId());
+		cgfc.initFromPage();
+		cgfc.stack = vId;
+		cgfc.deleteAction();
 	}
 }

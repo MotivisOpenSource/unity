@@ -27,7 +27,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button>
+                    <button aria-hidden="true" data-dismiss="modal" class="close" type="button">&times;</button>
                     <h4 id="myLargeModalLabel2" class="modal-title">{!$Label.LBL_about_this_group}</h4>
                 </div>
                 <div class="tab-pane active text-center margin-bottom-10" id="statusOfLoad">

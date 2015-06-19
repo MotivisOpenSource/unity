@@ -1,0 +1,488 @@
+<apex:page showHeader="false" sideBar="false" controller="CommunityGroupFilesController" action="{!initFromPage}" standardStylesheets="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false">
+<apex:composition template="{!$Site.Template}">
+<apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
+<apex:define name="body">
+
+	<apex:includeScript value="{!$Resource.CommunityResources}/js/underscore/underscore-min.js"/>
+	<script src="{!$Resource.CommunityResources}/js/Typeahead/bootstrap3-typeahead.min.js"></script>
+	<apex:includeScript value="/soap/ajax/33.0/connection.js"/>
+
+	<div class="breadcrumbs margin-bottom-10">
+		<div class="container">
+			<h1 class="pull-left">
+				<apex:outputPanel layout="none" rendered="{!mode == 'list'}">{!$Label.LBL_Files_ListingPageTitle}&nbsp;{!control.Name}</apex:outputPanel>
+				<apex:outputPanel id="brname" rendered="{!mode == 'detail'}">
+					<i class="fa {!FileDetail.aicon}"></i>&nbsp;{!FileDetail.name}
+				</apex:outputPanel>
+			</h1>
+			<ul class="pull-right breadcrumb">
+				<li><a href="{!$Page.CommunityHome}">{!$Label.LBL_Home}</a></li>
+				<li><a href="{!$Page.CommunityGroups}">{!$Label.LBL_Groups}</a></li>
+				<li><a href="{!$Page.CommunityGroupDetailPage}?gr={!chatterGroup.Id}">{!control.Name}</a></li>
+				<li class="active">{!$Label.LBL_Files_Files}</li>
+			</ul>
+		</div>
+	</div>
+
+
+	<apex:outputPanel layout="block" styleClass="profile">
+		<apex:outputPanel layout="block" styleClass="content container">
+			<apex:outputPanel layout="block" styleClass="row">
+
+				<!--Left Sidebar-->
+				<div class="col-md-3 md-margin-bottom-20">
+					<div class="chatter-photo"><c:CommunityUserPhoto current="false" photoUrl="{!chatterGroup.FullPhotoUrl}" fmode="true"/></div>
+					<c:CommunityFeedNavigation pn="5"/>
+				</div>
+				<!--End Left Sidebar-->
+
+				<!-- Center -->
+				<div class="col-md-9 md-margin-bottom-20">
+					<apex:outputPanel layout="none" rendered="{!mode == 'list' && allOk}">
+						<div class="clearfix"><apex:form styleClass="sky-form">
+							<section class="col col-10">
+								<label class="input">
+									<i class="icon-append fa fa-search"></i>
+									<apex:inputText id="cgsid" value="{!fileQuery}" html-placeholder="{!$Label.LBL_Files_SearchBox} {!control.Name}" onkeyup="cgsa(this);"/>
+								</label>
+							</section>
+							<section class="col col-2">
+								<apex:actionStatus id="filesLoad">
+									<apex:facet name="start">
+										&nbsp;<i class="fa fa-spinner fa-pulse fa-3x"></i>
+									</apex:facet>
+								</apex:actionStatus>
+							</section>
+							<script>
+								$('[id$=cgsid]').keypress(function(event){
+									if (event.keyCode == 10 || event.keyCode == 13) {
+										event.preventDefault();
+									}
+								});
+								var cgsa = _.debounce(function(inthis) {
+									if (inthis.value.trim().length != 1) {
+										cgsearch();
+									}
+								}, 500);
+							</script>
+							<apex:actionFunction action="{!searchAction}" name="cgsearch" rerender="cgpanel" status="filesLoad"/>
+						</apex:form></div>
+						<apex:outputPanel id="cgpanel" layout="block">
+							<apex:outputPanel layout="none" rendered="{!filesTotal > 0}">
+							<table class="table table-bordered table-striped">
+								<thead>
+									<tr>
+										<th>{!$Label.LBL_Files_Actions_Header}</th>
+										<th>{!$Label.LBL_Files_Name_Header}</th>
+										<th class="hidden-sm">{!$Label.LBL_Files_Owner_Header}</th>
+										<th class="hidden-sm">{!$Label.LBL_Files_LastModified_Header}</th>
+									</tr>
+								</thead>
+								<tbody>
+									<apex:repeat value="{!FileList}" var="fs2"><tr>
+										<td class="file-actions">
+											<apex:outputLink value="#cglayout" onclick="makepreview('{!fs2.previewUrl}','{!fs2.name}');" html-role="button" html-data-toggle="modal" rendered="{!!ISBLANK(fs2.previewUrl)}">
+												<i class='fa fa-file-text' title="{!$Label.BTN_Preview}"></i>
+											</apex:outputLink>
+											<apex:outputLink value="{!fs2.downloadUrl}" rendered="{!!ISBLANK(fs2.downloadUrl)}"><i class='fa fa-download' title="{!$Label.BTN_Download}"></i></apex:outputLink>
+											<apex:outputLink value="#cglayout" onclick="makenv('{!fs2.versionId}');" html-role="button" html-data-toggle="modal" rendered="{!fs2.modifiable}"><i class='fa fa-upload' title="{!$Label.BTN_Upload}"></i></apex:outputLink>
+											<apex:outputPanel styleClass="dropdown" rendered="{!enableShare}">
+												<i class='fa fa-share dropdown-toggle' data-toggle="dropdown" title="{!$Label.LBL_Share}"></i>
+												<ul class="dropdown-menu" role="menu">
+													<li ><a href="#cglayout" onclick="sharep('{!fs2.versionId}');" role="menuitem" data-toggle="modal" tabindex="-1">{!$Label.LBL_Files_SharePeople}</a></li>
+													<li ><a href="#cglayout" onclick="shareg('{!fs2.versionId}');" role="menuitem" data-toggle="modal" tabindex="-1">{!$Label.LBL_Files_ShareGroup}</a></li>
+												</ul>
+											</apex:outputPanel>
+											<apex:outputLink value="#cglayout" onclick="upver('{!fs2.versionId}');" html-role="button" html-data-toggle="modal" rendered="{!fs2.modifiable}"><i class='fa fa-pencil' title="{!$Label.BTN_Edit}"></i></apex:outputLink>
+											<span id="{!fs2.versionId}" onclick="followa(this,{!fs2.following});"><i class="fa fa-plus-circle{!IF(fs2.following,' active','')}" title="{!$Label.LBL_Follow}"></i></span>
+											<apex:outputPanel onclick="delfg('{!fs2.versionId}');" rendered="{!fs2.modifiable}"><i id="df{!fs2.versionId}" class="fa fa-trash" title="{!$Label.LBL_Delete}"></i></apex:outputPanel>
+										</td>
+										<td><i class="fa {!fs2.aicon}"></i>&nbsp;<a href="{!$Page.CommunityGroupFiles}?f={!fs2.documentId}&gr={!chatterGroupId}">{!fs2.name}</a></td>
+										<td class="hidden-sm"><a href="{!$Page.CommunityProfilePage}?id={!fs2.ownerId}">{!fs2.ownerName}</a></td>
+										<td class="hidden-sm">{!fs2.lastModified}</td>
+									</tr></apex:repeat>
+								</tbody>
+							</table>
+							</apex:outputPanel>
+							<apex:outputPanel layout="none" rendered="{!filesPagesTotal > 1}">
+								<apex:form><ul class="pager">
+									<apex:outputPanel layout="none" rendered="{!filesHasPrevious}">
+										<li class="previous">
+											<apex:commandLink action="{!filesFirstPage}" value="{!$Label.LBL_First}" rerender="cgpanel" status="filesLoad"/>
+										</li>
+										<li class="previous">
+											<apex:commandLink action="{!filesPreviousPage}" value="{!$Label.LBL_Previous}" rerender="cgpanel" styleClass="margin-left-5" status="filesLoad"/>
+										</li>
+									</apex:outputPanel>
+									<li><apex:outputText value="{!$Label.LBL_Page} {!filesPageNumber} {!$Label.LBL_of} {!filesPagesTotal}"/></li>
+									<apex:outputPanel layout="none" rendered="{!filesHasNext}">
+										<li class="next">
+											<apex:commandLink action="{!filesLastPage}" value="{!$Label.LBL_Last}" rerender="cgpanel" styleClass="margin-left-5" status="filesLoad"/>
+										</li>
+										<li class="next">
+											<apex:commandLink action="{!filesNextPage}" value="{!$Label.LBL_Next}" rerender="cgpanel" status="filesLoad"/>
+										</li>
+									</apex:outputPanel>
+								</ul></apex:form>
+							</apex:outputPanel>
+							<apex:outputPanel layout="block" styleClass="alert alert-warning" rendered="{!filesTotal == 0}">
+								<i class="fa fa-exclamation-triangle"></i>&nbsp;&nbsp;{!$Label.LBL_Files_Not_Found}
+							</apex:outputPanel>
+						</apex:outputPanel>
+					</apex:outputPanel>
+
+					<apex:outputPanel id="dpanel" rendered="{!mode == 'detail' && allOk}">
+						<ul class="list-inline badge-lists badge-box-v2 margin-bottom-10">
+							<li>
+								<a href="{!FileDetail.downloadUrl}"><i class='fa fa-download'></i>{!$Label.BTN_Download}</a>
+							</li>
+							<apex:outputPanel layout="none" rendered="{!FileDetail.modifiable}"><li>
+								<a href="#cglayout" onclick="makenv('{!FileDetail.versionId}');" role="button" data-toggle="modal"><i class='fa fa-upload'></i>{!$Label.LBL_Upload_File}</a>
+							</li></apex:outputPanel>
+							<apex:outputPanel layout="none" rendered="{!enableShare}"><li class="dropdown">
+								<a class="dropdown-toggle" data-toggle="dropdown">
+									<i class='fa fa-share'></i>{!$Label.LBL_Share}
+								</a>
+								<ul class="dropdown-menu" role="menu">
+									<li><a href="#cglayout" onclick="sharep('{!FileDetail.versionId}');" role="menuitem" data-toggle="modal" tabindex="-1">{!$Label.LBL_Files_SharePeople}</a></li>
+									<li><a href="#cglayout" onclick="shareg('{!FileDetail.versionId}');" role="menuitem" data-toggle="modal" tabindex="-1">{!$Label.LBL_Files_ShareGroup}</a></li>
+								</ul>
+							</li></apex:outputPanel>
+							<apex:outputPanel layout="none" rendered="{!FileDetail.modifiable}"><li>
+								<a href="#cglayout" onclick="upver('{!FileDetail.versionId}');" role="button" data-toggle="modal"><i class='fa fa-pencil'></i>{!$Label.BTN_Edit}</a>
+							</li></apex:outputPanel>
+							<li class="file-actions"><a>
+								<span id="{!FileDetail.versionId}" onclick="followa(this,{!FileDetail.following});"><i class="fa fa-plus-circle{!IF(FileDetail.following,' active','')}"></i></span>
+								{!$Label.LBL_Follow}
+							</a></li>
+							<apex:outputPanel layout="none" rendered="{!FileDetail.modifiable}"><li><span onclick="delfg('{!FileDetail.versionId}');">
+								<a href="javascript:;"><i id="df{!FileDetail.versionId}" class='fa fa-trash'></i>{!$Label.LBL_Delete}</a>
+							</span></li></apex:outputPanel>
+						</ul>
+						<apex:outputPanel layout="block" styleClass="panel panel-default margin-bottom-10" rendered="{!!ISBLANK(FileDetail.description)}">
+							<div class="panel-body">
+								<p>{!FileDetail.description}</p>
+							</div>
+						</apex:outputPanel>
+						<apex:outputPanel layout="block" styleClass="panel panel-default">
+							<div class="panel-body">
+								<img class="img-responsive" src="{!FileDetail.previewUrl}" style="display:block; margin-left:auto; margin-right:auto;"/>
+							</div>
+						</apex:outputPanel>
+					</apex:outputPanel>
+
+					<apex:outputPanel layout="block" rendered="{!!allOk}" styleClass="alert alert-info">
+						<a href="{!$Page.CommunityGroupDetailPage}?gr={!chatterGroup.Id}" class="alert-link">{!$Label.LBL_ReturnToGroup}</a>
+					</apex:outputPanel>
+				</div>
+				<!-- End Center -->
+
+			</apex:outputPanel>
+		</apex:outputPanel>
+	</apex:outputPanel>
+	
+	<div id="cglayout" class="modal fade bs-example-modal-lg" html-tabindex="-1" html-role="dialog" html-aria-labelledby="mlid" html-aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button aria-hidden="true" data-dismiss="modal" class="close" type="button">&times;</button>
+					<h4 id="mlid" class="modal-title">
+						<span id="mlids"></span>
+						<apex:actionStatus id="modalLoad">
+							<apex:facet name="start">
+								&nbsp;<i class="fa fa-spinner fa-pulse"></i>
+							</apex:facet>
+						</apex:actionStatus>
+					</h4>
+				</div>
+				<apex:outputPanel id="cgfiles">
+					<!-- preview section -->
+					<apex:outputPanel layout="none" rendered="{!modal == 'preview'}">
+						<div class="modal-body">
+							<img class="img-responsive" src="{!stack}" style="display:block; margin-left:auto; margin-right:auto;"/>
+						</div>
+					</apex:outputPanel>
+
+					<!-- upload new version section -->
+					<apex:outputPanel layout="block" rendered="{!modal == 'newversion'}" styleClass="profile">
+						<div class="modal-body sky-form">
+							<section id="nvfofs" style="display:none;">
+								<label id="nvfolbl" for="file" class="input input-file"></label>
+								<span id="nvfopr"><div class="button">
+									<input type="file" id="nvfile" onchange="nvvalidate(this);"/>
+									{!$Label.BTN_ChooseFile}
+								</div><input type="text" readonly="true"/></span>
+								<div class="note">{!$Label.LBL_File_Upload_Size_Limit}</div>
+							</section>
+							<section>
+								<label class="textarea">
+									<textarea id="nvta" rows="3" placeholder="{!$Label.LBL_Files_Upload_WhatChanged}"></textarea>
+								</label>
+							</section>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn-u btn-u-default" data-dismiss="modal">{!$Label.BTN_Cancel}</button>
+							<button id="nvsbtn" type="button" class="btn-u btn-u-primary" onclick="nvsubmit();return false;" disabled="disabled" style="opacity:0.65;">{!$Label.LBL_Upload_File}</button>
+						</div>
+						<script>
+							$('#nvfolbl').html($('#nvfopr').html());
+							$('#nvfopr').remove();
+							$('#nvfofs').show();
+							function nvvalidate(el) {
+								if (el.files.length > 0) {
+									el.parentNode.nextSibling.value = el.files[0].name;
+									if (el.files[0].size <= 262144000) {
+										$('#nvsbtn').removeAttr('disabled','disabled').css('opacity','1');
+									}
+								}
+								else {
+									$('#nvsbtn').attr('disabled','disabled').css('opacity','0.65');
+								}
+							}
+							function nvsubmit() {
+								$('#nvsbtn').attr('disabled','disabled').css('opacity','0.65');
+								var inputfile = $('#nvfile')[0].files[0];
+								var reader = new FileReader();
+								reader.onloadend = function() {
+									var binary = "";
+									var bytes = new Uint8Array(reader.result);
+									for (var i = 0; i < bytes.byteLength; i++) {
+										binary += String.fromCharCode(bytes[i]);
+									}
+									sforce.connection.serverUrl = '{!$Site.Prefix}/services/Soap/u/33.0';
+									sforce.connection.sessionId = '{!GETSESSIONID()}';
+									var ContentVersion = new sforce.SObject('ContentVersion');
+									ContentVersion.VersionData =  new sforce.Base64Binary(binary).toString();
+									/*ContentVersion.Description = $('#nvta').val();*/
+									ContentVersion.ReasonForChange = $('#nvta').val();
+									ContentVersion.ContentDocumentId = '{!ParentDocumentId}';
+									ContentVersion.NetworkId = '{!CommunityId}';
+									ContentVersion.PathOnClient = $('#nvfile')[0].files[0].name;
+									sforce.connection.create(
+										[ContentVersion], 
+										{
+											onSuccess : function(result, source) {
+												if (result[0].getBoolean("success")) {
+													window.location.href = window.location.href;
+												}
+												else {
+													console.log(result[0].errors.message);
+												}
+											},
+											onFailure : function(error, source) {
+												console.log(error);
+											}
+										}
+									);
+								}
+								reader.readAsArrayBuffer(inputfile);
+							}
+						</script>
+					</apex:outputPanel>
+
+					<!-- share section -->
+					<apex:outputPanel layout="block" rendered="{!modal == 'sharegroup' || modal == 'sharepeople'}">
+						<apex:form styleClass="sky-form">
+							<div class="modal-body">
+								<section id="selectedGroup">
+									<apex:outputLabel value="{!IF(modal == 'sharegroup',$Label.LBL_Share_To_A_Group,$Label.Feed_Nav_People)}"/>
+									<div class="div-like-input clearfix">
+										<div id="groupsContainer" class="groups-container clearfix">
+											<input id="groupsInput" class="input-inviz" type="text" data-provide="typeahead" autocomplete="off" size="2"></input>
+										</div>
+										<apex:inputHidden value="{!shareChoice}" id="hdngrps"/>
+									</div>
+								</section>
+								<apex:outputPanel layout="none" rendered="{!modal == 'sharegroup'}"><section>
+									<a id="linkshfg" href="javascript:;" onclick="switchselector(true);" class="addGroups">{!$Label.LBL_Share_AddGroup}</a>
+									<div id="panelshff" class="panel panel-success" style="display:none;">
+										<div class="panel-heading">
+											<h3 class="panel-title">{!$Label.LBL_MyGroups}</h3>
+										</div>
+										<div class="panel-body">
+											<ul class="list-unstyled blog-tags">
+												<apex:repeat value="{!Groups}" var="gr">
+													<li>
+														<a href="javascript:;" onclick="addtti('{!gr.id}','{!JSENCODE(gr.name)}');">
+															<i class="fa fa-users"></i>&nbsp;{!gr.name}
+														</a>
+													</li>
+												</apex:repeat>
+											</ul>
+										</div>
+									</div>
+								</section></apex:outputPanel>
+								<section id="commentshfg">
+									<label class="textarea">
+										<apex:inputTextarea id="commentArea" value="{!shareComment}" html-placeholder="{!$Label.LBL_Files_SaySomething}"/>
+									</label>
+								</section>
+							</div>
+							<div class="modal-footer">
+								<button id="cbtnshfg"  type="button" class="btn-u btn-u-default" data-dismiss="modal">{!$Label.BTN_Cancel}</button>
+								<button id="sbtnshfg" type="button" class="btn-u btn-u-primary" onclick="makeshare();return false;" disabled="disabled" style="opacity:0.65;">{!$Label.LBL_Share}</button>
+								<button id="btnshff" type="button" class="btn-u btn-u-primary" onclick="switchselector(false);return false;" style="display:none;">{!$Label.LBL_Done}</button>
+							</div>
+							<apex:actionFunction action="{!shareAction}" name="shareaction" rerender="cgfiles" status="modalLoad" oncomplete="$('#cglayout').modal('hide');"/>
+						</apex:form>
+						<script>
+							var searchGroups = _.debounce(function(query, process) {
+								Visualforce.remoting.Manager.invokeAction(
+									{!IF(modal == 'sharegroup','GET_GROUP_RA','GET_PEOPLE_RA')},
+									query,
+									function(result, event) {
+										if(result == null) return;
+										var div = document.createElement('div');
+										div.innerHTML = result;
+										var gdata = JSON.parse(div.firstChild.nodeValue);
+										groups = [];
+										groups_map = [];
+										_.each(gdata, function (group, ix, list) {
+											groups.push(group.name);
+											groups_map.push(group);
+										});
+										process(groups);
+									}
+								);
+							}, 300);
+							$('#groupsInput').typeahead({
+								source:function (query, process) {
+									searchGroups(query, process);
+								},
+								updater: function(item) {
+									_.each(groups_map, function (group, ix, list) {
+										if ((group.name) == item) {
+											addtti(group.id,item);
+										}
+									});
+									return '';
+								}
+							});
+							function addtti(tid,fn) {
+								if ($('span[id='+tid+']').length == 0) {
+									var span = '<span id="'+tid+'" class="item guestItem"><span>'+fn+'</span><a href="javascript:void(0);" onclick="removeGroup(\''+tid+'\')" class="remove"><img src="/s.gif"></a></span>';
+									$('#groupsInput').before(span);
+									$('[id$=hdngrps]').val($('[id$=hdngrps]').val() + tid + ',');
+									$('#sbtnshfg').css('opacity','1').removeAttr('disabled');
+								}
+							}
+							function removeGroup(inp) {
+								$('#groupsContainer #'+inp).remove();
+								$('[id$=hdngrps]').val($('[id$=hdngrps]').val().replace(inp+',' ,''));
+								if ($('#sectionnote').length > 0) {
+									$('#sectionnote').remove();
+									$('#sbtnshfg').css('opacity','1').removeAttr('disabled');
+								}
+								if ($('#groupsContainer span.item').length == 0) {
+									$('#sbtnshfg').css('opacity','0.65').attr('disabled','disabled');
+								}
+							}
+							function switchselector(bl) {
+								$('[id$='+(bl?'shfg':'shff')+']').hide();
+								$('[id$='+(bl?'shff':'shfg')+']').show();
+							}
+							function makeshare() {
+								$('[id$=btnshfg]').css('opacity','0.65').attr('disabled','disabled');
+								shareaction();
+							}
+						</script>
+					</apex:outputPanel>
+
+					<!-- update section -->
+					<apex:outputPanel layout="block" rendered="{!modal == 'update'}">
+						<apex:form styleClass="sky-form">
+							<div class="modal-body">
+								<section>
+									<label class="label">{!$Label.LBL_Files_FileName}</label>
+									<label class="input">
+										<apex:inputText value="{!cvRecord.Title}" onkeyup="chcktf(this);"/>
+									</label>
+								</section>
+								<section>
+									<label class="label">{!$Label.LBL_Description}</label>
+									<label class="textarea">
+										<apex:inputTextarea value="{!cvRecord.Description}"/>
+									</label>
+								</section>
+							</div>
+							<div class="modal-footer">
+								<button id="cbtnuc"  type="button" class="btn-u btn-u-default" data-dismiss="modal">{!$Label.BTN_Cancel}</button>
+								<button id="sbtnuc" type="button" class="btn-u btn-u-primary" onclick="updateaction();$('[id$=sbtnuc]').css('opacity','0.65').attr('disabled','disabled');return false;">{!$Label.BTN_Save}</button>
+							</div>
+							<apex:actionFunction action="{!updateAction}" name="updateaction" rerender="cgfiles,cgpanel,dpanel,brname" status="modalLoad" oncomplete="$('#cglayout').modal('hide');"/>
+							<script>
+								function chcktf(el) {
+									var df = $('[id$=sbtnuc]').attr('disabled');
+									if (el.value.trim() == '' && df != 'disabled') {
+										$('[id$=sbtnuc]').css('opacity','0.65').attr('disabled','disabled');
+									}
+									else if (df == 'disabled'){
+										$('[id$=sbtnuc]').css('opacity','1').removeAttr('disabled');
+									}
+								}
+							</script>
+						</apex:form>
+					</apex:outputPanel>
+				</apex:outputPanel>
+			</div>
+		</div>
+	</div>
+	<apex:form>
+		<apex:actionFunction action="{!modeAction}" name="preparemode" rerender="cgfiles" status="modalLoad">
+			<apex:param name="md" assignTo="{!modal}" value=""/>
+			<apex:param name="sd" assignTo="{!stack}" value=""/>
+		</apex:actionFunction>
+		<apex:actionFunction action="{!deleteAction}" name="deletefile" rerender="cgpanel">
+			<apex:param name="fd" assignTo="{!stack}" value=""/>
+		</apex:actionFunction>
+	</apex:form>
+	<script>
+		var GET_GROUP_RA = '{!$RemoteAction.CommunityGroupFilesController.getGroupsSelector}';
+		var GET_PEOPLE_RA = '{!$RemoteAction.CommunityGroupFilesController.getPeoplesSelector}';
+		function makepreview(u,n) {
+			$('#mlids').text(n);
+			$('[id$=cgfiles]').hide();
+			preparemode('preview',u);
+		}
+		function makenv(v) {
+			$('#mlids').text('{!$Label.BTN_Upload}');
+			$('[id$=cgfiles]').hide();
+			preparemode('newversion',v);
+		}
+		function sharep(v) {
+			$('#mlids').text('{!$Label.LBL_Files_SharePeople}');
+			$('[id$=cgfiles]').hide();
+			preparemode('sharepeople',v);
+		}
+		function shareg(v) {
+			$('#mlids').text('{!$Label.LBL_Files_ShareGroup}');
+			$('[id$=cgfiles]').hide();
+			preparemode('sharegroup',v);
+		}
+		function upver(v) {
+			$('#mlids').text('{!$Label.LBL_Files_EditFile_Title}');
+			$('[id$=cgfiles]').hide();
+			preparemode('update',v);
+		}
+		function followa(v,f) {
+			$('#'+v.id+' i').attr('class','fa fa-spinner fa-pulse');
+			Visualforce.remoting.Manager.invokeAction(
+				'{!$RemoteAction.CommunityGroupFilesController.subscriberAction}',
+				v.id,
+				f,
+				function(result, event) {
+					$('#'+v.id).replaceWith('<span id="'+v.id+'" onclick="followa(this,'+!f+');"><i class="fa fa-plus-circle'+(!f?' active':'')+'"></i></span>');
+				}
+			);
+		}
+		function delfg(v) {
+			if (confirm('Are you sure?')) {
+				$('i#df'+v).attr('class','fa fa-spinner fa-pulse').closest('span').removeAttr('onclick');
+				deletefile(v);
+			}
+		}
+	</script>
+
+</apex:define>
+</apex:composition>
+</apex:page>

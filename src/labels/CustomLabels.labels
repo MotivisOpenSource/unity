@@ -113,6 +113,13 @@
         <value>Decline</value>
     </labels>
     <labels>
+        <fullName>BTN_Download</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>BTN Download</shortDescription>
+        <value>Download</value>
+    </labels>
+    <labels>
         <fullName>BTN_Edit</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -190,6 +197,13 @@
         <value>OK</value>
     </labels>
     <labels>
+        <fullName>BTN_Preview</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>BTN Preview</shortDescription>
+        <value>Preview</value>
+    </labels>
+    <labels>
         <fullName>BTN_Rechat</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -258,6 +272,13 @@
         <protected>true</protected>
         <shortDescription>Update Resource Button</shortDescription>
         <value>Update Resource</value>
+    </labels>
+    <labels>
+        <fullName>BTN_Upload</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>BTN Upload</shortDescription>
+        <value>Upload New Version</value>
     </labels>
     <labels>
         <fullName>BTN_Upload_Resource</fullName>
@@ -517,6 +538,13 @@
         <protected>true</protected>
         <shortDescription>LBL Add Remove Members</shortDescription>
         <value>Add/Remove Members</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Add_Tags</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Add Tags</shortDescription>
+        <value>Add Tags</value>
     </labels>
     <labels>
         <fullName>LBL_AgreeToTerms</fullName>
@@ -946,6 +974,111 @@
         <value>File size may not exceed 25 MB</value>
     </labels>
     <labels>
+        <fullName>LBL_Files_Actions_Header</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Files Actions Header</shortDescription>
+        <value>Actions</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Files_EditFile_Title</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Files EditFile Title</shortDescription>
+        <value>Edit File Details</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Files_FileName</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Files FileName</shortDescription>
+        <value>Name</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Files_Files</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Files Files</shortDescription>
+        <value>Files</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Files_LastModified_Header</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Files LastModified Header</shortDescription>
+        <value>Last Modified</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Files_ListingPageTitle</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Files ListingPageTitle</shortDescription>
+        <value>Files Shared With</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Files_Name_Header</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Files Name Header</shortDescription>
+        <value>Name</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Files_NoFilesMessage</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Files NoFilesMessage</shortDescription>
+        <value>No files have been posted to this group.</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Files_Not_Found</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Files Not Found</shortDescription>
+        <value>Files not found</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Files_Owner_Header</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Files Owner Header</shortDescription>
+        <value>Owner</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Files_SaySomething</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Files SaySomething</shortDescription>
+        <value>Say something about this file...</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Files_SearchBox</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Files SearchBox</shortDescription>
+        <value>Search</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Files_ShareGroup</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Files ShareGroup</shortDescription>
+        <value>Share with groups</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Files_SharePeople</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Files SharePeople</shortDescription>
+        <value>Share with people</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Files_Upload_WhatChanged</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Files Upload WhatChanged</shortDescription>
+        <value>What changed?</value>
+    </labels>
+    <labels>
         <fullName>LBL_Filter_by</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -1049,6 +1182,13 @@
         <protected>true</protected>
         <shortDescription>LBL Help</shortDescription>
         <value>Help</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Home</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Home</shortDescription>
+        <value>Home</value>
     </labels>
     <labels>
         <fullName>LBL_Interests</fullName>
@@ -1371,6 +1511,13 @@
         <protected>true</protected>
         <shortDescription>LBL Next</shortDescription>
         <value>Next</value>
+    </labels>
+    <labels>
+        <fullName>LBL_NoGroupsFound</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL NoGroupsFound</shortDescription>
+        <value>No Groups have been found.</value>
     </labels>
     <labels>
         <fullName>LBL_NoUsersFound</fullName>
@@ -1869,6 +2016,13 @@
         <value>Show Members Only</value>
     </labels>
     <labels>
+        <fullName>LBL_ShowMore</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL ShowMore</shortDescription>
+        <value>Show More...</value>
+    </labels>
+    <labels>
         <fullName>LBL_Show_All</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -1950,7 +2104,7 @@
         <language>en_US</language>
         <protected>true</protected>
         <shortDescription>LBL Upload File</shortDescription>
-        <value>Upload File</value>
+        <value>Upload</value>
     </labels>
     <labels>
         <fullName>LBL_Username</fullName>
@@ -1986,6 +2140,13 @@
         <protected>true</protected>
         <shortDescription>LBL When</shortDescription>
         <value>When:</value>
+    </labels>
+    <labels>
+        <fullName>LBL_about_this_group</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL about this group</shortDescription>
+        <value>About this group</value>
     </labels>
     <labels>
         <fullName>LBL_of</fullName>

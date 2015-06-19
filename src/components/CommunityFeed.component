@@ -2,6 +2,7 @@
 	<apex:attribute name="pid" type="String" assignTo="{!parentId}" required="false" description="Parent Id" />
 	<apex:attribute name="ft" type="String" assignTo="{!feedType}" required="false" description="Feed Type" />
 	<apex:attribute name="fm" type="Boolean" assignTo="{!fullMode}" required="false" default="true" description="Feed Type" />
+	<apex:attribute name="fu" type="Boolean" assignTo="{!showFileUpload}" required="false" default="false" description="Show File Upload" />
 	<apex:attribute name="sjcb" type="Boolean" required="false" default="false" description="show Join the Conversation button" />
 	<apex:attribute name="tf" type="Boolean" required="false" default="false" description="show feeds from" />
 	<script src="{!$Resource.CommunityResources}/js/underscore/underscore-min.js"></script>
@@ -795,14 +796,12 @@ h4.media-heading {
 							enableBtn('mesbtn');
 							refreshFeed();
 							setActiveli();
+							if (typeof(switchToMemberMode) == 'function') switchToMemberMode();
 						}else{
 							$('#postform-error').html('<strong>Error!</strong> ');
 							$('#postform-error').show();
 						}
-						
-
 					}
-
 				);
 				
 			}
@@ -910,6 +909,7 @@ h4.media-heading {
 						var tt = JSON.parse(div.firstChild.nodeValue);
 						if (tt.cname=='fa-times') {
 							$('#m'+tt.pid).remove();
+							if (typeof(switchToMemberMode) == 'function') switchToMemberMode();
 						}
 						else {
 							var nocl = 'inlAct(\''+tt.pid+'\',\''+tt.cname+'\',\''+tt.oid+'\');';
