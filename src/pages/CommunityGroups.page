@@ -16,7 +16,7 @@
 				<div class="profile-body margin-bottom-20">
 					<div class="row margin-bottom-20">
 						<div class="col-md-6 ">
-							<apex:form><div class="input-group">
+							<apex:form ><div class="input-group">
 								<apex:inputText id="gsid" value="{!searchQuery}" html-placeholder="{!$Label.LBL_SearchByName}" onkeyup="sgsa(this);" styleClass="form-control"/>
 								<span class="input-group-btn">
 									<button id="quickSearchButton" class="btn-u" style="min-width:40px;">
@@ -86,7 +86,7 @@
 			<!--MIDDLE-->
 		</div></div>
 	</div>
-	<apex:form>
+	<apex:form >
 		<apex:actionFunction name="showmoreaction" rerender="hdnrrarea,snmbtn" status="shmLoad" oncomplete="appendGroups();">
 			<apex:param name="sf" assignTo="{!startFrom}" value=""/>
 		</apex:actionFunction>

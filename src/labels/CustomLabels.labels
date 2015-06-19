@@ -505,6 +505,13 @@
         <value>About Me</value>
     </labels>
     <labels>
+        <fullName>LBL_About_this_group</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL About this group</shortDescription>
+        <value>About this group</value>
+    </labels>
+    <labels>
         <fullName>LBL_Add</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -1932,6 +1939,13 @@
         <value>Select Image</value>
     </labels>
     <labels>
+        <fullName>LBL_Select_Prim_Tags</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Select Prim Tags</shortDescription>
+        <value>What primary tags can I use?</value>
+    </labels>
+    <labels>
         <fullName>LBL_Select_Tags</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -2140,13 +2154,6 @@
         <protected>true</protected>
         <shortDescription>LBL When</shortDescription>
         <value>When:</value>
-    </labels>
-    <labels>
-        <fullName>LBL_about_this_group</fullName>
-        <language>en_US</language>
-        <protected>true</protected>
-        <shortDescription>LBL about this group</shortDescription>
-        <value>About this group</value>
     </labels>
     <labels>
         <fullName>LBL_of</fullName>

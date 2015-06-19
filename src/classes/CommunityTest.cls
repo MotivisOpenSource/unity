@@ -90,6 +90,7 @@ private class CommunityTest {
 		crc2.mode = 'view';
 		crc2.init();
 		crc2.getTags();
+		crc2.getAvailablePriTags();
 	}
 	
 	static testMethod void test_CommunityGroupCreate() {
@@ -141,8 +142,10 @@ private class CommunityTest {
 
 		cgcc.cancel();
 	}
+	
 
-	static testMethod void test_CommunityProfile() {
+    @IsTest(SeeAllData=true)
+	static void test_CommunityProfile() {
 		Account acc = new Account(Name='testAccount');
 		insert acc;
 		Contact con = new Contact(LastName='TCLN', MailingPostalCode='99013', email='testc@testdomain.com', AccountId=acc.Id, Primary_Role__c='Student');
@@ -165,12 +168,20 @@ private class CommunityTest {
 		cppc.submit();
 		CommunityProfilePageController.NotificationPage np = cppc.getEmailNotifications();
 		np.sections[0].items[0].getInputHtml();
-		CollaborationGroup cg = new CollaborationGroup(Name='t');
-		CollaborationGroupMember cgm = new CollaborationGroupMember(CollaborationGroup=cg,NotificationFrequency='P');
+		CollaborationGroup cg = new CollaborationGroup(Name='t', CollaborationType = 'Public');
+		insert cg;
+		CollaborationGroupMember cgm = new CollaborationGroupMember(CollaborationGroupId=cg.id,MemberId = u.Id,NotificationFrequency='P');
+		insert cgm;
+		
+		System.debug('net -'+ Network.getNetworkId());
+		
 		CommunityProfilePageController.DigestItem di = new CommunityProfilePageController.DigestItem(cgm);
 		cppc.getDigestSettings();
 		cppc.getDefaultDigest();
+		cppc.getIsSubscribe();
 		System.RunAs(u) {
+		    System.debug('net23 -'+ Network.getNetworkId());
+			CommunityProfilePageController.toggleUserDigest(cg.id,'P');
 			CommunityProfilePageController.toggle(ct.Id,true);
 			CommunityProfilePageController.toggle(ct.Id,false);
 		}
@@ -246,6 +257,68 @@ private class CommunityTest {
 	
 	@IsTest(SeeAllData=true)
 	static void test_CommunityFeed_MyMessagesController() {
+	    
+	   Account acc = new Account(Name='testAccount');
+		insert acc;
+		Contact con = new Contact(LastName='TCLN', MailingPostalCode='99013', email='testc@testdomain.com', AccountId=acc.Id, Primary_Role__c='Student');
+		insert con;
+		Profile profile = [SELECT Id FROM Profile WHERE Name = 'System Administrator'];
+		User u = new User(alias='alias', email='email@email.com', emailencodingkey='UTF-8', lastname='lastname', firstname = 'firstName', languagelocalekey='en_US',
+			localesidkey='en_US', profileid = profile.Id, timezonesidkey='America/Los_Angeles', username='ttsde.tedf2@testmail.com',
+			FederationIdentifier='TestContactName.TestContactLastname2', Community_Contact_ID__c=con.Id);
+		insert u;	
+		
+		FeedItem feedIt = new FeedItem();
+		feedIt.Title = 'Test Feed';
+		feedIt.Body = 'Test Body';
+		feedIt.ParentId = u.id;
+		insert feedIt;
+		
+		CollaborationGroup cg = new CollaborationGroup();
+		cg.Name = 'newgroup';
+		cg.CollaborationType = 'Public' ;
+		insert cg;	
+
+		CollaborationGroup gr = [SELECT Id, Name FROM CollaborationGroup LIMIT 1];
+		System.assertEquals(true, gr != null);
+		
+		CommunityFeed_MyMessagesController cfMMC = new CommunityFeed_MyMessagesController();
+		Integer mpp = cfMMC.MessagesPerPage;
+		String spt = cfMMC.SelectedPageToken;
+		CommunityFeed_MyMessagesController.searchUsers('');
+
+
+		CommunityFeed_MyMessagesController.ChatterGroupMember cgm2 = new CommunityFeed_MyMessagesController.ChatterGroupMember(u, false);
+		CommunityFeed_MyMessagesController.ChatterGroupMember cgm3 = new CommunityFeed_MyMessagesController.ChatterGroupMember(u, false, '');
+		CommunityFeed_MyMessagesController.ChatterGroupMember cgm4 = new CommunityFeed_MyMessagesController.ChatterGroupMember(new CollaborationGroupMember());
+		CommunityFeed_MyMessagesController.ChatterMessageSegment cms = new CommunityFeed_MyMessagesController.ChatterMessageSegment('txt','Text');
+
+		
+	  
+		CollaborationGroupMember cgm = new CollaborationGroupMember(CollaborationGroupId=cg.id,MemberId = u.Id,NotificationFrequency='P');
+		insert cgm;
+		
+		
+		Test.startTest();
+			List<CommunityFeed_MyMessagesController.ChatterConversation> conv = cfMMC.getConversations('', spt, 5);
+			
+			ApexPages.currentPage().getParameters().put('c',conv[0].ConversationId);
+			CommunityFeed_MyMessagesController cfMMC_1 = new CommunityFeed_MyMessagesController();
+			String npt = cfMMC_1.NextPageToken;
+			cfMMC.SearchQuery = '1212';
+			//cfMMC_1.showMoreConversations();
+			cfMMC_1.loadOlderMessages();
+			cfMMC_1.newConversation('test 2', u.id);
+			cfMMC_1.SearchQuery = 'test';
+			System.assertEquals(true, true);
+			//cfMMC_1.doSearchMessages();
+			//cfMMC_1.searchConversations(spt, 5, 'testQuery');
+			//cfMMC_1.markConversationRead();
+			//CommunityFeed_MyMessagesController.sendMessage( 'texr',u.Id  );
+
+		Test.stopTest();
+	    
+	    /*
 		Account acc = new Account(Name='testAccount');
 		insert acc;
 		Contact con = new Contact(LastName='TCLN', MailingPostalCode='99013', email='testc@testdomain.com', AccountId=acc.Id, Primary_Role__c='Student');
@@ -287,18 +360,18 @@ private class CommunityTest {
 			ApexPages.currentPage().getParameters().put('c',conv[0].ConversationId);
 			CommunityFeed_MyMessagesController cfMMC_1 = new CommunityFeed_MyMessagesController();
 			String npt = cfMMC_1.NextPageToken;
-			//cfMMC.showMoreConversations();
+			//cfMMC.showMoreConversations();//
 			cfMMC_1.loadOlderMessages();
 			cfMMC_1.newConversation('test 2', u.id);
 			cfMMC_1.SearchQuery = 'test';
 			System.assertEquals(true, true);
-			//cfMMC_1.doSearchMessages();
-			//cfMMC_1.searchConversations(spt, 5, 'testQuery');
-			//cfMMC_1.markConversationRead();
+			//cfMMC_1.doSearchMessages();//
+			//cfMMC_1.searchConversations(spt, 5, 'testQuery');//
+			cfMMC_1.markConversationRead();//
 			
 
 		Test.stopTest();
-		
+		*/
 	}
 	
 	@IsTest(SeeAllData=true)
@@ -590,7 +663,7 @@ private class CommunityTest {
 		CommunityGroupFilesController.getPeoplesSelector('cersei');
 		CommunityGroupFilesController.subscriberAction(vId, false);
 		cgfc.modal = 'sharegroup';
-		cgfc.getAvailableGroups();
+		cgfc.getGroups();
 		cgfc.modal = 'newversion';
 		ApexPages.currentPage().getParameters().put('f', cgfc.getParentDocumentId());
 		cgfc.initFromPage();

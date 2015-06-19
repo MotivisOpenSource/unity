@@ -105,7 +105,7 @@
 							</table>
 							</apex:outputPanel>
 							<apex:outputPanel layout="none" rendered="{!filesPagesTotal > 1}">
-								<apex:form><ul class="pager">
+								<apex:form ><ul class="pager">
 									<apex:outputPanel layout="none" rendered="{!filesHasPrevious}">
 										<li class="previous">
 											<apex:commandLink action="{!filesFirstPage}" value="{!$Label.LBL_First}" rerender="cgpanel" status="filesLoad"/>
@@ -427,7 +427,7 @@
 			</div>
 		</div>
 	</div>
-	<apex:form>
+	<apex:form >
 		<apex:actionFunction action="{!modeAction}" name="preparemode" rerender="cgfiles" status="modalLoad">
 			<apex:param name="md" assignTo="{!modal}" value=""/>
 			<apex:param name="sd" assignTo="{!stack}" value=""/>
