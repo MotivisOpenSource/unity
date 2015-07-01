@@ -140,7 +140,7 @@
 								<a href="#cglayout" onclick="makenv('{!FileDetail.versionId}');" role="button" data-toggle="modal"><i class='fa fa-upload'></i>{!$Label.LBL_Upload_File}</a>
 							</li></apex:outputPanel>
 							<apex:outputPanel layout="none" rendered="{!enableShare}"><li class="dropdown">
-								<a class="dropdown-toggle" data-toggle="dropdown">
+								<a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown">
 									<i class='fa fa-share'></i>{!$Label.LBL_Share}
 								</a>
 								<ul class="dropdown-menu" role="menu">
@@ -151,9 +151,9 @@
 							<apex:outputPanel layout="none" rendered="{!FileDetail.modifiable}"><li>
 								<a href="#cglayout" onclick="upver('{!FileDetail.versionId}');" role="button" data-toggle="modal"><i class='fa fa-pencil'></i>{!$Label.BTN_Edit}</a>
 							</li></apex:outputPanel>
-							<li><a>
-								<span id="{!FileDetail.versionId}" onclick="followa(this,{!FileDetail.following});"><i class="fa fa-plus-circle{!IF(FileDetail.following,' active','')}"></i></span>
-								{!$Label.LBL_Follow}
+							<li class="file-action-button"><a href="javascript:void(0);" id="{!FileDetail.versionId}" onclick="followa(this,{!FileDetail.following});" class="{!IF(FileDetail.following,' active','')}">
+								<span><i class="fa fa-plus-circle{!IF(FileDetail.following,' active','')}"></i></span>
+								{!IF(FileDetail.following, $Label.BTN_Following, $Label.LBL_Follow)}
 							</a></li>
 							<apex:outputPanel layout="none" rendered="{!FileDetail.modifiable}"><li><span onclick="delfg('{!FileDetail.versionId}');">
 								<a href="javascript:;"><i id="df{!FileDetail.versionId}" class='fa fa-trash'></i>{!$Label.LBL_Delete}</a>
@@ -471,7 +471,12 @@
 				v.id,
 				f,
 				function(result, event) {
-					$('#'+v.id).replaceWith('<span id="'+v.id+'" onclick="followa(this,'+!f+');"><i class="fa fa-plus-circle'+(!f?' active':'')+'"></i></span>');
+					if($('#'+v.id).is('span')) {
+						$('#'+v.id).replaceWith('<span id="'+v.id+'" onclick="followa(this,'+!f+');"><i class="fa fa-plus-circle'+(!f?' active':'')+'" title="'+(!f?'{!$Label.BTN_Following}':'{!$Label.LBL_Follow}')+'"></i></span>');
+					}
+					else if($('#'+v.id).is('a')) {
+						$('#'+v.id).replaceWith('<a href="javascript:void(0);" id="'+v.id+'" onclick="followa(this,'+!f+');" class="'+(!f?' active':'')+'"><span><i class="fa fa-plus-circle'+(!f?' active':'')+'"></i></span>'+(!f?'{!$Label.BTN_Following}':'{!$Label.LBL_Follow}')+'</a>');
+					}
 				}
 			);
 		}

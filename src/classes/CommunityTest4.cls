@@ -189,7 +189,7 @@ private class CommunityTest4 {
 		ApexPages.currentPage().getParameters().put('gc',cgc.Id); 
 		ApexPages.currentPage().getParameters().put('gr',cg.Id);  	
 		CommunityAboutGroupComponentController cagcc = new CommunityAboutGroupComponentController();
-		cagcc.control = CommunityAboutGroupComponentController.pullGroupControlRecord();
+		cagcc.control = cagcc.pullGroupControlRecord();
 		cagcc.currentGroupControlId = cagcc.control.Id;
 		System.Debug(cagcc.control);
 		cagcc.groupRole = 'Owner';
@@ -201,7 +201,7 @@ private class CommunityTest4 {
 		cagcc.submitAction();
 		ApexPages.currentPage().getParameters().put('gc',null); 
 		ApexPages.currentPage().getParameters().put('gr',null);
-		cagcc.control = CommunityAboutGroupComponentController.pullGroupControlRecord();  	
+		cagcc.control = cagcc.pullGroupControlRecord();  	
 		cagcc.allOk = true;	
 	}
 }

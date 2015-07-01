@@ -4,7 +4,7 @@
     
     
     <style type="text/css">
-    	.errorText { padding:15px 30px; margin-bottom:20px; border:1px solid #ebccd1; background-color:#f2dede; color:#a94442;}
+        .errorText { padding:15px 30px; margin-bottom:20px; border:1px solid #ebccd1; background-color:#f2dede; color:#a94442;}
     </style>
     
     <script type="text/javascript">
@@ -15,14 +15,13 @@
             $('.errorText').hide();
             refreshData(); 
         }
-        
     </script>
     
     <button class="btn-u margin-bottom-5" onClick="modalBtn();" data-toggle="modal" title="click here" data-target="#myModal1"><i class="fa fa-question-circle"></i>&nbsp;{!$Label.LBL_about_this_group}</button>
     
     <apex:form >
-    	<apex:actionFunction action="{!cancelAction}"  name="refreshData" rerender="theForm" onComplete="remowestatusOfLoad();"/>
-	</apex:form>    
+        <apex:actionFunction action="{!cancelAction}"  name="refreshData" rerender="theForm" onComplete="remowestatusOfLoad();"/>
+    </apex:form>    
     <div id="myModal1" class="modal fadeb" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true" >
         <div class="modal-dialog">
             <div class="modal-content">
@@ -31,12 +30,12 @@
                     <h4 id="myLargeModalLabel2" class="modal-title">{!$Label.LBL_about_this_group}</h4>
                 </div>
                 <div class="tab-pane active text-center margin-bottom-10" id="statusOfLoad">
-						<i class="fa fa-spinner fa-pulse fa-4x"></i>
-					</div>
+                        <i class="fa fa-spinner fa-pulse fa-4x"></i>
+                    </div>
                 <div id="theformdiv" class="modal-body" style="display: none;">
                     <div class="errorText" style="display:none">
-                	    <apex:pageMessages id="pageMessages"/>
-                	</div>
+                        <apex:pageMessages id="pageMessages"/>
+                    </div>
                     <apex:form id="theForm" style="margin:20px;" styleClass="sky-form" >                        
                         <apex:variable var="index" value="{!0}" />
                         <div class="margin-bottom-15"></div>
@@ -46,34 +45,65 @@
                                 <dd>
                                     <apex:outputPanel >
                                         <span id="vfld{!index}">
-											<apex:outputField value="{!control[fs.fieldPath]}"/>
-											<apex:outputLink value="javascript:void(0);" styleClass="pull-right" onclick="shwe('{!index}');" style="display:{!canEdit};">
-												<i class="fa fa-pencil" id="elink{!index}"></i>
-											</apex:outputLink>
-										</span>
+                                            <apex:outputField value="{!control[fs.fieldPath]}" rendered="{!IF(fs.Type == 'textarea', false, true)}"/>
+                                            <span>
+                                                <apex:outputText value="{!mapFieldsGroupObject[fs.fieldPath]}" rendered="{!IF(fs.Type == 'textarea', true, false)}"/>
+                                            </span>
+                                            <apex:outputLink value="javascript:void(0);" styleClass="pull-right" onclick="shwe('{!index}');" style="display:{!canEdit};">
+                                                <i class="fa fa-pencil" id="elink{!index}"></i>
+                                            </apex:outputLink>
+                                        </span>
+
                                         <apex:outputPanel layout="none">
                                             <div id="efld{!index}" style="display:none;">
                                                 <apex:inputField style="width: 100%" id="vflde" value="{!control[fs.fieldPath]}" 
+                                                    rendered="{!IF(fs.Type == 'textarea', false, true)}"
                                                     required="{!fs.required}" 
-                                                    onchange="$('#vfld{!index}').text($('#efld' + {!index} + ' [id$=vflde]').val()).css('color','coral').css('font-weight','bold');" 
+                                                    onchange="onChangeEdit({!index});" 
                                                     onblur="shwv({!index});"
                                                 />
+                                                <span>
+                                                <apex:inputText style="width: 100%" id="tvflde" value="{!mapFieldsGroupObject[fs.fieldPath]}" 
+                                                    rendered="{!IF(fs.Type == 'textarea', true, false)}"
+                                                    required="{!fs.required}" 
+                                                    onchange="onChangeEdit({!index});" 
+                                                    onblur="shwv({!index});"
+                                                />
+                                                </span>
                                             </div>
                                             <script type="text/javascript">
-                                        		if($('#efld{!index}>.errorMsg').length) {
-                                        			shwe('{!index}');
-                                        		}
-                                        		if(($('#efld{!index}').find('input').length==0)&&($('#efld{!index}').find('textarea').length==0)&&($('#efld{!index}').find('select').length==0)) {
-                                        			$('#elink' + {!index}).hide();
+                                                function onChangeEdit(ini) {
+                                                    if ($('#efld' + ini + ' [id$=vflde]').attr('type') != 'checkbox') {
+                                                        if($('#efld' + ini + ' [id$=vflde]').val() != ''){
+                                                            $('#vfld'+ini).text($('#efld' + ini + ' [id$=vflde]').val()).css('color','coral').css('font-weight','bold');
+                                                        }else{
+                                                            $('#vfld'+ini).text($('#efld' + ini + ' [id$=tvflde]').val()).css('color','coral').css('font-weight','bold');
+                                                        }
+                                                    }
+                                                    else {
+                                                        $('#vfld' + ini + ' img').remove();
+                                                        $('#vfld' + ini + ' .p-chb').remove();
+                                                        $('#vfld' + ini).append('<i class="fa fa-'+($('#efld' + ini + ' [id$=vflde]').prop('checked')?'check-':'')+'square-o p-chb"></i>');
+                                                    }
+                                                    
+                                                }
+                                            
+                                                if($('#efld{!index}>.errorMsg').length){
+                                                    shwe('{!index}');
+                                                }
+                                                //fls to edit
+                                                if(($('#efld{!index}').find('input').length==0)&&($('#efld{!index}').find('textarea').length==0)&&($('#efld{!index}').find('select').length==0)) {
+                                                    $('#elink{!index}').hide();
+                                                    $('#efld{!index}').hide();
+                                                }
+                                                //fls to read
+                                                if(($('#vfld{!index}').find('span').length==0)) {
+                                                    $('#elink' + {!index}).hide();
                                                     $('#efld' + {!index}).hide();
-                                        		}
-                                        		if(($('#vfld{!index}').find('span').length==0)) {
-                                        			$('#elink' + {!index}).hide();
-                                        			$('#efld' + {!index}).hide();
                                                     $('#vfld' + {!index}).hide();
                                                     $('#tfld' + {!index}).hide();
-                                        		}
-                                        	</script>
+                                                }
+                                            </script>
                                         </apex:outputPanel>
                                     </apex:outputPanel>
                                 </dd>
@@ -113,51 +143,48 @@
                             </div>
                         </apex:outputPanel>
                         <apex:outputPanel layout="block" id="btnblk" style="display:none; padding:10px;">
-                        	<button class="btn-u pull-right margin-right-5" type="button" onclick="saveAct();return null;">
-                        		<apex:actionStatus id="statusLoadSubmit">
-			                        <apex:facet name="start">
-			                            &nbsp;<i class="fa fa-spinner fa-pulse"></i>
-			                        </apex:facet>
-			                    </apex:actionStatus>
-			                    {!$Label.BTN_Save} 	
-			                </button>
-                        	<button class="btn-u btn-u-sm btn-u-default pull-right margin-right-5" type="button" onclick="cancelBtn();return null;">
-                        		<apex:actionStatus id="cancelLoadSubmit">
-			                        <apex:facet name="start">
-			                            &nbsp;<i class="fa fa-spinner fa-pulse"></i>
-			                        </apex:facet>
-			                    </apex:actionStatus>
-                        		{!$Label.BTN_Cancel}
-                        	</button>
-                            <apex:actionFunction action="{!submitAction}" onComplete="saveBtn();"  name="saveAct" rerender="theForm,pageMessages" status="statusLoadSubmit"/>
-							<apex:actionFunction action="{!cancelAction}"  name="cancelAct" rerender="theForm,pageMessages" status="cancelLoadSubmit"/>
+                            <button class="btn-u pull-right margin-right-5" type="button" onclick="saveAct();return null;">
+                                <apex:actionStatus id="statusLoadSubmit">
+                                    <apex:facet name="start">
+                                        &nbsp;<i class="fa fa-spinner fa-pulse"></i>
+                                    </apex:facet>
+                                </apex:actionStatus>
+                                {!$Label.BTN_Save}  
+                            </button>
+                            <button class="btn-u btn-u-sm btn-u-default pull-right margin-right-5" type="button" onclick="cancelBtn();return null;">
+                                <apex:actionStatus id="cancelLoadSubmit">
+                                    <apex:facet name="start">
+                                        &nbsp;<i class="fa fa-spinner fa-pulse"></i>
+                                    </apex:facet>
+                                </apex:actionStatus>
+                                {!$Label.BTN_Cancel}
+                            </button>
                         </apex:outputPanel>
                         <script type="text/javascript">
-                            function saveBtn() {
-                        		if($('.errorText').find('table').length) {
-                    			    $('.errorText').show();
-                        		}
-                        		else {
-                        		    $('.errorText').hide();
-                        		}
-                        		refreshGroup();
-                        	}	
+                            function saveBtnComp() {
+                                if($('.errorText').find('table').length) {
+                                    $('.errorText').show();
+                                }
+                                else {
+                                    $('.errorText').hide();
+                                }
+                            }   
                             function cancelBtn() {
-                        		$('[id$=efld]').hide();
-                        		$('[id$=vflde]').val('');
-                        		$('.errorText').hide();
-                        		cancelAct();
-                        	}	
-                        	function remowestatusOfLoad() {
-    							$('#statusOfLoad').hide();
-    							$('#theformdiv').show();
-    						}
+                                $('[id$=efld]').hide();
+                                $('[id$=vflde]').val('');
+                                $('.errorText').hide();
+                                cancelAct();
+                            }   
+                            function remowestatusOfLoad() {
+                                $('#statusOfLoad').hide();
+                                $('#theformdiv').show();
+                            }
                             function shwe(ini) {
                                 $('#vfld' + ini).hide();
                                 $('#efld' + ini).show();
                                 $('#efld' + ini + ' [id$=vflde]').focus();
                                 $('[id$=btnblk]').show();
-                                iepp = ini;
+                                // iepp = ini;
                             } 
                             function shwv(ini) {
                                 if($('#efld'+ini+'>.errorMsg').length==0) {
@@ -167,6 +194,8 @@
                                 }
                             }
                     </script>
+                    <apex:actionFunction action="{!cancelAction}"  name="cancelAct" rerender="theForm, pageMessages" status="cancelLoadSubmit"/>
+                    <apex:actionFunction action="{!submitAction}" onComplete="saveBtnComp();"  name="saveAct" rerender="theForm,pageMessages" status="statusLoadSubmit"/>
                     </apex:form>
                 </div>
             </div>

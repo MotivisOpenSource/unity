@@ -23,7 +23,7 @@
 							</ul>
 							<div class="tab-content">
 								<div id="feed" class="profile-edit tab-pane fade in active">
-									<c:CommunityFeed ft="{!pft}"/>
+									<c:CommunityFeed ft="{!pft}" tf="true"/>
 								</div>
 							</div>
 						</div>

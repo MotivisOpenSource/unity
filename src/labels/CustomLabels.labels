@@ -113,6 +113,13 @@
         <value>Decline</value>
     </labels>
     <labels>
+        <fullName>BTN_Delete</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>BTN Delete</shortDescription>
+        <value>Delete</value>
+    </labels>
+    <labels>
         <fullName>BTN_Download</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -139,6 +146,13 @@
         <protected>true</protected>
         <shortDescription>Edit Resource Button</shortDescription>
         <value>Edit Resource</value>
+    </labels>
+    <labels>
+        <fullName>BTN_Follow</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Follow button/action</shortDescription>
+        <value>Follow</value>
     </labels>
     <labels>
         <fullName>BTN_Following</fullName>

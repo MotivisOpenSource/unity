@@ -576,7 +576,7 @@ public with sharing class CommunityEventController {
 			id = ince.Id;
 			name = ince.Name__c;
 			teaser = ince.Teaser__c;
-			eWhen = ' ' + ince.Start__c.format('MM/dd/yyyy @ h.mm a');
+			eWhen = ' ' + ince.Start__c.format('MM/dd/yyyy @ h:mm a');
 			eGroupName = ing == NULL ? NULL : ing[0];
 			eGroupId = ing == NULL ? NULL : ing[1];
 			tags = intgs == NULL ? new List<Tag>() : intgs;

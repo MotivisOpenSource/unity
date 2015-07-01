@@ -45,7 +45,7 @@
 					<div class="panel-link">
 					<!-- div class="panel panel-success" -->
 						<div class="panel-heading" onclick="toggleTagSection(this);">
-							<i id="tagicon" class="fa fa-caret-right"></i>&nbsp;<span>What primary tags can I use?</span>
+							<i id="tagicon" class="fa fa-caret-right"></i>&nbsp;<span>{!$Label.LBL_Select_Prim_Tags}</span>
 						</div>
 						<div id="tagsectionPrim" class="panel-body" style="display:none;">
 							<div class="panel-group acc-v1" id="accordion-2">
