@@ -135,31 +135,15 @@
 						</fieldset>
 					</div>
 					<apex:outputPanel id="availGroupsPanel" layout="Block">
-						<apex:inputHidden id="availGroupsOut" value="{!availGroups}" />
-						<div class="panel-group acc-v1" id="accordion-1" style="padding: 0 30px 5px;">
-							<apex:variable value="{!1}" var="rowNum"/>
-							<apex:repeat value="{!AvailableGroups}" var="ag">
-								<div id="tName" class="panel panel-default" >
-									<div class="panel-heading">
-										<h4 class="panel-title">
-											<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#accordion-1" aria-expanded="false" href="#collapse-{!rowNum}">{!ag.TagName}</a>
-										</h4>
-									</div>
-									<div id="collapse-{!rowNum}" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;" >
-										<div class="panel-body">
-											<ul class="list-unstyled blog-tags">
-												<apex:repeat value="{!ag.wrapperGroup}" var="group">
-													<li><a href="javascript:;" onclick="addtti('{!group.id}','{!JSENCODE(group.name)}');"><i class="fa fa-users"></i>&nbsp;{!group.name}</a>
-													</li>
-												</apex:repeat>
-											</ul>
-										</div>
-									</div>
-								</div>
-								<apex:variable var="rowNum" value="{!rowNum + 1}"/>	
+					<div class="panel-body">
+						<ul class="list-unstyled blog-tags">
+							<apex:repeat value="{!AvailableGroupsControls}" var="group">
+								<li><a href="javascript:;" onclick="addtti('{!group.id}','{!JSENCODE(group.name)}');"><i class="fa fa-users"></i>&nbsp;{!group.name}</a>
+								</li>
 							</apex:repeat>
-							<br/><apex:commandButton id="doneBtn" value="{!$Label.LBL_Done}" onclick="getAvailableGroups(true); return false;" styleClass="btn-u btn-u-primary"/>
-						</div>
+						</ul>
+					</div>
+					<br/><apex:commandButton id="doneBtn" value="{!$Label.LBL_Done}" onclick="getAvailableGroups(true); return false;" styleClass="btn-u btn-u-primary"/>
 					</apex:outputPanel>
 				</div>
 				<div class="modal-footer">

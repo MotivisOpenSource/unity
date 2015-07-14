@@ -2,6 +2,18 @@ public with sharing class CommunityNewsController {
 
 	public class CommunityNewsException extends Exception {}
 
+	public String folderId { 
+		get {
+			Community_Settings__c cs = Community_Settings__c.getInstance();
+			String prefix = CommunityUtils.getPackagePrefix().replace('_','');
+			List<sObject> folders = [SELECT Id, Name, NamespacePrefix FROM Folder where Name = :cs.Image_Library_Folder__c and NamespacePrefix like : prefix  Limit 1];
+			System.debug(folders);
+			System.debug('prefix '+prefix);
+			return folders.size()>0?folders[0].Id:null;
+		}
+		set;
+	}
+
 	// -- common variables --
 	private ApexPages.StandardController stdctrl;
 	@TestVisible private String mode;

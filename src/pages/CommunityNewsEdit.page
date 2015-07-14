@@ -68,7 +68,7 @@
 					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 					<h4 class="modal-title" id="myModalLabel">{!$Label.LBL_Select_Image}</h4>
 				</div>
-				<div class="modal-body">
+				<div class="modal-body" style="overflow-y: auto; height:350px; ">
 					<div id='libraryimagescontent'>
 					</div>
 					<div class="clearfix"></div>
@@ -120,14 +120,20 @@
 				var docs = new SObjectModel.Document();
 				docs.retrieve(
 					{
+						limit:100,
 						where: {
 							IsPublic: {
 								eq: true
 							},
 							Type: {
 								in:['jpeg','jpg','bmp','gif','png']
+							},
+							FolderId: {
+								eq: '{!folderId}'
 							}
-						}
+						},
+						orderby: [ {LastModifiedDate: 'DESC'} ]
+						
 					},
 					function(err, records, event){
 						if(err) {
@@ -221,7 +227,7 @@
 </apex:composition>
 <apex:remoteObjects >
 		<apex:remoteObjectModel name="Document" jsShorthand="roDocument" 
-			fields="Name,Id, IsPublic, Type">
+			fields="Name,Id, IsPublic, Type, FolderId,LastModifiedDate">
 		</apex:remoteObjectModel>
 	</apex:remoteObjects>
 </apex:page>

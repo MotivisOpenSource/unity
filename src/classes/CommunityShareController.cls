@@ -301,6 +301,25 @@ global without sharing class CommunityShareController {
 		}
 
 	}
+	
+	public List<Community_Group_Control__c> AvailableGroupsControls { 
+		get {
+			Set<String> filtredChatterGroups = new Set<String>();
+			for (CollaborationGroupMember cgmItem : [
+					SELECT CollaborationGroupId FROM CollaborationGroupMember
+					WHERE CollaborationGroup.NetworkId = :Network.getNetworkId() AND MemberId = :UserInfo.getUserId()
+						]) {
+				filtredChatterGroups.add(cgmItem.CollaborationGroupId);
+			}
+			//gQuery += ' WHERE Chatter_Group_ID__c IN :filtredChatterGroups';
+			
+			return filtredChatterGroups.size() > 0?[SELECT Id, Name, Chatter_Group_ID__c FROM  Community_Group_Control__c WHERE Chatter_Group_ID__c IN :filtredChatterGroups LIMIT 100]:null;			
+		}
+		set;
+	}
+	
+	
+	
 
 	/*
 	public static void test1() {
