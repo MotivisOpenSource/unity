@@ -53,11 +53,8 @@ public with sharing class CommunityEventController {
 
 	public PageReference downloadICS() {
 		String docName = String.format('{0}.ics', new List<String> { this.event.Name__c });
-		Document att = NULL;
-		List<Document> atts = [SELECT Id, Name FROM Document WHERE Name =: docName AND IsPublic = true LIMIT 5];
-		if (atts.size() > 0) {
-			att = atts[0];
-		}
+		Document att = deleteICSDocument(docName);
+		
 		if (att == NULL) {
 			Community_Events__c e = [SELECT Id, Owner.Name, Owner.Email FROM Community_Events__c WHERE Id =:event.Id];
 			Blob icsFile = generateCalendarEvent(this.event, e.Owner.Name, e.Owner.Email, UserInfo.getFirstName() +' '+ UserInfo.getLastName(), UserInfo.getUserEmail());
@@ -69,11 +66,26 @@ public with sharing class CommunityEventController {
 			);
 			insert att;
 		}
+
 		PageReference pr = new PageReference('/servlet/servlet.FileDownload');
 		pr.setRedirect(true);
 		pr.getParameters().put('file', att.Id);
 		return pr;
 	}
+
+	
+	private Document deleteICSDocument(String name){
+		List<Document> atts = [SELECT Id, Name FROM Document WHERE Name =: name AND IsPublic = true LIMIT 5];
+		Document att = NULL;
+		if(atts.isEmpty()) return null;
+		try{
+			delete(atts);
+		}catch(DmlException dex){
+			att = atts[0];
+		}
+		return att;
+	}
+
 	private Blob generateCalendarEvent(Community_Events__c e, String ownerName, String ownerEmail, String currentUserName, String currentUserEmail) {
 		String icsString = 'BEGIN:VCALENDAR'
 			+ '\nVERSION:2.0'
@@ -251,7 +263,6 @@ public with sharing class CommunityEventController {
 			}
 			
 			fieldsetRes = fieldset;
-			System.debug(fieldset);
 			if(event.Street_Address__c == NULL){
 				Integer pos = 0;
 				for(Schema.FieldSetMember fsA : fieldset){
@@ -371,9 +382,11 @@ public with sharing class CommunityEventController {
 				if(!(communityEventTagList.Size() == 1 && communityEventTagList[0].Community_Group_Control__c == communityGroupControll[0].Id )) {
 					
 					delete communityEventTagList ;				
+			System.debug('communityGroupControll[0].Id = '+communityGroupControll[0].Id);				
 					Community_Event_Tag__c communityEventTag = new Community_Event_Tag__c();
 					communityEventTag.Community_Event__c = event.Id;
 					communityEventTag.Community_Group_Control__c = communityGroupControll[0].Id;
+			System.debug('communityEventTag = '+communityEventTag);			
 					insert communityEventTag;
 				}
 			}		
@@ -409,13 +422,9 @@ public with sharing class CommunityEventController {
 				resultList = new List<Schema.FieldSetMember>();
 				Set<String> excludeFields = new Set<String> { 'Building__c', 'Room__c', 'City__c', 'State__c', 'Zip__c'};
 				Set<String> fieldsFLSAvailable = CommunityUtils.checkFLSFields('Community_Events__c', NULL);
-				System.Debug('fls -'+fieldsFLSAvailable);
 				for (Schema.FieldSetMember f2 : SObjectType.Community_Events__c.FieldSets.ViewEvent.getFields()) {
-					System.Debug('f1 -' + f2.getFieldPath());
-					System.Debug('f2 -' +fieldsFLSAvailable.contains(f2.getFieldPath().toLowerCase()));
 					if (!excludeFields.contains(f2.getFieldPath()) && fieldsFLSAvailable.contains(f2.getFieldPath().toLowerCase())) {
 						resultList.add(f2);
-						System.Debug('add -'+f2);
 					}
 				}
 			}
