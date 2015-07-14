@@ -1,9 +1,7 @@
 <apex:page standardController="Community_Events__c" extensions="CommunityEventController" action="{!initFromEdit}" showHeader="false" sideBar="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false">
-	
+
 <script src="{!$Resource.CommunityResources}/js/underscore/underscore-min.js"></script>
 <script type="text/javascript" src="{!$Resource.assets}/plugins/sky-forms/version-2.0.1/js/jquery-ui.min.js"></script>
-<apex:stylesheet value="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.css" />
-<script type="text/javascript" src="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.js"></script>
 
 <apex:composition template="{!$Site.Template}">
 <apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
@@ -39,6 +37,9 @@
 </apex:define>
 </apex:composition>
 
+<script type="text/javascript" src="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.js"></script>
+<apex:stylesheet value="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.css" />
+
 <script>
 	var dateElements = $(".dateInput input");
 	
@@ -48,7 +49,7 @@
 		
 	});
 
-	if(jQuery('.validate-datetimepicker')) {
+	if($('.validate-datetimepicker')) {
 		var currentdate = new Date(); 
 		var datetime = (currentdate.getMonth()+1) + '/' + currentdate.getDate() + '/' + currentdate.getFullYear() + ' ' + currentdate.getHours() + ":"  + currentdate.getMinutes();
 		$('.validate-datetimepicker').datetimepicker({
