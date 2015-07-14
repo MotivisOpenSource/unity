@@ -104,6 +104,9 @@ public without sharing class CommunityGroupFilesController {
 			Integer fqlSize = filteredElements.size();
 			filesTotal = fqlSize;
 			filesPagesTotal = fqlSize / FILES_PAGE_SIZE + ((Math.mod(fqlSize, FILES_PAGE_SIZE) == 0) ? 0 : 1);
+			if (filesPageNumber > filesPagesTotal) {
+				filesPageNumber = filesPagesTotal;
+			}
 			Integer startCopyInterval = filesPageNumber > 1 ? ((filesPageNumber - 1) * FILES_PAGE_SIZE) : 0;
 			Integer endCopyInterval = (fqlSize <= (startCopyInterval + FILES_PAGE_SIZE)) ? fqlSize : (startCopyInterval + FILES_PAGE_SIZE);
 			Boolean modifyAllDataAccess = CommunityUtils.isModifyAllData();
@@ -261,13 +264,13 @@ public without sharing class CommunityGroupFilesController {
 			filtredChatterGroups.add(cgmItem.CollaborationGroupId);
 		}
 		if (filtredChatterGroups.size() > 0) {
-			String queryString = 'SELECT Id, Name FROM Community_Group_Control__c WHERE Chatter_Group_ID__c IN :filtredChatterGroups';
+			String queryString = 'SELECT Id, Name, Chatter_Group_ID__c FROM Community_Group_Control__c WHERE Chatter_Group_ID__c IN :filtredChatterGroups AND Status__c = \'Approved\'';
 			if (String.isNotBlank(inQuery)) {
 				queryString += ' AND Name LIKE \'' + String.escapeSingleQuotes(inQuery) + '%\'';
 			}
 			queryString += ' ORDER BY Name';
 			for (Community_Group_Control__c cgcItem : Database.query(queryString)) {
-				resultList.add(new BlockWrapper(cgcItem.Id, cgcItem.Name));
+				resultList.add(new BlockWrapper(cgcItem.Chatter_Group_ID__c, cgcItem.Name));
 			}
 		}
 		return resultList;

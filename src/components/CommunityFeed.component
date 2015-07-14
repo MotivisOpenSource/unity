@@ -200,6 +200,7 @@ h4.media-heading {
 			<button class="btn-u btn-u-blue" onclick="window.open('{!$Page.CommunityFeed_MyFeed}','_self');" type="button"><i class="fa fa-comment-o"></i> Join the conversation</button> 
 		</apex:outputPanel>
 		<script>
+
 			$(document).ready(function() {
 				Visualforce.remoting.Manager.invokeAction(
 					'{!$RemoteAction.CommunityFeedController.feeds}',
@@ -467,7 +468,7 @@ h4.media-heading {
 					<% if (rc.beforeFields) { %>
 				</div>
 					<% } %>
-					<textarea id="<%= ii.fieldName %>" name="<%= ii.fieldName %>" class="form-control share <%= ii.validationClass %>" onclick="checkmi(this);" placeholder="<%= ii.placeholder %>"></textarea>
+					<textarea id="<%= ii.fieldName %>" name="<%= ii.fieldName %>" class="form-control share <%= ii.validationClass %>" onFocus="checkmi(this);"  onclick="checkmi(this);" placeholder="<%= ii.placeholder %>"></textarea>
 					<% if (rc.afterFields) { %>
 				<div class="sky-div-margin">
 					<% } %>
@@ -501,7 +502,7 @@ h4.media-heading {
 			</div>
 			<% if (rc.post) { %>
 			<div class="text-right">
-				<button type="submit" value="submit" class="submit btn-u" id="mesbtn" onclick="postAction($('#message').val());return false;" >
+				<button type="submit" value="submit" class="submit btn-u" id="mesbtn" onclick="initTextareaBTN(this);postAction($('#message').val());return false;" >
 					<i class="fa fa-spinner fa-pulse" style="display:none;"></i>
 					<span><%= rc.btntxt %></span>
 				</button>
@@ -922,6 +923,22 @@ h4.media-heading {
 					}
 				);
 			}
+			function initTextareaBTN(element) {
+				$(element).mentionsInput({
+					onDataRequest:function (mode, query, callback) {
+						Visualforce.remoting.Manager.invokeAction(
+							'{!$RemoteAction.CommunityFeedController.getUsers}',
+							query,
+							function(result, event) {
+								var div = document.createElement('div');
+								div.innerHTML = result;
+								callback(JSON.parse(div.firstChild.nodeValue));
+							}
+						);
+					},
+					elastic: false
+				}).focus();
+			}
 			function initTextarea(element) {
 				$(element).mentionsInput({
 					onDataRequest:function (mode, query, callback) {
@@ -1190,7 +1207,7 @@ h4.media-heading {
 						outString += '<a href="{!$Page.CommunityGroupDetailPage}?gr='+item.record.id+'">@'+item.name+'</a>';
 					}
 				}
-				if(item.text != null && item.type == "Text"){
+				if(item.text != null && (item.type == "Text" || item.type == "Link")){
 					outString += item.text;
 				}
 			});

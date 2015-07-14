@@ -12,6 +12,9 @@
 <script>
 	/*ON PAGE*/
 	var MS_PROC_RA_STRING = '{!$RemoteAction.CommunityGroupManageController.membership}';
+	function isTagsEmpty() {
+        return ($('#tagViewPanel a').length==0);
+    }
 </script>
 
 	<!--=== Breadcrumbs ===-->
@@ -331,14 +334,35 @@
 											</section>
 										</div>
 										<div class="col-sm-1 sky-form"  style="padding-top:15px;" id="editPencil" >
-											<apex:outputLink value="javascript:void(0);" styleClass="pull-right" onclick="$('[id$=tagViewPanel]').hide();$('[id$=tagEditPanel]').show();$('[id$=btnblk]').show();$('[id$=editPencil]').hide();">
-												<i class="fa fa-pencil"></i>
-											</apex:outputLink>
+											<div id="pencilId" style="display:none">
+												<apex:outputLink value="javascript:void(0);" styleClass="pull-right" onclick="$('[id$=tagViewPanel]').hide();$('[id$=tagEditPanel]').show();$('[id$=btnblk]').show();$('[id$=editPencil]').hide();">
+													<i class="fa fa-pencil"></i>
+												</apex:outputLink>
+											</div>
+											<div id="addtagsId" style="display:none">											
+				                                <apex:outputLink value="javascript:void(0);" styleClass="pull-right btn-u" onclick="$('[id$=tagViewPanel]').hide();$('[id$=tagEditPanel]').show();$('[id$=btnblk]').show();$('[id$=editPencil]').hide();">
+				                                    <i class="fa fa-plus-circle"></i>&nbsp;{!$Label.LBL_Add_Tags}
+				                                </apex:outputLink>
+			                                </div>
+			                                <script type="text/javascript">
+			                                	function checkTags(){
+			                                		console.log('chek tag');
+				                                    if(isTagsEmpty()==true) {
+				                                        $('[id$=addtagsId]').show();  
+				                                    	console.log('true');      
+				                                    }
+				                                    else {
+				                                        $('[id$=pencilId]').show();
+				                                        console.log('false');
+				                                    }
+			                                    }
+			                                    checkTags();
+			                                </script>
 										</div>
 									</apex:outputPanel>	
 									<apex:outputPanel layout="block" id="btnblk" style="display:none;">
 										<apex:commandButton action="{!cancelAction}" value="{!$Label.BTN_Cancel}" rerender="theform" status="statusLoad" styleClass="btn-u btn-u-sm btn-u-default margin-right-5"/>
-										<apex:commandButton action="{!submitAction}" value="{!$Label.BTN_Save_Changes}" rerender="theform,pageMessages" status="statusLoad" styleClass="btn-u"/>
+										<apex:commandButton action="{!submitAction}" value="{!$Label.BTN_Save_Changes}" rerender="theform,pageMessages" status="statusLoad" styleClass="btn-u" onComplete="checkTags();"/>
 									</apex:outputPanel>
 								</apex:form>
 							</div>
@@ -613,6 +637,10 @@
 	<!--=== End Profile ===-->
 </apex:define>
 <apex:define name="scripts">
+	<script type="text/javascript" src="{!$Resource.assets}/plugins/mentions/jquery.mentionsInput.js" ></script>
+	<script type="text/javascript" src="{!$Resource.assets}/plugins/mentions/jquery.events.input.js" ></script>
+	<script type="text/javascript" src="{!$Resource.assets}/plugins/sky-forms/version-2.0.1/js/jquery.validate.min.js"></script>
+	<script type="text/javascript" src="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.js"></script>
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/jquery.parallax.js"></script>
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/counter/waypoints.min.js"></script>
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/sky-forms/version-2.0.1/js/jquery-ui.min.js"></script>

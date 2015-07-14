@@ -270,7 +270,7 @@
             <filterItems>
                 <field>Community_Tag__c.Community_Theme__r.Theme_Type__c</field>
                 <operation>equals</operation>
-                <value>Resource,System</value>
+                <value>Resource</value>
             </filterItems>
             <infoMessage>You can only select Tags where the Theme Type = Resource.</infoMessage>
             <isOptional>false</isOptional>

@@ -15,6 +15,9 @@ global without sharing class CommunityUrlRewriter implements Site.UrlRewriter {
 		if (myFriendlyUrl.getParameters().containsKey('nr')) {
 			
 		}
+		else if(url.contains('_ui/core/')){
+			redirect = Page.CommunityHome;
+		}
 		else if (url.contains(STANDARD_USER_DETAIL_PAGE)) {
 			redirect = Page.CommunityProfilePage;
 			String uId = '';

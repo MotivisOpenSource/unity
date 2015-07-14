@@ -7,6 +7,7 @@
     <fields>
         <fullName>Chatter_Action_Disable_Group_Files__c</fullName>
         <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
         <description>When selected, the Files Chatter Action and related Group File items will be removed from the Community Portal preventing a User from uploading a file within Unity.</description>
         <externalId>false</externalId>
         <inlineHelpText>When selected, the Files Chatter Action and related Group File items will be removed from the Community Portal preventing a User from uploading a file within Unity.</inlineHelpText>

@@ -183,6 +183,7 @@
 	</div>
 
 	<script>
+ 		//var $jc = jQuery.noConflict();
  		//var $ = jQuery.noConflict();
 		var searchTags = _.debounce(function(query, process) {
 			Visualforce.remoting.Manager.invokeAction(
@@ -220,7 +221,7 @@
 					});
 				}
 			);
-			$('#tagsInput').typeahead({
+			jQuery('#tagsInput').typeahead({
 				source:function (query, process) {
 					searchTags(query, process);
 				},

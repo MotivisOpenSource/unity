@@ -251,6 +251,7 @@ public with sharing class CommunityEventController {
 			}
 			
 			fieldsetRes = fieldset;
+			System.debug(fieldset);
 			if(event.Street_Address__c == NULL){
 				Integer pos = 0;
 				for(Schema.FieldSetMember fsA : fieldset){
@@ -408,9 +409,13 @@ public with sharing class CommunityEventController {
 				resultList = new List<Schema.FieldSetMember>();
 				Set<String> excludeFields = new Set<String> { 'Building__c', 'Room__c', 'City__c', 'State__c', 'Zip__c'};
 				Set<String> fieldsFLSAvailable = CommunityUtils.checkFLSFields('Community_Events__c', NULL);
+				System.Debug('fls -'+fieldsFLSAvailable);
 				for (Schema.FieldSetMember f2 : SObjectType.Community_Events__c.FieldSets.ViewEvent.getFields()) {
+					System.Debug('f1 -' + f2.getFieldPath());
+					System.Debug('f2 -' +fieldsFLSAvailable.contains(f2.getFieldPath().toLowerCase()));
 					if (!excludeFields.contains(f2.getFieldPath()) && fieldsFLSAvailable.contains(f2.getFieldPath().toLowerCase())) {
 						resultList.add(f2);
+						System.Debug('add -'+f2);
 					}
 				}
 			}

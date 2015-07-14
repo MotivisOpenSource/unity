@@ -81,123 +81,282 @@ private class CommunityTest2 {
 
 	@IsTest(SeeAllData=true)
 	static void test_CommunityFeedController() {
-		Account acc = new Account(Name='testAccount');
-		insert acc;
-		Contact con = new Contact(LastName='TCLN', MailingPostalCode='99013', email='testc@testdomain.com', AccountId=acc.Id, Primary_Role__c='Student');
-		insert con;
-		Profile profile = [SELECT Id FROM Profile WHERE Name = 'System Administrator'];
-		User u = new User(alias='alias', email='email@email.com', emailencodingkey='UTF-8', lastname='lastname', firstname = 'firstName', languagelocalekey='en_US',
-			localesidkey='en_US', profileid = profile.Id, timezonesidkey='America/Los_Angeles', username='ttsde.tedf2@testmail.com',
-			FederationIdentifier='TestContactName.TestContactLastname2', Community_Contact_ID__c=con.Id);
-		insert u;	
+	    CommunityFeedController cfc1 = new CommunityFeedController();
+        String communityPrefix1 = cfc1.communityPrefix;
+        Account acc = new Account(Name='testAccount');
+        insert acc;
+        Contact con = new Contact(LastName='TCLN', MailingPostalCode='99013', email='testc@testdomain.com', AccountId=acc.Id, Primary_Role__c='Student');
+        insert con;
+        Profile profile = [SELECT Id FROM Profile WHERE Name = 'System Administrator'];
+        User u = new User(alias='alias', email='email@email.com', emailencodingkey='UTF-8', lastname='lastname', firstname = 'firstName', languagelocalekey='en_US',
+            localesidkey='en_US', profileid = profile.Id, timezonesidkey='America/Los_Angeles', username='ttsde.tedf2@testmail.com',
+            FederationIdentifier='TestContactName.TestContactLastname2', Community_Contact_ID__c=con.Id);
+        insert u;   
+        CollaborationGroup cg = new CollaborationGroup(Name='t', CollaborationType = 'Public');
+        insert cg;
+        CollaborationGroupMember cgm = new CollaborationGroupMember(CollaborationGroupId=cg.id,MemberId = u.Id,NotificationFrequency='P');
+        insert cgm;
 
-		CommunityFeedController cfc = new CommunityFeedController();
-		String parentId = cfc.parentId;
-		String feedType = cfc.feedType;
-		Boolean fullMode = cfc.fullMode;
-		String parentIdForAtt = cfc.parentIdForAtt;
-		String netw = cfc.NetworkId;
-		String communityPrefix = cfc.communityPrefix;
-		String currentUserPhoto = cfc.currentUserPhoto;
-		String postF = CommunityFeedController.postFeed(parentId, 'test feed');
-		
-		System.assertEquals(true, postF.length() > 0);
-		
-		ConnectApi.FeedElementPage testPage = new ConnectApi.FeedElementPage();
-        List<ConnectApi.FeedItem> testItemList = new List<ConnectApi.FeedItem>();
-        testItemList.add(new ConnectApi.FeedItem());
-        testItemList.add(new ConnectApi.FeedItem());
-        testPage.elements = testItemList;
+        CommunityFeedController cfc = new CommunityFeedController();
+        String packagePrefix = cfc.packagePrefix;
+        String parentId = cfc.parentId;
+        String feedType = cfc.feedType;
+        Boolean fullMode = cfc.fullMode;
+        String parentIdForAtt = cfc.parentIdForAtt;
+        String netw = cfc.NetworkId;
+        String communityPrefix = cfc.communityPrefix;
+        String currentUserPhoto = cfc.currentUserPhoto;
+        String postF = CommunityFeedController.postFeed(parentId, 'test feed');
+        System.assertEquals(true, postF.length() > 0);
         
-        ConnectApi.ChatterFeeds.setTestGetFeedElementsFromFeed(
-        	Network.getNetworkId(), 
-        	ConnectApi.FeedType.News, 
-        	parentId, 
-        	3, 
-        	ConnectApi.FeedDensity.FewerUpdates, 
-        	'', 
-        	8, 
-        	ConnectApi.FeedSortOrder.CreatedDateDesc,
-        	testPage);
-
-       //  String feed = CommunityFeedController.feeds(parentId, '1', '');
-       // System.assertEquals(true, feed.length() > 0);
-
+        System.runAs(u) {
+            ConnectApi.FeedElementPage testPage = new ConnectApi.FeedElementPage();
+            List<ConnectApi.FeedItem> testItemList = new List<ConnectApi.FeedItem>();
+            testItemList.add(new ConnectApi.FeedItem());
+            testItemList.add(new ConnectApi.FeedItem());
+            testPage.elements = testItemList;
+            //insert testItemList;
+            ConnectApi.ChatterFeeds.setTestGetFeedElementsFromFeed(
+                Network.getNetworkId(), 
+                ConnectApi.FeedType.News, 
+                parentId, 
+                3, 
+                ConnectApi.FeedDensity.FewerUpdates, 
+                null, 
+                8, 
+                ConnectApi.FeedSortOrder.CreatedDateDesc,
+                testPage);
+            System.debug('net1'+ Network.getNetworkId()); 
+            
+           // String feed = CommunityFeedController.feeds(parentId, '1', null);
+        }
         String pComm = CommunityFeedController.postComment('fake Id', 'inCommentText');
         System.assertEquals(true, pComm.length() > 0);
 
         String gComm = CommunityFeedController.getComments('fake id', '');
         System.assertEquals(true, gComm.length() > 0);
-
+        
         try{
-        	CommunityFeedController.inlineAction('fake id', 'fa-flag','');
-			CommunityFeedController.inlineAction('fake id', 'fa-thumbs-up','');
-			CommunityFeedController.inlineAction('fake id', 'fa-bookmark','');
-			CommunityFeedController.inlineAction('fake id', 'fa-times','');
-		}catch (Exception e){
-			System.debug('Exception = '+e.getMessage());
-		}
+            CommunityFeedController.inlineAction('fake id', 'fa-flag','test');
+        }catch (Exception e){
+            System.debug('Exception = '+e.getMessage());
+        }
+        try{
+            CommunityFeedController.inlineAction('fake id', 'fa-flag','');
+        }catch (Exception e){
+            System.debug('Exception = '+e.getMessage());
+        }
+        try{
+            CommunityFeedController.inlineAction('fake id', 'fa-thumbs-up','test');
+        }catch (Exception e){
+            System.debug('Exception = '+e.getMessage());
+        }
+        try{
+            CommunityFeedController.inlineAction('fake id', 'fa-thumbs-up','');
+        }catch (Exception e){
+            System.debug('Exception = '+e.getMessage());
+        }
+        try{
+            CommunityFeedController.inlineAction('fake id', 'fa-bookmark','test');
+        }catch (Exception e){
+            System.debug('Exception = '+e.getMessage());
+        }
+        try{
+            CommunityFeedController.inlineAction('fake id', 'fa-times','test');
+        }catch (Exception e){
+            System.debug('Exception = '+e.getMessage());
+        }
+        try{
+            CommunityFeedController.inlineAction('fake id', 'fa-times','');
+        }catch (Exception e){
+            System.debug('Exception = '+e.getMessage());
+        }
+        
+            
         CommunityFeedController.ChatterActionItem cai = new CommunityFeedController.ChatterActionItem('test', 'test1', 'test2');
         List<CommunityFeedController.ChatterActionItem> lCai = cfc.getAvailableActions();
+        String layoutText = CommunityFeedController.actionLayout('FeedItem.TextPost');
+        CommunityFeedController.postAction(parentId, layoutText, null, null, null);
+        String layoutLink = CommunityFeedController.actionLayout('FeedItem.LinkPost');
+        CommunityFeedController.postAction(parentId, layoutLink, null, null, null);
+        String layoutPoll = CommunityFeedController.actionLayout('FeedItem.PollPost');
+        CommunityFeedController.postAction(parentId, layoutPoll, null, null, null);
+        Blob blobBody = Blob.valueOf('testingB');
+        Attachment att = new Attachment(Name = 'test', ParentId = parentIdForAtt, Body = blobBody, ContentType = 'file');
+        insert att;
+        String iAtt = CommunityFeedController.insertAttacmentIntoFeed(parentId, att.Id, null);
+        System.assertEquals(true, iAtt.length() > 0);
+        String gUsers = CommunityFeedController.getUsers('lastname');
+        System.assertEquals(true, gUsers.length() > 0);
+        CommunityFeedController.Content content = new CommunityFeedController.Content();
+        content.contentUrl = 'test';
+        content.description = 'test';
+        content.downloadUrl = 'test';
+        content.fileExtension = 'test';
+        content.fileSize = 'test';
+        content.id = 'test';
+        content.renditionUrl = 'test';
+        content.title = 'test';
+        CommunityFeedController.Link link = new CommunityFeedController.Link();
+        link.id = 'test';
+        link.url = 'test';
+        link.urlName = 'test';
+        CommunityFeedController.InlineActionResult ilar = new CommunityFeedController.InlineActionResult('test', 'test1', 'test2');
+        CommunityFeedController.Record record = new CommunityFeedController.Record();
+        record.id = 'id';
+        CommunityFeedController.MessageSegments ms = new CommunityFeedController.MessageSegments();
+        ms.name = 'name';
+        ms.record = record;
+        ms.text = 'text';
+        ms.type = 'text';
+        CommunityFeedController.Body body = new CommunityFeedController.Body();
+        body.text = 'text';
+        body.messageSegments = new List<CommunityFeedController.MessageSegments>{ms};
+        CommunityFeedController.PollChoice choice = new CommunityFeedController.PollChoice();
+        choice.id = 'choice';
+        choice.position = 1;
+        choice.text = 'choice';
+        choice.voteCount = 1;
+        choice.voteCountRatio = 1;
+        CommunityFeedController.Poll poll = new CommunityFeedController.Poll();
+        poll.choices = new List<CommunityFeedController.PollChoice>{choice};
+        poll.myChoiceId = 'id';
+        poll.totalVoteCount = 2;
+        Community_Group_Control__c cgc = new Community_Group_Control__c();
+        List<CommunityFeedController.MentionUser> mu = new List<CommunityFeedController.MentionUser>{new CommunityFeedController.MentionUser(cgc, 'photo')};
+        mu.sort();  
+        
+        //String layoutEvent = CommunityFeedController.actionLayoutSForce(JSON.serialize('Create_Event,Community_Events__c,Name:true,Start:true,End:true,Teaser:false,Website:false,Description:false,Street Address:false'));
+      //  CommunityFeedController.postAction(parentId, layoutEvent, null, null, null);
+        
+        ConnectApi.FeedElementPage testPage1 = new ConnectApi.FeedElementPage();
+        List<ConnectApi.FeedItem> testItemList1 = new List<ConnectApi.FeedItem>();
+        testItemList1.add(new ConnectApi.FeedItem());
+        testItemList1.add(new ConnectApi.FeedItem());
+        testPage1.elements = testItemList1;
+        
+        CommunityFeedController.FeedElementPage fep1 = new CommunityFeedController.FeedElementPage();
+       
+        List<CommunityFeedController.FeedElement> fel1 = new List<CommunityFeedController.FeedElement>();
+        fep1.elements = fel1;
+        CommunityFeedController.initialParentId(fep1);
+        Test.setCurrentPage(Page.CommunityFeed_MyFeed);
+        CommunityFeedController.actionLayoutSForce(null);
+        //CommunityFeedController.actionLayoutSForce('FeedItem.TextPost');
+	    
+// 	    CommunityFeedController cfc1 = new CommunityFeedController();
+// 	    String communityPrefix1 = cfc1.communityPrefix;
+// 		Account acc = new Account(Name='testAccount');
+// 		insert acc;
+// 		Contact con = new Contact(LastName='TCLN', MailingPostalCode='99013', email='testc@testdomain.com', AccountId=acc.Id, Primary_Role__c='Student');
+// 		insert con;
+// 		Profile profile = [SELECT Id FROM Profile WHERE Name = 'System Administrator'];
+// 		User u = new User(alias='alias', email='email@email.com', emailencodingkey='UTF-8', lastname='lastname', firstname = 'firstName', languagelocalekey='en_US',
+// 			localesidkey='en_US', profileid = profile.Id, timezonesidkey='America/Los_Angeles', username='ttsde.tedf2@testmail.com',
+// 			FederationIdentifier='TestContactName.TestContactLastname2', Community_Contact_ID__c=con.Id);
+// 		insert u;	
+// 		CollaborationGroup cg = new CollaborationGroup(Name='t', CollaborationType = 'Public');
+// 		insert cg;
+// 		CollaborationGroupMember cgm = new CollaborationGroupMember(CollaborationGroupId=cg.id,MemberId = u.Id,NotificationFrequency='P');
+// 		insert cgm;
 
-		String layoutText = CommunityFeedController.actionLayout('FeedItem.TextPost');
-		CommunityFeedController.postAction(parentId, layoutText, null, null, null);
-		String layoutLink = CommunityFeedController.actionLayout('FeedItem.LinkPost');
-		CommunityFeedController.postAction(parentId, layoutLink, null, null, null);
-		String layoutPoll = CommunityFeedController.actionLayout('FeedItem.PollPost');
-		CommunityFeedController.postAction(parentId, layoutPoll, null, null, null);
-		String layoutEvent = CommunityFeedController.actionLayout('Create_Event');
-		CommunityFeedController.postAction(parentId, layoutEvent, null, null, null);
+// 		CommunityFeedController cfc = new CommunityFeedController();
+// 		String parentId = cfc.parentId;
+// 		String feedType = cfc.feedType;
+// 		Boolean fullMode = cfc.fullMode;
+// 		String parentIdForAtt = cfc.parentIdForAtt;
+// 		String netw = cfc.NetworkId;
+// 		String communityPrefix = cfc.communityPrefix;
+// 		String currentUserPhoto = cfc.currentUserPhoto;
+// 		String postF = CommunityFeedController.postFeed(parentId, 'test feed');
 		
-		Blob blobBody = Blob.valueOf('testingB');
-		Attachment att = new Attachment(Name = 'test', ParentId = parentIdForAtt, Body = blobBody, ContentType = 'file');
-		insert att;
-		String iAtt = CommunityFeedController.insertAttacmentIntoFeed(parentId, att.Id, null);
-		System.assertEquals(true, iAtt.length() > 0);
+// 		System.assertEquals(true, postF.length() > 0);
 		
-		String gUsers = CommunityFeedController.getUsers('lastname');
-		System.assertEquals(true, gUsers.length() > 0);
+// 		ConnectApi.FeedElementPage testPage = new ConnectApi.FeedElementPage();
+//         List<ConnectApi.FeedItem> testItemList = new List<ConnectApi.FeedItem>();
+//         testItemList.add(new ConnectApi.FeedItem());
+//         testItemList.add(new ConnectApi.FeedItem());
+//         testPage.elements = testItemList;
+        
+//         ConnectApi.ChatterFeeds.setTestGetFeedElementsFromFeed(
+//         	Network.getNetworkId(), 
+//         	ConnectApi.FeedType.News, 
+//         	parentId, 
+//         	3, 
+//         	ConnectApi.FeedDensity.FewerUpdates, 
+//         	'', 
+//         	8, 
+//         	ConnectApi.FeedSortOrder.CreatedDateDesc,
+//         	testPage);
 
-		CommunityFeedController.Content content = new CommunityFeedController.Content();
-		content.contentUrl = 'test';
-		content.description = 'test';
-		content.downloadUrl = 'test';
-		content.fileExtension = 'test';
-		content.fileSize = 'test';
-		content.id = 'test';
-		content.renditionUrl = 'test';
-		content.title = 'test';
+     
+//         String pComm = CommunityFeedController.postComment('fake Id', 'inCommentText');
+//         System.assertEquals(true, pComm.length() > 0);
 
-		CommunityFeedController.Link link = new CommunityFeedController.Link();
-		link.id = 'test';
-		link.url = 'test';
-		link.urlName = 'test';
-
-		CommunityFeedController.InlineActionResult ilar = new CommunityFeedController.InlineActionResult('test', 'test1', 'test2');
-		CommunityFeedController.Record record = new CommunityFeedController.Record();
-		record.id = 'id';
-		CommunityFeedController.MessageSegments ms = new CommunityFeedController.MessageSegments();
-		ms.name = 'name';
-		ms.record = record;
-		ms.text = 'text';
-		ms.type = 'text';
-		CommunityFeedController.Body body = new CommunityFeedController.Body();
-		body.text = 'text';
-		body.messageSegments = new List<CommunityFeedController.MessageSegments>{ms};
-
-		CommunityFeedController.PollChoice choice = new CommunityFeedController.PollChoice();
-		choice.id = 'choice';
-		choice.position = 1;
-		choice.text = 'choice';
-		choice.voteCount = 1;
-		choice.voteCountRatio = 1;
-		CommunityFeedController.Poll poll = new CommunityFeedController.Poll();
-		poll.choices = new List<CommunityFeedController.PollChoice>{choice};
-		poll.myChoiceId = 'id';
-		poll.totalVoteCount = 2;
-		Community_Group_Control__c cgc = new Community_Group_Control__c();
-		List<CommunityFeedController.MentionUser> mu = new List<CommunityFeedController.MentionUser>{new CommunityFeedController.MentionUser(cgc, 'photo')};
-		mu.sort();	
+//         String gComm = CommunityFeedController.getComments('fake id', '');
+//         System.assertEquals(true, gComm.length() > 0);
+//         try{
+//         	CommunityFeedController.inlineAction('fake id', 'fa-flag','');
+// 			CommunityFeedController.inlineAction('fake id', 'fa-thumbs-up','');
+// 			CommunityFeedController.inlineAction('fake id', 'fa-bookmark','');
+// 			CommunityFeedController.inlineAction('fake id', 'fa-times','');
+// 		}catch (Exception e){
+// 			System.debug('Exception = '+e.getMessage());
+// 		}
+//         CommunityFeedController.ChatterActionItem cai = new CommunityFeedController.ChatterActionItem('test', 'test1', 'test2');
+//         List<CommunityFeedController.ChatterActionItem> lCai = cfc.getAvailableActions();
+// 		String layoutText = CommunityFeedController.actionLayout('FeedItem.TextPost');
+// 		CommunityFeedController.postAction(parentId, layoutText, null, null, null);
+// 		String layoutLink = CommunityFeedController.actionLayout('FeedItem.LinkPost');
+// 		CommunityFeedController.postAction(parentId, layoutLink, null, null, null);
+// 		String layoutPoll = CommunityFeedController.actionLayout('FeedItem.PollPost');
+// 		CommunityFeedController.postAction(parentId, layoutPoll, null, null, null);
+// 		Blob blobBody = Blob.valueOf('testingB');
+// 		Attachment att = new Attachment(Name = 'test', ParentId = parentIdForAtt, Body = blobBody, ContentType = 'file');
+// 		insert att;
+// 		String iAtt = CommunityFeedController.insertAttacmentIntoFeed(parentId, att.Id, null);
+// 		System.assertEquals(true, iAtt.length() > 0);
+// 		String gUsers = CommunityFeedController.getUsers('lastname');
+// 		System.assertEquals(true, gUsers.length() > 0);
+// 		CommunityFeedController.Content content = new CommunityFeedController.Content();
+// 		content.contentUrl = 'test';
+// 		content.description = 'test';
+// 		content.downloadUrl = 'test';
+// 		content.fileExtension = 'test';
+// 		content.fileSize = 'test';
+// 		content.id = 'test';
+// 		content.renditionUrl = 'test';
+// 		content.title = 'test';
+// 		CommunityFeedController.Link link = new CommunityFeedController.Link();
+// 		link.id = 'test';
+// 		link.url = 'test';
+// 		link.urlName = 'test';
+// 		CommunityFeedController.InlineActionResult ilar = new CommunityFeedController.InlineActionResult('test', 'test1', 'test2');
+// 		CommunityFeedController.Record record = new CommunityFeedController.Record();
+// 		record.id = 'id';
+// 		CommunityFeedController.MessageSegments ms = new CommunityFeedController.MessageSegments();
+// 		ms.name = 'name';
+// 		ms.record = record;
+// 		ms.text = 'text';
+// 		ms.type = 'text';
+// 		CommunityFeedController.Body body = new CommunityFeedController.Body();
+// 		body.text = 'text';
+// 		body.messageSegments = new List<CommunityFeedController.MessageSegments>{ms};
+// 		CommunityFeedController.PollChoice choice = new CommunityFeedController.PollChoice();
+// 		choice.id = 'choice';
+// 		choice.position = 1;
+// 		choice.text = 'choice';
+// 		choice.voteCount = 1;
+// 		choice.voteCountRatio = 1;
+// 		CommunityFeedController.Poll poll = new CommunityFeedController.Poll();
+// 		poll.choices = new List<CommunityFeedController.PollChoice>{choice};
+// 		poll.myChoiceId = 'id';
+// 		poll.totalVoteCount = 2;
+// 		Community_Group_Control__c cgc = new Community_Group_Control__c();
+// 		List<CommunityFeedController.MentionUser> mu = new List<CommunityFeedController.MentionUser>{new CommunityFeedController.MentionUser(cgc, 'photo')};
+// 		mu.sort();	
+// 		CommunityFeedController.feeds(cfc.parentId,cfc.feedType,'');
+		
 	}		
 
 	static testMethod void test_CommunityTagDisplayController() {
@@ -372,5 +531,40 @@ private class CommunityTest2 {
 		ctcc.resourceOnly = false;
 		ctcc.getWrappedThemes();
 	}
+
+    @IsTest(SeeAllData=true)
+    static void test_CommunityHomeNotificationsController() {
+        Account acc = new Account(Name='testAccount');
+        insert acc;
+        Contact con = new Contact(LastName='TCLN', MailingPostalCode='99013', email='testc@testdomain.com', AccountId=acc.Id, Primary_Role__c='Student');
+        insert con;
+        Profile profile = [SELECT Id FROM Profile WHERE Name = 'System Administrator'];
+        User u = new User(alias='alias', email='email@email.com', emailencodingkey='UTF-8', lastname='lastname', firstname = 'firstName', languagelocalekey='en_US',
+            localesidkey='en_US', profileid = profile.Id, timezonesidkey='America/Los_Angeles', username='ttsde.tedf2@testmail.com',
+            FederationIdentifier='TestContactName.TestContactLastname2', Community_Contact_ID__c=con.Id);
+        insert u;
+        User u1 = new User(alias='alias', email='email@email.com', emailencodingkey='UTF-8', lastname='lastname', firstname = 'firstName', languagelocalekey='en_US',
+            localesidkey='en_US', profileid = profile.Id, timezonesidkey='America/Los_Angeles', username='ttsde1.tedf21@testmail.com',
+            FederationIdentifier='TestContactName.TestContactLastname21', Community_Contact_ID__c=con.Id);
+        insert u1;
+        CollaborationGroup cg = new CollaborationGroup(Name='t', CollaborationType = 'Public', OwnerId = u1.Id);
+        insert cg;
+        CollaborationGroupMember cgmem = new CollaborationGroupMember(CollaborationGroupId=cg.id, MemberId = u.Id,NotificationFrequency='P');
+        insert cgmem;
+        Community_Group_Control__c cgc = new Community_Group_Control__c(Chatter_Group_ID__c = cg.Id);
+        insert cgc;
+        Community_Group_Manager__c cgm = new Community_Group_Manager__c(Group_Control__c = cgc.Id, Group_Manager_User__c = u.Id);
+        insert cgm;
+        
+        
+            CommunityHomeNotificationsController chnc = new CommunityHomeNotificationsController();
+            String result = CommunityHomeNotificationsController.notifications();
+            String message = 'test message';
+
+            ConnectApi.ChatterMessage cm = ConnectApi.ChatterMessages.sendMessage(Network.getNetworkId(), message, u1.Id);
+        System.runAs(u1) {    
+            String result1 = CommunityHomeNotificationsController.notifications();
+        }
+    }
 	
 }

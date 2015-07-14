@@ -514,4 +514,5 @@ global with sharing class CommunityProfilePageController {
 			return Database.query(inQueryStr);
 		}
 	}
+	
 }

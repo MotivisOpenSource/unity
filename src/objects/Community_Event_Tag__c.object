@@ -249,12 +249,15 @@ TEXT(YEAR(DATEVALUE(Community_Event__r.End__c)))</formula>
     <listViews>
         <fullName>All</fullName>
         <columns>NAME</columns>
+        <columns>Event_Name__c</columns>
         <columns>Community_Event__c</columns>
         <columns>Community_Group_Control__c</columns>
         <columns>Community_Tag__c</columns>
+        <columns>CREATEDBY_USER</columns>
         <columns>LAST_UPDATE</columns>
         <filterScope>Everything</filterScope>
         <label>All</label>
+        <language>en_US</language>
     </listViews>
     <nameField>
         <displayFormat>CET-{yy}{mm}{0}</displayFormat>
