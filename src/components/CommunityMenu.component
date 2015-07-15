@@ -24,14 +24,14 @@ ul li, ol li {
 </apex:outputPanel>
 <!-- End For Background Image -->
 
-<!--apex:outputPanel rendered="{!ISPICKVAL($User.UserType,'Guest')}">
+<apex:outputPanel rendered="{!!ISBLANK(RedirectToLogin)}">
 	<script type="text/javascript">
 		(function() {
-			window.location.href = '{!$Site.Prefix}';
+			window.location.href = '{!RedirectToLogin}?startURL={!URLENCODE($CurrentPage.URL)}';
 			jQuery('body').hide();
 		})();
 	</script>
-</apex:outputPanel-->
+</apex:outputPanel>
 <apex:outputPanel rendered="{!Registration == 'true'}">
 	<script type="text/javascript">
 		(function() {

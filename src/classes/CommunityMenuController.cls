@@ -24,6 +24,14 @@ public with sharing class CommunityMenuController {
 		return currentPage(Page.CommunityRegTerms.getUrl());
 	}
 
+	public PageReference getRedirectToLogin() {
+		PageReference pr;
+		if (UserInfo.getUserType() == 'Guest') {
+			pr = Network.forwardToAuthPage(NULL);
+		}
+		return pr;
+	}
+
 	public String getAlert() {
 		DateTime Now = DateTime.now();
 		List<Community_News__c> newsList = [
