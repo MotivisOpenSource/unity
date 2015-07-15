@@ -24,19 +24,19 @@ ul li, ol li {
 </apex:outputPanel>
 <!-- End For Background Image -->
 
-<apex:outputPanel rendered="{!ISPICKVAL($User.UserType,'Guest')}">
+<!--apex:outputPanel rendered="{!ISPICKVAL($User.UserType,'Guest')}">
 	<script type="text/javascript">
 		(function() {
-			window.location.href = '{!$Site.Prefix}/login';
-			$('body').hide();
+			window.location.href = '{!$Site.Prefix}';
+			jQuery('body').hide();
 		})();
 	</script>
-</apex:outputPanel>
+</apex:outputPanel-->
 <apex:outputPanel rendered="{!Registration == 'true'}">
 	<script type="text/javascript">
 		(function() {
 			window.location.href = '{!$Page.CommunityRegTerms}';
-			$('body').hide();
+			jQuery('body').hide();
 		})();
 	</script>
 </apex:outputPanel>
@@ -160,21 +160,21 @@ ul li, ol li {
 									<button class="btn-u" type="button" onclick="menuSearch();">Go</button>
 								</span>
 								<script>
-									$(document).ready(function(){
+									jQuery(document).ready(function(){
 										var alertNews = '{!URLENCODE(Alert)}';
 										if(!alertNews){
-											$("li").first().hide();
+											jQuery("li").first().hide();
 										}
 									});
-									$(document).on('keyup', '#menusearch', function(event) {
+									jQuery(document).on('keyup', '#menusearch', function(event) {
 										event.preventDefault();
 										if (event.keyCode == 13) {
 											menuSearch();
 										}
 									});
 									function menuSearch() {
-										if ($('#menusearch').val().length > 1) {
-											window.open("{!IF(CONTAINS($CurrentPage.URL,'CommunityNews'),$Page.CommunityNews,IF(CONTAINS($CurrentPage.URL,'CommunityEvent'), $Page.CommunityEventsList, $Page.CommunitySearch))}?s=" + encodeURIComponent($('#menusearch').val()), '_self');
+										if (jQuery('#menusearch').val().length > 1) {
+											window.open("{!IF(CONTAINS($CurrentPage.URL,'CommunityNews'),$Page.CommunityNews,IF(CONTAINS($CurrentPage.URL,'CommunityEvent'), $Page.CommunityEventsList, $Page.CommunitySearch))}?s=" + encodeURIComponent(jQuery('#menusearch').val()), '_self');
 										}
 										return false;
 									}
