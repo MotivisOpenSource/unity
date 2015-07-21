@@ -6,7 +6,7 @@ trigger CommunityGroupControl on Community_Group_Control__c (before insert, afte
 		Map<String, Community_Group_Control__c> checkUniqueNamesMap = new Map<String, Community_Group_Control__c>();
 		Map<String, Id> communityIdByName = new Map<String, Id>();
 		Boolean firstCommunity = true;
-		for (Network nItem : [SELECT Id, Name FROM Network]) {
+		for (Network nItem : [SELECT Id, Name FROM Network LIMIT 100]) {
 			communityIdByName.put(nItem.Name, nItem.Id);
 			if (firstCommunity) {
 				communityIdByName.put('Community', nItem.Id);

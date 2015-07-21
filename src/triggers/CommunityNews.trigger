@@ -37,11 +37,21 @@ trigger CommunityNews on Community_News__c (before insert, before update) {
 	}
 
 	if (validated && slotMap.size() > 0) {
-		List<String> keysList = new List<String>();
-		keysList.addAll(slotMap.keySet());
-		for (String slotItem : keysList) {
-			Community_News__c slotNews = slotMap.get(slotItem);
-			if (CommunityUtils.checkNewsOverlapInterval('Feature_on_Home_Page_Slot__c = \'' + slotItem + '\'', slotNews.Entry_Date__c, slotNews.Expiration_Date__c)) {
+		if (slotMap.containsKey('1')) {
+			Community_News__c slotNews = slotMap.get('1');
+			if (CommunityUtils.checkNewsOverlapInterval('Feature_on_Home_Page_Slot__c = \'1\'', slotNews.Entry_Date__c, slotNews.Expiration_Date__c)) {
+				slotNews.addError(Label.ERR_3_Alerts);
+			}
+		}
+		if (slotMap.containsKey('2')) {
+			Community_News__c slotNews = slotMap.get('2');
+			if (CommunityUtils.checkNewsOverlapInterval('Feature_on_Home_Page_Slot__c = \'2\'', slotNews.Entry_Date__c, slotNews.Expiration_Date__c)) {
+				slotNews.addError(Label.ERR_3_Alerts);
+			}
+		}
+		if (slotMap.containsKey('3')) {
+			Community_News__c slotNews = slotMap.get('3');
+			if (CommunityUtils.checkNewsOverlapInterval('Feature_on_Home_Page_Slot__c = \'3\'', slotNews.Entry_Date__c, slotNews.Expiration_Date__c)) {
 				slotNews.addError(Label.ERR_3_Alerts);
 			}
 		}

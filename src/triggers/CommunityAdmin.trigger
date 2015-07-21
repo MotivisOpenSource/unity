@@ -14,7 +14,8 @@ trigger CommunityAdmin on Community_Admins__c (before insert, before update, aft
 			if (ca.Terms_Status__c == 'Published' && ca.RecordTypeId == CommunityTermsRTid) {
 				newAdmins.add(ca.Id);
 				if(newAdmins.size() > 1){
-					Trigger.new[0].Terms_Status__c.addError('Duplicate Term Status "Published"');
+					//Trigger.new[0]
+					ca.Terms_Status__c.addError('Duplicate Term Status "Published"');
 				}
 
 				ca.Terms_Published_Date__c = datetime.now();
