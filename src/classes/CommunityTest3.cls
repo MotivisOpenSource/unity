@@ -10,6 +10,8 @@ private class CommunityTest3 {
 				Alert__c=true);
 		}
 		catch(Exception e) {}
+		System.assert( [SELECT Id,Name FROM Community_News__c WHERE Title__c='t'  LIMIT 10].size()>0 );
+		
 	}
 
 	static testMethod void test_CommunityGroupControlTrigger() {
@@ -25,6 +27,7 @@ private class CommunityTest3 {
 			};
 		}
 		catch(Exception e) {}
+		System.assert( [SELECT Id,Name FROM Community_Group_Control__c LIMIT 10].size()>0 );
 	}
 
 	static testMethod void test_CommunityAdminTrigger() {
@@ -34,14 +37,15 @@ private class CommunityTest3 {
 		insertList.add(new Community_Admins__c(Terms_Body__c = 'TestTerms1', Terms_Req_New_Signature__c = TRUE, Terms_Status__c = 'Published'));
 		insert insertList;
 
-		Community_Admins__c comAd = [SELECT Terms_Body__c, Terms_Req_New_Signature__c, Terms_Status__c FROM Community_Admins__c LIMIT 1];
-		comAd.Terms_Body__c = 'TestTerms2';
-		comAd.Terms_Status__c = 'Published';
-		update comAd;
+		List<Community_Admins__c> comAd = [SELECT Terms_Body__c, Terms_Req_New_Signature__c, Terms_Status__c FROM Community_Admins__c LIMIT 1];
+		System.assert( comAd.size()>0 ); 
+		comAd[0].Terms_Body__c = 'TestTerms2';
+		comAd[0].Terms_Status__c = 'Published';
+		
+		update comAd[0];
 	}
 
-	static testMethod void test_UserTrigger() {
-		
+	static testMethod void test_UserTrigger() {		
       	UserRole ur = [Select Id, Name From UserRole where Name = 'CEO'];
         Profile profile = [SELECT Id FROM Profile WHERE Name = 'System Administrator'];
         User u = new User(alias='alias', email='email@email.com', emailencodingkey='UTF-8', lastname='lastname', firstname = 'firstName', languagelocalekey='en_US',
@@ -53,8 +57,7 @@ private class CommunityTest3 {
 	        insert acc;
 	        Contact con = new Contact(LastName='TCLN', MailingPostalCode='99013', email='testc@testdomain.com', AccountId=acc.Id, Primary_Role__c='Student');
 	        insert con;
-	        Profile p = [select Id, Name from Profile where Name = 'Customer Community User'];
- 
+	        Profile p = [select Id, Name from Profile where Name = 'Customer Community User']; 
 			User newUser = new User(
 			profileId = p.id,
 			username = 'newUser@yahoo.com',
@@ -68,6 +71,7 @@ private class CommunityTest3 {
 			contactId = con.id
 			);
 			insert newUser;
+			System.assert( [SELECT Id,Name FROM USER WHERE username = 'newUser@yahoo.com' LIMIT 10].size()>0 );
        }
     }
 
@@ -98,6 +102,6 @@ private class CommunityTest3 {
 			Community_Resource__c cr_4 = new Community_Resource__c(Resource_Name__c = 'TestRes3', Primary_Tag__c = ct.id, Link__c = 'www.google.com', Quick_Link__c = true);
 			insert cr_4;
 		}catch(Exception ex){}
-
+		System.assert( [SELECT Id,Name FROM Community_Resource__c LIMIT 10].size()>0 );
 	}
 }

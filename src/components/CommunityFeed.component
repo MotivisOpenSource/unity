@@ -13,7 +13,7 @@
 	<script type="text/javascript" src="/soap/ajax/33.0/connection.js"></script>	
 
 	<apex:stylesheet value="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.css" />
-	<script type="text/javascript" src="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.js"></script>
+	
 	<!-- script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.13.1/jquery.validate.min.js"></script-->
 	<style>
 /*profile.css*/
@@ -1020,7 +1020,7 @@ h4.media-heading {
 							initValidator();
 
 							//datetime
-							if(jQuery('.validate-datetimepicker')) {
+							if($('.validate-datetimepicker')) {
 								var currentdate = new Date(); 
 								var datetime = (currentdate.getMonth()+1) + '/' + currentdate.getDate() + '/' + currentdate.getFullYear() + ' ' + currentdate.getHours() + ":"  + currentdate.getMinutes();
 								$('.validate-datetimepicker').datetimepicker({

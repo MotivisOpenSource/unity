@@ -1,4 +1,4 @@
-global without sharing class CommunityFeedController {
+global with sharing class CommunityFeedController {
 
 	private static Integer RECENT_COMMENT_COUNT = 3;
 	private static Integer PAGE_SIZE = 8;
@@ -638,7 +638,7 @@ global without sharing class CommunityFeedController {
 	global static String insertAttacmentIntoFeed(String parentId, String attId, String jsStr) {
 		
 		String layoutItemsValue = '';
-		Attachment att = [SELECT Id, Name, ContentType, Body, Description FROM Attachment WHERE Id =:attId LIMIT 1];
+		Attachment att = CommunityHelperWithoutSharing.getAttachment(attId);
 		if(jsStr != null){
 			ChatterActionLayout layout = (ChatterActionLayout)JSON.deserialize(jsStr,ChatterActionLayout.class);
 			layoutItemsValue = layout.items[1].value;		
@@ -657,7 +657,9 @@ global without sharing class CommunityFeedController {
 		FeedElementPage fepResult = new FeedElementPage();
 		fepResult.elements = new List<FeedElement> { (FeedElement)JSON.deserialize(newFeed,FeedElement.class) };
 		fepResult = initialRoles(fepResult);
-		delete att;
+		List<Attachment> lAttachment = new List<Attachment>();
+		lAttachment.add(att);
+		CommunityHelperWithoutSharing.deleteAttachment(lAttachment);
 		return json.serialize(fepResult);
 
 	}

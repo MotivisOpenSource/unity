@@ -1,4 +1,4 @@
-public without sharing class CommunityGroupDetailPageController {
+public with sharing class CommunityGroupDetailPageController {
 
 	public Community_Group_Control__c control { get; set; }
 	public CollaborationGroup chatterGroup { get; set; }

@@ -19,6 +19,7 @@ private class CommunityTest {
 		cnc.news.Type__c = 'External';
 		cnc.news.Teaser__c='';
 		cnc.news.Content__c='<div>test</div>';
+		System.assertEquals(cnc.news.Content__c,'<div>test</div>');
 		cnc.submitFirstStep();
 		cnc.news.Type__c = 'Internal';
 		cnc.news.Title__c='t';
@@ -36,8 +37,9 @@ private class CommunityTest {
 		cnc2c.initFromEdit();
 
 		insert new Community_News__c(Title__c='t',Teaser__c='t',Entry_Date__c=Datetime.now(),Expiration_Date__c=Datetime.now().addDays(1));
+				
 		CommunityNewsController cnc3 = new CommunityNewsController(new ApexPages.StandardController(cnc.news));
-		cnc3.initFromView();
+		cnc3.initFromView();		
 		cnc3.mode = 'view';
 		cnc3.init();
 		cnc3.cancel();
@@ -46,10 +48,11 @@ private class CommunityTest {
 		String tst = cnc3.urlForEditNews;
 		tst = cnc3.urlForNewNews;
 		tst = cnc3.urlForCloneNews;
-
+		
 		CommunityNewsController cnc4 = new CommunityNewsController();
 		cnc4.initFromList();
 		ApexPages.currentPage().getParameters().put('t',ct.Id);
+		
 		cnc4.newsPageNumber = 0;
 		cnc4.newsNextPage();
 		cnc4.newsLastPage();
@@ -58,6 +61,7 @@ private class CommunityTest {
 		cnc4.newsPageNumber = 2;
 		cnc4.newsPreviousPage();
 		cnc4.newsFirstPage();
+		
 	}
 
 	static testMethod void test_CommunityResources() {
@@ -79,6 +83,8 @@ private class CommunityTest {
 		crc.imgBody = Blob.valueOf('blob');
 		crc.imgFileName = 'ifn';
 		crc.saveResource();
+		
+		System.assertEquals([SELECT Name,Id From Community_Resource__c Where Name='r' ][0].Name,'r');
 
 		CommunityResourceController crc2 = new CommunityResourceController(new ApexPages.StandardController(crc.resource));
 		crc2.initFromEdit();
@@ -109,6 +115,8 @@ private class CommunityTest {
 		cgcc.currentGroup.Discoverable__c = true;
 		CommunityGroupCreateController.checkAvailability(cgcc.currentGroup.Name);
 		cgcc.doSubmit();
+		
+		System.AssertEquals([SELECT Name, Type__c, Description__c FROM Community_Group_Control__c WHERE Name = 'cc' AND Type__c = 'Public'][0].Name,'cc');
 		String txt = cgcc.headerText;
 
 		ApexPages.currentPage().getParameters().put('step','2');
@@ -135,6 +143,8 @@ private class CommunityTest {
 		cgcc.initFromCreate();
 		cgcc.currentGroup.Status__c = 'Pending';
 		update cgcc.currentGroup;
+		
+		
 		cgcc.initFromCreate();
 		cgcc.getTermsAndConditions();
 		txt = cgcc.headerText;
@@ -179,9 +189,9 @@ private class CommunityTest {
 		cppc.getDigestSettings();
 		cppc.getDefaultDigest();
 		cppc.getIsSubscribe();
+		System.AssertEquals(cppc.getIsSubscribe(),false);
 		System.RunAs(u) {
-		    System.debug('net23 -'+ Network.getNetworkId());
-			CommunityProfilePageController.toggleUserDigest(cg.id,'P');
+		    CommunityProfilePageController.toggleUserDigest(cg.id,'P');
 			CommunityProfilePageController.toggle(ct.Id,true);
 			CommunityProfilePageController.toggle(ct.Id,false);
 		}
@@ -307,7 +317,7 @@ private class CommunityTest {
 			String npt = cfMMC_1.NextPageToken;
 			cfMMC.SearchQuery = '1212';
 			//cfMMC_1.showMoreConversations();
-			cfMMC_1.loadOlderMessages();
+			//cfMMC_1.loadOlderMessages();
 			cfMMC_1.newConversation('test 2', u.id);
 			cfMMC_1.SearchQuery = 'test';
 			System.assertEquals(true, true);
@@ -319,6 +329,9 @@ private class CommunityTest {
 		Test.stopTest();
 	    
 	    /*
+	    
+	    
+	    //error ! test git
 		Account acc = new Account(Name='testAccount');
 		insert acc;
 		Contact con = new Contact(LastName='TCLN', MailingPostalCode='99013', email='testc@testdomain.com', AccountId=acc.Id, Primary_Role__c='Student');
@@ -447,6 +460,7 @@ private class CommunityTest {
 		event.Description__c = 'Description';
 		event.Public__c = true;
 		insert event;
+		System.assertEquals([SELECT Name__c,Id From Community_Events__c Where Name__c = 'Event Test'][0].Name__c,'Event Test');
 		CommunityGroupDetailPageController.GroupEvent ge = new CommunityGroupDetailPageController.GroupEvent(event);
 		cgc.control = group1;
 		cgc.accepted = false;
@@ -531,6 +545,7 @@ private class CommunityTest {
 			ApexPages.currentPage().getParameters().put('f','recommended_groups');
 			cgc.getGroups();
 			ApexPages.currentPage().getParameters().put('f','my_groups');
+			System.Assert(cgc.getGroups().totalRecords>0,true);
 			cgc.getGroups();
 			cgc.getShowCreateGroupBtn();
 		}
@@ -555,8 +570,8 @@ private class CommunityTest {
 		System.runAs(u) {
 			Test.setCurrentPage(Page.CommunityRegTerms);
 			CommunityRegTermsController crtc = new CommunityRegTermsController();
-						
 			crtc.stepName = 'info';
+			//System.AssertEquals(Page.CommunityHome,crtc.init());
 			crtc.init();
 			crtc.completeCurrentStep();
 			crtc.stepName = 'interest';
@@ -576,7 +591,7 @@ private class CommunityTest {
 			crtc.completeCurrentStep();
 			crtc.checkAndPrepareMenu();
 			crtc.getDisabledNext();
-		
+			System.AssertEquals(String.valueOf(Page.CommunityHome),String.valueOf(crtc.init()));
 			CommunityRegTermsController.Menu leftSideBar = new CommunityRegTermsController.Menu();	
 				leftSideBar.getLastStep();
 				leftSideBar.getCurrentStepName();	
@@ -599,7 +614,11 @@ private class CommunityTest {
 		CommunitySearchController csc4 = new CommunitySearchController();
 		csc1.getNews();
 		csc1.getEvents();
+		Community_Group_Control__c cgcr = new Community_Group_Control__c(Name='1212t', Discoverable__c=true, Type__c='Public', Network__c='Internal');
+		insert cgcr;
 		csc1.getGroups();
+		System.Debug(csc1.getGroups());
+		System.AssertEquals(csc1.getGroups().totalRecords>0,false); ///////////////?
 		csc1.getResources();		
 		CommunitySearchController.SearchItem s21 = csc2.getNews();
 		CommunitySearchController.SearchItem s22 = csc2.getEvents();
@@ -622,6 +641,7 @@ private class CommunityTest {
 
 	@IsTest(SeeAllData=true)
 	static void test_CommunityGroupFilesController() {
+		
 		Community_Group_Control__c cgc = new Community_Group_Control__c(Name='tstgrp', Type__c='Public', Discoverable__c=true);
 		insert cgc;
 		ApexPages.currentPage().getParameters().put('gc',cgc.Id);
@@ -669,5 +689,6 @@ private class CommunityTest {
 		cgfc.initFromPage();
 		cgfc.stack = vId;
 		cgfc.deleteAction();
+		
 	}
 }

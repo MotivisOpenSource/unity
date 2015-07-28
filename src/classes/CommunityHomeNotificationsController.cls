@@ -1,4 +1,4 @@
-global without sharing class CommunityHomeNotificationsController {
+global with sharing class CommunityHomeNotificationsController {
 	
 	public CommunityHomeNotificationsController() {
 		
@@ -27,14 +27,16 @@ global without sharing class CommunityHomeNotificationsController {
 		
 		List<NotificationWrapper> hpMessages = new List<NotificationWrapper>();
 		Set<Id> userIds = new Set<Id>();
+		
 
-	// used existing method for messages
+		// used existing method for messages
+		//feedMessages = CommunityHelperWithoutSharing.MyMessages();
 		CommunityFeed_MyMessagesController feedMessages = new CommunityFeed_MyMessagesController();
 		
 		if(feedMessages.Conversations.isEmpty()) return NULL;
 
 		for(CommunityFeed_MyMessagesController.ChatterConversation feedMessage : feedMessages.Conversations){
-	// check owner messageges 
+		// check owner messageges 
 			if(feedMessage.LatestMessage.Sender.MemberId != UserInfo.getUserId()){
 				
 				userIds.add(feedMessage.LatestMessage.Sender.MemberId);
@@ -108,14 +110,21 @@ global without sharing class CommunityHomeNotificationsController {
 
 
 	// get feed from groups
+	/*
 		List<FeedItem> feeds = [SELECT Id, ParentId, Type, CommentCount, LinkUrl, LastModifiedDate, CreatedById, Visibility 
 								FROM FeedItem
 							   WHERE ParentId IN :controlsIds 
 							   AND CreatedById != :userId
 							   AND Visibility = 'AllUsers'
 							   LIMIT 10000];
+							   */
+							   
+		List<FeedItem> feeds = CommunityHelperWithoutSharing.getFeeds(controlsIds, userId);
 
-	   if(feeds.isEmpty()) return NULL;
+	   if(feeds.isEmpty()) {
+	    	System.debug('feednul');
+	   		return NULL;
+	   }
 	//check GroupManager feeds 
 		for(FeedItem feed : feeds){
 				userPostedIds.add(feed.CreatedById);

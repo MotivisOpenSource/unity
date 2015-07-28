@@ -6,6 +6,8 @@ public with sharing class CommunityGroupCreateController {
 	public String imageContentType { get; set; }
 	public Integer step { get; set; }
 
+	public Map<String, String> pageParams { get{ return ApexPages.currentPage().getParameters();} set; }
+
 	private final String TAGS_INPUT_NAME = 'tags';
 
 	public CommunityGroupCreateController(ApexPages.StandardController stdController) {
@@ -15,7 +17,7 @@ public with sharing class CommunityGroupCreateController {
 	public PageReference initFromCreate() {
 		PageReference pr;
 		Set<String> availableSteps = new Set<String> {'2','3','4'};
-		Map<String, String> pageParams = ApexPages.currentPage().getParameters();
+		//Map<String, String> pageParams = ApexPages.currentPage().getParameters();
 		String stepStr = (String.isNotBlank(pageParams.get('step')) && availableSteps.contains(pageParams.get('step'))) ? pageParams.get('step') : '1';
 		step = Integer.valueOf(stepStr);
 		if (currentGroup.Id != NULL) {

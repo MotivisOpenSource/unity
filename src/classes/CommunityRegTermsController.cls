@@ -10,7 +10,10 @@ global with sharing class CommunityRegTermsController {
 	public List<CommunityProfilePageController.FieldSection> overviewTab { get;set; }
 	public List<CommunityProfilePageController.InterestSection> interests { get;set; }
 	public transient String tcText { get; set; }
+	public transient Community_Admins__c caText { get; set; }
 	public Boolean tcCheckBox { get; set; }
+
+	public Map<String, String> pageParams { get{ return ApexPages.currentPage().getParameters();} set; }
 
 	public CommunityRegTermsController() {
 	}
@@ -19,7 +22,7 @@ global with sharing class CommunityRegTermsController {
 		PageReference pr;
 
 		Set<String> availableSteps = new Set<String> {'2','3','4'};
-		Map<String, String> pageParams = ApexPages.currentPage().getParameters();
+		//Map<String, String> pageParams = ApexPages.currentPage().getParameters();
 		String stepStr = (String.isNotBlank(pageParams.get('step')) && availableSteps.contains(pageParams.get('step'))) ? pageParams.get('step') : '1';
 		step = Integer.valueOf(stepStr);
 		String mess = checkAndPrepareMenu();
@@ -45,8 +48,8 @@ global with sharing class CommunityRegTermsController {
 					
 				}*/
 				else if (stepName == 'tc') {
-					List<Community_Admins__c> admins = [SELECT Id, Terms_Body__c, Terms_Published_Date__c, Terms_Archived_Date__c, Terms_Req_New_Signature__c FROM Community_Admins__c WHERE RecordType.Name = 'Community Terms' AND Terms_Status__c = 'Published' ORDER BY Terms_Published_Date__c DESC LIMIT 1];
-					tcText = (admins.size() != 0) ? admins[0].Terms_Body__c : '';
+					List<Community_Admins__c> admins = [SELECT Id, Terms_Body__c FROM Community_Admins__c WHERE RecordType.Name = 'Community Terms' AND Terms_Status__c = 'Published' ORDER BY Terms_Published_Date__c DESC LIMIT 1];
+					caText = admins.isEmpty() ? NULL : admins[0];
 				}
 			}
 			catch (Exception e) {

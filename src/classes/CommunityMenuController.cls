@@ -28,6 +28,7 @@ public with sharing class CommunityMenuController {
 		PageReference pr;
 		if (UserInfo.getUserType() == 'Guest') {
 			pr = Network.forwardToAuthPage(NULL);
+			
 		}
 		return pr;
 	}

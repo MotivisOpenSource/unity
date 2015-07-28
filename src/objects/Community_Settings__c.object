@@ -74,7 +74,8 @@
     </fields>
     <fields>
         <fullName>Image_Library_Folder__c</fullName>
-        <defaultValue>&quot;Image Library&quot;</defaultValue>
+        <defaultValue>&quot;Image_Library&quot;</defaultValue>
+        <deprecated>false</deprecated>
         <description>field contains name of image library folder for create news.</description>
         <externalId>false</externalId>
         <label>Image Library Folder</label>

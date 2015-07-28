@@ -1,4 +1,4 @@
-global without sharing class CommunityShareController {
+global with sharing class CommunityShareController {
 
 	public String shareLinkUrl { get;set; }
 	public String shareLinkName { get;set; }
@@ -7,6 +7,7 @@ global without sharing class CommunityShareController {
 	public Boolean hasMessage { get { return hasMessage == NULL ? false : hasMessage; } set; }
 	public String message { get; set; }
 	public List<TagsForGroup> AvailableGroups { get; set; }
+	public List<GroupFinderWrapper> listGroupFindWrapper { get; set; }
 	public Boolean availGroups { 
 		get{
 			if(AvailableGroups != null) return true;
@@ -115,7 +116,7 @@ global without sharing class CommunityShareController {
 			}
 		}
 		catch(Exception e) {
-			message = 'ERR '+e.getMessage();
+			message = '!ERR '+e.getMessage();
 			return message;
 		}
 		return message;
@@ -191,10 +192,22 @@ global without sharing class CommunityShareController {
 			}
 		}
 		tagsForGroups.sort();
-		if(!wrapper.isEmpty()) tagsForGroups.add(new TagsForGroup(Label.LBL_Other, wrapper));
+		if(!wrapper.isEmpty()) {
+		    tagsForGroups.add(new TagsForGroup(Label.LBL_Other, wrapper));
+		    //System.debug(new TagsForGroup(Label.LBL_Other, wrapper));
+		}
 		
-		AvailableGroups = tagsForGroups;
 		
+		AvailableGroups = tagsForGroups;	
+		
+		
+		listGroupFindWrapper = new List<GroupFinderWrapper>();	
+		for (TagsForGroup tfg : tagsForGroups) {			
+			for (GroupFinderWrapper gfw : tfg.wrapperGroup) {							
+				listGroupFindWrapper.add(gfw);
+			}
+		}		
+		listGroupFindWrapper.sort();	
 	}
 
 	public static List<String> getNamesOfAvailableGroups(List<String> groupIds){
@@ -282,6 +295,7 @@ global without sharing class CommunityShareController {
 	        if (this.TagName > compareToEmp.TagName) return 1;
 	        return -1;   
 		}
+		
 	}
 
 	global class GroupFinderWrapper implements Comparable{
@@ -305,6 +319,7 @@ global without sharing class CommunityShareController {
 	public List<Community_Group_Control__c> AvailableGroupsControls { 
 		get {
 			Set<String> filtredChatterGroups = new Set<String>();
+			Set<String> filtredTotalChatterGroups = new Set<String>();
 			for (CollaborationGroupMember cgmItem : [
 					SELECT CollaborationGroupId FROM CollaborationGroupMember
 					WHERE CollaborationGroup.NetworkId = :Network.getNetworkId() AND MemberId = :UserInfo.getUserId()
@@ -312,8 +327,10 @@ global without sharing class CommunityShareController {
 				filtredChatterGroups.add(cgmItem.CollaborationGroupId);
 			}
 			//gQuery += ' WHERE Chatter_Group_ID__c IN :filtredChatterGroups';
-			
-			return filtredChatterGroups.size() > 0?[SELECT Id, Name, Chatter_Group_ID__c FROM  Community_Group_Control__c WHERE Chatter_Group_ID__c IN :filtredChatterGroups LIMIT 100]:null;			
+			for (CollaborationGroup cgItem: [SELECT Id, Name, IsArchived FROM CollaborationGroup WHERE ID IN :filtredChatterGroups and IsArchived = false LIMIT 100]) {
+				filtredTotalChatterGroups.add(cgItem.Id);
+			}			
+			return filtredTotalChatterGroups.size() > 0?[SELECT Id, Name, Chatter_Group_ID__c, Status__c FROM  Community_Group_Control__c WHERE Chatter_Group_ID__c IN :filtredTotalChatterGroups AND Status__c = 'Approved' ORDER BY Name ASC  LIMIT 100]:null;			
 		}
 		set;
 	}

@@ -1,16 +1,17 @@
 <apex:page standardController="Community_News__c" extensions="CommunityNewsController" action="{!initFromEdit}" showHeader="false" sideBar="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false">
+<!-- <script type="text/javascript" src="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.js"></script>  -->
+<!--<script src="{!$Resource.CommunityResources}/js/underscore/underscore-min.js"></script> -->
+<!--<script type="text/javascript" src="{!$Resource.assets}/plugins/sky-forms/version-2.0.1/js/jquery-ui.min.js"></script> -->
+<!--<apex:stylesheet value="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.css" />-->
 
-<script src="{!$Resource.CommunityResources}/js/underscore/underscore-min.js"></script>
-<script type="text/javascript" src="{!$Resource.assets}/plugins/sky-forms/version-2.0.1/js/jquery-ui.min.js"></script>
-<apex:stylesheet value="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.css" />
-<script type="text/javascript" src="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.js"></script>
 
 <apex:composition template="{!$Site.Template}">
 <apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
 <apex:define name="body">
 	<style>
 		.row .bPageBlock { border-top:3px solid #72c02c; }
-	</style>
+		.errorText { padding:15px 30px; margin-bottom:20px; border:1px solid #ebccd1; background-color:#f2dede; color:#a94442;}
+   	</style>
 	<div class="row">
 		<apex:form id="cnsp1" style="display:none;" styleClass="col-sm-12">
 			<div class="row margin-bottom-10">
@@ -35,8 +36,10 @@
 						<apex:outputPanel layout="none">
 							<select id="imsel1" onchange="checkimg();">
 								<option value="">{!$Label.BTN_Select}</option>
-								<option value="f">{!$Label.BTN_ChooseFile}</option>
-								<option value="e">{!$Label.LBL_Choose_from_Library}</option>
+								<option value="f">{!$Label.BTN_ChooseFile}</option>								
+								<apex:outputPanel rendered="{!IF($Setup.Community_Settings__c.Image_Library_Folder__c!='',true,false)}">
+									<option value="e">{!$Label.LBL_Choose_from_Library}</option>
+								</apex:outputPanel>
 							</select><br/>
 							<apex:inputFile id="cnif1f" value="{!imgBody}" fileName="{!imgFileName}" contentType="{!imgContentType}" style="display:none; margin:5px 0;" onchange="preview(this);"/>
 							<apex:outputPanel id="cnif1e" layout="block" style="display:none;">
@@ -74,15 +77,15 @@
 					<div class="clearfix"></div>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class='btn-u btn-u-default margin-right-10' data-dismiss="modal">{!$Label.BTN_Cancel}</button>
-					<button class='btn-u btn-u-primary' onclick='selectLibraryImage(); return false;' data-dismiss="modal">{!$Label.BTN_Select}</button>
+					<button  type="button" class='btn-u btn-u-default margin-right-10' data-dismiss="modal">{!$Label.BTN_Cancel}</button>
+					<button id="selectButtonId" class='btn-u btn-u-primary' onclick='selectLibraryImage(); return false;' data-dismiss="modal">{!$Label.BTN_Select}</button>
 				</div>
 			</div>
 		</div>
 	</div>
 </apex:define>
 <apex:define name="scripts">
-	<script>
+	<script type="text/javascript">
 		var $F = jQuery.noConflict();
 
 		$F(document).ready(function() {
@@ -116,11 +119,17 @@
 			return newArr;
 		}
 		function prepareSelect() {
+			//var folderName = "{!$Setup.Community_Settings__c.Image_Library_Folder__c}";
+			//alert("1"+folderName);
+			//if ("{!$Setup.Community_Settings__c.Image_Library_Folder__c}" != "") {
+				//"{!$Setup.Community_Settings__c.Image_Library_Folder__c}"
+			//	$F('#shooseFromLibId').show();
+			//}
 			if ($imagesCache.length == 0) {
 				var docs = new SObjectModel.Document();
 				docs.retrieve(
 					{
-						limit:100,
+						limit:50,
 						where: {
 							IsPublic: {
 								eq: true
@@ -140,25 +149,34 @@
 							alert(err.message);
 						}
 						else {
-							records.forEach(function(record) {
-								$imagesCache.push({id:$imagePartialUrl+record.get("Id"), name:record.get("Name")});
-							});
-							$selectedImagePath = null;
-							var $maindiv = $F('#libraryimagescontent');
-							var colSize = 6;
-							var chunked = chunk($imagesCache, colSize);
-							$F.each( chunked, function( key, value ) {
-								var $rowDiv = $F('<div class="row" />');
-								$F.each( value, function( key2, value2 ) {
-									var $img = $F("<img src='' class='img-thumbnail imageselector' style='width: 80px;'/>");
-									$img.attr("src", value2.id);
-									$img.data("imageNumber", (colSize*key+key2));
-									var $div = $F("<div class='col-md-2' />");
-									$div.append($img);
-									$rowDiv.append($div);
-								})
-								$maindiv.append($rowDiv);
-							});
+							if (records.length>0) {
+								$F('#selectButtonId').show();
+								records.forEach(function(record) {
+									$imagesCache.push({id:$imagePartialUrl+record.get("Id"), name:record.get("Name")});
+								});
+								$selectedImagePath = null;
+								var $maindiv = $F('#libraryimagescontent');
+								var colSize = 6;
+								var chunked = chunk($imagesCache, colSize);
+								$F.each( chunked, function( key, value ) {
+									var $rowDiv = $F('<div class="row" />');
+									$F.each( value, function( key2, value2 ) {
+										var $img = $F("<img src='' class='img-thumbnail imageselector' style='width: 80px;'/>");
+										$img.attr("src", value2.id);
+										$img.data("imageNumber", (colSize*key+key2));
+										var $div = $F("<div class='col-md-2' />");
+										$div.append($img);
+										$rowDiv.append($div);
+									})
+									$maindiv.append($rowDiv);
+								});
+							}
+							else {
+								$F('#libraryimagescontent').append('<div class="errorText">{!$Label.ERR_MissingImageLibrary}</div>');
+								$F('#selectButtonId').hide();
+							}
+							
+							
 						}
 					}
 				);
@@ -203,7 +221,7 @@
 			$F('#iidf').show();
 		}
 
-		var dateElements = $(".dateInput input");
+		var dateElements = $F(".dateInput input");
 	
 		_.each(dateElements, function(e){
 			e.className = "validate-datetimepicker";
@@ -214,7 +232,7 @@
 		if(jQuery('.validate-datetimepicker')) {
 			var currentdate = new Date(); 
 			var datetime = (currentdate.getMonth()+1) + '/' + currentdate.getDate() + '/' + currentdate.getFullYear() + ' ' + currentdate.getHours() + ":"  + currentdate.getMinutes();
-			$('.validate-datetimepicker').datetimepicker({
+			$F('.validate-datetimepicker').datetimepicker({
 				minDate:datetime,
 				format:'m/d/Y h:i A',
 				formatTime:'h:i A',

@@ -106,11 +106,11 @@
 												</ul>
 											</apex:outputPanel>
 											<apex:repeat value="{!Conversations}" var="conversation">
-												<div  class="media media-v2 conversation {!IF(NOT(conversation.IsRead), 'unread', 'replied')}" onclick="goToConversation('{!conversation.ConversationId}');">
+												<div  class="media media-v2 conversation {!IF(NOT(conversation.IsRead), 'unread', 'replied')}" onclick="goToConversation('{!JSENCODE(conversation.ConversationId)}');">
 													<a class="pull-left" style="position: relative;" href="#">
 														<img src="{!conversation.LatestMessage.Sender.MemberPhotoUrl}" alt="{!conversation.LatestMessage.Sender.MemberName}" width="45" height="45" class="media-object rounded-x" title="{!conversation.LatestMessage.Sender.MemberName}" />
 														<apex:outputPanel layout="none" rendered="{!NOT(conversation.IsRead)}">
-															<i class="fa fa-wechat indicator" />
+															<i class="fa fa-wechat indicator"/>
 														</apex:outputPanel>
 													</a>
 													<div class="media-body">
