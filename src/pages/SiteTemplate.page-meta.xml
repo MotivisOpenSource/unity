@@ -10,4 +10,9 @@
         <minorNumber>1</minorNumber>
         <namespace>ca_collab_2_0</namespace>
     </packageVersions>
+    <packageVersions>
+        <majorNumber>1</majorNumber>
+        <minorNumber>6</minorNumber>
+        <namespace>sf_com_apps</namespace>
+    </packageVersions>
 </ApexPage>

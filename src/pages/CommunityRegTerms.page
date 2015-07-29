@@ -116,7 +116,7 @@
 		</apex:outputPanel>
 		<apex:outputPanel layout="block" styleClass="row u-page-block" rendered="{!stepName == 'tc'}">
 			<div class="sky-form">
-				<apex:outputText escape="false" value="{!HTMLENCODE(tcText)}"/>
+				<apex:outputField value="{!caText.Terms_Body__c}"/>
 				<div class="text-center margin-top-20">
 					<apex:inputCheckbox rendered="{!!tcCheckBox}" value="{!tcCheckBox}" id="terms-checkbox" onchange="chkchkb(this);" style="vertical-align:top;"/>
 					<apex:inputCheckbox rendered="{!tcCheckBox}" value="{!tcCheckBox}" disabled="{!tcCheckBox}" id="terms-checkbox-checked" style="vertical-align:top;"/>

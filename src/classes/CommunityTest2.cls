@@ -374,6 +374,7 @@ private class CommunityTest2 {
 		ctdc.objectType = 'Community_News_Tag__c';
 		List<CommunityTagDisplayController.Tag> tags = ctdc.getTags(Page.CommunityNews.getUrl());
 		List<CommunityTagDisplayController.Tag> tags2 = ctdc.tags;
+		System.Assert((tags2.size()>0),true);
 		ctdc.objectType = 'Community_Event_Tag__c';
 		tags2 = ctdc.tags;
 	}
@@ -389,6 +390,7 @@ private class CommunityTest2 {
 		CommunityTagSelectorController ctsc = new CommunityTagSelectorController();
 		List<CommunityTagSelectorController.ThemeWrapper> tagsList = ctsc.getAvailableTags();
 		String tagsString = CommunityTagSelectorController.getTags(NULL,'Interest');
+		System.Assert(!String.isEmpty(tagsString));
 		ctsc.filterName = 'Community_News__c';
 		ctsc.objectId = cnews.Id;
 		ctsc.objectType = 'Community_News_Tag__c';
@@ -430,7 +432,7 @@ private class CommunityTest2 {
 		cmc.getHelpLink();
 		
 		CommunityMenuController.LinkItem li = new CommunityMenuController.LinkItem('testN','testL');
-		//System.assertEquals('testN',li.Name);
+		System.assertEquals(String.valueOf('testN'),String.valueOf(li.Name));
 		//System.assertEquals('testL',li.Link);
 	}
 
@@ -446,6 +448,7 @@ private class CommunityTest2 {
 		insert new Community_News__c(Title__c='t',Make_Entry_Sticky__c=true,Status__c = 'Appoowed',Teaser__c='t',Entry_Date__c=Datetime.now(),Expiration_Date__c=Datetime.now().addDays(1));
 		CommunityHomeComponentController chc = new CommunityHomeComponentController();
 		chc.getCampusNews();
+		System.assert(chc.getCampusNews().size()>0);
 		chc.getMyNews();
 		CommunityHomeComponentController.News news1 = new CommunityHomeComponentController.News(cnews);
 		news1.getImagePath();
@@ -510,6 +513,7 @@ private class CommunityTest2 {
 			CommunityShareController.getGroupsSelector(null);
 			CommunityShareController.getGroups(null);
 			
+			System.assert(CommunityShareController.getGroups(null).length()>0);
 			
 			cscEvents.shareComment = 'shareComment';
 			cscEvents.shareGroup = 'shareGroup';
@@ -529,7 +533,8 @@ private class CommunityTest2 {
 		insert new Community_News_Tag__c(Community_News__c=cnews.Id,Community_Tag__c=ct.Id);
 		CommunityTopCategoriesController ctcc = new CommunityTopCategoriesController();
 		ctcc.resourceOnly = false;
-		ctcc.getWrappedThemes();
+		System.assert(ctcc.getWrappedThemes().size()>0);
+		
 	}
 
     @IsTest(SeeAllData=true)
@@ -557,13 +562,15 @@ private class CommunityTest2 {
         insert cgm;
         
         
-            CommunityHomeNotificationsController chnc = new CommunityHomeNotificationsController();
-            String result = CommunityHomeNotificationsController.notifications();
-            String message = 'test message';
-
-            ConnectApi.ChatterMessage cm = ConnectApi.ChatterMessages.sendMessage(Network.getNetworkId(), message, u1.Id);
+        CommunityHomeNotificationsController chnc = new CommunityHomeNotificationsController();
+        String result = CommunityHomeNotificationsController.notifications();
+        String message = 'test message';
+        ConnectApi.ChatterMessage cm = ConnectApi.ChatterMessages.sendMessage(Network.getNetworkId(), message, u1.Id);
+        
         System.runAs(u1) {    
             String result1 = CommunityHomeNotificationsController.notifications();
+            System.Assert(result1.length()>0);
+            
         }
     }
 	

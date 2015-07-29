@@ -20,7 +20,13 @@ trigger CommunityGroupControl on Community_Group_Control__c (before insert, afte
 				validationPassed = false;
 			}
 			else {
-				checkUniqueNamesMap.put(cgcItem.Name, cgcItem);
+				if (cgcItem.Name.Length()>40) {
+					cgcItem.addError(Label.ERR_Name_is_too_long);
+					validationPassed = false;
+				}
+			    else {
+				    checkUniqueNamesMap.put(cgcItem.Name, cgcItem);
+			    }
 			}
 			// Operation block
 			if (validationPassed && cgcItem.Chatter_Group_ID__c == NULL) {

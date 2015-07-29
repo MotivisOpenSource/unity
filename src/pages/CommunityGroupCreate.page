@@ -62,7 +62,7 @@
 					</div>
 					<apex:pageBlockSection columns="1" collapsible="false">
 						<apex:repeat value="{!fieldset}" var="fs">
-							<apex:inputField id="namefield" value="{!CurrentGroup[fs.fieldPath]}" onkeyup="nameKeyUp(this);" required="{!OR(fs.required, fs.dbrequired)}" style="height:26px;" rendered="{!fs.fieldPath == 'Name'}"/>
+							<apex:inputField id="namefield" html-maxlength="40" value="{!CurrentGroup[fs.fieldPath]}" onkeyup="nameKeyUp(this);" required="{!OR(fs.required, fs.dbrequired)}" style="height:26px;" rendered="{!fs.fieldPath == 'Name'}"/>
 							<apex:inputField value="{!CurrentGroup[fs.fieldPath]}" required="{!OR(fs.required, fs.dbrequired)}" rendered="{!fs.fieldPath != 'Name'}"/>
 						</apex:repeat>
 						<script>

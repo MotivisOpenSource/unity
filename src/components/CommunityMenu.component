@@ -16,7 +16,7 @@ ul li, ol li {
 <script type="text/javascript" src="{!$Resource.assets}/plugins/backstretch/jquery.backstretch.min.js"></script>
 <apex:outputText id="bgiid" value="{!$Setup.Community_Template_Settings__c.Background_ImageID__c}" style="display:none;"/>
 <apex:outputPanel layout="none" rendered="{!!ISBLANK($Setup.Community_Template_Settings__c.Background_ImageID__c)}">
-	<script type="text/javascript">
+	<script type="text/javascript">		
 		jQuery.backstretch([
 			'{!$Site.Prefix}/servlet/servlet.ImageServer?oid={!$Organization.Id}&id=' + jQuery('[id$=bgiid]').text()
 		]);

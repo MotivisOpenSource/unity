@@ -1,9 +1,9 @@
 <apex:component controller="CommunityShareController" allowDml="true">
 	<apex:attribute name="sO" type="SObject" assignTo="{!sobj}" required="true" description="Parent Object" />
 
-	<script src="{!$Resource.CommunityResources}/js/jquery-1.11.2.min.js"></script>
-	<script src="{!$Resource.CommunityResources}/js/Typeahead/bootstrap3-typeahead.min.js"></script>
-	<script src="{!$Resource.CommunityResources}/js/underscore/underscore-min.js"></script>
+	<!-- <script src="{!$Resource.CommunityResources}/js/jquery-1.11.2.min.js"></script>  -->
+	<!-- <script src="{!$Resource.CommunityResources}/js/Typeahead/bootstrap3-typeahead.min.js"></script>  -->
+	<!-- <script src="{!$Resource.CommunityResources}/js/underscore/underscore-min.js"></script>  -->
 
 	<style>
 		.addGroups{
@@ -134,17 +134,23 @@
 							</section>
 						</fieldset>
 					</div>
-					<apex:outputPanel id="availGroupsPanel" layout="Block">
-					<div class="panel-body">
-						<ul class="list-unstyled blog-tags">
-							<apex:repeat value="{!AvailableGroupsControls}" var="group">
-								<li><a href="javascript:;" onclick="addtti('{!group.id}','{!JSENCODE(group.name)}');"><i class="fa fa-users"></i>&nbsp;{!group.name}</a>
-								</li>
-							</apex:repeat>
-						</ul>
-					</div>
-					<br/><apex:commandButton id="doneBtn" value="{!$Label.LBL_Done}" onclick="getAvailableGroups(true); return false;" styleClass="btn-u btn-u-primary"/>
+					<apex:outputPanel id="availGroupsPanel" layout="Block">					
+					
+					<apex:inputHidden id="availGroupsOut" value="{!availGroups}" />
+						<div class="panel-group acc-v1" id="accordion-1" style="padding: 0 30px 5px;">
+							
+								<div class="panel-body">
+									<ul class="list-unstyled blog-tags">									
+										<apex:repeat value="{!AvailableGroupsControls}" var="group">
+											<li><a href="javascript:;" onclick="addtti('{!group.Chatter_Group_ID__c}','{!JSENCODE(group.name)}');"><i class="fa fa-users"></i>&nbsp;{!group.name}</a>													
+											</li>
+										</apex:repeat>									
+									</ul>
+								</div>
+							<br/><apex:commandButton id="doneBtn" value="{!$Label.LBL_Done}" onclick="getAvailableGroups(true); return false;" styleClass="btn-u btn-u-primary"/>
+						</div>					
 					</apex:outputPanel>
+					 
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn-u btn-u-default margin-right-10" data-dismiss="modal">{!$label.BTN_Cancel}</button>
@@ -231,6 +237,7 @@
 
 		function shareForGroups(){
 			var groupsIds = groupsForShare();
+			console.log(groupsIds);
 			var shareComment = $("[id *= 'commentArea']").val();
 			var sobjId = window.location.href.split("id=")[1];
 			var linkName = $("input[id *='linkName']").val();

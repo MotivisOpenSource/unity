@@ -86,32 +86,31 @@
 		<apex:actionFunction name="submitResourceAction" action="{!saveResource}"/>
 		<script>
 			function submitResource() {
-				if ($('#reslname').text().trim() == '') {
-					if ($('#reserr').length == 0) {
-						$('[id$=resblock]').append('<div id="reserr" class="errorMsg"><strong>Error:</strong> You must select resource</div>');
+				if (jQuery('#reslname').text().trim() == '') {
+					if (jQuery('#reserr').length == 0) {
+						jQuery('[id$=resblock]').append('<div id="reserr" class="errorMsg"><strong>Error:</strong> You must select resource</div>');
 					}
 				}
 				else {
 					submitResourceAction();
 				}
 			}
-			if ($('#reslname').text().trim() == '') {
-				$('#reslname').text($('[id$=it265]')[2].value);
-			}
-			var $jc = jQuery.noConflict();
+			if (jQuery('#reslname').text().trim() == '') {
+				jQuery('#reslname').text($('[id$=it265]')[2].value);
+			}			
 			function removePrimTag(inp) {
 				//alert('remove ' + inp);
-				$jc('#'+inp).remove();
-				$jc('#ptag').val($jc('#ptag').val().replace(inp+',' ,''));
-				$jc('#ptin').show();
+				jQuery('#'+inp).remove();
+				jQuery('#ptag').val($jc('#ptag').val().replace(inp+',' ,''));
+				jQuery('#ptin').show();
 								
 			}			
 			function addPrimTag(tid,fn) {
-				if($('#ptcon > span').length === 0) {
+				if(jQuery('#ptcon > span').length === 0) {
 					var span = '<span id="'+tid+'" class="item guestItem"><span>'+fn+'</span><a href="javascript:void(0);" onclick="removePrimTag(\''+tid+'\')" class="remove"><img src="/s.gif"></a></span>';
-					$jc('#ptin').before(span);
-					$jc('#ptin').hide();
-					$jc('[id$=ptag]').val(tid);				
+					jQuery('#ptin').before(span);
+					jQuery('#ptin').hide();
+					jQuery('[id$=ptag]').val(tid);				
 				}
 				else alert('Only one tag can be added!');				
 			}			

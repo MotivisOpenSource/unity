@@ -1,6 +1,9 @@
 <apex:component access="global">
 	<!-- JS Global Compulsory -->
 	<apex:includeScript value="{!$Resource.assets}/plugins/jquery/jquery.min.js"/>
+	<apex:includeScript value="{!$Resource.CommunityResources}/js/underscore/underscore-min.js"/>
+	<apex:includeScript value="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.js"/>
+	<apex:includeScript value="{!$Resource.CommunityResources}/js/Typeahead/bootstrap3-typeahead.min.js"/>
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/jquery/jquery-migrate.min.js"></script>
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/bootstrap/js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/back-to-top.js"></script>

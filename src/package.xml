@@ -1,94 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Package xmlns="http://soap.sforce.com/2006/04/metadata">
     <types>
-        <members>CommunityDiscoverComponentController</members>
-        <members>CommunityDiscoverController</members>
-        <members>CommunityEventController</members>
-        <members>CommunityFeedBase</members>
-        <members>CommunityFeedController</members>
-        <members>CommunityFeedNavigationController</members>
-        <members>CommunityFeed_MyMessagesController</members>
-        <members>CommunityFeed_PeopleController</members>
-        <members>CommunityFollowController</members>
-        <members>CommunityGroupCreateController</members>
-        <members>CommunityGroupDetailPageController</members>
-        <members>CommunityGroupManageController</members>
-        <members>CommunityGroupsBase</members>
-        <members>CommunityGroupsController</members>
-        <members>CommunityGroupsController1</members>
-        <members>CommunityHomeComponentController</members>
-        <members>CommunityHomeController</members>
-        <members>CommunityHomeNotificationsController</members>
-        <members>CommunityMenuController</members>
-        <members>CommunityNewsController</members>
-        <members>CommunityProfilePageController</members>
-        <members>CommunityRegTermsController</members>
-        <members>CommunityResourceController</members>
-        <members>CommunitySearchController</members>
-        <members>CommunityShareController</members>
-        <members>CommunityTagDisplayController</members>
-        <members>CommunityTagSelectorController</members>
-        <members>CommunityTest</members>
-        <members>CommunityTest2</members>
-        <members>CommunityTest3</members>
-        <members>CommunityTest4</members>
-        <members>CommunityTopCategoriesController</members>
-        <members>CommunityUrlRewriter</members>
-        <members>CommunityUtils</members>
-        <members>UnityAdminController</members>
+        <members>*</members>
         <name>ApexClass</name>
     </types>
     <types>
-        <members>CommunityCampusUpdates</members>
-        <members>CommunityFeed</members>
-        <members>CommunityFeedNavigation</members>
-        <members>CommunityFollow</members>
-        <members>CommunityFootResource</members>
-        <members>CommunityFooter</members>
-        <members>CommunityHeadResource</members>
-        <members>CommunityHomeNotifications</members>
-        <members>CommunityMenu</members>
-        <members>CommunityMyNews</members>
-        <members>CommunityResourceDialog</members>
-        <members>CommunityShare</members>
-        <members>CommunityTagDisplay</members>
-        <members>CommunityTagSelector</members>
-        <members>CommunityTopCategories</members>
-        <members>CommunityTopCategoties</members>
-        <members>CommunityUserPhoto</members>
+        <members>*</members>
         <name>ApexComponent</name>
     </types>
     <types>
-        <members>Community404</members>
-        <members>CommunityDiscover</members>
-        <members>CommunityDiscoverResult</members>
-        <members>CommunityEventDetail</members>
-        <members>CommunityEventEdit</members>
-        <members>CommunityEventsList</members>
-        <members>CommunityFeed_MyFeed</members>
-        <members>CommunityFeed_MyMessages</members>
-        <members>CommunityFeed_People</members>
-        <members>CommunityGroupCreate</members>
-        <members>CommunityGroupDetailPage</members>
-        <members>CommunityGroupManager</members>
-        <members>CommunityGroups</members>
-        <members>CommunityGroups1</members>
-        <members>CommunityGroupsManager1</members>
-        <members>CommunityHome</members>
-        <members>CommunityNews</members>
-        <members>CommunityNewsDetail</members>
-        <members>CommunityNewsEdit</members>
-        <members>CommunityNewsEditTest</members>
-        <members>CommunityProfilePage</members>
-        <members>CommunityRegTerms</members>
-        <members>CommunityResourceDetail</members>
-        <members>CommunityResourceEdit</members>
-        <members>CommunityResources</members>
-        <members>CommunitySearch</members>
-        <members>InternalGroupManager</members>
-        <members>SiteTemplate</members>
-        <members>UnityAdmin</members>
-        <members>page</members>
+        <members>*</members>
         <name>ApexPage</name>
     </types>
     <types>
@@ -101,20 +22,11 @@
     </types>
     <types>
         <members>*</members>
-        <members>Account</members>
-        <members>Contact</members>
-        <members>User</members>
         <name>CustomObject</name>
     </types>
     <types>
-        <members>CommunityResources</members>
-        <members>assets</members>
+        <members>*</members>
         <name>StaticResource</name>
-    </types>
-    <types>
-        <members>Community_Tag__c</members>
-        <members>User</members>
-        <name>Workflow</name>
     </types>
     <version>31.0</version>
 </Package>

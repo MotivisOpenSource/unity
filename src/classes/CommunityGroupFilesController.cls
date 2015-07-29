@@ -1,4 +1,4 @@
-public without sharing class CommunityGroupFilesController {
+public with sharing class CommunityGroupFilesController {
 
 	public transient Community_Group_Control__c control { get; set; }
 	public transient CollaborationGroup chatterGroup { get; set; }
@@ -19,13 +19,15 @@ public without sharing class CommunityGroupFilesController {
 	private Integer FILES_PAGE_SIZE { get { return mode == 'initial' ? 5 : 10; } }
 	public Boolean allOk { get; set; }
 	public Boolean enableShare { get; set; }
+	
+	public String detailParam { get{ return ApexPages.currentPage().getParameters().get('f'); } set;}
 
 	public ContentVersion cvRecord { get; set; }
 
 	public CommunityGroupFilesController() {}
 
 	public void initFromPage() {
-		String detailParam = ApexPages.currentPage().getParameters().get('f');
+		
 		if (String.isBlank(detailParam)) {
 			mode = 'list';
 		}
@@ -51,11 +53,9 @@ public without sharing class CommunityGroupFilesController {
 
 	public void init() {
 		FileList = new List<FileWrapper>();
-		String fQuery = 'SELECT Id, CreatedById, CreatedBy.Name, ContentFileName, LastModifiedDate FROM FeedItem';
-		fQuery += ' WHERE Type = \'ContentPost\' AND ParentId = :chatterGroupId';
-		fQuery += ' LIMIT 500';
+		
 		List<String> feedElementsIds = new List<String>();
-		for (FeedItem fi : Database.query(fQuery)) {
+		for (FeedItem fi : CommunityHelperWithoutSharing.getFeeds(chatterGroupId)) {
 			feedElementsIds.add(fi.Id);
 		}
 		List<ConnectApi.FeedElement> elements = new List<ConnectApi.FeedElement>();

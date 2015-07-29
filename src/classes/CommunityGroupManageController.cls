@@ -1,4 +1,4 @@
-public without sharing class CommunityGroupManageController {
+public with sharing class CommunityGroupManageController {
 
 	public Community_Group_Control__c control { get;set; }
 	public CollaborationGroup chatterGroup { get;set; }
@@ -84,9 +84,9 @@ public without sharing class CommunityGroupManageController {
 			sres.totalMembers = [SELECT COUNT() FROM CollaborationGroupMember WHERE CollaborationGroupId = :chatterGroup.Id];
 			sres.newThisWeek = [SELECT COUNT() FROM CollaborationGroupMember WHERE CollaborationGroupId = :chatterGroup.Id AND CreatedDate = THIS_WEEK];
 			sres.newLastMonth = [SELECT COUNT() FROM CollaborationGroupMember WHERE CollaborationGroupId = :chatterGroup.Id AND CreatedDate = LAST_MONTH];
-			sres.overallActivity = [SELECT COUNT() FROM FeedItem WHERE ParentId = :chatterGroup.Id];
-			sres.postsThisWeek = [SELECT COUNT() FROM FeedItem WHERE ParentId = :chatterGroup.Id AND CreatedDate = THIS_WEEK];
-			sres.postThisMonth = [SELECT COUNT() FROM FeedItem WHERE ParentId = :chatterGroup.Id AND CreatedDate = THIS_MONTH];
+			sres.overallActivity = CommunityHelperWithoutSharing.getOverallActivity(chatterGroup.Id);
+			sres.postsThisWeek = CommunityHelperWithoutSharing.getPostsThisWeek(chatterGroup.Id);
+			sres.postThisMonth = CommunityHelperWithoutSharing.getPostThisMonth(chatterGroup.Id);
 		}
 		return sres;
 	}

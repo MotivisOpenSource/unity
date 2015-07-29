@@ -4,9 +4,9 @@
 	<apex:attribute name="fName" description="" type="string" required="false" assignTo="{!filterName}"/>
 	<apex:attribute name="mt" type="integer" required="false" default="-1" description="Max Tags Count"/>
 
-	<script src="{!$Resource.CommunityResources}/js/jquery-1.11.2.min.js"></script>
-	<script src="{!$Resource.CommunityResources}/js/Typeahead/bootstrap3-typeahead.min.js"></script>
-	<script src="{!$Resource.CommunityResources}/js/underscore/underscore-min.js"></script>
+	<!-- <apex:includeScript value="{!$Resource.CommunityResources}/js/jquery-1.11.2.min.js"/>  -->  
+	<!-- <apex:includeScript value="{!$Resource.CommunityResources}/js/Typeahead/bootstrap3-typeahead.min.js"/> -->
+	<!-- <apex:includeScript value="{!$Resource.CommunityResources}/js/underscore/underscore-min.js"/> -->
 
 	<style>
 		.typeahead {
@@ -204,7 +204,7 @@
 				}
 			);
 		}, 300);
-		$(document).ready(function() {
+		jQuery(document).ready(function() {
 			Visualforce.remoting.Manager.invokeAction(
 				'{!$RemoteAction.CommunityTagSelectorController.getExistingTags}',
 				'{!objectId}',
@@ -216,8 +216,8 @@
 					var mdata = JSON.parse(div.firstChild.nodeValue);
 					_.each(mdata, function (tag, ix, list) {
 						var span = '<span id="'+tag.id+'" class="item guestItem"><span>'+tag.fullname+'</span><a href="javascript:void(0);" onclick="removeTag(\''+tag.id+'\')" class="remove"><img src="/s.gif"></a></span>';
-						$('#tagsInput').before(span);
-						$('#tags').val($('#tags').val() + tag.id + ',')
+						jQuery('#tagsInput').before(span);
+						jQuery('#tags').val(jQuery('#tags').val() + tag.id + ',')
 					});
 				}
 			);
@@ -236,18 +236,18 @@
 			});
 		});
 		function removeTag(inp) {
-			$('#tagsContainer #'+inp).remove();
-			$('#tags').val($('#tags').val().replace(inp+',' ,''));
-			if ({!mt} >= 0 && $('#tagsContainer span.item').length <= {!mt} && $('#sectionnote').length > 0) {
-				$('#sectionnote').remove();
-				$('[id$=sbtbtn]').css('opacity','1').removeAttr('disabled');
+			jQuery('#tagsContainer #'+inp).remove();
+			jQuery('#tags').val(jQuery('#tags').val().replace(inp+',' ,''));
+			if ({!mt} >= 0 && jQuery('#tagsContainer span.item').length <= {!mt} && jQuery('#sectionnote').length > 0) {
+				jQuery('#sectionnote').remove();
+				jQuery('[id$=sbtbtn]').css('opacity','1').removeAttr('disabled');
 			}
-			if ({!mt} != -1 && $('#tagsContainer span.item').length == 0) {
-				$('[id$=sbtbtn]').css('opacity','0.65').attr('disabled','disabled');
+			if ({!mt} != -1 && jQuery('#tagsContainer span.item').length == 0) {
+				jQuery('[id$=sbtbtn]').css('opacity','0.65').attr('disabled','disabled');
 			}
 		}
 		function toggleTagSection(el) {
-			var par = $(el).parent();
+			var par = jQuery(el).parent();
 			if (par.attr('class') == 'panel-link') {
 				par.attr('class','panel panel-success');
 				par.find('.panel-body').show();
@@ -260,20 +260,20 @@
 			}
 		}
 		function addtti(tid,fn) {
-			if ($('span[id='+tid+']').length == 0) {
+			if (jQuery('span[id='+tid+']').length == 0) {
 				var span = '<span id="'+tid+'" class="item guestItem"><span>'+fn+'</span><a href="javascript:void(0);" onclick="removeTag(\''+tid+'\')" class="remove"><img src="/s.gif"></a></span>';
-				$('#tagsInput').before(span);
-				$('#tags').val($('#tags').val() + tid + ',');
+				jQuery('#tagsInput').before(span);
+				jQuery('#tags').val(jQuery('#tags').val() + tid + ',');
 				if ({!mt} >= 0) {
-					if ($('#tagsContainer span.item').length > {!mt}) {
-						if ($('#sectionnote').length == 0) {
+					if (jQuery('#tagsContainer span.item').length > {!mt}) {
+						if (jQuery('#sectionnote').length == 0) {
 							var txt = 'You are reached maximum of '+'{!mt}'+' Tag(s) for this group. You must remove a tag in order to add a tag.';
-							$('.div-like-input').after('<div id="sectionnote" class="alert alert-danger fade in">'+txt+'</div>');
-							$('[id$=sbtbtn]').css('opacity','0.65').attr('disabled','disabled');
+							jQuery('.div-like-input').after('<div id="sectionnote" class="alert alert-danger fade in">'+txt+'</div>');
+							jQuery('[id$=sbtbtn]').css('opacity','0.65').attr('disabled','disabled');
 						}
 					}
 					else {
-						$('[id$=sbtbtn]').css('opacity','1').removeAttr('disabled');
+						jQuery('[id$=sbtbtn]').css('opacity','1').removeAttr('disabled');
 					}
 				}
 			}
@@ -300,7 +300,7 @@
 					}
 				);
 			}, 300);
-			$('#ptin').typeahead({
+			jQuery('#ptin').typeahead({
 				source:function (query, process) {
 					searchTagsResource(query, process);
 				},
@@ -308,10 +308,10 @@
 					_.each(tags_map, function (tag, ix, list) {
 						if ((tag.fullname) == item) {
 							var span = '<span id="'+tag.id+'" class="item guestItem"><span>'+item+'</span><a href="javascript:void(0);" onclick="removePrimaryTag(\''+tag.id+'\')" class="remove"><img src="/s.gif"></a></span>';
-							$('#ptin').before(span);
-							$('#ptin').hide();
-							$('[id$=ptag]').val(tag.id);
-							if ($('#tagsContainer #'+tag.id).length > 0) {
+							jQuery('#ptin').before(span);
+							jQuery('#ptin').hide();
+							jQuery('[id$=ptag]').val(tag.id);
+							if (jQuery('#tagsContainer #'+tag.id).length > 0) {
 								removeTag(tag.id);
 							}
 						}
@@ -320,9 +320,9 @@
 				}
 			});
 			function removePrimaryTag(inp) {
-				$('#ptcon #'+inp).remove();
-				$('[id$=ptag]').val('');
-				$('#ptin').show();
+				jQuery('#ptcon #'+inp).remove();
+				jQuery('[id$=ptag]').val('');
+				jQuery('#ptin').show();
 			}
 		</script>
 	</apex:outputPanel>

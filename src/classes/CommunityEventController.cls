@@ -53,11 +53,27 @@ public with sharing class CommunityEventController {
 
 	public PageReference downloadICS() {
 		String docName = String.format('{0}.ics', new List<String> { this.event.Name__c });
-		Document att = deleteICSDocument(docName);
-		
-		if (att == NULL) {
-			Community_Events__c e = [SELECT Id, Owner.Name, Owner.Email FROM Community_Events__c WHERE Id =:event.Id];
-			Blob icsFile = generateCalendarEvent(this.event, e.Owner.Name, e.Owner.Email, UserInfo.getFirstName() +' '+ UserInfo.getLastName(), UserInfo.getUserEmail());
+		Document att = deleteICSDocument(docName);		
+		if (att == NULL) {		
+			Community_Events__c e = [SELECT Id, Owner.Name, OwnerId FROM Community_Events__c WHERE Id =:event.Id];
+			System.Debug(e);
+			User userForContact = [SELECT ID, ContactId, Email,Community_Contact_ID__c  FROM User WHERE ID =:e.OwnerId LIMIT 1] ;
+			System.Debug(userForContact);
+			String contactEmail;			
+			if(userForContact.ContactId!=null) {
+				List<Contact> listContact = [SELECT ID, Email FROM Contact WHERE ID =: userForContact.ContactId LIMIT 1];
+				Contact contactUser = listContact.size()>0?listContact[0]:null; 
+				if(contactUser.Email != null) contactEmail = contactUser.Email;
+				else contactEmail = '';							
+			}
+			else {
+				if(userForContact.Community_Contact_ID__c!=null) {
+					List<Contact> listContact = [SELECT ID, Email FROM Contact WHERE ID =: userForContact.Community_Contact_ID__c LIMIT 1];
+					contactEmail = listContact.size()>0?listContact[0].Email:'';
+				}
+				else contactEmail = '';
+			}			
+			Blob icsFile = generateCalendarEvent(this.event, e.Owner.Name, contactEmail, UserInfo.getFirstName() +' '+ UserInfo.getLastName(), UserInfo.getUserEmail());
 			att = new Document(
 				Name = docName,
 				Body = icsFile,
@@ -65,11 +81,11 @@ public with sharing class CommunityEventController {
 				IsPublic = true
 			);
 			insert att;
-		}
-
+		}		
 		PageReference pr = new PageReference('/servlet/servlet.FileDownload');
 		pr.setRedirect(true);
 		pr.getParameters().put('file', att.Id);
+		System.Debug(pr);
 		return pr;
 	}
 
@@ -87,6 +103,7 @@ public with sharing class CommunityEventController {
 	}
 
 	private Blob generateCalendarEvent(Community_Events__c e, String ownerName, String ownerEmail, String currentUserName, String currentUserEmail) {
+		
 		String icsString = 'BEGIN:VCALENDAR'
 			+ '\nVERSION:2.0'
 			+ '\nPRODID:-//Microsoft Corporation//Outlook for Mac MIMEDIR//EN'
@@ -114,7 +131,6 @@ public with sharing class CommunityEventController {
 			+ '\nEND:VEVENT'
 			+ '\nEND:VCALENDAR';
 
-
 		String icsBody = String.format(icsString,
 			new List<String> {
 				EncodingUtil.convertToHex(Crypto.generateDigest('SHA1', Blob.valueOf(String.ValueOf(e.Id) + Crypto.getRandomInteger()))),
@@ -125,7 +141,7 @@ public with sharing class CommunityEventController {
 				(e.End__c != NULL ? datetimeToUTC(e.End__c) : ''),
 				(e.Street_Address__c != NULL ? e.Street_Address__c : ''),
 				datetimeToUTC(DateTime.now()),
-				(e.Description__c != NULL ? e.Description__c : '')
+				(e.Description__c != NULL ? e.Description__c.stripHtmlTags() : '')
 			}
 		);
 		Blob icsFile = Blob.valueOf(icsBody);
