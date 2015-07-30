@@ -316,6 +316,24 @@ public class CommunityUtils {
 		return groupsNames;
 	}
 
+	public static Boolean checkAPIEnable (){
+
+		return [SELECT ID, PermissionsApiEnabled FROM Profile WHERE ID = :Userinfo.getProfileId() LIMIT 1].PermissionsApiEnabled; 
+	}
+
+	public static Map<String,Boolean> checkCRUDforObject (String objName){
+		Map<String, Boolean> result = new Map<String, Boolean>();
+		Schema.DescribeSObjectResult obj = Schema.getGlobalDescribe().get(objName).getDescribe();
+		
+		result.put('isCreateable',obj.isCreateable());
+		result.put('isAccessible',obj.isAccessible());
+		result.put('isUpdateable',obj.isUpdateable());
+		result.put('isDeletable',obj.isDeletable());
+
+
+		return result;
+	} 
+
 
 	//wrapper classes
 

@@ -184,10 +184,11 @@ global with sharing class CommunityProfilePageController {
 
 	public Boolean getShowChangePassword() {
 		Set<String> noredirect = new Set<String> { 'Standard', 'Salesforce' };
-		Map<Id, Profile> studentsProfiles = new Map<Id, Profile>([SELECT Id FROM Profile WHERE Name LIKE '%Community%']);
+		//Map<Id, Profile> studentsProfiles = new Map<Id, Profile>([SELECT Id FROM Profile WHERE Name LIKE '%Community%']);
+		Boolean isCommunityUser = [SELECT Id, isPortalEnabled FROM User WHERE Id =: Userinfo.getUserId()].isPortalEnabled;
 		Community_Settings__c cs = Community_Settings__c.getInstance();
 		return !noredirect.contains(Userinfo.getUserType())
-				&& studentsProfiles.containsKey(Userinfo.getProfileId())
+				&& isCommunityUser
 				&& (cs == NULL || cs.Disable_Change_Password__c != true);
 	}
 
@@ -254,10 +255,16 @@ global with sharing class CommunityProfilePageController {
 
 	public List<DigestItem> getDigestSettings() {
 		List<DigestItem> resultList = new List<DigestItem>();
+		List<Community_Group_Control__c> chGroups = [SELECT Chatter_Group_ID__c FROM Community_Group_Control__c];
+		List<String> chGroupsIds = new List<String>();
+		for(Community_Group_Control__c chGroup : chGroups){
+			chGroupsIds.add(chGroup.Chatter_Group_ID__c);
+		}
 		for (CollaborationGroupMember cgmItem : [
 					SELECT CollaborationGroupId, CollaborationGroup.Name, NotificationFrequency
 					FROM CollaborationGroupMember
 					WHERE MemberId = :UserInfo.getUserId()
+					AND CollaborationGroupId IN :chGroupsIds
 					ORDER BY CollaborationGroup.Name
 						]) {
 			resultList.add(new DigestItem(cgmItem));

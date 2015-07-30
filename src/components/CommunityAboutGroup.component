@@ -1,12 +1,6 @@
 <apex:component controller="CommunityAboutGroupComponentController" allowDML="true">
     <apex:attribute name="currentGroupId" description="Current Group Control Id" type="String" required="true" assignTo="{!currentGroupControlId}" />
     <apex:attribute name="currentGroupRole" description="role of the user to this group" type="String" required="true" assignTo="{!groupRole}" />
-    
-    
-    <style type="text/css">
-        .errorText { padding:15px 30px; margin-bottom:20px; border:1px solid #ebccd1; background-color:#f2dede; color:#a94442;}
-    </style>
-    
     <script type="text/javascript">
         function isTagsEmpty() {
             return ($('#tagViewPanel>a').length==0);
@@ -22,7 +16,7 @@
     <apex:form >
         <apex:actionFunction action="{!cancelAction}"  name="refreshData" rerender="theForm" onComplete="remowestatusOfLoad();"/>
     </apex:form>    
-    <div id="myModal1" class="modal fadeb" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true" >
+    <div id="myModal1" class="modal fadeb CommunityAboutGroup" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true" >
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -36,7 +30,7 @@
                     <div class="errorText" style="display:none">
                         <apex:pageMessages id="pageMessages"/>
                     </div>
-                    <apex:form id="theForm" style="margin:20px;" styleClass="sky-form" >                        
+                    <apex:form id="theForm" styleClass="sky-form margin-20">
                         <apex:variable var="index" value="{!0}" />
                         <div class="margin-bottom-15"></div>
                         <dl class="dl-horizontal">
@@ -56,14 +50,14 @@
 
                                         <apex:outputPanel layout="none">
                                             <div id="efld{!index}" style="display:none;">
-                                                <apex:inputField style="width: 100%" id="vflde" value="{!control[fs.fieldPath]}" 
+                                                <apex:inputField styleClass="full-width" id="vflde" value="{!control[fs.fieldPath]}" 
                                                     rendered="{!IF(fs.Type == 'textarea', false, true)}"
                                                     required="{!fs.required}" 
                                                     onchange="onChangeEdit({!index});" 
                                                     onblur="shwv({!index});"
                                                 />
                                                 <span>
-                                                <apex:inputText style="width: 100%" id="tvflde" value="{!mapFieldsGroupObject[fs.fieldPath]}" 
+                                                <apex:inputText styleClass="full-width" id="tvflde" value="{!mapFieldsGroupObject[fs.fieldPath]}" 
                                                     rendered="{!IF(fs.Type == 'textarea', true, false)}"
                                                     required="{!fs.required}" 
                                                     onchange="onChangeEdit({!index});" 
@@ -111,7 +105,7 @@
                             </apex:repeat>
                         </dl>
                         <apex:outputPanel layout="block" styleClass="row u-page-block">
-                            <div class="col-sm-11" style="padding-top:15px;" >
+                            <div class="col-sm-11 padding-top-15">
                                 <section>
                                     <label class="input" id="tagViewPanel">
                                         <c:CommunityTagDisplay oId="{!control.Id}" oType="{!$ObjectType.Community_Group_Control_Tag__c.Name}" fName="{!$ObjectType.Community_Group_Control_Tag__c.Fields.Group_Control__c.Name}" />
@@ -121,7 +115,7 @@
                                     </label>
                                 </section>
                             </div>
-                            <div class="col-sm-1" style="padding-top:15px;" id="editPencil">
+                            <div class="col-sm-1 padding-top-15" id="editPencil">
                                 <div id="pencilId" style="display:none">
                                 <apex:outputLink value="javascript:void(0);" styleClass="pull-right" onclick="$('[id$=tagViewPanel]').hide();$('[id$=tagEditPanel]').show();$('[id$=btnblk]').show();$('[id$=editPencil]').hide();" style="display:{!canEdit};">
                                     <i class="fa fa-pencil"></i>
@@ -142,7 +136,7 @@
                                 </script>
                             </div>
                         </apex:outputPanel>
-                        <apex:outputPanel layout="block" id="btnblk" style="display:none; padding:10px;">
+                        <apex:outputPanel layout="block" id="btnblk" style="display:none;" styleClass="padding-10">
                             <button class="btn-u pull-right margin-right-5" type="button" onclick="saveAct();return null;">
                                 <apex:actionStatus id="statusLoadSubmit">
                                     <apex:facet name="start">

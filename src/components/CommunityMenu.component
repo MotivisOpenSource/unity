@@ -1,17 +1,4 @@
 <apex:component controller="CommunityMenuController" access="global">
-<style>
-ul li, ol li {
-	margin-left:0;
-}
-.without-menu {
-	height: 95px !important;
-}
-.logopos {
-  position: absolute;
-  bottom: 10px;
-}
-</style>
-
 <!-- For Background Image -->
 <script type="text/javascript" src="{!$Resource.assets}/plugins/backstretch/jquery.backstretch.min.js"></script>
 <apex:outputText id="bgiid" value="{!$Setup.Community_Template_Settings__c.Background_ImageID__c}" style="display:none;"/>
@@ -48,7 +35,7 @@ ul li, ol li {
 	</script>
 </apex:outputPanel>
 
-<div class="header-v1 header-sticky {!IF(isRegTermsPage, 'without-menu', '')}" >
+<div class="header-v1 header-sticky CommunityMenu {!IF(isRegTermsPage, 'without-menu', '')}" >
 <!-- Topbar -->
 	<apex:outputPanel layout="block" styleClass="topbar-v1" rendered="{!!isRegTermsPage}">
 		<div class="container">

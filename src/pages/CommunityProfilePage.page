@@ -2,24 +2,8 @@
 <apex:composition template="{!$Site.Template}">
 <apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
 <apex:define name="body">
-<style>
-.p-st-blk {
-	display: inline-block;
-	width: 40px;
-	text-align: right;
-	vertical-align: middle;
-	height: 24px;
-	margin-top: -12px;
-}
-.p-chb {
-	font-size:1.3em;
-	color:coral;
-	font-weight:bold;
-	vertical-align: middle;
-}
-</style>
 	<!--=== Profile ===-->
-	<div class="profile">
+	<div class="profile CommunityProfilePage">
 		<div class="container content">
 			<div class="row">
 				<!--Left Sidebar-->
@@ -71,7 +55,7 @@
 									</div>
 									<apex:form id="theform" rendered="{!allOk}">
 										<apex:variable var="index" value="{!0}"/>
-										<div class="margin-bottom-10" style="text-align:right;">
+										<div class="margin-bottom-10 text-align-right">
 											<apex:repeat value="{!profiles}" var="p">
 												<apex:commandLink action="{!init}" value="{!p.name}" rendered="{!!p.active}" rerender="theform" immediate="true" styleClass="btn-u btn-u-sm btn-u-default margin-right-5" status="statusLoad">
 													<apex:param name="currentProfileId" value="{!p.profileId}" assignTo="{!currentProfileId}"/>
@@ -81,7 +65,7 @@
 											<div class="p-st-blk">
 												<apex:actionStatus id="statusLoad">
 													<apex:facet name="start">
-														<i class="fa fa-spinner fa-pulse" style="font-size:2.5em;"></i>
+														<i class="fa fa-spinner fa-pulse"></i>
 													</apex:facet>
 												</apex:actionStatus>
 											</div>
@@ -94,25 +78,27 @@
 												<div class="margin-bottom-15"></div>
 												<dl class="dl-horizontal"><apex:repeat value="{!ot.fi}" var="otfi">
 													<apex:outputPanel rendered="{!otfi.isAccessible}" layout="none">
-													<dt class="margin-bottom-10"><strong>{!otfi.label}</strong></dt>
-													<dd>
-														<span id="vfld{!index}">
-															<apex:outputField id="vfldo" value="{!currentProfile[otfi.name]}"/>
-															<apex:outputLink value="javascript:void(0);" styleClass="pull-right" onclick="shwe('{!index}');" rendered="{!otfi.isUpdateable && current}">
-																<i class="fa fa-pencil"></i>
-															</apex:outputLink>
-														</span>
-														<apex:outputPanel rendered="{!otfi.isUpdateable && current}" layout="none">
-															<div id="efld{!index}" style="display:none;" class="{!otfi.inputStyle}">
-																<apex:inputField id="vflde" value="{!currentProfile[otfi.name]}" required="{!otfi.required}"/>
-																<apex:outputPanel layout="none" rendered="{!otfi.checkbox}"><i onclick="$('#efld{!index} [id$=vflde]').click();"></i></apex:outputPanel>
-																<span style="display:none;">
-																	<span id="bcp{!index}">{!currentProfile[otfi.name]}</span>
-																	<span id="{!index}bcps" name="{!index}">n</span>
-																</span>
-															</div>
-														</apex:outputPanel>
-													</dd>
+													<div class="clearfix margin-bottom-20">
+														<dt><strong>{!otfi.label}</strong></dt>
+														<dd>
+															<span id="vfld{!index}">
+																<apex:outputField id="vfldo" value="{!currentProfile[otfi.name]}"/>
+																<apex:outputLink value="javascript:void(0);" styleClass="pull-right" onclick="shwe('{!index}');" rendered="{!otfi.isUpdateable && current}">
+																	<i class="fa fa-pencil"></i>
+																</apex:outputLink>
+															</span>
+															<apex:outputPanel rendered="{!otfi.isUpdateable && current}" layout="none">
+																<div id="efld{!index}" style="display:none;" class="{!otfi.inputStyle}">
+																	<apex:inputField id="vflde" value="{!currentProfile[otfi.name]}" required="{!otfi.required}"/>
+																	<apex:outputPanel layout="none" rendered="{!otfi.checkbox}"><i onclick="$('#efld{!index} [id$=vflde]').click();"></i></apex:outputPanel>
+																	<span style="display:none;">
+																		<span id="bcp{!index}">{!currentProfile[otfi.name]}</span>
+																		<span id="{!index}bcps" name="{!index}">n</span>
+																	</span>
+																</div>
+															</apex:outputPanel>
+														</dd>
+													</div>
 													</apex:outputPanel>
 													<apex:variable var="index" value="{!index + 1}"/>
 													
@@ -122,7 +108,7 @@
 										</apex:repeat>
 										<apex:outputPanel layout="block" id="btnblk" style="display:none;">
 											<apex:commandButton action="{!Init}" value="{!$Label.BTN_Cancel}" rerender="theform" status="statusLoad" styleClass="btn-u btn-u-sm btn-u-default margin-right-5"/>
-											<apex:commandButton action="{!Submit}" value="{!$Label.BTN_Save_Changes}" rerender="theform" status="statusLoad" styleClass="btn-u"/>
+											<apex:commandButton action="{!Submit}" value="{!$Label.BTN_Save_Changes}" rerender="theform" status="statusLoad" styleClass="btn-u btn-u-sm btn-u-default"/>
 										</apex:outputPanel>
 									</apex:form>
 								</div>
@@ -228,14 +214,6 @@
 									</div>
 								</div>
 								<div id="settings" class="profile-edit tab-pane fade">
-									<style>
-										.sky-form .toggle i.red-btn { border-color:#ff0024 !important; }
-										.sky-form .toggle i.red-btn:before { background-color:#ff0024; }
-										.sky-form .toggle i.red-btn:after { color:#ff0024; }
-										.sky-form .toggle i.green-btn { border-color:#72c02c !important;}
-										.sky-form .toggle i.green-btn:before { background-color:#72c02c; }
-										.sky-form .toggle i.green-btn:after { color:#72c02c; }
-									</style>
 									<h2 class="heading-md">{!$Label.LBL_NotificationSettings_Title}</h2><br/>
 									<h5>{!$Label.LBL_NotificationSettings_Message1}</h5><hr/>
 									<form class="sky-form" id="sky-form" action="">
@@ -275,11 +253,6 @@
 									</script>
 								</div>
 								<div id="digest" class="profile-edit tab-pane fade">
-									<style>
-										#digest .table thead { background:#f7f7f7; }
-										#digest i.rounded-x { width:24px; height:24px; }
-										#digest i.rounded-x.fa { background:#72c02c; color:white; border-color:#72c02c; }
-									</style>
 									<h2 class="heading-md">{!$Label.LBL_ManageDigest_Title}</h2><br/>
 									<h5>{!$Label.LBL_ManageDigest_Message1}</h5><hr/>
 									<div class="margin-bottom-10">

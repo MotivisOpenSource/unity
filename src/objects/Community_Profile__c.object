@@ -98,11 +98,6 @@
     <fieldSets>
         <fullName>Student_About_Me_1</fullName>
         <availableFields>
-            <field>Advisor__c</field>
-            <isFieldManaged>false</isFieldManaged>
-            <isRequired>false</isRequired>
-        </availableFields>
-        <availableFields>
             <field>Contact__c</field>
             <isFieldManaged>false</isFieldManaged>
             <isRequired>false</isRequired>
@@ -115,6 +110,11 @@
         <description>Student Community Profile (when RecordType = &apos;Student&apos;)</description>
         <displayedFields>
             <field>Email__c</field>
+            <isFieldManaged>false</isFieldManaged>
+            <isRequired>false</isRequired>
+        </displayedFields>
+        <displayedFields>
+            <field>Advisor__c</field>
             <isFieldManaged>false</isFieldManaged>
             <isRequired>false</isRequired>
         </displayedFields>

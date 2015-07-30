@@ -215,6 +215,14 @@
 							input = output;
 						}
 						scope.page.totalRecords = input.length;
+
+						// fix for filter pagination 
+						var round = input.length / (scope.page.pageSize * scope.page.currentPage);
+						if(Math.round(round) < 0.5){
+							var currPage = Math.ceil(input.length / scope.page.pageSize);
+							scope.page.currentPage = currPage;
+						}
+
 						return input;
 					}
 				});
