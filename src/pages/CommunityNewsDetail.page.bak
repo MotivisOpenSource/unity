@@ -1,0 +1,88 @@
+<apex:page standardController="Community_News__c" extensions="CommunityNewsController" action="{!initFromView}" showHeader="false" sideBar="false" standardStylesheets="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false">
+<apex:composition template="{!$Site.Template}">
+<apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
+<apex:define name="body">
+	<style type="text/css">
+		.row.u-page-block { background:#f8f8f8; border-top:3px solid #72c02c; }
+	</style>
+	<apex:outputPanel layout="block" rendered="{!!previewMode}" styleClass="breadcrumbs margin-bottom-10">
+		<div class="container">
+			<h1 class="pull-left">{!$ObjectType.Community_News__c.Label}</h1>
+			<ul class="pull-right breadcrumb">
+				<li><a href="{!$Page.CommunityNews}">{!$Label.LBL_News}</a></li>
+				<li class="active">{!news.Title__c}</li>
+			</ul>
+		</div>
+	</apex:outputPanel>
+	<div class="profile">
+		<div class="container content">
+			<apex:outputPanel layout="block" rendered="{!!previewMode}" styleClass="row margin-bottom-10">
+				<div class="col-md-6 text-left">
+					<h2>{!news.Title__c}</h2>
+					<h6>{!PostedStr}</h6>
+				</div>
+				<div class="col-md-6">
+					<apex:form id="theform" styleClass="pull-right">
+						<c:CommunityFollow parentId="{!news.Id}"/>
+						<c:CommunityShare sO="{!news}"/>
+						<apex:outputLink value="{!urlForEditNews}" styleClass="btn-u" rendered="{!UpdateableCurrentNews}">{!$Label.BTN_Edit}</apex:outputLink>
+						<apex:outputPanel layout="none" rendered="{!UpdateableCurrentNews && $ObjectType.Community_News__c.Createable}">&nbsp;</apex:outputPanel>
+						<apex:outputLink value="{!urlForCloneNews}" styleClass="btn-u" rendered="{!$ObjectType.Community_News__c.Createable}">{!$Label.BTN_Clone}</apex:outputLink>
+					</apex:form>
+				</div>
+			</apex:outputPanel>
+			<apex:outputPanel layout="none" rendered="{!previewMode}">
+				<div class="row">
+					<div class="col-md-6 text-left">
+						<h2>{!$Label.BTN_Create_News}</h2>
+					</div>
+					<div class="col-md-6 text-right">
+						<apex:form >
+							<apex:outputLink value="{!urlForBackToNewsEdit}" styleClass="btn-u">{!$Label.BTN_Back}</apex:outputLink>
+							&nbsp;
+							<apex:commandButton action="{!submitSecondStep}" value="{!$Label.BTN_Submit}" styleClass="btn-u"/>
+							&nbsp;
+							<apex:commandButton action="{!cancel}" value="{!$Label.BTN_Cancel}" styleClass="btn-u" immediate="true"/>
+						</apex:form>
+					</div>
+				</div>
+				<div class="row u-page-block">
+					<div class="col-md-12 text-left">
+						<h2>{!news.Title__c}</h2>
+						<h6>{!PostedStr}</h6>
+					</div>
+				</div>
+			</apex:outputPanel>
+			<div class="margin-bottom-30">
+				<apex:outputPanel layout="none" styleClass="row margin-bottom-20" style="max-height:300px;overflow:hidden;" rendered="{!!ISBLANK(NewsImage)}">
+					<img class="img-responsive maxheight300 margin-right-10 margin-bottom-10" src="{!NewsImage}" align="left" alt=""/>
+				</apex:outputPanel>
+				<!--apex:outputPanel layout="block" styleClass="row text-center margin-bottom-20" rendered="{!ISBLANK(NewsImage)}" style="background:#f8f8f8; padding:20px;">
+					<i class="fa fa-newspaper-o fa-5x"></i>
+				</apex:outputPanel-->
+				<apex:repeat value="{!fieldset}" var="fs">
+					<apex:outputPanel layout="none" rendered="{!!ISBLANK(news[fs.fieldPath])}">
+						<apex:outputField value="{!news[fs.fieldPath]}"/><br/>
+					</apex:outputPanel>
+				</apex:repeat>
+				
+					<apex:outputText value="{!news.Content__c}" escape="false"/>
+				
+			</div>
+			<div class="row margin-bottom-20">
+				<div class="col-sm-12">
+					<c:CommunityTagDisplay oId="{!news.Id}" oType="{!$ObjectType.Community_News_Tag__c.Name}" fName="{!$ObjectType.Community_News_Tag__c.Fields.Community_News__c.Name}"/>
+				</div>
+			</div>
+			<apex:outputPanel layout="block" rendered="{!allowComments}" styleClass="row">
+				<div class="col-sm-12">
+					<div id="feed" class="profile-edit tab-pane fade in active">
+						<c:CommunityFeed pid="{!news.Id}"/>
+					</div>
+				</div>
+			</apex:outputPanel>
+		</div>
+	</div>
+</apex:define>
+</apex:composition>
+</apex:page>

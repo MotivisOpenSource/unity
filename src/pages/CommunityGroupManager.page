@@ -2,13 +2,6 @@
 <apex:composition template="{!$Site.Template}">
 <apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
 <apex:define name="body">
-<style type="text/css">
-	.profile .profile-edit hr { margin: 10px 0 15px; }
-	.messageText { padding:15px 30px; margin-bottom:20px; border:1px solid #ebccd1; background-color:#f2dede; color:#a94442;}
-	.messageText span { display:none; }
-	table.messageTable { width:100%; }
-</style>
-
 <script>
 	/*ON PAGE*/
 	var MS_PROC_RA_STRING = '{!$RemoteAction.CommunityGroupManageController.membership}';
@@ -31,11 +24,11 @@
 	<!--=== End Breadcrumbs ===-->
 
 	<!--=== Profile ===-->
-	<div class="profile">
+	<div class="profile CommunityGroupManager">
 		<div class="container content">
 			<div class="row">
 				<div class="col-md-3 md-margin-bottom-40">
-					<c:CommunityUserPhoto current="false" photoUrl="{!groupImageUrl}" fmode="true"/>
+					<c:CommunityUserPhoto current="false" photoUrl="{!chatterGroup.FullPhotoUrl}" currentGroupRole="Owner"/> 
 					<c:CommunityFeedNavigation currentGroupId="{!chatterGroup.Id}" returnToGroup="true" pn="5"/>
 				</div>
 
@@ -123,7 +116,7 @@
 							<!-- END FEED -->
 
 							<!-- MEMBERS -->
-							<div id="members" class="profile-edit tab-pane fade}">
+							<div id="members" class="profile-edit tab-pane fade">
 								<div class="row">
 									<div class="col-md-8">
 										<h2 class="heading-md">{!$Label.LBL_ManagerGroupMembers}</h2>
@@ -134,7 +127,7 @@
 										</a>
 										<apex:outputPanel layout="none" rendered="{!RequestCount > 0}">
 											<br/>
-											<a href="#newConversationModal" role="button" data-toggle="modal" onclick="initmemmodal(false,false,true);" style="color:#e9b605;font-weight:bold;">
+											<a href="#newConversationModal" role="button" data-toggle="modal" onclick="initmemmodal(false,false,true);" class="pending-link">
 												<span><i class="fa fa-cart-plus"></i>&nbsp;{!RequestCount}&nbsp;{!$Label.LBL_Pending}</span>
 											</a>
 										</apex:outputPanel>
@@ -145,8 +138,8 @@
 										<apex:outputPanel rendered="true">
 											<table class="table table-hover">
 												<tr>
-													<th width="50px">&nbsp;</th>
-													<th style="cursor: pointer;" onclick="performemberSort(1);">
+													<th class="width-50">&nbsp;</th>
+													<th class="cursor-pointer" onclick="performemberSort(1);">
 														{!$ObjectType.Contact.Fields.Name.Label}
 														<apex:outputPanel rendered="{!members.columnSort == 1 && members.ascSort}">
 															<i class="fa fa-caret-up"></i>
@@ -164,14 +157,14 @@
 													<tr>
 														<td>
 															<a href="{!$Page.CommunityProfilePage}?id={!mms.id}">
-																<apex:image styleClass="rounded-x" style="margin-top: 0px; margin-bottom: 0px" url="{!mms.photourl}" width="50px" height="50px"/>
+																<apex:image styleClass="rounded-x margin-top-0 margin-bottom-0" url="{!mms.photourl}" width="50px" height="50px"/>
 															</a>
 														</td>
 														<td>
-															<div onclick="window.open('{!$Page.CommunityProfilePage}?id={!mms.id}','_self');" style="cursor:pointer;">
+															<div onclick="window.open('{!$Page.CommunityProfilePage}?id={!mms.id}','_self');" class="cursor-pointer">
 																<div><strong>{!mms.name}</strong></div>
 																<apex:outputPanel layout="block" rendered="{!!ISBLANK(mms.city) || !ISBLANK(mms.country)}">
-																	<i class="fa fa-map-marker" style="color:#72c02c;"></i>&nbsp;{!mms.city}{!IF(mms.city!=null && mms.country!=null, ', ' ,'')}{!mms.country}
+																	<i class="fa fa-map-marker"></i>&nbsp;{!mms.city}{!IF(mms.city!=null && mms.country!=null, ', ' ,'')}{!mms.country}
 																</apex:outputPanel>
 															</div>
 														</td>
@@ -225,8 +218,8 @@
 										<apex:outputPanel rendered="true">
 											<table class="table table-hover">
 												<tr>
-													<th width="50px">&nbsp;</th>
-													<th style="cursor: pointer;" onclick="performanagerSort(1);">
+													<th class="width-50">&nbsp;</th>
+													<th class="cursor-pointer" onclick="performanagerSort(1);">
 														{!$ObjectType.Contact.Fields.Name.Label}
 														<apex:outputPanel rendered="{!managers.columnSort == 1 && managers.ascSort}">
 															<i class="fa fa-caret-up"></i>
@@ -244,14 +237,14 @@
 													<tr>
 														<td>
 															<a href="{!$Page.CommunityProfilePage}?id={!mms.id}">
-																<apex:image styleClass="rounded-x" style="margin-top: 0px; margin-bottom: 0px" url="{!mms.photourl}" width="50px" height="50px"/>
+																<apex:image styleClass="rounded-x margin-top-0 margin-bottom-0" url="{!mms.photourl}" width="50px" height="50px"/>
 															</a>
 														</td>
 														<td>
-															<div onclick="window.open('{!$Page.CommunityProfilePage}?id={!mms.id}','_self');" style="cursor:pointer;">
+															<div onclick="window.open('{!$Page.CommunityProfilePage}?id={!mms.id}','_self');" class="cursor-pointer">
 																<div><strong>{!mms.name}</strong></div>
 																<apex:outputPanel layout="block" rendered="{!!ISBLANK(mms.city) || !ISBLANK(mms.country)}">
-																	<i class="fa fa-map-marker" style="color:#72c02c;"></i>&nbsp;{!mms.city}{!IF(mms.city!=null && mms.country!=null, ', ' ,'')}{!mms.country}
+																	<i class="fa fa-map-marker"></i>&nbsp;{!mms.city}{!IF(mms.city!=null && mms.country!=null, ', ' ,'')}{!mms.country}
 																</apex:outputPanel>
 															</div>
 														</td>
@@ -309,7 +302,7 @@
 													</span>
 													<apex:outputPanel layout="none">
 														<div id="efld{!index}" style="display:none;">
-															<apex:inputField style="width: 100%" id="vflde" value="{!control[fs.fieldPath]}" required="{!fs.required}"/>
+															<apex:inputField styleClass="full-width" id="vflde" value="{!control[fs.fieldPath]}" required="{!fs.required}"/>
 															<span style="display:none;">
 																<span id="bcp{!index}">{!control[fs.fieldPath]}</span>
 																<span id="{!index}bcps" name="{!index}">n</span>
@@ -323,7 +316,7 @@
 										<hr/>
 									</dl>
 									<apex:outputPanel layout="block" styleClass="row u-page-block">
-										<div class="col-sm-11 sky-form" style="padding-top:15px;" >
+										<div class="col-sm-11 sky-form padding-top-15">
 											<section>
 												<label class="input" id="tagViewPanel">
 													<c:CommunityTagDisplay oId="{!control.Id}" oType="{!$ObjectType.Community_Group_Control_Tag__c.Name}" fName="{!$ObjectType.Community_Group_Control_Tag__c.Fields.Group_Control__c.Name}"/>
@@ -333,7 +326,7 @@
 												</label>
 											</section>
 										</div>
-										<div class="col-sm-1 sky-form"  style="padding-top:15px;" id="editPencil" >
+										<div class="col-sm-1 sky-form padding-top-15" id="editPencil" >
 											<div id="pencilId" style="display:none">
 												<apex:outputLink value="javascript:void(0);" styleClass="pull-right" onclick="$('[id$=tagViewPanel]').hide();$('[id$=tagEditPanel]').show();$('[id$=btnblk]').show();$('[id$=editPencil]').hide();">
 													<i class="fa fa-pencil"></i>

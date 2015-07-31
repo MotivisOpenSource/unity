@@ -3,23 +3,14 @@
 <apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
 <apex:define name="body">
 	<apex:includeScript value="{!$Resource.assets}/plugins/jquery/jquery.min.js"/>
-	<style>
-		.row .bPageBlock { border-top: 3px solid #72c02c; }
-		.row.u-page-block { background:#f8f8f8; padding:15px; margin:0 0 20px 0; border-top:3px solid #72c02c; }
-		.row .pbSubheader { background-color: inherit; font-size: 1.3em; margin-left: 20px; }
-		.menu-item-link a:hover { color: #72c02c; text-decoration: underline; }
-		.list-group-item .plus { color: #72c02c; }
-		li.list-group-item.active i.fa.fa-check-circle-o.plus { color: white; }
-		.list-group.sidebar-nav-v1 { margin-top:46px; }
-	</style>
-	<div class="container content"><apex:outputPanel layout="block" styleClass="row" rendered="{!ISBLANK(errorMessage)}">
+	<div class="container content CommunityRegTerms"><apex:outputPanel layout="block" styleClass="row" rendered="{!ISBLANK(errorMessage)}">
 	<!--LEFT-->
 	<div class="col-md-3">
 		<ul class="list-group sidebar-nav-v1" id="sidebar-nav-1">
 			<apex:repeat value="{!leftSideBar.items}" var="mi">
 				<li class="list-group-item {!IF(mi.current,'active','menu-item-link')}">
 					<a href="{!$Page.CommunityRegTerms}{!mi.StepParam}">
-						<div style="width:15px; display:inline-block;">
+						<div class="sidebar-icon-container">
 							<i class="fa {!IF(mi.active,'fa-circle-o','fa-check-circle-o plus')}"></i>
 						</div>
 						{!mi.name}
@@ -33,10 +24,10 @@
 	<div class="col-md-9">
 		<apex:form >
 		<div class="row margin-bottom-10">
-			<div class="col-sm-8 text-left" style="padding-left:35px;">
+			<div class="col-sm-8 text-left padding-left-35">
 				<h2><apex:outputText value="{!leftSideBar.CurrentStepName}"/></h2>
 			</div>
-			<div class="col-sm-4 text-right" style="padding-right:25px;">
+			<div class="col-sm-4 text-right padding-right-25">
 				<apex:outputLink value="{!$Page.CommunityRegTerms}?step={!step - 1}" styleClass="btn-u" rendered="{!step > 1}" onclick="btnstatus();">
 					{!$Label.LBL_Previous}
 				</apex:outputLink>
@@ -118,8 +109,8 @@
 			<div class="sky-form">
 				<apex:outputField value="{!caText.Terms_Body__c}"/>
 				<div class="text-center margin-top-20">
-					<apex:inputCheckbox rendered="{!!tcCheckBox}" value="{!tcCheckBox}" id="terms-checkbox" onchange="chkchkb(this);" style="vertical-align:top;"/>
-					<apex:inputCheckbox rendered="{!tcCheckBox}" value="{!tcCheckBox}" disabled="{!tcCheckBox}" id="terms-checkbox-checked" style="vertical-align:top;"/>
+					<apex:inputCheckbox rendered="{!!tcCheckBox}" value="{!tcCheckBox}" id="terms-checkbox" onchange="chkchkb(this);" styleClass="vertical-align-top"/>
+					<apex:inputCheckbox rendered="{!tcCheckBox}" value="{!tcCheckBox}" disabled="{!tcCheckBox}" id="terms-checkbox-checked" styleClass="vertical-align-top"/>
 					&nbsp;<label>{!$Label.LBL_AgreeToTerms}</label>
 				</div>
 				<button id="bsbtbtn" class="btn-u pull-right" type="button" style="opacity:{!IF(disabledNext,'0.65','1')};" onclick="completeCurrentStep();btnstatus();return false;">

@@ -8,7 +8,7 @@
 			<div class="row">
 				<!--Left Sidebar-->
 				<div class="col-md-3 md-margin-bottom-40">
-					<c:CommunityUserPhoto current="{!current}" photoUrl="{!FullPhotoUrl}" fmode="true"/>
+				    <c:CommunityUserPhoto current="{!current}" photoUrl="{!FullPhotoUrl}"/>
 					<c:CommunityFeedNavigation pn="3"/>
 				</div>
 				<!--End Left Sidebar-->

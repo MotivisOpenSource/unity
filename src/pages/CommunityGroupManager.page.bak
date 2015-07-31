@@ -1,0 +1,651 @@
+<apex:page showHeader="false" sideBar="false" docType="html-5.0" standardStylesheets="false" applyBodyTag="false" applyHtmlTag="false" controller="CommunityGroupManageController">
+<apex:composition template="{!$Site.Template}">
+<apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
+<apex:define name="body">
+<script>
+	/*ON PAGE*/
+	var MS_PROC_RA_STRING = '{!$RemoteAction.CommunityGroupManageController.membership}';
+	function isTagsEmpty() {
+        return ($('#tagViewPanel a').length==0);
+    }
+</script>
+
+	<!--=== Breadcrumbs ===-->
+	<div class="breadcrumbs margin-bottom-10">
+		<div class="container">
+			<h1 class="pull-left">{!$Label.LBL_GroupManager}:&nbsp;{!control.Name}</h1>
+			<ul class="pull-right breadcrumb">
+				<li><a href="{!$Page.CommunityFeed_MyFeed}">{!$Label.NAV_MyFeed}</a></li>
+				<li><a href="{!$Page.CommunityGroupDetailPage}?gr={!chatterGroup.Id}">{!control.Name}</a></li>
+				<li class="active">{!$Label.LBL_GroupManager}</li>
+			</ul>
+		</div><!--/container-->
+	</div><!--/breadcrumbs-->
+	<!--=== End Breadcrumbs ===-->
+
+	<!--=== Profile ===-->
+	<div class="profile CommunityGroupManager">
+		<div class="container content">
+			<div class="row">
+				<div class="col-md-3 md-margin-bottom-40">
+					<c:CommunityUserPhoto current="false" photoUrl="{!groupImageUrl}" fmode="true"/>
+					<c:CommunityFeedNavigation currentGroupId="{!chatterGroup.Id}" returnToGroup="true" pn="5"/>
+				</div>
+
+				<apex:outputPanel styleClass="col-md-9" rendered="{!!UserCanAccess}">
+					<div class="alert alert-danger fade in">
+						<i class="fa fa-exclamation-triangle"></i>&nbsp;&nbsp;{!$Label.ERR_NotGroupManager}
+					</div>
+				</apex:outputPanel>
+
+				<apex:outputPanel styleClass="col-md-9" rendered="{!UserCanAccess}">
+
+					<!--Group Stats Block-->
+					<div class="row margin-bottom-10">
+						<div class="col-sm-6 sm-margin-bottom-20">
+							<div class="service-block-v3 service-block-u">
+								<i class="icon-users"></i>
+								<span class="service-heading">Total Members</span>
+								<span class="counter">{!stat.totalMembers}</span>
+								<div class="clearfix margin-bottom-10"></div>
+								<div class="row margin-bottom-20">
+									<div class="col-xs-6 service-in">
+										<small>New This Week</small>
+										<h4 class="counter">{!stat.newThisWeek}</h4>
+									</div>
+									<div class="col-xs-6 text-right service-in">
+										<small>New Last Month</small>
+										<h4 class="counter">{!stat.newLastMonth}</h4>
+									</div>
+								</div>
+								<!--div class="statistics">
+									<h3 class="heading-xs">Statistics in Progress Bar <span class="pull-right">67%</span></h3>
+									<div class="progress progress-u progress-xxs">
+										<div style="width: 67%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="67" role="progressbar" class="progress-bar progress-bar-light">
+										</div>
+									</div>
+									<small>11% less <strong>than last month</strong></small>
+								</div-->
+							</div>
+						</div>
+						
+						<div class="col-sm-6">
+							<div class="service-block-v3 service-block-blue">
+								<i class="icon-screen-desktop"></i>
+								<span class="service-heading">Overall Activity</span>
+								<span class="counter">{!stat.overallActivity}</span>
+								<div class="clearfix margin-bottom-10"></div>
+								<div class="row margin-bottom-20">
+									<div class="col-xs-6 service-in">
+										<small>Posts This Week</small>
+										<h4 class="counter">{!stat.postsThisWeek}</h4>
+									</div>
+									<div class="col-xs-6 text-right service-in">
+										<small>Posts This Month</small>
+										<h4 class="counter">{!stat.postThisMonth}</h4>
+									</div>
+								</div>
+								<!--div class="statistics">
+									<h3 class="heading-xs">Statistics in Progress Bar <span class="pull-right">89%</span></h3>
+									<div class="progress progress-u progress-xxs">
+										<div style="width: 89%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="89" role="progressbar" class="progress-bar progress-bar-light">
+										</div>
+									</div>
+									<small>15% higher <strong>than last month</strong></small>
+								</div-->
+							</div>
+						</div>
+					</div><!--/end row-->
+					<!--End Group Stats Block-->
+					<apex:pageMessages id="pageMessages"/>
+					<!--Profile Body-->
+					<div class="profile-body margin-bottom-20">
+						<div class="tab-v1">
+							<ul class="nav nav-justified nav-tabs">
+								<li class="active"><a data-toggle="tab" href="#feed">{!$Label.LBL_ManagerFeed}</a></li>
+								<li><a data-toggle="tab" href="#members">{!$Label.LBL_Group_Members}</a></li>
+								<li><a data-toggle="tab" href="#managers">{!$Label.LBL_Group_Managers}</a></li>
+								<li><a data-toggle="tab" href="#editgroup">{!$Label.LBL_Edit_Group}</a></li>
+							</ul>
+							<div class="tab-content">
+
+							<!-- FEED -->
+							<div id="feed" class="profile-edit tab-pane fade in active">
+								<c:CommunityFeed pid="{!control.Id}"/>
+							</div>
+							<!-- END FEED -->
+
+							<!-- MEMBERS -->
+							<div id="members" class="profile-edit tab-pane fade">
+								<div class="row">
+									<div class="col-md-8">
+										<h2 class="heading-md">{!$Label.LBL_ManagerGroupMembers}</h2>
+									</div>
+									<apex:outputPanel id="memreqlinks" layout="block" styleClass="col-md-4 text-left">
+										<a href="#newConversationModal" role="button" data-toggle="modal" title="{!$Label.LBL_Add_Remove_Members}" onclick="initmemmodal(true,false,false);">
+											<span><i class="fa fa-user-plus"></i>&nbsp;{!$Label.LBL_Add_Remove_Members}</span>
+										</a>
+										<apex:outputPanel layout="none" rendered="{!RequestCount > 0}">
+											<br/>
+											<a href="#newConversationModal" role="button" data-toggle="modal" onclick="initmemmodal(false,false,true);" class="pending-link">
+												<span><i class="fa fa-cart-plus"></i>&nbsp;{!RequestCount}&nbsp;{!$Label.LBL_Pending}</span>
+											</a>
+										</apex:outputPanel>
+									</apex:outputPanel>
+								</div>
+								<apex:form id="memlist">
+									<div id="scrollbar1" class="panel-body">
+										<apex:outputPanel rendered="true">
+											<table class="table table-hover">
+												<tr>
+													<th class="width-50">&nbsp;</th>
+													<th class="cursor-pointer" onclick="performemberSort(1);">
+														{!$ObjectType.Contact.Fields.Name.Label}
+														<apex:outputPanel rendered="{!members.columnSort == 1 && members.ascSort}">
+															<i class="fa fa-caret-up"></i>
+														</apex:outputPanel>
+														<apex:outputPanel rendered="{!members.columnSort == 1 && !members.ascSort}">
+															<i class="fa fa-caret-down"></i>
+														</apex:outputPanel>
+													</th>
+													<th>{!$ObjectType.Contact.Fields.Primary_Role__c.Label}</th>
+												</tr>
+												<apex:actionFunction name="performemberSort" action="{!members.column}" rerender="memlist" oncomplete="initScrollbars();">
+													<apex:param name="col" assignTo="{!members.columnSort}" value=""/>
+												</apex:actionFunction>
+												<apex:repeat value="{!members.users}" var="mms">
+													<tr>
+														<td>
+															<a href="{!$Page.CommunityProfilePage}?id={!mms.id}">
+																<apex:image styleClass="rounded-x margin-top-0 margin-bottom-0" url="{!mms.photourl}" width="50px" height="50px"/>
+															</a>
+														</td>
+														<td>
+															<div onclick="window.open('{!$Page.CommunityProfilePage}?id={!mms.id}','_self');" class="cursor-pointer">
+																<div><strong>{!mms.name}</strong></div>
+																<apex:outputPanel layout="block" rendered="{!!ISBLANK(mms.city) || !ISBLANK(mms.country)}">
+																	<i class="fa fa-map-marker"></i>&nbsp;{!mms.city}{!IF(mms.city!=null && mms.country!=null, ', ' ,'')}{!mms.country}
+																</apex:outputPanel>
+															</div>
+														</td>
+														<td>
+															{!mms.role}
+														</td>
+													</tr>
+												</apex:repeat>
+											</table>
+											<apex:outputPanel layout="none" rendered="{!members.showPagination}">
+												<ul class="pager">
+													<apex:outputPanel layout="none" rendered="{!members.hasPrevious}">
+														<li class="previous">
+															<apex:commandLink action="{!members.firstPage}" value="{!$Label.LBL_First}" rerender="memlist"/>
+														</li>
+														<li class="previous">
+															<apex:commandLink action="{!members.previousPage}" value="{!$Label.LBL_Previous}" rerender="memlist" styleClass="margin-left-5"/>
+														</li>
+													</apex:outputPanel>
+													<li><apex:outputText value="{!$Label.LBL_Page} {!members.pageNumber} {!$Label.LBL_of} {!members.totalPages}"/></li>
+													<apex:outputPanel layout="none" rendered="{!members.hasNext}">
+														<li class="next">
+															<apex:commandLink action="{!members.lastPage}" value="{!$Label.LBL_Last}" rerender="memlist" styleClass="margin-left-5"/>
+														</li>
+														<li class="next">
+															<apex:commandLink action="{!members.nextPage}" value="{!$Label.LBL_Next}" rerender="memlist"/>
+														</li>
+													</apex:outputPanel>
+												</ul>
+											</apex:outputPanel>
+										</apex:outputPanel>
+									</div>
+								</apex:form>
+							</div>
+							<!-- END MEMBERS -->
+
+							<!-- MANAGERS -->
+							<div id="managers" class="profile-edit tab-pane fade in active}">
+								<div class="row">
+									<div class="col-md-8">
+										<h2 class="heading-md">{!$Label.LBL_MangeGroupManagers}</h2>
+									</div>
+									<div class="col-md-4 text-left">
+										<a href="#newConversationModal" role="button" data-toggle="modal" title="{!$Label.LBL_Update_Managers}" onclick="initmemmodal(false,true,false);">
+											<span><i class="fa fa-user-plus"></i>&nbsp;{!$Label.LBL_Update_Managers}</span>
+										</a>
+									</div>
+								</div>
+								<apex:form id="manlist">
+									<div id="scrollbar1" class="panel-body">
+										<apex:outputPanel rendered="true">
+											<table class="table table-hover">
+												<tr>
+													<th class="width-50">&nbsp;</th>
+													<th class="cursor-pointer" onclick="performanagerSort(1);">
+														{!$ObjectType.Contact.Fields.Name.Label}
+														<apex:outputPanel rendered="{!managers.columnSort == 1 && managers.ascSort}">
+															<i class="fa fa-caret-up"></i>
+														</apex:outputPanel>
+														<apex:outputPanel rendered="{!managers.columnSort == 1 && !managers.ascSort}">
+															<i class="fa fa-caret-down"></i>
+														</apex:outputPanel>
+													</th>
+													<th class="">{!$ObjectType.Contact.Fields.Primary_Role__c.Label}</th>
+												</tr>
+												<apex:actionFunction name="performanagerSort" action="{!managers.column}" rerender="manlist" oncomplete="initScrollbars();">
+													<apex:param name="col" assignTo="{!managers.columnSort}" value=""/>
+												</apex:actionFunction>
+												<apex:repeat value="{!managers.users}" var="mms">
+													<tr>
+														<td>
+															<a href="{!$Page.CommunityProfilePage}?id={!mms.id}">
+																<apex:image styleClass="rounded-x margin-top-0 margin-bottom-0" url="{!mms.photourl}" width="50px" height="50px"/>
+															</a>
+														</td>
+														<td>
+															<div onclick="window.open('{!$Page.CommunityProfilePage}?id={!mms.id}','_self');" class="cursor-pointer">
+																<div><strong>{!mms.name}</strong></div>
+																<apex:outputPanel layout="block" rendered="{!!ISBLANK(mms.city) || !ISBLANK(mms.country)}">
+																	<i class="fa fa-map-marker"></i>&nbsp;{!mms.city}{!IF(mms.city!=null && mms.country!=null, ', ' ,'')}{!mms.country}
+																</apex:outputPanel>
+															</div>
+														</td>
+														<td>
+															{!mms.role}
+														</td>
+													</tr>
+												</apex:repeat>
+											</table>
+											<apex:outputPanel layout="none" rendered="{!managers.showPagination}">
+												<ul class="pager">
+													<apex:outputPanel layout="none" rendered="{!managers.hasPrevious}">
+														<li class="previous">
+															<apex:commandLink action="{!managers.firstPage}" value="{!$Label.LBL_First}" rerender="manlist"/>
+														</li>
+														<li class="previous">
+															<apex:commandLink action="{!managers.previousPage}" value="{!$Label.LBL_Previous}" rerender="manlist" styleClass="margin-left-5"/>
+														</li>
+													</apex:outputPanel>
+													<li><apex:outputText value="{!$Label.LBL_Page} {!managers.pageNumber} {!$Label.LBL_of} {!managers.totalPages}"/></li>
+													<apex:outputPanel layout="none" rendered="{!managers.hasNext}">
+														<li class="next">
+															<apex:commandLink action="{!managers.lastPage}" value="{!$Label.LBL_Last}" rerender="manlist" styleClass="margin-left-5"/>
+														</li>
+														<li class="next">
+															<apex:commandLink action="{!managers.nextPage}" value="{!$Label.LBL_Next}" rerender="manlist"/>
+														</li>
+													</apex:outputPanel>
+												</ul>
+											</apex:outputPanel>
+										</apex:outputPanel>
+									</div>
+								</apex:form>
+							</div>
+							<!-- END MANAGERS -->
+
+							<!-- EDIT GROUP-->
+							<div id="editgroup" class="profile-edit tab-pane fade">
+								<apex:outputPanel layout="none">
+									<h2 class="heading-md">{!$Label.LBL_ManageGroupPreferences}</h2><hr/>
+								</apex:outputPanel>
+								<apex:form id="theform" rendered="{!allOk}" styleClass="sky-form">
+									<apex:variable var="index" value="{!0}"/>
+									<div class="margin-bottom-15"></div>
+									<dl class="dl-horizontal">
+										<apex:repeat value="{!$ObjectType.Community_Group_Control__c.FieldSets.EditGroup}" var="fs">
+											<dt class="margin-bottom-10"><strong>{!fs.label}</strong></dt>
+											<dd>
+												<apex:outputPanel >
+													<span id="vfld{!index}">
+														<apex:outputField id="vfldo" value="{!control[fs.fieldPath]}"/>
+														<apex:outputLink value="javascript:void(0);" styleClass="pull-right" onclick="shwe('{!index}');">
+															<i class="fa fa-pencil"></i>
+														</apex:outputLink>
+													</span>
+													<apex:outputPanel layout="none">
+														<div id="efld{!index}" style="display:none;">
+															<apex:inputField styleClass="full-width" id="vflde" value="{!control[fs.fieldPath]}" required="{!fs.required}"/>
+															<span style="display:none;">
+																<span id="bcp{!index}">{!control[fs.fieldPath]}</span>
+																<span id="{!index}bcps" name="{!index}">n</span>
+															</span>
+														</div>
+													</apex:outputPanel>
+												</apex:outputPanel>
+											</dd>
+											<apex:variable var="index" value="{!index + 1}"/>
+										</apex:repeat>
+										<hr/>
+									</dl>
+									<apex:outputPanel layout="block" styleClass="row u-page-block">
+										<div class="col-sm-11 sky-form padding-top-15">
+											<section>
+												<label class="input" id="tagViewPanel">
+													<c:CommunityTagDisplay oId="{!control.Id}" oType="{!$ObjectType.Community_Group_Control_Tag__c.Name}" fName="{!$ObjectType.Community_Group_Control_Tag__c.Fields.Group_Control__c.Name}"/>
+												</label>
+												<label class="input" id="tagEditPanel" style="display:none;">
+													<c:CommunityTagSelector oId="{!control.Id}" oType="{!$ObjectType.Community_Group_Control_Tag__c.Name}" fName="{!$ObjectType.Community_Group_Control_Tag__c.Fields.Group_Control__c.Name}" mt="{!tagsCount}"/>
+												</label>
+											</section>
+										</div>
+										<div class="col-sm-1 sky-form padding-top-15" id="editPencil" >
+											<div id="pencilId" style="display:none">
+												<apex:outputLink value="javascript:void(0);" styleClass="pull-right" onclick="$('[id$=tagViewPanel]').hide();$('[id$=tagEditPanel]').show();$('[id$=btnblk]').show();$('[id$=editPencil]').hide();">
+													<i class="fa fa-pencil"></i>
+												</apex:outputLink>
+											</div>
+											<div id="addtagsId" style="display:none">											
+				                                <apex:outputLink value="javascript:void(0);" styleClass="pull-right btn-u" onclick="$('[id$=tagViewPanel]').hide();$('[id$=tagEditPanel]').show();$('[id$=btnblk]').show();$('[id$=editPencil]').hide();">
+				                                    <i class="fa fa-plus-circle"></i>&nbsp;{!$Label.LBL_Add_Tags}
+				                                </apex:outputLink>
+			                                </div>
+			                                <script type="text/javascript">
+			                                	function checkTags(){
+			                                		console.log('chek tag');
+				                                    if(isTagsEmpty()==true) {
+				                                        $('[id$=addtagsId]').show();  
+				                                    	console.log('true');      
+				                                    }
+				                                    else {
+				                                        $('[id$=pencilId]').show();
+				                                        console.log('false');
+				                                    }
+			                                    }
+			                                    checkTags();
+			                                </script>
+										</div>
+									</apex:outputPanel>	
+									<apex:outputPanel layout="block" id="btnblk" style="display:none;">
+										<apex:commandButton action="{!cancelAction}" value="{!$Label.BTN_Cancel}" rerender="theform" status="statusLoad" styleClass="btn-u btn-u-sm btn-u-default margin-right-5"/>
+										<apex:commandButton action="{!submitAction}" value="{!$Label.BTN_Save_Changes}" rerender="theform,pageMessages" status="statusLoad" styleClass="btn-u" onComplete="checkTags();"/>
+									</apex:outputPanel>
+								</apex:form>
+							</div>
+							<!-- END EDIT GROUP-->
+
+							</div>
+						</div>
+					</div>
+					<!--End Profile Body-->
+				</apex:outputPanel>
+			</div>
+			<!--/end row-->
+		</div>
+		<!--/container-->	
+	</div>
+	<div class="modal fade" id="newConversationModal" tabindex="-1" role="dialog" aria-labelledby="newConversationModalLabel" aria-hidden="true" style="display: none;">
+		<div class="modal-dialog">
+			<apex:outputPanel id="memback" layout="block" styleClass="modal-content sky-form">
+				<div class="modal-header">
+					<button aria-hidden="true" data-dismiss="modal" class="close" type="button" onclick="doneAction();return false;">&times;</button>
+					<h4 id="newConversationModalLabel" class="modal-title">
+						<span id="mmtid">{!MemberModalTitle}</span>
+						<apex:actionStatus id="statusLoad">
+							<apex:facet name="start">
+								&nbsp;<i class="fa fa-spinner fa-pulse"></i>
+							</apex:facet>
+						</apex:actionStatus>
+					</h4>
+				</div>
+				<div class="modal-body">
+					<apex:outputPanel id="memin" layout="block" rendered="{!memberMode || managerMode || requestMode}">
+						<apex:form >
+							<section>
+								<label class="input">
+									<i class="icon-append fa fa-search"></i>
+									<apex:inputText id="srchid" value="{!allusers.query}" html-placeholder="{!$Label.LBL_SearchByName}" onkeyup="searchAction(this);"/>
+								</label>
+							</section>
+							<script>
+								$('[id$=srchid]').keypress(function(event){
+									if (event.keyCode == 10 || event.keyCode == 13) {
+										event.preventDefault();
+									}
+								});
+							</script>
+							<apex:outputPanel layout="none" rendered="{!memberMode || managerMode}">
+								<section>
+									<label class="checkbox">
+										<apex:inputCheckbox value="{!showOnlyMode}">
+											<apex:actionSupport event="onchange" action="{!msShow}" rerender="memback" status="statusLoad"/>
+										</apex:inputCheckbox>
+										<i></i>{!IF(memberMode,$Label.LBL_ShowMembersOnly,$Label.LBL_ShowManagersOnly)}
+									</label>
+								</section>
+							</apex:outputPanel>
+							<apex:outputPanel id="allpb" layout="block">
+								<apex:outputPanel layout="block" styleClass="alert alert-warning fade in" rendered="{!allusers.users.size == 0}">
+									<i class="fa fa-exclamation-triangle"></i>&nbsp;&nbsp;{!$Label.LBL_NoUsersFound}
+								</apex:outputPanel>
+								<table class="table table-hover" id="groupmembertable">
+									<apex:repeat value="{!allusers.users}" var="us">
+										<tr>
+											<td onclick="window.open('{!$Page.CommunityProfilePage}?id={!us.id}','_self');" style="cursor:pointer;width:80px;">
+												<apex:image styleClass="media-object rounded-x" url="{!us.photourl}"/>
+											</td>
+											<td onclick="window.open('{!$Page.CommunityProfilePage}?id={!us.id}','_self');" style="cursor:pointer;">
+												<div><strong>{!us.name}</strong></div>
+												<div>{!us.role}</div>
+											</td>
+											<td id="cell{!us.id}" class="text-right">
+												<apex:outputPanel layout="block" rendered="{!us.owner}">
+													<button class="btn btn-default" type="button">
+														<i class="fa fa-star" ></i>&nbsp;{!$Label.LBL_Owner}
+													</button>
+													<apex:outputLink value="javascript:;" onclick="changeowner('start');" rendered="{!showChangeOwnerLink}">
+														<br/><small><i class="fa fa-key" ></i>&nbsp;{!$Label.LBL_Change_Owner}</small>
+													</apex:outputLink>
+													<apex:outputPanel rendered="{!changeOwnerMode}">
+														<br/><small>{!$Label.LBL_Current_Owner}</small>
+													</apex:outputPanel>
+												</apex:outputPanel>
+												<apex:outputPanel layout="none" rendered="{!!us.owner && memberMode && !us.member}">
+													<button class="btn-u" onclick="msproc(1,'{!us.id}');return false;" type="button">
+														<i class="fa fa-plus-circle" ></i>&nbsp;{!$Label.LBL_Add}
+													</button>
+												</apex:outputPanel>
+												<apex:outputPanel layout="none" rendered="{!!us.owner && memberMode && us.member}">
+													<button class="btn-u btn-u-blue" onclick="msproc(2,'{!us.id}');return false;" type="button">
+														<i class="fa fa-check" ></i>&nbsp;{!$Label.LBL_Member}
+													</button>
+												</apex:outputPanel>
+												<apex:outputPanel layout="none" rendered="{!!us.owner && managerMode}">
+													<apex:outputPanel layout="none" rendered="{!!us.manager}">
+														<button class="btn-u btn-u-blue" onclick="msproc(3,'{!us.id}');return false;" type="button">
+															<i class="fa fa-check" ></i>&nbsp;{!$Label.LBL_Member}
+														</button>
+													</apex:outputPanel>
+													<apex:outputPanel layout="none" rendered="{!us.manager}">
+														<button class="btn-u" onclick="msproc(4,'{!us.id}');return false;" type="button">
+															<i class="fa fa-star-half-o" ></i>&nbsp;{!$Label.LBL_Manager}
+														</button>
+													</apex:outputPanel>
+												</apex:outputPanel>
+												<apex:outputPanel layout="none" rendered="{!requestMode}">
+													<button class="btn-u" onclick="msproc(7,'{!us.id}');return false;" type="button">
+														<i class="fa fa-plus-circle" ></i>&nbsp;{!$Label.BTN_Accept}
+													</button>
+													<button class="btn-u btn-u-red" onclick="msproc(8,'{!us.id}');return false;" type="button">
+														<i class="fa fa-times-circle" ></i>&nbsp;{!$Label.BTN_Decline}
+													</button>
+												</apex:outputPanel>
+											</td>
+											<apex:outputPanel layout="none" rendered="{!managerMode && changeOwnerMode}">
+												<td style="width:20px;">
+													<apex:outputPanel layout="none" rendered="{!!us.owner}">
+														<label class="radio">
+															<input type="radio" name="{!us.id}" onclick="radiogaga(this);"/>
+															<i class="rounded-x"></i>
+														</label>
+													</apex:outputPanel>
+												</td>
+											</apex:outputPanel>
+										</tr>
+									</apex:repeat>
+								</table>
+								<apex:outputPanel layout="none" rendered="{!allusers.showPagination}">
+									<ul class="pager">
+										<apex:outputPanel layout="none" rendered="{!allusers.hasPrevious}">
+											<li class="previous">
+												<apex:commandLink action="{!allusers.firstPage}" value="{!$Label.LBL_First}" rerender="allpb" status="statusLoad"/>
+											</li>
+											<li class="previous">
+												<apex:commandLink action="{!allusers.previousPage}" value="{!$Label.LBL_Previous}" rerender="allpb" styleClass="margin-left-5" status="statusLoad"/>
+											</li>
+										</apex:outputPanel>
+										<li><apex:outputText value="{!$Label.LBL_Page} {!allusers.pageNumber} {!$Label.LBL_of} {!allusers.totalPages}"/></li>
+										<apex:outputPanel layout="none" rendered="{!allusers.hasNext}">
+											<li class="next">
+												<apex:commandLink action="{!allusers.lastPage}" value="{!$Label.LBL_Last}" rerender="allpb" styleClass="margin-left-5" status="statusLoad"/>
+											</li>
+											<li class="next">
+												<apex:commandLink action="{!allusers.nextPage}" value="{!$Label.LBL_Next}" rerender="allpb" status="statusLoad"/>
+											</li>
+										</apex:outputPanel>
+									</ul>
+								</apex:outputPanel>
+							</apex:outputPanel>
+							<apex:actionFunction action="{!allusers.firstPage}" name="firstPage" rerender="allpb,mbtns" status="statusLoad"/>
+							<apex:actionFunction action="{!performRequestAction}" name="accdeca" rerender="allpb">
+								<apex:param name="accepted" assignTo="{!accepted}" value=""/>
+								<apex:param name="requesterId" assignTo="{!requesterId}" value=""/>
+							</apex:actionFunction>
+						</apex:form>
+						<script>
+							var searchAction = _.debounce(function(inthis) {
+								if (inthis.value.trim().length != 1) {
+									firstPage();
+								}
+							}, 500);
+							function msproc(inm,inid) {
+								if(inm!=4||confirm('{!$Label.LBL_Confirm_Remove_Manager}')) {
+									if (inm<7) {
+										$('#cell' + inid + ' i').attr('class','fa fa-spinner fa-pulse');
+										Visualforce.remoting.Manager.invokeAction(
+											MS_PROC_RA_STRING,
+											inid,
+											'{!control.Id}',
+											inm,
+											function(result, event) {
+												var temp = result.split('-;-');
+												var div = document.createElement('div');
+												div.innerHTML = temp[0];
+												$('#cell'+temp[1]).html(div.firstChild.nodeValue);
+											}
+										);
+									}
+									else if ($('#groupmembertable .fa-spinner').length == 0) {
+										$('#cell'+inid+' .btn-u').removeAttr('onclick');
+										$('#cell'+inid+' i.'+((inm==7)?'fa-plus-circle':'fa-times-circle')).attr('class','fa fa-spinner fa-pulse');
+										accdeca(inm == 7, inid);
+									}
+								}
+							}
+						</script>
+					</apex:outputPanel>
+				</div>
+				<apex:outputPanel id="mbtns" layout="block" styleClass="modal-footer">
+					<apex:outputPanel layout="none" rendered="{!!changeOwnerMode}">
+						<button data-dismiss="modal" type="button" class="btn-u" id="closeDialogButton" value="{!$Label.LBL_Done}" onclick="doneAction();return false;">{!$Label.LBL_Done}</button>
+					</apex:outputPanel>
+					<apex:outputPanel layout="none" rendered="{!changeOwnerMode}">
+						<button type="button" class="btn-u btn-u-default" value="{!$Label.BTN_Cancel}" onclick="changeowner('cancel');">{!$Label.BTN_Cancel}</button>
+						<button id="owabtn" type="button" class="btn-u" value="{!$Label.BTN_Save}" onclick="changeowner(this.name);" disabled="disabled" style="opacity:0.65">{!$Label.BTN_Save}</button>
+						<script>
+							function radiogaga(elem) {
+								$('#groupmembertable [type=radio]').prop('checked',false);
+								$(elem).prop('checked',true);
+								$('#owabtn').attr('name',elem.name).removeAttr('disabled').css('opacity','1');
+							}
+						</script>
+					</apex:outputPanel>
+				</apex:outputPanel>
+			</apex:outputPanel>
+		</div>
+	</div>
+	<apex:form >
+		<apex:actionFunction action="{!msDone}" name="doneAction" rerender="memlist,manlist,memreqlinks"/>
+		<apex:actionFunction action="{!msShowPlus}" name="showMemberDialog" rerender="memback" status="statusLoad">
+			<apex:param name="memberMode" assignTo="{!memberMode}" value="" />
+			<apex:param name="managerMode" assignTo="{!managerMode}" value="" />
+			<apex:param name="requestMode" assignTo="{!requestMode}" value="" />
+		</apex:actionFunction>
+		<apex:actionFunction action="{!changeOwner}" name="changeowner" rerender="memback" status="statusLoad">
+			<apex:param name="ownerString" assignTo="{!ownerString}" value=""/>
+		</apex:actionFunction>
+	</apex:form>
+	<script>
+		var iepp = 'z';
+		var iepf = false;
+		window.onload = function() {
+		$(document).click(function(event) {
+			if (iepp != 'z') {
+				if (iepf == false) {
+					iepf = true;
+				}
+				else if ($(event.target).parents('#efld' + iepp).length == 0){
+					ende(iepp);
+					iepp='z';
+					iepf = false;
+				}
+			}
+		});
+		};
+		function chs(inchs) {
+			$('[id$=tab]').hide();
+			$('#' + inchs).show();
+			$('.smhu a.active').removeClass('active');
+			$('#' + inchs + 'a').addClass('active');
+		}
+		function shwe(ini) {
+			$('#vfld' + ini).hide();
+			$('#efld' + ini).show();
+			$('#efld' + ini + ' [id$=vflde]').focus();
+			$('[id$=btnblk]').show();
+			iepp=ini;
+		}
+		function ende(ini) {
+			$('#efld' + ini).hide();
+			if ($('#efld' + ini + ' [id$=vflde]').attr('type') == 'checkbox') {
+				$('#vfld' + ini + ' img').remove();
+				$('#vfld' + ini + ' .p-chb').remove();
+				$('#vfld' + ini).append('<i class="fa fa-'+($('#efld' + ini + ' [id$=vflde]').prop('checked')?'check-':'')+'square-o p-chb"></i>')
+			}
+			else {
+				var vtxt = $('#efld' + ini + ' [id$=vflde]').val();
+				if ($('#vfld' + ini + ' [id$=vfldo]').text() != vtxt) {
+					$('#vfld' + ini + ' [id$=vfldo]').text(vtxt).css('color','coral').css('font-weight','bold');
+					$('#' + ini + 'bcps').text('y');
+				}
+			}
+			$('#vfld' + ini).show();
+		}
+		function initScrollbars () {
+			$('.contentHolder').perfectScrollbar();
+		}
+		function initmemmodal(p1,p2,p3) {
+			showMemberDialog(p1,p2,p3);
+			$('[id$=memin]').hide();
+			$('#mmtid').remove();
+		}
+	</script>
+	<!--=== End Profile ===-->
+</apex:define>
+<apex:define name="scripts">
+	<script type="text/javascript" src="{!$Resource.assets}/plugins/mentions/jquery.mentionsInput.js" ></script>
+	<script type="text/javascript" src="{!$Resource.assets}/plugins/mentions/jquery.events.input.js" ></script>
+	<script type="text/javascript" src="{!$Resource.assets}/plugins/sky-forms/version-2.0.1/js/jquery.validate.min.js"></script>
+	<script type="text/javascript" src="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.js"></script>
+	<script type="text/javascript" src="{!$Resource.assets}/plugins/jquery.parallax.js"></script>
+	<script type="text/javascript" src="{!$Resource.assets}/plugins/counter/waypoints.min.js"></script>
+	<script type="text/javascript" src="{!$Resource.assets}/plugins/sky-forms/version-2.0.1/js/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="{!$Resource.assets}/plugins/counter/jquery.counterup.min.js"></script>
+	<script type="text/javascript" src="{!$Resource.assets}/js/plugins/datepicker.js"></script>
+	<script type="text/javascript">
+		jQuery(document).ready(function() {
+			App.initCounter();
+			Datepicker.initDatepicker();
+		});
+	</script>
+
+</apex:define>
+</apex:composition>
+</apex:page>

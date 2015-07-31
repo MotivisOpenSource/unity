@@ -1,5 +1,5 @@
 <apex:page standardController="Community_Events__c" extensions="CommunityEventController" action="{!initFromEdit}" showHeader="false" sideBar="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false">
-
+	
 <script src="{!$Resource.CommunityResources}/js/underscore/underscore-min.js"></script>
 <script type="text/javascript" src="{!$Resource.assets}/plugins/sky-forms/version-2.0.1/js/jquery-ui.min.js"></script>
 
@@ -7,15 +7,17 @@
 <apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
 <apex:define name="body">
 	<apex:form >
-		<div class="row margin-bottom-10">
-			<div class="col-md-6 text-left" style="padding-left:35px;">
-				<h2>{!Title}</h2>
-			</div>
-			<div class="col-md-6 text-right" style="padding-right:25px;">
-				<apex:commandButton action="{!Submit}" value="{!$Label.BTN_Submit}" styleClass="btn-u"/>
-				&nbsp;
-				<apex:outputLink value="{!IF(ISBLANK($CurrentPage.parameters.retURL),$Page.CommunityEventsList,JSENCODE($CurrentPage.parameters.retURL))}" styleClass="btn-u">{!$Label.BTN_Cancel}</apex:outputLink>
+		<div class="container">
+			<div class="row margin-bottom-10">
+				<div class="col-md-6 text-left padding-left-35">
+					<h2>{!Title}</h2>
 				</div>
+				<div class="col-md-6 text-right padding-right-25">
+					<apex:commandButton action="{!Submit}" value="{!$Label.BTN_Submit}" styleClass="btn-u"/>
+					&nbsp;
+					<apex:outputLink value="{!IF(ISBLANK($CurrentPage.parameters.retURL),$Page.CommunityEventsList,JSENCODE($CurrentPage.parameters.retURL))}" styleClass="btn-u">{!$Label.BTN_Cancel}</apex:outputLink>
+					</div>	
+			</div>
 		</div>
 		<apex:pageBlock >
 		    <apex:pageMessages id="pageMessages"/>			
@@ -37,8 +39,8 @@
 </apex:define>
 </apex:composition>
 
-<script type="text/javascript" src="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.js"></script>
 <apex:stylesheet value="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.css" />
+<script type="text/javascript" src="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.js"></script>
 
 <script>
 	var dateElements = $(".dateInput input");
@@ -49,7 +51,7 @@
 		
 	});
 
-	if($('.validate-datetimepicker')) {
+	if(jQuery('.validate-datetimepicker')) {
 		var currentdate = new Date(); 
 		var datetime = (currentdate.getMonth()+1) + '/' + currentdate.getDate() + '/' + currentdate.getFullYear() + ' ' + currentdate.getHours() + ":"  + currentdate.getMinutes();
 		$('.validate-datetimepicker').datetimepicker({

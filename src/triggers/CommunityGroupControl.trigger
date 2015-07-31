@@ -67,16 +67,16 @@ trigger CommunityGroupControl on Community_Group_Control__c (before insert, afte
 		if (GroupControlIdByChatterGroupId.size() > 0) {
 			List<Community_Group_Manager__c> membersCommunityGroup = new List<Community_Group_Manager__c>();
 			for (CollaborationGroupMember cgmItem : [
-						SELECT MemberId, CollaborationGroupId
+						SELECT MemberId, CollaborationGroup.OwnerId
 						FROM CollaborationGroupMember
-						WHERE CollaborationGroupId IN :GroupControlIdByChatterGroupId.keySet()]
+						WHERE CollaborationGroupId IN :GroupControlIdByChatterGroupId.keySet() AND CollaborationRole = 'Admin']
 							) {
 				Community_Group_Control__c cgcFromMap = GroupControlIdByChatterGroupId.get(cgmItem.CollaborationGroupId);
 				membersCommunityGroup.add(
 					new Community_Group_Manager__c(
 						Group_Control__c = cgcFromMap.Id,
 						Group_Manager_User__c = cgmItem.MemberId,
-						Manager_Role__c = (cgcFromMap.OwnerId == cgmItem.MemberId ? 'Owner' : 'Manager')
+						Manager_Role__c = (cgmItem.CollaborationGroup.OwnerId == cgmItem.MemberId ? 'Owner' : 'Manager')
 					)
 				);
 			}

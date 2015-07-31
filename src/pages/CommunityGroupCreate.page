@@ -3,11 +3,8 @@
 <apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
 <apex:define name="body">
 	<apex:includeScript value="{!$Resource.assets}/plugins/jquery/jquery.min.js"/>
-	<style>
-		.row .bPageBlock { border-top: 3px solid #72c02c; margin-bottom:0; }
-		.row.u-page-block { background:#f8f8f8; padding:15px; margin:0; border-top:3px solid #72c02c; }
-	</style>
-	<div class="container content"><div class="row">
+	<div class="container content CommunityGroupCreate">
+	<div class="row">
 	<!--LEFT-->
 	<div class="col-md-3 md-margin-bottom-40">
 		<c:CommunityUserPhoto />
@@ -15,14 +12,14 @@
 	</div>
 	<!--LEFT-->
 	<!--MIDDLE-->
-	<div class="col-md-9">
+	<div class="col-md-9 create-group">
 	<apex:form >
 		<div class="row margin-bottom-10">
-			<div class="col-sm-8 text-left" style="padding-left:35px;">
+			<div class="col-sm-8 text-left title__container">
 				<!-- h2>{!$Label.BTN_Create_Group}&nbsp;({})</h2-->
 				<h2><apex:outputText value="{!headerText}"/></h2>
 			</div>
-			<div class="col-sm-4 text-right" style="padding-right:25px;">
+			<div class="col-sm-4 text-right buttons__container">
 				<button id="sbtbtn" class="btn-u" type="button" style="opacity:{!IF(disabledNext,'0.65','1')};" onclick="cksbmbtn();">{!$Label.LBL_Next}</button>&nbsp;
 				<apex:outputLink value="{!IF(ISBLANK($CurrentPage.parameters.retURL),$Page.CommunityGroups+'?f=all_groups',JSENCODE($CurrentPage.parameters.retURL))}" styleClass="btn-u" rendered="{!step == 1}">{!$Label.BTN_Cancel}</apex:outputLink>
 				<apex:commandButton action="{!cancel}" value="{!$Label.BTN_Cancel}" styleClass="btn-u" rendered="{!step != 1}"/>
@@ -48,21 +45,12 @@
 		<apex:outputPanel layout="block" styleClass="row" rendered="{!step == 1}">
 			<div class="col-sm-12">
 				<apex:pageBlock >
-					<style>
-						.calert h4 { font-size:1.25em; margin-top:0; color:inherit;}
-						#nabtn { margin-left:5px; }
-						span.nameok, span.nameerr { margin-left:5px; }
-						.nameok i, .nameerr i { font-size:1.5em; margin-right:5px; vertical-align:middle; }
-						.nameok { color:#72c02c; }
-						.nameerr { color:#c00; }
-						.requiredInput textarea { vertical-align:middle; }
-					</style>
 					<div class="calert">
 						<apex:pageMessages id="pageMessages"/>
 					</div>
 					<apex:pageBlockSection columns="1" collapsible="false">
 						<apex:repeat value="{!fieldset}" var="fs">
-							<apex:inputField id="namefield" html-maxlength="40" value="{!CurrentGroup[fs.fieldPath]}" onkeyup="nameKeyUp(this);" required="{!OR(fs.required, fs.dbrequired)}" style="height:26px;" rendered="{!fs.fieldPath == 'Name'}"/>
+							<apex:inputField id="namefield" html-maxlength="40" value="{!CurrentGroup[fs.fieldPath]}" onkeyup="nameKeyUp(this);" required="{!OR(fs.required, fs.dbrequired)}" rendered="{!fs.fieldPath == 'Name'}"/>
 							<apex:inputField value="{!CurrentGroup[fs.fieldPath]}" required="{!OR(fs.required, fs.dbrequired)}" rendered="{!fs.fieldPath != 'Name'}"/>
 						</apex:repeat>
 						<script>
@@ -146,7 +134,7 @@
 				</script>
 		</apex:outputPanel>
 		<apex:outputPanel layout="block" styleClass="row u-page-block" rendered="{!step == 3}">
-			<div class="col-sm-12 sky-form" style="padding-top:15px;">
+			<div class="col-sm-12 sky-form">
 				<section>
 					<label class="input">
 						<c:CommunityTagSelector oId="{!CurrentGroup.Id}" oType="{!$ObjectType.Community_Group_Control_Tag__c.Name}" fName="{!$ObjectType.Community_Group_Control_Tag__c.Fields.Group_Control__c.Name}" mt="{!tagsCount}"/>
@@ -158,7 +146,7 @@
 			<div class="col-sm-12">
 				<apex:outputText value="{!termsAndConditions}" escape="false"/>
 				<div class="text-center margin-top-20">
-					<apex:inputCheckbox value="{!CurrentGroup.T_C_Accepted__c}" style="vertical-align:top;" onchange="chkchkb(this);"/>&nbsp;<label>{!$Label.LBL_AgreeToTerms}</label>
+					<apex:inputCheckbox value="{!CurrentGroup.T_C_Accepted__c}" onchange="chkchkb(this);"/>&nbsp;<label>{!$Label.LBL_AgreeToTerms}</label>
 				</div>
 				<script>
 					function chkchkb(el) {

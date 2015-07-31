@@ -1,10 +1,6 @@
 <apex:component controller="CommunityShareController" allowDml="true">
 	<apex:attribute name="sO" type="SObject" assignTo="{!sobj}" required="true" description="Parent Object" />
 
-	<!-- <script src="{!$Resource.CommunityResources}/js/jquery-1.11.2.min.js"></script>  -->
-	<!-- <script src="{!$Resource.CommunityResources}/js/Typeahead/bootstrap3-typeahead.min.js"></script>  -->
-	<!-- <script src="{!$Resource.CommunityResources}/js/underscore/underscore-min.js"></script>  -->
-
 	<button id="shareButton" class="btn-u" data-toggle="modal" data-target="#shareModal" title="{!$Label.BTN_Rechat}" onclick="loadGroupSuggestions();return false;">{!$Label.BTN_Rechat}</button>
 
 	<div class="modal fade in CommunityShare" id="shareModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false" style="display:none;">
@@ -104,10 +100,10 @@
 			);
 		}, 300);
 
-		$(document).ready(function() {
-			if('{!showShareButton}' == 'false') $("#shareButton").hide();
-			$("[id $= 'availGroupsPanel']").hide();
-			$('#groupsInput').typeahead({
+		jQuery(document).ready(function() {
+			if('{!showShareButton}' == 'false') jQuery("#shareButton").hide();
+			jQuery("[id $= 'availGroupsPanel']").hide();
+			jQuery('#groupsInput').typeahead({
 				source:function (query, process) {
 					searchGroups(query, process);
 				},
@@ -125,24 +121,24 @@
 		});
 
 		function addtti(tid,fn) {
-			if ($('span[id='+tid+']').length == 0) {
+			if (jQuery('span[id='+tid+']').length == 0) {
 				var span = '<span id="'+tid+'" class="item guestItem"><span>'+fn+'</span><a href="javascript:void(0);" onclick="removeGroup(\''+tid+'\')" class="remove"><img src="/s.gif"></a></span>';
-				$('#groupsInput').before(span);
-				$('#groups').val($('#groups').val() + tid + ',');
-				$('[id$=sbtbtn]').css('opacity','1').removeAttr('disabled');
+				jQuery('#groupsInput').before(span);
+				jQuery('#groups').val(jQuery('#groups').val() + tid + ',');
+				jQuery('[id$=sbtbtn]').css('opacity','1').removeAttr('disabled');
 			}
 			groupsForShare();
 		}
 
 		function removeGroup(inp) {
-			$('#groupsContainer #'+inp).remove();
-			$('#groups').val($('#groups').val().replace(inp+',' ,''));
-			if ($('#sectionnote').length > 0) {
-				$('#sectionnote').remove();
-				$('[id$=sbtbtn]').css('opacity','1').removeAttr('disabled');
+			jQuery('#groupsContainer #'+inp).remove();
+			jQuery('#groups').val(jQuery('#groups').val().replace(inp+',' ,''));
+			if (jQuery('#sectionnote').length > 0) {
+				jQuery('#sectionnote').remove();
+				jQuery('[id$=sbtbtn]').css('opacity','1').removeAttr('disabled');
 			}
-			if ($('#groupsContainer span.item').length == 0) {
-				$('[id$=sbtbtn]').css('opacity','0.65').attr('disabled','disabled');
+			if (jQuery('#groupsContainer span.item').length == 0) {
+				jQuery('[id$=sbtbtn]').css('opacity','0.65').attr('disabled','disabled');
 			}
 		}
 
@@ -159,11 +155,11 @@
 
 		function shareForGroups(){
 			var groupsIds = groupsForShare();
-			var shareComment = $("[id *= 'commentArea']").val();
+			var shareComment = jQuery("[id *= 'commentArea']").val();
 			var sobjId = window.location.href.split("id=")[1];
-			var linkName = $("input[id *='linkName']").val();
-			var shareOnProfile = $("input[id $='shareOnProfile']").is(':checked');
-			console.log($("input[id $='shareOnProfile']"));
+			var linkName = jQuery("input[id *='linkName']").val();
+			var shareOnProfile = jQuery("input[id $='shareOnProfile']").is(':checked');
+			console.log(jQuery("input[id $='shareOnProfile']"));
 			Visualforce.remoting.Manager.invokeAction(
 				'{!$RemoteAction.CommunityShareController.shareForGroups}',
 				groupsIds,
@@ -175,11 +171,11 @@
 					if(result.split('ERR').length > 1){
 						var div = document.createElement('div');
 						div.innerHTML = result;
-						$('[id *= "messageArea"]').html('<div id="messageAreaIn" layout="block" class="alert alert-danger fade in"><strong>Error!</strong> ' + result.substring(3, result.length)+'</div>');
-						$('[id *= "messageArea"]').show();
+						jQuery('[id *= "messageArea"]').html('<div id="messageAreaIn" layout="block" class="alert alert-danger fade in"><strong>Error!</strong> ' + result.substring(3, result.length)+'</div>');
+						jQuery('[id *= "messageArea"]').show();
 					}else{
-						$('#shareModalDialog').hide();
-						$('#shareModal').modal('hide');
+						jQuery('#shareModalDialog').hide();
+						jQuery('#shareModal').modal('hide');
 					}
 				}
 			);
@@ -187,23 +183,23 @@
 
 		function getAvailableGroups(bool){
 			var a = '{!availGroups}';
-			if($("[id $= 'availGroupsOut']").val() == "false"){
+			if(jQuery("[id $= 'availGroupsOut']").val() == "false"){
 				availableGroupsProcess();
 			}
 			if(bool == false){
-				$("[id $= 'availGroupsPanel']").show();
-				_.each($(".sky-form section"),function(item){
+				jQuery("[id $= 'availGroupsPanel']").show();
+				_.each(jQuery(".sky-form section"),function(item){
 					if(item.id == "") {
 						item.style.display = "none";
 					}
 				});
-				$(".modal-footer").hide();
+				jQuery(".modal-footer").hide();
 			}else {
-				$("[id $= 'availGroupsPanel']").hide();
-				_.each($(".sky-form section"),function(item){
+				jQuery("[id $= 'availGroupsPanel']").hide();
+				_.each(jQuery(".sky-form section"),function(item){
 					item.style.display = "block";
 				});
-				$(".modal-footer").show();
+				jQuery(".modal-footer").show();
 			}
 		}
 
@@ -211,36 +207,36 @@
 			var tagId = tag.id.toString();
 			tagId = tagId.split("_")[1];
 			var grId = "#gr_"+tagId;
-			$(grId).toggle();
+			jQuery(grId).toggle();
 		}
 		
-		$("[id$=commentArea]").attr('placeholder','{!$Label.LBL_Link_InputBox}');
-		$("[id$=inGroup]").attr('list','list');
+		jQuery("[id$=commentArea]").attr('placeholder','{!$Label.LBL_Link_InputBox}');
+		jQuery("[id$=inGroup]").attr('list','list');
 
 		function completeShare() {
-			if ($("[id$=messageAreaIn]").length > 0) {
-				$('#shareModalDialog').show();
+			if (jQuery("[id$=messageAreaIn]").length > 0) {
+				jQuery('#shareModalDialog').show();
 			}
 			else {
-				$('#shareModal').modal('hide');
+				jQuery('#shareModal').modal('hide');
 			}
 		}
 
 		function loadGroupSuggestions() {
-			if ($('#list').children().length == 0) {
+			if (jQuery('#list').children().length == 0) {
 				Visualforce.remoting.Manager.invokeAction(
 					'{!$RemoteAction.CommunityShareController.getGroups}',
 					'',
 					function(result, event) {
 						var div = document.createElement('div');
 						div.innerHTML = result;
-						$('#list').html(div.firstChild.nodeValue);
+						jQuery('#list').html(div.firstChild.nodeValue);
 					}
 				);
 			}
-			$('#shareModalDialog').show();
-			$("[id$=messageAreaIn]").remove();
-			$("[id$=inGroup]").val('');
+			jQuery('#shareModalDialog').show();
+			jQuery("[id$=messageAreaIn]").remove();
+			jQuery("[id$=inGroup]").val('');
 		}
 	</script>
 </apex:component>

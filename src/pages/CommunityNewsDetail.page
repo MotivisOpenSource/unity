@@ -2,9 +2,6 @@
 <apex:composition template="{!$Site.Template}">
 <apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
 <apex:define name="body">
-	<style type="text/css">
-		.row.u-page-block { background:#f8f8f8; border-top:3px solid #72c02c; }
-	</style>
 	<apex:outputPanel layout="block" rendered="{!!previewMode}" styleClass="breadcrumbs margin-bottom-10">
 		<div class="container">
 			<h1 class="pull-left">{!$ObjectType.Community_News__c.Label}</h1>
@@ -14,7 +11,7 @@
 			</ul>
 		</div>
 	</apex:outputPanel>
-	<div class="profile">
+	<div class="profile CommunityNewsDetail">
 		<div class="container content">
 			<apex:outputPanel layout="block" rendered="{!!previewMode}" styleClass="row margin-bottom-10">
 				<div class="col-md-6 text-left">
@@ -54,7 +51,7 @@
 				</div>
 			</apex:outputPanel>
 			<div class="margin-bottom-30">
-				<apex:outputPanel layout="none" styleClass="row margin-bottom-20" style="max-height:300px;overflow:hidden;" rendered="{!!ISBLANK(NewsImage)}">
+				<apex:outputPanel layout="none" styleClass="row margin-bottom-20 image-container" rendered="{!!ISBLANK(NewsImage)}">
 					<img class="img-responsive maxheight300 margin-right-10 margin-bottom-10" src="{!NewsImage}" align="left" alt=""/>
 				</apex:outputPanel>
 				<!--apex:outputPanel layout="block" styleClass="row text-center margin-bottom-20" rendered="{!ISBLANK(NewsImage)}" style="background:#f8f8f8; padding:20px;">

@@ -1,5 +1,18 @@
 public class CommunityUtils {
-
+    //Moderate Chatter
+    public static Boolean isModerateChatter() {
+		Boolean Result = [SELECT PermissionsModerateChatter,Name,id FROM Profile WHERE Id =: UserInfo.getProfileId()].PermissionsModerateChatter;
+		if (Result != true) {
+			for (PermissionSetAssignment psa : [SELECT PermissionSet.PermissionsModerateChatter FROM PermissionSetAssignment WHERE AssigneeId = :UserInfo.getUserId()]) {
+				if (psa.PermissionSet.PermissionsModerateChatter == true) {
+					Result = true;
+					break;
+				}
+			}
+		}
+		return Result;
+	}
+	
 	public static Boolean isModifyAllData() {
 		Boolean Result = [SELECT PermissionsModifyAllData FROM Profile WHERE Id =: UserInfo.getProfileId()].PermissionsModifyAllData;
 		if (Result != true) {

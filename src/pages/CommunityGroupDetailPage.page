@@ -2,11 +2,6 @@
 <apex:composition template="{!$Site.Template}">
 <apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
 <apex:define name="body">
-	<style>
-		.profile-edit .headline { margin-bottom: 15px; }
-		.profile-edit .blog-photos li img { width: 36px; height: 36px; }
-	</style>
-
 	<!--=== Breadcrumbs ===-->
 	<div class="breadcrumbs margin-bottom-10">
 	    <div class="container">
@@ -28,7 +23,9 @@
 
 				<!--Left Sidebar-->
 				<div class="col-md-3 md-margin-bottom-20">
-					<div class="chatter-photo"><c:CommunityUserPhoto current="false" photoUrl="{!chatterGroup.FullPhotoUrl}" fmode="true"/></div>
+					 <div class="chatter-photo">
+					 	<c:CommunityUserPhoto current="false" photoUrl="{!chatterGroup.FullPhotoUrl}" currentGroupRole="{!groupRoleString}"/>					 	
+					 </div> 
 					<c:CommunityAboutGroup currentGroupId="{!control.Id}" currentGroupRole="{!groupRoleString}"/>
 					<apex:form >
 					    <apex:actionFunction action="{!refreshGroupControl}" name="refreshGroup" rerender="containerHead"/>
@@ -99,7 +96,7 @@
 						</a>
 					</div>
 					<apex:outputPanel layout="block" rendered="{!RequestCount > 0}" styleClass="margin-bottom-20">
-						<a href="#newConversationModal" role="button" data-toggle="modal" onclick="switchToRequestMode();memberLayout();" style="color:#e9b605;">
+						<a href="#newConversationModal" role="button" data-toggle="modal" onclick="switchToRequestMode();memberLayout();" class="modal__pending__link">
 							<strong>{!$Label.LBL_Pending} ({!RequestCount})</strong>
 						</a>
 					</apex:outputPanel>
@@ -183,7 +180,7 @@
 								<tr>
 									<td width="50px">
 										<a href="{!$Page.CommunityProfilePage}?id={!mmbr.id}">
-											<apex:image styleClass="rounded-x" style="margin-top: 0px; margin-bottom: 0px" url="{!mmbr.photourl}" width="50px" height="50px"/>
+											<apex:image styleClass="rounded-x margin-top-0 margin-bottom-0" url="{!mmbr.photourl}" width="50px" height="50px"/>
 										</a>
 									</td>
 									<td>

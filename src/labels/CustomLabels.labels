@@ -575,6 +575,13 @@
         <value>Add Manager</value>
     </labels>
     <labels>
+        <fullName>LBL_Add_Photo</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Add Photo</shortDescription>
+        <value>Add Photo</value>
+    </labels>
+    <labels>
         <fullName>LBL_Add_Remove_Members</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -2093,6 +2100,20 @@
         <value>Terms &amp; Conditions</value>
     </labels>
     <labels>
+        <fullName>LBL_Thumbnail</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Thumbnail</shortDescription>
+        <value>Thumbnail</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Thumbnail_Use</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Thumbnail Use</shortDescription>
+        <value>LBL_Thumbnail_Use</value>
+    </labels>
+    <labels>
         <fullName>LBL_ToMe</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -2154,6 +2175,20 @@
         <protected>true</protected>
         <shortDescription>LBL Upload File</shortDescription>
         <value>Upload</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Upload_Group_Photo</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Upload Group Photo</shortDescription>
+        <value>Upload Group Photo</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Upload_Profile_Photo</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Upload Profile Photo</shortDescription>
+        <value>Upload Profile Photo</value>
     </labels>
     <labels>
         <fullName>LBL_Username</fullName>
