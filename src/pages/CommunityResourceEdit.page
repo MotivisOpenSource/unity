@@ -2,19 +2,19 @@
 <apex:composition template="{!$Site.Template}">
 <apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
 <apex:define name="body">
-	<div class="CommunityResourceEdit">
-		<apex:form >
+	<div class="CommunityResourceEdit" >
+		<apex:form styleClass="sky-form">
 			<apex:pageBlock >
 				<apex:pageMessages id="pageMessages"/>
 				<apex:pageBlockButtons >
 					<button type="button" class="btn-u" onclick="submitResource();return false;">{!$Label.BTN_Submit}</button>
 					&nbsp;
 					<apex:outputLink value="{!IF(ISBLANK($CurrentPage.parameters.retURL),$Page.CommunityResources,JSENCODE($CurrentPage.parameters.retURL))}" styleClass="btn-u">{!$Label.BTN_Cancel}</apex:outputLink>
-				</apex:pageBlockButtons>
+				</apex:pageBlockButtons>				
 				<apex:pageBlockSection id="crpbs1" columns="1" collapsible="false">
-					<apex:repeat value="{!fieldset}" var="fs">
-						<apex:inputField value="{!resource[fs.fieldPath]}" required="{!OR(fs.required, fs.dbrequired)}" rendered="{!fs.fieldPath != 'Primary_Tag__c'}"/>
-					</apex:repeat>
+					<fieldset>
+						<c:CommunityFieldLayout fl="{!rlayout}" so="{!resource}"/>
+					</fieldset>
 					<apex:pageBlockSectionItem >
 						<apex:outputLabel value="Resource"/>
 						<apex:outputPanel id="resblock" layout="block" styleClass="requiredInput">

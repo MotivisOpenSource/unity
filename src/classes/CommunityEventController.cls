@@ -191,8 +191,8 @@ public with sharing class CommunityEventController {
 
 	// -- variables --
 	public Community_Events__c event { get;set; }
-	public Map<String, Community_Event_Tag__c> eventTagMap { get; set; }
-	public List<Community_Event_Tag__c> eventTagList { get; set; }
+	public CommunityFieldLayout elayout { get;set; }
+	public transient Community_Group_Control__c relatedToEventGroup { get; set; }
 
 	private String TAGS_INPUT_NAME = 'tags';
 	private String formatEventLocation(Community_Events__c e) {
@@ -229,105 +229,65 @@ public with sharing class CommunityEventController {
 
 	// -- methods --
 	private void init() {
-		
-		/*
-		* select name of related group for event
-		*/
-		String groupId = ApexPages.currentPage().getParameters().get('gr');
-		if(groupId == NULL) {
-			Community_Group_Control__c conObj = getRelatedToEventGroup();			
-			if ( conObj != null) {		
-				connectedGroupStr = conObj.Name;
-				groupId = conObj.Chatter_Group_ID__c;
-			}
-			else connectedGroupStr = '';
-		}
-		else {
-			List<Community_Group_Control__c> groupList1 = [Select Id, Name, Chatter_Group_ID__c From Community_Group_Control__c Where Chatter_Group_ID__c = : groupId limit 1];
-			if (groupList1.isEmpty()) {
-				connectedGroupStr = '';
-			}
-			else {
-				connectedGroupStr = groupList1[0].Name;
-			}
-		}
-		
-		eventTagMap = new Map<String, Community_Event_Tag__c>();
-
-		if (event != NULL && event.Id != NULL) {
-			Set<String> collectedFields = new Set<String> {'Id', 'Name', 'Name__c', 'Start__c', 'End__c', 'Building__c', 'Room__c', 'Street_Address__c', 'City__c', 'State__c', 'Zip__c', 'Teaser__c', 'Description__c', 'UserRecordAccess.HasEditAccess', 'OwnerId', 'Public__c'};
-			String pp = CommunityUtils.getPackagePrefix();
-			Boolean isPP = String.isNotBlank(pp);
-			for (Schema.FieldSetMember f : fieldset) {
-				String tempFieldName = isPP ? f.getFieldPath().replace(pp,'') : f.getFieldPath();
-				collectedFields.add(tempFieldName);
-			}
-			String query = '';
-			String sep = 'SELECT ';
-			List<String> cfAsList = new List<String>();
-			cfAsList.addAll(collectedFields);
-			for (String cfItem : cfAsList) {
-				query += sep + cfItem;
-				sep = ', ';
-			}
-			String tagSubQuery = 'SELECT Id, Community_Tag__c, Group_Type__c, Community_Tag__r.Community_Theme__r.Name, Community_Tag__r.Name, Community_Group_Control__r.Name, Community_Group_Control__r.Group_Control_SF_ID__c FROM Events_Tag_Joins__r WHERE Community_Group_Control__c = NULL AND Community_Tag__c != NULL';
-			query += ', (' + CommunityUtils.systemTagFilter(' AND Community_Tag__r.Community_Theme__r.Theme_Type__c', tagSubQuery) + ')';
-			query += ' FROM Community_Events__c WHERE Id = \'' + event.Id + '\'';
-			event = Database.query(query);
+		List<String> fieldList = new List<String> {
+			'Id', 'Name', 'Name__c', 'Start__c', 'End__c', 'Building__c', 'Room__c', 'Street_Address__c', 'City__c', 'State__c', 'Zip__c', 'Teaser__c',
+			'Description__c', 'UserRecordAccess.HasEditAccess', 'OwnerId', 'Public__c'
+		};
+		elayout = new CommunityFieldLayout(
+			event.Id,
+			(mode == 'edit') ? SObjectType.Community_Events__c.FieldSets.EditEvent : SObjectType.Community_Events__c.FieldSets.ViewEvent,
+			SObjectType.Community_Events__c,
+			fieldList,
+			CommunityUtils.getPackagePrefix()
+		);
+		if (event.Id != NULL) {
+			event = (Community_Events__c)elayout.getRecord();
 			if (mode == 'view') {
 				event.Street_Address__c = formatEventLocation(event);
-			}
-			
-			fieldsetRes = fieldset;
-			if(event.Street_Address__c == NULL){
-				Integer pos = 0;
-				for(Schema.FieldSetMember fsA : fieldset){
-					if(fsA.getLabel().containsIgnoreCase('Street Address')){
-						break;
-					}
-					pos++;
+				Set<String> excludeFields = new Set<String>();
+				String ppp = CommunityUtils.getPackagePrefix();
+				Boolean hpp = String.isNotBlank(ppp);
+				for (String fItem : new List<String> {'Building__c', 'Room__c', 'City__c', 'State__c', 'Zip__c'}) {
+					excludeFields.add((hpp && fItem.endsWith('__c')) ? (ppp + fItem) : fItem);
 				}
-				fieldsetRes.remove(pos);
+				List<CommunityFieldLayout.Field> nflds = new List<CommunityFieldLayout.Field>();
+				for (CommunityFieldLayout.Field ffItem : elayout.flds) {
+					if (!excludeFields.contains(ffItem.name)) {
+						nflds.add(ffItem);
+					}
+				}
+				elayout.flds = nflds;
 			}
-			
-			
-
 		}
-		if (ApexPages.currentPage().getParameters().get('cloneId') != NULL) {
+		else if (ApexPages.currentPage().getParameters().get('cloneId') != NULL) {
 			try {
 				Id cloneId = Id.valueOf(ApexPages.currentPage().getParameters().get('cloneId'));
 				String cquery = '';
 				String csep = 'SELECT ';
-				for (Schema.FieldSetMember cf : fieldset) {
-					cquery += csep + cf.getFieldPath();
+				for (CommunityFieldLayout.Field cf : elayout.flds) {
+					cquery += csep + cf.name;
 					csep = ', ';
 				}
 				cquery += ' FROM Community_Events__c WHERE Id = \'' + cloneId + '\'';
 				Community_Events__c cevent = Database.query(cquery);
-				for (Schema.FieldSetMember cf2 : fieldset) {
-					String fName = cf2.getFieldPath();
-					event.put(fName, cevent.get(fName));
+				for (CommunityFieldLayout.Field cf2 : elayout.flds) {
+					event.put(cf2.name, cevent.get(cf2.name));
 				}
 			}
 			catch (Exception e) {
 				ApexPages.addMessages(e);
 			}
 		}
-
-		if (event != NULL) {
-			if (event.Events_Tag_Joins__r != NULL) {
-				for (Community_Event_Tag__c item : event.Events_Tag_Joins__r) {
-					if (item != NULL) {
-						if (eventTagMap.get(item.Community_Group_Control__r.Name) == NULL) {
-							eventTagMap.put(item.Community_Group_Control__r.Name, item);
-						}
-					}
-				}
-			}
+		String groupId = ApexPages.currentPage().getParameters().get('gr');
+		if(String.isBlank(groupId)) {
+			List<Community_Event_Tag__c> cet = [SELECT Community_Group_Control__r.Chatter_Group_ID__c FROM Community_Event_Tag__c WHERE Community_Event__c = :event.Id AND Community_Group_Control__c != NULL];
+			groupId = cet.isEmpty() ? NULL : cet[0].Community_Group_Control__r.Chatter_Group_ID__c;
 		}
-
-		if (!eventTagMap.isEmpty()) {
-			eventTagList = eventTagMap.values();
+		connectedGroupStr = '';
+		if(String.isNotBlank(groupId)) {
+			List<Community_Group_Control__c> cgc = [SELECT Id, Name FROM Community_Group_Control__c WHERE Chatter_Group_ID__c = :groupId];
+			connectedGroupStr = cgc.isEmpty() ? '' : cgc[0].Name;
+			relatedToEventGroup = cgc.isEmpty() ? NULL :cgc[0];
 		}
 	}
 

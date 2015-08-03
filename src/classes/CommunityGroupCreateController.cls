@@ -5,8 +5,7 @@ public with sharing class CommunityGroupCreateController {
 	public String imageFileName { get; set; }
 	public String imageContentType { get; set; }
 	public Integer step { get; set; }
-
-	public Map<String, String> pageParams { get{ return ApexPages.currentPage().getParameters();} set; }
+	public CommunityFieldLayout flayout { get;set; }
 
 	private final String TAGS_INPUT_NAME = 'tags';
 
@@ -14,36 +13,37 @@ public with sharing class CommunityGroupCreateController {
 		currentGroup = (Community_Group_Control__c)stdController.getRecord();
 	}
 
-	public PageReference initFromCreate() {
-		PageReference pr;
+	public void initFromCreate() {
 		Set<String> availableSteps = new Set<String> {'2','3','4'};
-		//Map<String, String> pageParams = ApexPages.currentPage().getParameters();
+		Map<String, String> pageParams = ApexPages.currentPage().getParameters();
 		String stepStr = (String.isNotBlank(pageParams.get('step')) && availableSteps.contains(pageParams.get('step'))) ? pageParams.get('step') : '1';
 		step = Integer.valueOf(stepStr);
+		// prepare field layout
+		List<String> fieldList = new List<String> {
+			'Id', 'Name', 'Status__c', 'Chatter_Group_ID__c', 'T_C_Accepted__c', 'T_C_Accepted_Date__c', 'Terms__c'
+		};
+		CommunityFieldLayout flt = new CommunityFieldLayout(
+			currentGroup.Id,
+			SObjectType.Community_Group_Control__c.FieldSets.CreateGroup,
+			SObjectType.Community_Group_Control__c,
+			fieldList,
+			CommunityUtils.getPackagePrefix()
+		);
 		if (currentGroup.Id != NULL) {
-			Set<String> collectedFields = new Set<String> {
-				'Id', 'Name', 'Status__c', 'Chatter_Group_ID__c', 'T_C_Accepted__c',
-				'T_C_Accepted_Date__c', 'Terms__c'
-					};
-			String pp = CommunityUtils.getPackagePrefix();
-			Boolean isPP = String.isNotBlank(pp);
-			for (Schema.FieldSetMember f : fieldset) {
-				String tempFieldName = isPP ? f.getFieldPath().replace(pp,'') : f.getFieldPath();
-				collectedFields.add(tempFieldName);
-			}
-			List<String> cfAsList = new List<String>();
-			cfAsList.addAll(collectedFields);
-			currentGroup = Database.query('SELECT ' + String.join(cfAsList, ', ') + ' FROM Community_Group_Control__c WHERE Id = \'' + currentGroup.Id + '\'');
+			currentGroup = (Community_Group_Control__c)flt.getRecord();
 		}
 		if (!CommunityUtils.canCreateGroup() || (currentGroup.Id != NULL && currentGroup.Status__c != 'Pending')) {
 			step = 0;
 		}
-		return pr;
-	}
-
-	public List<Schema.FieldSetMember> fieldset {
-		get {
-			return SObjectType.Community_Group_Control__c.FieldSets.CreateGroup.getFields();
+		if (step == 1) {
+			flayout = flt;
+			List<CommunityFieldLayout.Field> fieldsWOname = new List<CommunityFieldLayout.Field>();
+			for (CommunityFieldLayout.Field ff : flayout.flds) {
+				if (ff.name != 'Name') {
+					fieldsWOname.add(ff);
+				}
+			}
+			flayout.flds = fieldsWOname;
 		}
 	}
 

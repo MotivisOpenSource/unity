@@ -42,37 +42,34 @@
 				</script>
 			</div>
 		</div>
-		<apex:outputPanel layout="block" styleClass="row" rendered="{!step == 1}">
-			<div class="col-sm-12">
-				<apex:pageBlock >
-					<div class="calert">
-						<apex:pageMessages id="pageMessages"/>
-					</div>
-					<apex:pageBlockSection columns="1" collapsible="false">
-						<apex:repeat value="{!fieldset}" var="fs">
-							<apex:inputField id="namefield" html-maxlength="40" value="{!CurrentGroup[fs.fieldPath]}" onkeyup="nameKeyUp(this);" required="{!OR(fs.required, fs.dbrequired)}" rendered="{!fs.fieldPath == 'Name'}"/>
-							<apex:inputField value="{!CurrentGroup[fs.fieldPath]}" required="{!OR(fs.required, fs.dbrequired)}" rendered="{!fs.fieldPath != 'Name'}"/>
-						</apex:repeat>
-						<script>
-							function nameKeyUp(el) {
-								var nval = el.value.trim();
-								if ($('#namess').length > 0) {
-									$('#namess').remove();
-									$('[id$=sbtbtn]').css('opacity','0.65').attr('disabled','disabled');
-								}
-								if (nval == '') {
-									$('#nabtn').attr('disabled','disabled');
-								}
-								else {
-									$('#nabtn').removeAttr('disabled');
-								}
-							}
-							$('[id$=namefield]').parent().append('<button id="nabtn" onclick="checkName();return false;" class="btn btn-xs rounded btn-default" disabled="desabled">Check Availability</button>');
-						</script>
-					</apex:pageBlockSection>
-				</apex:pageBlock>
-			</div>
+		<apex:outputPanel layout="none" rendered="{!step == 1}">
+			<apex:pageMessages id="pageMessages"/>
+			<fieldset>
+				<section>
+					<label class="label"><i class="fa fa-asterisk color-red" title="required"></i>&nbsp;{!$ObjectType.Community_Group_Control__c.Fields.Name.Label}</label>
+					<label class="input">
+						<apex:inputText id="namefield" value="{!currentGroup.Name}" styleClass="margin-bottom-5" onkeyup="nameKeyUp(this);" required="true"/>
+						<button id="nabtn" onclick="checkName();return false;" class="btn-u btn-u-sm" disabled="disabled" style="opacity:0.65;">Check Availability</button>
+					</label>
+				</section>
+				<c:CommunityFieldLayout fl="{!flayout}" so="{!currentGroup}"/>
+			</fieldset>
 			<script>
+				function nameKeyUp(el) {
+					var nval = el.value.trim();
+					if ($('#namess').length > 0) {
+						$('#namess').remove();
+						$('[id$=sbtbtn]').css('opacity','0.65').attr('disabled','disabled');
+						$('[id$=namefield]').parent().attr('class','input');
+					}
+					if (nval == '') {
+						$('#nabtn').attr('disabled','disabled').css('opacity','0.65');
+					}
+					else {
+						$('#nabtn').removeAttr('disabled').css('opacity','1');
+					}
+				}
+				$('[id$=namefield]').parent().append('');
 				function checkName() {
 					Visualforce.remoting.Manager.invokeAction(
 						'{!$RemoteAction.CommunityGroupCreateController.checkAvailability}',

@@ -7,7 +7,7 @@ global with sharing class CommunityRegTermsController {
 	public String errorMessage { get; set; }
 	public String stepName { get { return stepName == NULL ? 'info' : stepName; } set; }
 	public Community_Profile__c currentProfile { get;set; }
-	public List<CommunityProfilePageController.FieldSection> overviewTab { get;set; }
+	public List<CommunityFieldLayout> overviewTab { get;set; }
 	public List<CommunityProfilePageController.InterestSection> interests { get;set; }
 	public transient String tcText { get; set; }
 	public transient Community_Admins__c caText { get; set; }

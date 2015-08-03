@@ -51,6 +51,7 @@ public with sharing class CommunityNewsController {
 	public Blob imgBody { get;set; }
 	public String imgFileName { get;set; }
 	public String imgContentType { get;set; }
+	public CommunityFieldLayout flayout { get;set; }
 
 	private String TAGS_INPUT_NAME = 'tags';
 	private String TEMPORARY_UPDATE_NAME = 'TEMPORARY_UPDATE';
@@ -59,6 +60,38 @@ public with sharing class CommunityNewsController {
 	@TestVisible private void init() {
 		news = (Community_News__c)stdctrl.getRecord();
 		Boolean recordPulled = false;
+		// check and pull record in preview mode
+		if (news.Id != NULL && mode != 'view') {
+			List<Attachment> attList = [SELECT Body, OwnerId, Owner.Name FROM Attachment WHERE ParentId = :news.Id AND Name = :TEMPORARY_UPDATE_NAME AND OwnerId = :UserInfo.getUserId()];
+			if (attList.size() > 0) {
+				mode = SObjectType.Community_News__c.isUpdateable() ? mode : 'view';
+				if (mode != 'view') {
+					Community_News__c restoredNews = (Community_News__c)JSON.deserialize(attList[0].Body.toString(), Community_News__c.class);
+					restoredNews.Id = news.Id;
+					news = restoredNews;
+					recordPulled = true;
+				}
+			}
+			else if (!SObjectType.Community_News__c.isCreateable() && mode == 'preview') {
+				mode = 'view';
+			}
+		}
+		// prepare field layout
+		List<String> fieldList = new List<String> {
+			'Id', 'Name', 'Image_Path__c', 'Title__c', 'Teaser__c', 'Content__c', 'URL__c', 'Allow_Comments__c', 'Comment_Expiration_Date__c',
+			'Make_Entry_Sticky__c', 'Entry_Date__c', 'Expiration_Date__c', 'Type__c', 'Content__c', 'UserRecordAccess.HasEditAccess'
+		};
+		flayout = new CommunityFieldLayout(
+			news.Id,
+			(mode == 'edit') ? SObjectType.Community_News__c.FieldSets.EditNews : SObjectType.Community_News__c.FieldSets.ViewNews,
+			SObjectType.Community_News__c,
+			fieldList,
+			CommunityUtils.getPackagePrefix()
+		);
+		if (news.Id != NULL && !recordPulled) {
+			news = (Community_News__c)flayout.getRecord();
+		}
+		// new record handler
 		if (news.Id == NULL) {
 			if (ApexPages.currentPage().getParameters().get('cloneId') != NULL) {
 				try {
@@ -83,49 +116,6 @@ public with sharing class CommunityNewsController {
 			else {
 				news.Entry_Date__c = Datetime.now();
 			}
-			recordPulled = true;
-		}
-
-		if (!recordPulled && mode != 'view') {
-			List<Attachment> attList = [SELECT Body, OwnerId, Owner.Name FROM Attachment WHERE ParentId = :news.Id AND Name = :TEMPORARY_UPDATE_NAME AND OwnerId = :UserInfo.getUserId()];
-			if (attList.size() > 0) {
-				mode = SObjectType.Community_News__c.isUpdateable() ? mode : 'view';
-				if (mode != 'view') {
-					Community_News__c restoredNews = (Community_News__c)JSON.deserialize(attList[0].Body.toString(), Community_News__c.class);
-					restoredNews.Id = news.Id;
-					news = restoredNews;
-					recordPulled = true;
-				}
-			}
-			else if (!SObjectType.Community_News__c.isCreateable() && mode == 'preview') {
-				mode = 'view';
-			}
-		}
-
-		if (!recordPulled) {
-			List<String> fieldList = new List<String> {
-				'Id', 'Name', 'Image_Path__c', 'Title__c', 'Teaser__c', 'Content__c', 'URL__c', 'Allow_Comments__c', 'Comment_Expiration_Date__c',
-				'Make_Entry_Sticky__c', 'Entry_Date__c', 'Expiration_Date__c', 'Type__c', 'Content__c', 'UserRecordAccess.HasEditAccess'
-			};
-			String pp = CommunityUtils.getPackagePrefix();
-			Boolean isPP = String.isNotBlank(pp);
-			Set<String> collectedFields = new Set<String>();
-			for (String fieldItem : fieldList) {
-				collectedFields.add((isPP && fieldItem.endsWith('__c')) ? (pp + fieldItem) : fieldItem);
-			}
-			for (Schema.FieldSetMember f : fieldset) {
-				collectedFields.add(f.getFieldPath());
-			}
-			String query = '';
-			String sep = 'SELECT ';
-			List<String> cfAsList = new List<String>();
-			cfAsList.addAll(collectedFields);
-			for (String cfItem : cfAsList) {
-				query += sep + cfItem;
-				sep = ', ';
-			}
-			query += ' FROM Community_News__c WHERE Id = \'' + news.Id + '\'';
-			news = Database.query(query);
 		}
 	}
 

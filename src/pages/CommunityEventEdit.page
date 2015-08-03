@@ -1,43 +1,40 @@
-<apex:page standardController="Community_Events__c" extensions="CommunityEventController" action="{!initFromEdit}" showHeader="false" sideBar="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false">
-	
-<script src="{!$Resource.CommunityResources}/js/underscore/underscore-min.js"></script>
-<script type="text/javascript" src="{!$Resource.assets}/plugins/sky-forms/version-2.0.1/js/jquery-ui.min.js"></script>
-
+<apex:page standardController="Community_Events__c" extensions="CommunityEventController" standardStylesheets="false" action="{!initFromEdit}" showHeader="false" sideBar="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false">
 <apex:composition template="{!$Site.Template}">
 <apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
 <apex:define name="body">
-	<apex:form >
-		<div class="container">
-			<div class="row margin-bottom-10">
-				<div class="col-md-6 text-left padding-left-35">
-					<h2>{!Title}</h2>
-				</div>
-				<div class="col-md-6 text-right padding-right-25">
-					<apex:commandButton action="{!Submit}" value="{!$Label.BTN_Submit}" styleClass="btn-u"/>
-					&nbsp;
-					<apex:outputLink value="{!IF(ISBLANK($CurrentPage.parameters.retURL),$Page.CommunityEventsList,JSENCODE($CurrentPage.parameters.retURL))}" styleClass="btn-u">{!$Label.BTN_Cancel}</apex:outputLink>
-					</div>	
+	<apex:form styleClass="sky-form">
+		<header><div class="row">
+			<div class="col-md-6 text-left" style="padding-left:35px;">
+				<h2>{!IF(ISNULL(event.Id),$Label.BTN_Create_Event,$Label.BTN_Edit_Event)}</h2>
 			</div>
-		</div>
-		<apex:pageBlock >
-		    <apex:pageMessages id="pageMessages"/>			
-			<apex:pageBlockSection id="cnpbs1" columns="1" collapsible="false">
-				<apex:repeat value="{!fieldset}" var="fs">
-					<apex:inputField value="{!event[fs.fieldPath]}" required="{!OR(fs.required, fs.dbrequired)}"/>
-				</apex:repeat>
-				<apex:pageBlockSectionItem >
-					<apex:outputLabel value="{!$Label.LBL_Event_Group}"/>
-					<apex:input value="{!connectedGroupStr}" list="{!AllGroupsInStringArray}" />			
-				</apex:pageBlockSectionItem>
-				<apex:pageBlockSectionItem >
-					<apex:outputLabel value="{!$Label.LBL_Select_Tags}"/>
+			<div class="col-md-6 text-right" style="padding-right:25px;">
+				<apex:commandButton action="{!Submit}" value="{!$Label.BTN_Submit}" styleClass="btn-u"/>
+				&nbsp;
+				<apex:outputLink value="{!IF(ISBLANK($CurrentPage.parameters.retURL),$Page.CommunityEventsList,JSENCODE($CurrentPage.parameters.retURL))}" styleClass="btn-u">{!$Label.BTN_Cancel}</apex:outputLink>
+			</div>
+		</div></header>
+		<apex:pageMessages id="pageMessages"/>
+		<fieldset>
+			<c:CommunityFieldLayout fl="{!elayout}" so="{!event}"/>
+		</fieldset>
+		<fieldset>
+			<section>
+				<label class="label">{!$Label.LBL_Event_Group}</label>
+				<label class="input"><apex:input value="{!connectedGroupStr}" list="{!AllGroupsInStringArray}"/></label>
+			</section>
+		</fieldset>
+		<fieldset>
+			<section>
+				<apex:outputLabel value="{!$Label.LBL_Select_Tags}" styleClass="label"/>
+				<label class="input">
 					<c:CommunityTagSelector oId="{!event.Id}" oType="{!$ObjectType.Community_Event_Tag__c.Name}" fName="{!$ObjectType.Community_Event_Tag__c.Fields.Community_Event__c.Name}"/>
-				</apex:pageBlockSectionItem>
-			</apex:pageBlockSection>
-		</apex:pageBlock>
+				</label>
+			</section>
+		</fieldset>
 	</apex:form>
 </apex:define>
 </apex:composition>
+
 
 <apex:stylesheet value="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.css" />
 <script type="text/javascript" src="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.js"></script>

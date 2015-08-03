@@ -4,11 +4,12 @@ global with sharing class CommunityProfilePageController {
 	public Boolean current { get;set; }
 	public String currentProfileId { get;set; }
 	public Community_Profile__c currentProfile { get;set; }
-	public List<FieldSection> overviewTab { get;set; }
+	public List<CommunityFieldLayout> overviewTab { get;set; }
 	public Id currentUserId { get;set; }
 	public List<ProfileTab> profiles { get;set; }
 	public transient String FullPhotoUrl { get;set; }
 	public transient List<InterestSection> interests { get;set; }
+	public List<List<String>> fieldsets { get;set; }
 
 	private Id contactId;
 	private static Map<String, Schema.SObjectField> CP_FIELDS = SObjectType.Community_Profile__c.fields.getMap();
@@ -81,34 +82,42 @@ global with sharing class CommunityProfilePageController {
 			String section1 = Label.LBL_About_me;
 			String section2 = Label.LBL_Contact;
 			// select contact with field from fieldset
-			overviewTab = new List<FieldSection>();
+			overviewTab = new List<CommunityFieldLayout>();
 			String rtName = currentProfile.RecordType.Name.replace('/','');
-			Map<String, FieldSection> tabMap = new Map<String, FieldSection>();
+			Map<String, CommunityFieldLayout> tabMap = new Map<String, CommunityFieldLayout>();
+			Schema.DescribeSObjectResult dsorProfile = SObjectType.Community_Profile__c;
+			fieldsets = new List<List<String>>();
 			for (Schema.FieldSet fsItem : SObjectType.Community_Profile__c.FieldSets.getMap().values()) {
 				String fsLabel = fsItem.getLabel();
 				if (fsLabel.contains(':')) {
 					String[] parts = fsLabel.split(':');
 					if (parts.size() == 3 && parts[0] == rtName && parts[2].isNumeric()) {
+						fieldsets.add(new List<String> {fsItem.getName(), parts[1]});
 						Integer sNum = Integer.valueOf(parts[2]);
 						Boolean notAdded = true;
+						CommunityFieldLayout cflTemp =  new CommunityFieldLayout(
+							fsItem,
+							dsorProfile,
+							CommunityUtils.getPackagePrefix(),
+							parts[1],
+							sNum
+						);
 						for (Integer ii = 0; ii < overviewTab.size(); ii++) {
 							if (overviewTab[ii].sectionOrder >= sNum) {
-								overviewTab.add(ii, new FieldSection(fsItem, parts[1], sNum));
+								overviewTab.add(ii,cflTemp);
 								notAdded = false;
 								break;
 							}
 						}
 						if (notAdded) {
-							overviewTab.add(new FieldSection(fsItem, parts[1], sNum));
+							overviewTab.add(cflTemp);
 						}
 					}
 				}
 			}
-			Set<String> profileFields = new Set<String> {'Id', 'Name', 'Contact__r.Name'};
-			for (FieldSection fs2 : overviewTab) {
-				for (FieldItem fi2 : fs2.fi) {
-					profileFields.add(fi2.name);
-				}
+			Set<String> profileFields = new Set<String> {'Id', 'Name', 'Contact__r.Name', 'Contact__c'};
+			for (CommunityFieldLayout fs2 : overviewTab) {
+				profileFields.addAll(fs2.prepareFieldList());
 			}
 			List<String> fieldList = new List<String>();
 			fieldList.addAll(profileFields);
@@ -119,6 +128,10 @@ global with sharing class CommunityProfilePageController {
 		catch (Exception e) {
 			allOk = false;
 		}
+	}
+
+	public Map<String, Schema.FieldSet> getfsMap() {
+		return SObjectType.Community_Profile__c.FieldSets.getMap();
 	}
 
 	public String getStudentName() {

@@ -1,8 +1,4 @@
-<apex:page standardController="Community_News__c" extensions="CommunityNewsController" action="{!initFromEdit}" showHeader="false" sideBar="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false">
-<!-- <script type="text/javascript" src="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.js"></script>  -->
-<!--<script src="{!$Resource.CommunityResources}/js/underscore/underscore-min.js"></script> -->
-<!--<script type="text/javascript" src="{!$Resource.assets}/plugins/sky-forms/version-2.0.1/js/jquery-ui.min.js"></script> -->
-<!--<apex:stylesheet value="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.css" />-->
+<apex:page standardController="Community_News__c" extensions="CommunityNewsController" action="{!initFromEdit}" showHeader="false" sideBar="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false" standardStylesheets="false">
 
 <script src="{!$Resource.CommunityResources}/js/underscore/underscore-min.js"></script>
 <script type="text/javascript" src="{!$Resource.assets}/plugins/sky-forms/version-2.0.1/js/jquery-ui.min.js"></script>
@@ -14,7 +10,7 @@
 <apex:define name="body">
 	<div class="container">
 		<div class="row CommunityNewsEdit">
-			<apex:form id="cnsp1" style="display:none;">
+			<apex:form id="cnsp1" style="display:none;" styleClass="sky-form">
 				<div class="row margin-bottom-10">
 					<div class="col-md-6 text-left title-container">
 						<h2>{!$Label.BTN_Create_News}</h2>
@@ -28,10 +24,10 @@
 				</div>
 				<apex:pageBlock >
 					<apex:pageMessages id="pageMessages"/>
-					<apex:pageBlockSection id="cnpbs1" columns="1" collapsible="false">
-						<apex:repeat value="{!fieldset}" var="fs">
-							<apex:inputField value="{!news[fs.fieldPath]}" required="{!OR(fs.required, fs.dbrequired)}"/>
-						</apex:repeat>
+					<fieldset>
+						<c:CommunityFieldLayout fl="{!flayout}" so="{!news}"/>
+					</fieldset>	
+					<apex:pageBlockSection id="cnpbs1" columns="1" collapsible="false">										
 						<apex:pageBlockSectionItem >
 							<apex:outputLabel value="{!$Label.LBL_Select_Image}"/>
 							<apex:outputPanel layout="none">
