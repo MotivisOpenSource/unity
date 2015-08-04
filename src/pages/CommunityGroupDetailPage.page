@@ -23,13 +23,16 @@
 
 				<!--Left Sidebar-->
 				<div class="col-md-3 md-margin-bottom-20">
-					 <div class="chatter-photo">
-					 	<c:CommunityUserPhoto current="false" photoUrl="{!chatterGroup.FullPhotoUrl}" currentGroupRole="{!groupRoleString}"/>					 	
-					 </div> 
-					<c:CommunityAboutGroup currentGroupId="{!control.Id}" currentGroupRole="{!groupRoleString}"/>
-					<apex:form >
-					    <apex:actionFunction action="{!refreshGroupControl}" name="refreshGroup" rerender="containerHead"/>
-					</apex:form>
+					<div class="chatter-photo"><c:CommunityUserPhoto current="false" photoUrl="{!chatterGroup.FullPhotoUrl}" currentGroupRole="{!groupRoleString}"/></div>
+					<c:CommunityAboutGroup so="{!control}"
+						fsc="{!Fieldset}"
+						tn="{!$ObjectType.Community_Group_Control_Tag__c.Name}"
+						tfn="{!$ObjectType.Community_Group_Control_Tag__c.Fields.Group_Control__c.Name}"
+						tl="{!$Label.LBL_About_this_group}"
+						mdl="true"
+						edt="{!GroupEditable}"
+						son="Community_Group_Control__c"
+					/>
 					<c:CommunityFeedNavigation currentGroupId="{!chatterGroup.Id}" pn="5"/>
 				</div>
 				<!--End Left Sidebar-->

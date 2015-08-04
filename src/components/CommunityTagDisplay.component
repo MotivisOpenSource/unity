@@ -1,4 +1,4 @@
-<apex:component controller="CommunityTagDisplayController">
+<apex:component controller="CommunityTagDisplayController" layout="none">
 	<apex:attribute name="oId" description="" type="string" required="false" assignTo="{!objectId}"/>
 	<apex:attribute name="oType" description="" type="string" required="false" assignTo="{!objectType}"/>
 	<apex:attribute name="fName" description="" type="string" required="false" assignTo="{!filterName}"/>
@@ -6,9 +6,9 @@
 	<ul class="list-unstyled blog-tags">
 		<apex:repeat value="{!tags}" var="tag">
 			<li>
-				<a href="{!$Page.CommunityNews}?t={!tag.Url}" target="_blank">
-					<i class="fa fa-tags"></i>&nbsp;{!tag.Name}
-				</a>
+				<apex:outputLink value="{!$Page.CommunityNews}?t={!tag.Url}" target="_blank" rendered="{!mode == 1}"><i class="fa fa-tags"></i>&nbsp;{!tag.Name}</apex:outputLink>
+				<apex:outputLink value="{!$Page.CommunityGroupManager}?t={!tag.Url}" target="_blank" rendered="{!mode == 2}"><i class="fa fa-tags"></i>&nbsp;{!tag.Name}</apex:outputLink>
+				<apex:outputLink value="{!$Page.CommunityEventsList}?t={!tag.Url}" target="_blank" rendered="{!mode == 3}"><i class="fa fa-tags"></i>&nbsp;{!tag.Name}</apex:outputLink>
 			</li>
 		</apex:repeat>
 	</ul>

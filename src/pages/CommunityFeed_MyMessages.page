@@ -315,10 +315,7 @@
 			</div>
 		</apex:define>
 		<apex:define name="scripts">
-			<!--<apex:includeScript value="{!$Resource.CommunityResources}/js/jquery-1.11.2.min.js" />-->
-			<script type="text/javascript" src="{!$Resource.CommunityResources}/js/Typeahead/typeahead.bundle.custom.js" ></script>
-			<script type="text/javascript" src="{!$Resource.CommunityResources}/js/underscore/underscore-min.js" ></script>
-
+			
 			<script type="text/template" id="messageRowTemplate">
 				<li class="messageRow">
 					<div class="messagePhoto">

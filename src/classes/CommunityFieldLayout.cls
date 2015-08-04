@@ -12,6 +12,7 @@ global with sharing class CommunityFieldLayout {
 			collectedFields.add((isPP && fieldItem.endsWith('__c')) ? (inpp + fieldItem) : fieldItem);
 		}
 		flds = new List<Field>();
+		System.Debug(infs.getFields());
 		for (Schema.FieldSetMember f : infs.getFields()) {
 			Schema.DescribeFieldResult dfr2 = indso.fields.getMap().get(f.getFieldPath()).getDescribe();
 			if (dfr2.isAccessible()) {
@@ -84,9 +85,9 @@ global with sharing class CommunityFieldLayout {
 		DisplayType.Double => 'double',
 		DisplayType.Reference => 'reference',
 		DisplayType.MultiPicklist => 'multipicklist',
-		DisplayType.Email => 'input',
+		DisplayType.Email => 'email',
 		DisplayType.String => 'input',
-		DisplayType.URL => 'input',
+		DisplayType.URL => 'url',
 		DisplayType.Phone => 'input',
 		DisplayType.Percent => 'integer',
 		DisplayType.Currency => 'double'

@@ -130,13 +130,9 @@ public with sharing class CommunityFeedNavigationController {
 	public String permitions {	 
 		get { 
 	        if (ApexPages.currentPage().getParameters().get('gr') != null) {
-	            System.Debug('Grouppermit');
-	            System.Debug(CommunityUtils.isModerateChatter());
 	            return (CommunityUtils.isModerateChatter() == true || CommunityUtils.isModifyAllData() == true || (groupRole == 'Owner' || groupRole == 'Manager'))?'true':'false';	/////////////////////////					
 	        }
 	        else {
-	            System.Debug('Userpermit');
-	            System.Debug(currentUser);
 	            return (currentUser==true)?'true':'false';		
 	        }
 		}

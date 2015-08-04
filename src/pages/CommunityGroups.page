@@ -2,7 +2,6 @@
 <apex:composition template="{!$Site.Template}">
 <apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
 <apex:define name="body">
-	<apex:includeScript value="{!$Resource.CommunityResources}/js/underscore/underscore-min.js"/>
 	<div class="profile CommunityGroups" ng-app="GroupsApp" ng-controller="GroupsController">
 		<div class="container content"><div class="row">
 			<!--LEFT-->

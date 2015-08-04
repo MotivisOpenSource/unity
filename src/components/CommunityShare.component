@@ -59,11 +59,11 @@
 						<div class="panel-group acc-v1" id="accordion-1">
 							
 								<div class="panel-body">
-									<ul class="list-unstyled blog-tags">									
+									<ul class="list-unstyled blog-tags">
 										<apex:repeat value="{!AvailableGroupsControls}" var="group">
 											<li><a href="javascript:;" onclick="addtti('{!group.Chatter_Group_ID__c}','{!JSENCODE(group.name)}');"><i class="fa fa-users"></i>&nbsp;{!group.name}</a>													
 											</li>
-										</apex:repeat>									
+										</apex:repeat>
 									</ul>
 								</div>
 							<br/><apex:commandButton id="doneBtn" value="{!$Label.LBL_Done}" onclick="getAvailableGroups(true); return false;" styleClass="btn-u btn-u-primary"/>
@@ -101,7 +101,6 @@
 		}, 300);
 
 		jQuery(document).ready(function() {
-			if('{!showShareButton}' == 'false') jQuery("#shareButton").hide();
 			jQuery("[id $= 'availGroupsPanel']").hide();
 			jQuery('#groupsInput').typeahead({
 				source:function (query, process) {

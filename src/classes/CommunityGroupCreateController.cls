@@ -5,7 +5,13 @@ public with sharing class CommunityGroupCreateController {
 	public String imageFileName { get; set; }
 	public String imageContentType { get; set; }
 	public Integer step { get; set; }
+
 	public CommunityFieldLayout flayout { get;set; }
+
+	// photo positions vars
+	public String cropXCr { get; set; }
+	public String cropYCr { get; set; }
+	public String cropSizeCr { get; set; }
 
 	private final String TAGS_INPUT_NAME = 'tags';
 
@@ -63,7 +69,16 @@ public with sharing class CommunityGroupCreateController {
 			}
 			else if (step == 2) {
 				if (imageBody != NULL) {
-					ConnectApi.Photo groupPhoto = ConnectApi.ChatterGroups.setPhoto(Network.getNetworkId(), currentGroup.Chatter_Group_ID__c, new ConnectApi.BinaryInput(imageBody, imageContentType, imageFileName));
+				    ConnectApi.PhotoInput pi = new ConnectApi.PhotoInput();
+				    pi.cropX = Integer.valueOf(cropXCr);
+				    pi.cropY = Integer.valueOf(cropYCr);
+				    pi.cropSize = Integer.valueOf(cropSizeCr)-1;
+					ConnectApi.Photo groupPhoto = ConnectApi.ChatterGroups.setPhotoWithAttributes(
+					    Network.getNetworkId(), 
+					    currentGroup.Chatter_Group_ID__c,
+					    pi,
+					    new ConnectApi.BinaryInput(imageBody, imageContentType, imageFileName)
+					    );
 					update currentGroup;
 				}
 				pr = Page.CommunityGroupCreate;

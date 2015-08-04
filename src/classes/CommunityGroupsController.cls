@@ -171,7 +171,7 @@ public with sharing class CommunityGroupsController {
 	public DiscoverResultClass getGroups() {
 		String currentTab = currentFilter;
 
-		String gQuery = 'SELECT Id, Name, Chatter_Group_ID__c, Discoverable__c, Description__c, Type__c, Status__c FROM Community_Group_Control__c';
+		String gQuery = 'SELECT Id, Name, Chatter_Group_ID__c, Discoverable__c, Description__c, Type__c FROM Community_Group_Control__c';
 		Boolean foundData = false;
 		Set<String> filtredChatterGroups = new Set<String>();
 		Set<String> alreadyJoinedGroups = new Set<String>();
@@ -181,7 +181,7 @@ public with sharing class CommunityGroupsController {
 			for (CollaborationGroup cgItem : [SELECT Id FROM CollaborationGroup WHERE NetworkId = :Network.getNetworkId()]) {
 				filtredChatterGroups.add(cgItem.Id);
 			}
-			gQuery += ' WHERE Chatter_Group_ID__c IN :filtredChatterGroups AND Discoverable__c = true AND Status__c = \'Approved\' ';
+			gQuery += ' WHERE Chatter_Group_ID__c IN :filtredChatterGroups AND Discoverable__c = true';
 			foundData = filtredChatterGroups.size() > 0;
 		}
 

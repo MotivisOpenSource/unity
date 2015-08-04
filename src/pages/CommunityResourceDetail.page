@@ -21,9 +21,9 @@
 			</apex:outputPanel>
 			<apex:outputPanel layout="block" styleClass="sky-form">
 				<dl class="dl-horizontal">
-					<apex:repeat value="{!fieldset}" var="fs">
+					<apex:repeat value="{!rlayout.flds}" var="fs">
 						<dt><strong>{!fs.label}</strong></dt>
-						<dd><apex:outputField value="{!resource[fs.fieldPath]}"/></dd>
+						<dd><apex:outputField value="{!resource[fs.name]}"/></dd>
 						<hr/>
 					</apex:repeat>
 					<dt><strong>Resource</strong></dt>

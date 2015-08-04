@@ -2,11 +2,7 @@
 <apex:composition template="{!$Site.Template}">
 <apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
 <apex:define name="body">
-
-	<apex:includeScript value="{!$Resource.CommunityResources}/js/underscore/underscore-min.js"/>
-	<script src="{!$Resource.CommunityResources}/js/Typeahead/bootstrap3-typeahead.min.js"></script>
 	<apex:includeScript value="/soap/ajax/33.0/connection.js"/>
-
 	<!-- Community Group Files -->
 	<div id="CommunityGroupFiles">
 		<div class="breadcrumbs margin-bottom-10">
@@ -25,14 +21,13 @@
 				</ul>
 			</div>
 		</div>
-
 		<apex:outputPanel layout="block" styleClass="profile">
 			<apex:outputPanel layout="block" styleClass="content container">
 				<apex:outputPanel layout="block" styleClass="row">
 
 					<!--Left Sidebar-->
 					<div class="col-md-3 md-margin-bottom-20">
-						<div class="chatter-photo"><c:CommunityUserPhoto current="false" photoUrl="{!chatterGroup.FullPhotoUrl}" fmode="true"/></div>
+						<div class="chatter-photo"><c:CommunityUserPhoto current="false" photoUrl="{!chatterGroup.FullPhotoUrl}" currentGroupRole="none"/></div>
 						<c:CommunityFeedNavigation pn="5"/>
 					</div>
 					<!--End Left Sidebar-->

@@ -5,19 +5,18 @@ public with sharing class CommunityGroupDetailPageController {
 
 	public ConnectApi.GroupMembershipType groupRole { get; set; }
 	private String initialRequestMember;
-	
+
 	public String groupRoleString {
-		get {		
+		get {
 			System.Debug(String.valueOf(groupRole).removeStart('Group'));
 			return String.valueOf(groupRole).removeStart('Group');
-		}		
+		}
 		set;
 	}
-	
 
 	// CONSTRUCTOR
 	public CommunityGroupDetailPageController() {
-		control = CommunityGroupManageController.pullGroupControlRecord(false);
+		control = CommunityGroupManageController.pullGroupControlRecord(true);
 		if (control != NULL && control.Chatter_Group_ID__c != NULL) {
 			chatterGroup = [SELECT Id, FullPhotoUrl, CollaborationType FROM CollaborationGroup WHERE Id = :control.Chatter_Group_ID__c];
 			groupRole = ConnectApi.ChatterGroups.getGroup(Network.getNetworkId(), chatterGroup.Id).MyRole;
@@ -31,6 +30,10 @@ public with sharing class CommunityGroupDetailPageController {
 			}
 		}
 		catch (Exception e) {}
+	}
+
+	public Boolean getGroupEditable() {
+		return CommunityUtils.isModifyAllData() == true || groupRole == ConnectApi.GroupMembershipType.GroupOwner || groupRole == ConnectApi.GroupMembershipType.GroupManager;
 	}
 
 	public Boolean memberMode { get { return memberMode == NULL ? false : memberMode; } set; }
@@ -106,6 +109,10 @@ public with sharing class CommunityGroupDetailPageController {
 		return CommunityUtils.getActionButton(groupRole, chatterGroup.CollaborationType == 'Public');
 	}
 
+	public Schema.FieldSet getFieldset() {
+		return SObjectType.Community_Group_Control__c.FieldSets.ViewGroup;
+	}
+
 	public List<GroupEvent> getEvents() {
 		List<GroupEvent> resultList = new List<GroupEvent>();
 		for (Community_Event_Tag__c cet : [
@@ -151,11 +158,6 @@ public with sharing class CommunityGroupDetailPageController {
 	public Boolean getShowPendingMembers() {
 		return ApexPages.currentPage().getParameters().containsKey('pending');
 	}
-	
-	public void refreshGroupControl() {
-	    control = CommunityGroupManageController.pullGroupControlRecord(false);
-	}
-	
 
 	public Boolean showFilesSection {
 		get {

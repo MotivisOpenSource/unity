@@ -1,198 +1,81 @@
-<apex:component controller="CommunityAboutGroupComponentController" allowDML="true">
-    <apex:attribute name="currentGroupId" description="Current Group Control Id" type="String" required="true" assignTo="{!currentGroupControlId}" />
-    <apex:attribute name="currentGroupRole" description="role of the user to this group" type="String" required="true" assignTo="{!groupRole}" />
-    <script type="text/javascript">
-        function isTagsEmpty() {
-            return ($('#tagViewPanel>a').length==0);
-        }
-        function modalBtn() {
-            $('.errorText').hide();
-            refreshData(); 
-        }
-    </script>
-    
-    <button class="btn-u margin-bottom-5" onClick="modalBtn();" data-toggle="modal" title="click here" data-target="#myModal1"><i class="fa fa-question-circle"></i>&nbsp;{!$Label.LBL_about_this_group}</button>
-    
-    <apex:form >
-        <apex:actionFunction action="{!cancelAction}"  name="refreshData" rerender="theForm" onComplete="remowestatusOfLoad();"/>
-    </apex:form>    
-    <div id="myModal1" class="modal fadeb CommunityAboutGroup" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true" >
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button aria-hidden="true" data-dismiss="modal" class="close" type="button">&times;</button>
-                    <h4 id="myLargeModalLabel2" class="modal-title">{!$Label.LBL_about_this_group}</h4>
-                </div>
-                <div class="tab-pane active text-center margin-bottom-10" id="statusOfLoad">
-                        <i class="fa fa-spinner fa-pulse fa-4x"></i>
-                    </div>
-                <div id="theformdiv" class="modal-body" style="display: none;">
-                    <div class="errorText" style="display:none">
-                        <apex:pageMessages id="pageMessages"/>
-                    </div>
-                    <apex:form id="theForm" styleClass="sky-form margin-20">
-                        <apex:variable var="index" value="{!0}" />
-                        <div class="margin-bottom-15"></div>
-                        <dl class="dl-horizontal">
-                            <apex:repeat value="{!$ObjectType.Community_Group_Control__c.FieldSets.ViewGroup}" var="fs">
-                                <dt id="tfld{!index}" class="margin-bottom-10"><strong>{!fs.label}</strong></dt>
-                                <dd>
-                                    <apex:outputPanel >
-                                        <span id="vfld{!index}">
-                                            <apex:outputField value="{!control[fs.fieldPath]}" rendered="{!IF(fs.Type == 'textarea', false, true)}"/>
-                                            <span>
-                                                <apex:outputText value="{!mapFieldsGroupObject[fs.fieldPath]}" rendered="{!IF(fs.Type == 'textarea', true, false)}"/>
-                                            </span>
-                                            <apex:outputLink value="javascript:void(0);" styleClass="pull-right" onclick="shwe('{!index}');" style="display:{!canEdit};">
-                                                <i class="fa fa-pencil" id="elink{!index}"></i>
-                                            </apex:outputLink>
-                                        </span>
+<apex:component >
+	<apex:attribute name="so" type="SObject" required="true" description="sobject with fields to display"/>
+	<apex:attribute name="fsc" type="Schema.FieldSet" required="true" description="field set"/>
+	<apex:attribute name="efsc" type="String" required="false" description="edit field set name (optional)"/>
+	<apex:attribute name="tn" type="String" required="false" description="tag object name"/>
+	<apex:attribute name="tfn" type="String" required="false" description="reference to parent field in tag object name"/>
+	<apex:attribute name="tl" type="String" required="false" description="section title"/>
+	<apex:attribute name="mdl" type="Boolean" required="false" default="false" description="display as modal"/>
+	<apex:attribute name="edt" type="Boolean" required="false" default="false" description="is editable"/>
+	<apex:attribute name="son" type="String" required="false" description="name of the object"/>
 
-                                        <apex:outputPanel layout="none">
-                                            <div id="efld{!index}" style="display:none;">
-                                                <apex:inputField styleClass="full-width" id="vflde" value="{!control[fs.fieldPath]}" 
-                                                    rendered="{!IF(fs.Type == 'textarea', false, true)}"
-                                                    required="{!fs.required}" 
-                                                    onchange="onChangeEdit({!index});" 
-                                                    onblur="shwv({!index});"
-                                                />
-                                                <span>
-                                                <apex:inputText styleClass="full-width" id="tvflde" value="{!mapFieldsGroupObject[fs.fieldPath]}" 
-                                                    rendered="{!IF(fs.Type == 'textarea', true, false)}"
-                                                    required="{!fs.required}" 
-                                                    onchange="onChangeEdit({!index});" 
-                                                    onblur="shwv({!index});"
-                                                />
-                                                </span>
-                                            </div>
-                                            <script type="text/javascript">
-                                                function onChangeEdit(ini) {
-                                                    if ($('#efld' + ini + ' [id$=vflde]').attr('type') != 'checkbox') {
-                                                        if($('#efld' + ini + ' [id$=vflde]').val() != ''){
-                                                            $('#vfld'+ini).text($('#efld' + ini + ' [id$=vflde]').val()).css('color','coral').css('font-weight','bold');
-                                                        }else{
-                                                            $('#vfld'+ini).text($('#efld' + ini + ' [id$=tvflde]').val()).css('color','coral').css('font-weight','bold');
-                                                        }
-                                                    }
-                                                    else {
-                                                        $('#vfld' + ini + ' img').remove();
-                                                        $('#vfld' + ini + ' .p-chb').remove();
-                                                        $('#vfld' + ini).append('<i class="fa fa-'+($('#efld' + ini + ' [id$=vflde]').prop('checked')?'check-':'')+'square-o p-chb"></i>');
-                                                    }
-                                                    
-                                                }
-                                            
-                                                if($('#efld{!index}>.errorMsg').length){
-                                                    shwe('{!index}');
-                                                }
-                                                //fls to edit
-                                                if(($('#efld{!index}').find('input').length==0)&&($('#efld{!index}').find('textarea').length==0)&&($('#efld{!index}').find('select').length==0)) {
-                                                    $('#elink{!index}').hide();
-                                                    $('#efld{!index}').hide();
-                                                }
-                                                //fls to read
-                                                if(($('#vfld{!index}').find('span').length==0)) {
-                                                    $('#elink' + {!index}).hide();
-                                                    $('#efld' + {!index}).hide();
-                                                    $('#vfld' + {!index}).hide();
-                                                    $('#tfld' + {!index}).hide();
-                                                }
-                                            </script>
-                                        </apex:outputPanel>
-                                    </apex:outputPanel>
-                                </dd>
-                                <apex:variable var="index" value="{!index + 1}" />
-                            </apex:repeat>
-                        </dl>
-                        <apex:outputPanel layout="block" styleClass="row u-page-block">
-                            <div class="col-sm-11 padding-top-15">
-                                <section>
-                                    <label class="input" id="tagViewPanel">
-                                        <c:CommunityTagDisplay oId="{!control.Id}" oType="{!$ObjectType.Community_Group_Control_Tag__c.Name}" fName="{!$ObjectType.Community_Group_Control_Tag__c.Fields.Group_Control__c.Name}" />
-                                    </label>
-                                    <label class="input" id="tagEditPanel" style="display:none;">
-                                        <c:CommunityTagSelector oId="{!control.Id}" oType="{!$ObjectType.Community_Group_Control_Tag__c.Name}" fName="{!$ObjectType.Community_Group_Control_Tag__c.Fields.Group_Control__c.Name}" />
-                                    </label>
-                                </section>
-                            </div>
-                            <div class="col-sm-1 padding-top-15" id="editPencil">
-                                <div id="pencilId" style="display:none">
-                                <apex:outputLink value="javascript:void(0);" styleClass="pull-right" onclick="$('[id$=tagViewPanel]').hide();$('[id$=tagEditPanel]').show();$('[id$=btnblk]').show();$('[id$=editPencil]').hide();" style="display:{!canEdit};">
-                                    <i class="fa fa-pencil"></i>
-                                </apex:outputLink>
-                                </div>
-                                <div id="addtagsId" style="display:none">
-                                <apex:outputLink value="javascript:void(0);" styleClass="pull-right btn-u" onclick="$('[id$=tagViewPanel]').hide();$('[id$=tagEditPanel]').show();$('[id$=btnblk]').show();$('[id$=editPencil]').hide();" style="display:{!canEdit};">
-                                    <i class="fa fa-plus-circle"></i>&nbsp;{!$Label.LBL_Add_Tags}
-                                </apex:outputLink>
-                                </div>
-                                <script type="text/javascript">
-                                    if(isTagsEmpty()==true) {
-                                        $('[id$=addtagsId]').show();    
-                                    }
-                                    else {
-                                        $('[id$=pencilId]').show();
-                                    }
-                                </script>
-                            </div>
-                        </apex:outputPanel>
-                        <apex:outputPanel layout="block" id="btnblk" style="display:none;" styleClass="padding-10">
-                            <button class="btn-u pull-right margin-right-5" type="button" onclick="saveAct();return null;">
-                                <apex:actionStatus id="statusLoadSubmit">
-                                    <apex:facet name="start">
-                                        &nbsp;<i class="fa fa-spinner fa-pulse"></i>
-                                    </apex:facet>
-                                </apex:actionStatus>
-                                {!$Label.BTN_Save}  
-                            </button>
-                            <button class="btn-u btn-u-sm btn-u-default pull-right margin-right-5" type="button" onclick="cancelBtn();return null;">
-                                <apex:actionStatus id="cancelLoadSubmit">
-                                    <apex:facet name="start">
-                                        &nbsp;<i class="fa fa-spinner fa-pulse"></i>
-                                    </apex:facet>
-                                </apex:actionStatus>
-                                {!$Label.BTN_Cancel}
-                            </button>
-                        </apex:outputPanel>
-                        <script type="text/javascript">
-                            function saveBtnComp() {
-                                if($('.errorText').find('table').length) {
-                                    $('.errorText').show();
-                                }
-                                else {
-                                    $('.errorText').hide();
-                                }
-                            }   
-                            function cancelBtn() {
-                                $('[id$=efld]').hide();
-                                $('[id$=vflde]').val('');
-                                $('.errorText').hide();
-                                cancelAct();
-                            }   
-                            function remowestatusOfLoad() {
-                                $('#statusOfLoad').hide();
-                                $('#theformdiv').show();
-                            }
-                            function shwe(ini) {
-                                $('#vfld' + ini).hide();
-                                $('#efld' + ini).show();
-                                $('#efld' + ini + ' [id$=vflde]').focus();
-                                $('[id$=btnblk]').show();
-                                // iepp = ini;
-                            } 
-                            function shwv(ini) {
-                                if($('#efld'+ini+'>.errorMsg').length==0) {
-                                    //alert('close Edit'+$('#efld'+ini+'>.errorMsg').length);
-                                    $('#vfld' + ini).show();
-                                    $('#efld' + ini).hide();
-                                }
-                            }
-                    </script>
-                    <apex:actionFunction action="{!cancelAction}"  name="cancelAct" rerender="theForm, pageMessages" status="cancelLoadSubmit"/>
-                    <apex:actionFunction action="{!submitAction}" onComplete="saveBtnComp();"  name="saveAct" rerender="theForm,pageMessages" status="statusLoadSubmit"/>
-                    </apex:form>
-                </div>
-            </div>
-        </div>
-    </div>
+	<apex:variable var="uniqueid" value="{!LOWER(IF(ISBLANK(efsc),fsc.Name,efsc))}"/>
+	<apex:outputPanel layout="none" rendered="{!mdl}">
+		<button class="btn-u margin-bottom-10" data-toggle="modal" title="click here" data-target="#{!uniqueid}aboutomodal">
+			<i class="fa fa-question-circle"></i>&nbsp;{!$Label.LBL_about_this_group}
+		</button>
+		<div id="{!uniqueid}aboutomodal" class="modal fadeb" tabindex="-1" role="dialog" aria-labelledby="label{!uniqueid}aboutomodal" aria-hidden="true" >
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button aria-hidden="true" data-dismiss="modal" class="close" type="button">&times;</button>
+						<h4 id="label{!uniqueid}aboutomodal" class="modal-title">
+							{!tl}
+							<span id="action{!uniqueid}" style="display:none;">&nbsp;<i class="fa fa-spinner fa-pulse"></i></span>
+						</h4>
+					</div>
+					<div class="modal-body">
+						<apex:outputPanel layout="none" rendered="{!edt}">
+							<button id="btnupme{!uniqueid}" class="btn-u pull-right margin-right-5" type="button" onclick="makeEditLayout{!uniqueid}(); return false;">{!$Label.BTN_Edit}</button>
+						</apex:outputPanel>
+					</div>
+				</div>
+			</div>
+		</div>
+	</apex:outputPanel>
+
+	<apex:outputPanel layout="block" styleClass="row margin-bottom-10" rendered="{!!mdl}">
+		<div class="col-md-8">
+			<h2 class="heading-md">
+				{!tl}
+				<span id="action{!uniqueid}" style="display:none;">&nbsp;<i class="fa fa-spinner fa-pulse"></i></span>
+			</h2>
+		</div>
+		<apex:outputPanel layout="block" styleClass="col-md-4 text-right" rendered="{!edt}">
+			<button id="btnupme{!uniqueid}" class="btn-u btn-u-xs margin-right-5" type="button" onclick="makeEditLayout{!uniqueid}(); return false;">{!$Label.BTN_Edit}</button>
+		</apex:outputPanel>
+	</apex:outputPanel>
+	<span id="{!uniqueid}fieldsarea" style="display:none;">
+		<div class="sky-form">
+			<dl class="dl-horizontal">
+				<apex:repeat value="{!fsc.fields}" var="fs">
+					<apex:outputPanel layout="none" rendered="{!ISBLANK(son) || $ObjectType[son].fields[fs.fieldPath].Accessible}">
+						<dt class="margin-bottom-10"><strong>{!fs.label}</strong></dt>
+						<dd><apex:outputField value="{!so[fs.fieldPath]}"/></dd>
+					</apex:outputPanel>
+				</apex:repeat>
+			</dl>
+		</div>
+		<c:CommunityTagDisplay oId="{!so['Id']}" oType="{!tn}" fName="{!tfn}" rendered="{!!ISNULL(tn) && !ISNULL(tfn)}"/>
+	</span>
+	<script>
+		$('#{!uniqueid}aboutomodal').length > 0 ? $('#{!uniqueid}fieldsarea').detach().appendTo('#{!uniqueid}aboutomodal .modal-body').show() : $('#{!uniqueid}fieldsarea').show();
+	</script>
+	<apex:outputPanel layout="none" rendered="{!edt}"><script>
+		function makeEditLayout{!uniqueid}() {
+			if ($('#meframe{!uniqueid}').length == 0) {
+				$('#{!uniqueid}fieldsarea').hide();
+				$('[id^=btnupme]').hide();
+				var itxt = '<iframe id="meframe{!uniqueid}" frameborder="0" src="{!$Page.CommunityShowEditObject}?objectId={!so["Id"]}';
+				itxt += '&fieldSetName={!IF(ISBLANK(efsc),fsc.Name,efsc)}&objectName={!fsc.SObjectType}&tn={!tn}&tfn={!tfn}" width="100%" height="auto"/>';
+				$('#{!uniqueid}fieldsarea').before(itxt);
+				$('#action{!uniqueid}').show();
+			}
+		}
+		function cancelEditLayout{!uniqueid}() {
+			$('#meframe{!uniqueid}').remove();
+			$('#{!uniqueid}fieldsarea').show();
+			$('[id^=btnupme]').show();
+		}
+	</script></apex:outputPanel>
 </apex:component>
