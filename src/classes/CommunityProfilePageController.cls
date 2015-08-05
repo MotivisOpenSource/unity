@@ -87,12 +87,16 @@ global with sharing class CommunityProfilePageController {
 			Map<String, CommunityFieldLayout> tabMap = new Map<String, CommunityFieldLayout>();
 			Schema.DescribeSObjectResult dsorProfile = SObjectType.Community_Profile__c;
 			fieldsets = new List<List<String>>();
-			for (Schema.FieldSet fsItem : SObjectType.Community_Profile__c.FieldSets.getMap().values()) {
+			List<String> fsNamesWithPrefix = new List<String>();
+			Map<String,Schema.FieldSet> shfs = SObjectType.Community_Profile__c.FieldSets.getMap();
+			fsNamesWithPrefix.addAll(shfs.keySet());
+			for (String sfName : fsNamesWithPrefix) {
+				Schema.FieldSet fsItem = shfs.get(sfName);
 				String fsLabel = fsItem.getLabel();
 				if (fsLabel.contains(':')) {
 					String[] parts = fsLabel.split(':');
 					if (parts.size() == 3 && parts[0] == rtName && parts[2].isNumeric()) {
-						fieldsets.add(new List<String> {fsItem.getName(), parts[1]});
+						fieldsets.add(new List<String> {sfName, parts[1]});
 						Integer sNum = Integer.valueOf(parts[2]);
 						Boolean notAdded = true;
 						CommunityFieldLayout cflTemp =  new CommunityFieldLayout(
@@ -128,6 +132,7 @@ global with sharing class CommunityProfilePageController {
 		catch (Exception e) {
 			allOk = false;
 		}
+		System.debug('\n**getfsMap():' + getfsMap().keyset() + '\nfieldsets:' + fieldsets);
 	}
 
 	public Map<String, Schema.FieldSet> getfsMap() {
@@ -332,67 +337,6 @@ global with sharing class CommunityProfilePageController {
 			update cgm;
 		}
 		return '';
-	}
-
-	public class FieldSection {
-		public String sectionLabel { get;set; }
-		public Integer sectionOrder;
-		public List<FieldItem> fi { get;set; }
-
-		public FieldSection(Schema.FieldSet infs, String inlabel, Integer inorder) {
-			fi = new List<FieldItem>();
-			sectionLabel = inlabel;
-			sectionOrder = inorder;
-			for (Schema.FieldSetMember f3 : infs.getFields()) {
-				fi.add(new FieldItem(f3));
-			}
-		}
-
-		public Boolean getShowSection() {
-			Boolean result = false;
-			for (FieldItem fi1 : this.fi) {
-				result = fi1.isAccessible ? true : result;
-			}
-			return result;
-		}
-
-		public Boolean getShowSectionReg() {
-			Boolean result = false;
-			for (FieldItem fi2 : this.fi) {
-				result = (fi2.isAccessible && !fi2.regDB) ? true : result;
-			}
-			return result;
-		}
-	}
-
-	private static Map<DisplayType, String> TYPE_TO_STYLE = new Map<DisplayType, String> {
-		DisplayType.String => 'input', DisplayType.TextArea => 'textarea', DisplayType.Boolean => 'checkbox',
-		DisplayType.DateTime => 'text', DisplayType.Date => 'text', DisplayType.Time => 'text'
-	};
-
-	public class FieldItem {
-		public String name { get;set; }
-		public String label { get;set; }
-		public Boolean required { get;set; }
-		public Boolean isUpdateable { get;set; }
-		public Boolean isAccessible { get;set; }
-		public String inputStyle { get { return inputStyle == NULL ? 'input' : inputStyle; } set; }
-		public Boolean checkbox { get;set;}
-		public Boolean reqFieldSet { get;set; }
-		public Boolean regDB { get;set; }
-
-		public FieldItem(Schema.FieldSetMember infsm) {
-			name = infsm.getFieldPath();
-			required = infsm.getRequired() || infsm.getDBRequired();
-			reqFieldSet = infsm.getRequired();
-			regDB = infsm.getDBRequired();
-			DescribeFieldResult dfr = CP_FIELDS.get(name).getDescribe();
-			isUpdateable = dfr.isUpdateable();
-			isAccessible = dfr.isAccessible();
-			label = dfr.getLabel();
-			inputStyle = TYPE_TO_STYLE.get(dfr.getType());
-			checkbox = dfr.getType() == DisplayType.Boolean;
-		}
 	}
 
 	public class ProfileTab {

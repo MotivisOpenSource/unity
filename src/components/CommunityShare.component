@@ -40,7 +40,7 @@
 								<apex:outputLabel value="{!$Label.LBL_Share_To_A_Group}"/>
 								<div class="div-like-input clearfix">
 									<div id="groupsContainer" class="groups-container clearfix">
-										<input id="groupsInput" class="input-inviz" type="text" data-provide="typeahead" autocomplete="off" size="2"></input>
+										<input id="groupsInput" class="input-inviz" type="text"  autocomplete="off" size="2"></input>
 									</div>
 									<input id="groups" name="groups" style="display:none" visibility="hidden"/>
 								</div>

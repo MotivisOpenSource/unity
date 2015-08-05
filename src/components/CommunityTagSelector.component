@@ -32,7 +32,7 @@
 									</a>
 								</h4>
 							</div>
-							<div id="collapse-{!rowNum}" class="panel-collapse collapse height-0" aria-expanded="false">
+							<div id="collapse-{!rowNum}" class="panel-collapse collapse" aria-expanded="false">
 								<div class="panel-body">
 									<ul class="list-unstyled blog-tags">
 										<apex:repeat value="{!theme.tags}" var="tag">

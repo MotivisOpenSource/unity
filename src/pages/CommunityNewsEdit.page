@@ -23,12 +23,12 @@
 					</div>
 				</div>
 				<apex:pageBlock >
-					<apex:pageMessages id="pageMessages"/>
 					<fieldset>
 						<c:CommunityFieldLayout fl="{!flayout}" so="{!news}"/>
-					</fieldset>	
-					<apex:pageBlockSection id="cnpbs1" columns="1" collapsible="false">										
-						<apex:pageBlockSectionItem >
+					</fieldset>
+					<apex:pageMessages id="pageMessages"/>
+					<fieldset id="cnpbs1">
+						<section>
 							<apex:outputLabel value="{!$Label.LBL_Select_Image}"/>
 							<apex:outputPanel layout="none">
 								<select id="imsel1" onchange="checkimg();">
@@ -52,12 +52,14 @@
 									<apex:inputField value="{!news.Image_Path__c}" id="image_path_field"/>
 								</div>
 							</apex:outputPanel>
-						</apex:pageBlockSectionItem>
-						<apex:pageBlockSectionItem >
+						</section>
+					</fieldset>
+					<fieldset>
+						<section>
 							<apex:outputLabel value="{!$Label.LBL_Select_Tags}"/>
 							<c:CommunityTagSelector oId="{!news.Id}" oType="{!$ObjectType.Community_News_Tag__c.Name}" fName="{!$ObjectType.Community_News_Tag__c.Fields.Community_News__c.Name}"/>
-						</apex:pageBlockSectionItem>
-					</apex:pageBlockSection>
+						</section>
+					</fieldset>
 				</apex:pageBlock> 
 			</apex:form>
 		</div>

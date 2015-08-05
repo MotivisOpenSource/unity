@@ -35,7 +35,7 @@
 							<hr/>
 							<apex:repeat value="{!elayout.flds}" var="fs">
 								<apex:outputPanel layout="none">
-									<dt><strong>{!IF(fs.name=='Street_Address__c',$Label.LBL_Location,fs.label)}</strong></dt>
+									<dt><strong>{!IF(contains(fs.name,"Street_Address__c"),$Label.LBL_Location,fs.label)}</strong></dt>
 									<dd>
 										<apex:outputField value="{!event[fs.name]}"/>
 									</dd>

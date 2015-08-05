@@ -2,153 +2,153 @@
 <apex:composition template="{!$Site.Template}">
 <apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
 <apex:define name="body">
-	
-	<style type="text/css">
-		/*
-		*.messageText { padding:15px 30px; margin-bottom:20px; border:1px solid #ebccd1; background-color:#f2dede; color:#a94442;}
-		*/
-		.messageText span { display:none; }
-		table.messageTable { width:100%; background-color:#f2dede; padding:15px 30px;}
-		.sky-form .message { display: block; }
-		.errorMsg { color:#a94442; }
-		.errorMsg { border-color: #ff0000 #0000ff;  }
-	</style>
-	
-	<div class="container content"><apex:outputPanel layout="block" styleClass="row" rendered="{!ISBLANK(errorMessage)}">
-	<!--LEFT -->
-	<div class="col-md-3">
-		<ul class="list-group sidebar-nav-v1" id="sidebar-nav-1">
-			<apex:repeat value="{!leftSideBar.items}" var="mi">
-				<li class="list-group-item {!IF(mi.current,'active','menu-item-link')}">
-					<a href="{!$Page.CommunityRegTerms}{!mi.StepParam}">
-						<div style="width:15px; display:inline-block;">
-							<i class="fa {!IF(mi.active,'fa-circle-o','fa-check-circle-o plus')}"></i>
-						</div>
-						{!mi.name}
-					</a>
-				</li>
-			</apex:repeat>
-		</ul>
-	</div>
-	<!--LEFT-->
-	<!--MIDDLE-->
-	<div class="col-md-9">
-		<apex:form styleClass="sky-form">
-		<header><div class="row">
-			<div class="col-md-6 text-left">
-				<h2><apex:outputText value="{!leftSideBar.CurrentStepName}"/></h2>
-			</div>
-			<div class="col-md-6 text-right">
-				<apex:outputLink value="{!$Page.CommunityRegTerms}?step={!step - 1}" styleClass="btn-u" rendered="{!step > 1}" onclick="btnstatus();">
-					{!$Label.LBL_Previous}
-				</apex:outputLink>
-				<button id="sbtbtn" class="btn-u" type="button" style="opacity:{!IF(disabledNext,'0.65','1')};" onclick="completeCurrentStep();btnstatus();return false;">
-					{!IF(leftSideBar.LastStep,$Label.BTN_Submit,$Label.LBL_Next)}
-				</button>
-				<apex:outputPanel layout="none" rendered="{!disabledNext}">
-					<script>
-						$('[id$=sbtbtn]').attr('disabled','disabled');
-					</script>
-				</apex:outputPanel>
-				<apex:actionFunction action="{!completeCurrentStep}" name="completeCurrentStep"/>
-				<script>
-					function btnstatus() {
-						$('.list-group-item.active i').attr('class','fa fa-spinner fa-pulse');
-					}
-				</script>
-			</div>
-		</div></header>
-		<apex:pageMessages id="pageMessages"/>
-		<apex:outputPanel layout="none" rendered="{!stepName == 'info'}">
-			<apex:repeat value="{!overviewTab}" var="ot">
-				<fieldset>
-					<section>
-						<label class="label"><h3>{!$Label[ot.sectionLabel]}</h3></label>
-					</section>
-					<c:CommunityFieldLayout fl="{!ot}" so="{!currentProfile}"/>
-				</fieldset>
-			</apex:repeat>
-		</apex:outputPanel>
-		<apex:outputPanel layout="block" styleClass="row u-page-block" rendered="{!stepName == 'tc'}">
-			<fieldset class="margin-bottom-20">
-				<apex:outputText escape="false" value="{!HTMLENCODE(tcText)}"/>
-				<div class="text-center margin-top-20">
-					<apex:inputCheckbox rendered="{!!tcCheckBox}" value="{!tcCheckBox}" id="terms-checkbox" onchange="chkchkb(this);" style="vertical-align:top;"/>
-					<apex:inputCheckbox rendered="{!tcCheckBox}" value="{!tcCheckBox}" disabled="{!tcCheckBox}" id="terms-checkbox-checked" style="vertical-align:top;"/>
-					&nbsp;<label>{!$Label.LBL_AgreeToTerms}</label>
-				</div>
-				<button id="bsbtbtn" class="btn-u pull-right" type="button" style="opacity:{!IF(disabledNext,'0.65','1')};" onclick="completeCurrentStep();btnstatus();return false;">
-					{!IF(leftSideBar.LastStep,$Label.BTN_Submit,$Label.LBL_Next)}
-				</button>
-				<apex:outputPanel layout="none" rendered="{!disabledNext}">
-					<script>
-						$('[id$=bsbtbtn]').attr('disabled','disabled');
-					</script>
-				</apex:outputPanel>
-				<script>
-					function chkchkb(el) {
-						if (el.checked) {
-							$('[id$=sbtbtn]').css('opacity','1').removeAttr('disabled');
-						}
-						else {
-							$('[id$=sbtbtn]').css('opacity','0.65').attr('disabled','disabled');
-						}
-					}
-				</script>
-			</fieldset>
-		</apex:outputPanel>
-		</apex:form>
-		<apex:outputPanel layout="none" rendered="{!stepName == 'interest'}"><fieldset>
-			<div id="accordion-1" class="panel-group acc-v1 margin-top-20">
-				<apex:repeat value="{!interests}" var="ints">
-					<div class="panel panel-default">
-						<div class="panel-heading">
-						<h4 class="panel-title">
-							<a class="accordion-toggle" href="#{!ints.id}" data-parent="#accordion-1" data-toggle="collapse" aria-expanded="false">
-								<header>{!ints.name}</header>
-							</a>
-						</h4>
-						</div>
-						<div id="{!ints.id}" class="panel-collapse collapse sky-form" aria-expanded="false">
-							<fieldset><div class="row"><div class="col col-8">
-								<apex:repeat value="{!ints.it}" var="init">
-									<apex:outputPanel layout="none" rendered="{!init.checked}">
-										<label class="checkbox"><input type="checkbox" name="checkbox" onclick="intersel(this,'{!init.tagId}');" checked="checked"/><i></i>{!init.name}</label>
-									</apex:outputPanel>
-									<apex:outputPanel layout="none" rendered="{!!init.checked}">
-										<label class="checkbox"><input type="checkbox" name="checkbox" onclick="intersel(this,'{!init.tagId}');"/><i></i>{!init.name}</label>
-									</apex:outputPanel>
-								</apex:repeat>
-							</div></div></fieldset>
-						</div>
-					</div>
-				</apex:repeat>
-				<script>
-					function intersel(inth,tid) {
-						Visualforce.remoting.Manager.invokeAction(
-							'{!$RemoteAction.CommunityRegTermsController.toggle}',
-							tid,
-							inth.checked,
-							function(result, event) {}
-						);
-					}
-				</script>
-			</div>
-		</fieldset></apex:outputPanel>
-		<apex:outputPanel layout="none" rendered="{!stepName == 'picture'}">
-			<div class="profile-edit tab-pane margin-top-20">
-				<div class="row">
-					<div class="col-sm-4">
-						<c:CommunityUserPhoto />
-					</div>
-					<div class="col-sm-8">
-						<button id="stfos" type="button" class="btn-u btn-u-primary" onclick="uploadps();return false;">{!$Label.BTN_Update}</button>
-					</div>
-				</div>
-			</div>
-		</apex:outputPanel>
-	</div></apex:outputPanel></div>
-	<apex:outputPanel layout="block" styleClass="alert alert-danger fade in" rendered="{!!ISBLANK(errorMessage)}">{!errorMessage}</apex:outputPanel>
+    
+    <style type="text/css">
+        /*
+        *.messageText { padding:15px 30px; margin-bottom:20px; border:1px solid #ebccd1; background-color:#f2dede; color:#a94442;}
+        */
+        .messageText span { display:none; }
+        table.messageTable { width:100%; background-color:#f2dede; padding:15px 30px;}
+        .sky-form .message { display: block; }
+        .errorMsg { color:#a94442; }
+        .errorMsg { border-color: #ff0000 #0000ff;  }
+    </style>
+    
+    <div class="container content"><apex:outputPanel layout="block" styleClass="row" rendered="{!ISBLANK(errorMessage)}">
+    <!--LEFT -->
+    <div class="col-md-3">
+        <ul class="list-group sidebar-nav-v1" id="sidebar-nav-1">
+            <apex:repeat value="{!leftSideBar.items}" var="mi">
+                <li class="list-group-item {!IF(mi.current,'active','menu-item-link')}">
+                    <a href="{!$Page.CommunityRegTerms}{!mi.StepParam}">
+                        <div style="width:15px; display:inline-block;">
+                            <i class="fa {!IF(mi.active,'fa-circle-o','fa-check-circle-o plus')}"></i>
+                        </div>
+                        {!mi.name}
+                    </a>
+                </li>
+            </apex:repeat>
+        </ul>
+    </div>
+    <!--LEFT-->
+    <!--MIDDLE-->
+    <div class="col-md-9">
+        <apex:form styleClass="sky-form">
+        <header><div class="row">
+            <div class="col-md-6 text-left">
+                <h2><apex:outputText value="{!leftSideBar.CurrentStepName}"/></h2>
+            </div>
+            <div class="col-md-6 text-right">
+                <apex:outputLink value="{!$Page.CommunityRegTerms}?step={!step - 1}" styleClass="btn-u" rendered="{!step > 1}" onclick="btnstatus();">
+                    {!$Label.LBL_Previous}
+                </apex:outputLink>
+                <button id="sbtbtn" class="btn-u" type="button" style="opacity:{!IF(disabledNext,'0.65','1')};" onclick="completeCurrentStep();btnstatus();return false;">
+                    {!IF(leftSideBar.LastStep,$Label.BTN_Submit,$Label.LBL_Next)}
+                </button>
+                <apex:outputPanel layout="none" rendered="{!disabledNext}">
+                    <script>
+                        $('[id$=sbtbtn]').attr('disabled','disabled');
+                    </script>
+                </apex:outputPanel>
+                <apex:actionFunction action="{!completeCurrentStep}" name="completeCurrentStep"/>
+                <script>
+                    function btnstatus() {
+                        $('.list-group-item.active i').attr('class','fa fa-spinner fa-pulse');
+                    }
+                </script>
+            </div>
+        </div></header>
+        <apex:pageMessages id="pageMessages"/>
+        <apex:outputPanel layout="none" rendered="{!stepName == 'info'}">
+            <apex:repeat value="{!overviewTab}" var="ot">
+                <fieldset>
+                    <section>
+                        <label class="label"><h3>{!$Label[ot.sectionLabel]}</h3></label>
+                    </section>
+                    <c:CommunityFieldLayout fl="{!ot}" so="{!currentProfile}"/>
+                </fieldset>
+            </apex:repeat>
+        </apex:outputPanel>
+        <apex:outputPanel layout="block" styleClass="row u-page-block" rendered="{!stepName == 'tc'}">
+            <fieldset class="margin-bottom-20">
+                <apex:outputText escape="false" value="{!HTMLENCODE(tcText)}"/>
+                <div class="text-center margin-top-20">
+                    <apex:inputCheckbox rendered="{!!tcCheckBox}" value="{!tcCheckBox}" id="terms-checkbox" onchange="chkchkb(this);" style="vertical-align:top;"/>
+                    <apex:inputCheckbox rendered="{!tcCheckBox}" value="{!tcCheckBox}" disabled="{!tcCheckBox}" id="terms-checkbox-checked" style="vertical-align:top;"/>
+                    &nbsp;<label>{!$Label.LBL_AgreeToTerms}</label>
+                </div>
+                <button id="bsbtbtn" class="btn-u pull-right" type="button" style="opacity:{!IF(disabledNext,'0.65','1')};" onclick="completeCurrentStep();btnstatus();return false;">
+                    {!IF(leftSideBar.LastStep,$Label.BTN_Submit,$Label.LBL_Next)}
+                </button>
+                <apex:outputPanel layout="none" rendered="{!disabledNext}">
+                    <script>
+                        $('[id$=bsbtbtn]').attr('disabled','disabled');
+                    </script>
+                </apex:outputPanel>
+                <script>
+                    function chkchkb(el) {
+                        if (el.checked) {
+                            $('[id$=sbtbtn]').css('opacity','1').removeAttr('disabled');
+                        }
+                        else {
+                            $('[id$=sbtbtn]').css('opacity','0.65').attr('disabled','disabled');
+                        }
+                    }
+                </script>
+            </fieldset>
+        </apex:outputPanel>
+        </apex:form>
+        <apex:outputPanel layout="none" rendered="{!stepName == 'interest'}"><fieldset>
+            <div id="accordion-1" class="panel-group acc-v1 margin-top-20">
+                <apex:repeat value="{!interests}" var="ints">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a class="accordion-toggle" href="#{!ints.id}" data-parent="#accordion-1" data-toggle="collapse" aria-expanded="false">
+                                <header>{!ints.name}</header>
+                            </a>
+                        </h4>
+                        </div>
+                        <div id="{!ints.id}" class="panel-collapse collapse sky-form" aria-expanded="false">
+                            <fieldset><div class="row"><div class="col col-8">
+                                <apex:repeat value="{!ints.it}" var="init">
+                                    <apex:outputPanel layout="none" rendered="{!init.checked}">
+                                        <label class="checkbox"><input type="checkbox" name="checkbox" onclick="intersel(this,'{!init.tagId}');" checked="checked"/><i></i>{!init.name}</label>
+                                    </apex:outputPanel>
+                                    <apex:outputPanel layout="none" rendered="{!!init.checked}">
+                                        <label class="checkbox"><input type="checkbox" name="checkbox" onclick="intersel(this,'{!init.tagId}');"/><i></i>{!init.name}</label>
+                                    </apex:outputPanel>
+                                </apex:repeat>
+                            </div></div></fieldset>
+                        </div>
+                    </div>
+                </apex:repeat>
+                <script>
+                    function intersel(inth,tid) {
+                        Visualforce.remoting.Manager.invokeAction(
+                            '{!$RemoteAction.CommunityRegTermsController.toggle}',
+                            tid,
+                            inth.checked,
+                            function(result, event) {}
+                        );
+                    }
+                </script>
+            </div>
+        </fieldset></apex:outputPanel>
+        <apex:outputPanel layout="none" rendered="{!stepName == 'picture'}">
+            <div class="profile-edit tab-pane margin-top-20">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <c:CommunityUserPhoto />
+                    </div>
+                    <!-- <div class="col-sm-8">
+                        <button id="stfos" type="button" class="btn-u btn-u-primary" onclick="uploadps();return false;">{!$Label.BTN_Update}</button>
+                    </div> -->
+                </div>
+            </div>
+        </apex:outputPanel>
+    </div></apex:outputPanel></div>
+    <apex:outputPanel layout="block" styleClass="alert alert-danger fade in" rendered="{!!ISBLANK(errorMessage)}">{!errorMessage}</apex:outputPanel>
 </apex:define>
 </apex:composition>
 </apex:page>

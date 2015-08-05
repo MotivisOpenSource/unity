@@ -2,7 +2,7 @@
 <!--[if IE 8]> <html lang="en" class="ie8"> <![endif]-->
 <!--[if IE 9]> <html lang="en" class="ie9"> <![endif]-->
 <!--[if !IE]><!-->
-<html lang="en"><!--<![endif]-->
+<html lang="en" class="theme--{!$Setup.Community_Template_Settings__c.motivisu__Color_Scheme__c}"><!--<![endif]-->
 	<head>
 		<title>
 			<apex:insert name="title"/>

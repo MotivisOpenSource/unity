@@ -1,33 +1,29 @@
 <apex:page Controller="CommunityObjectController" standardStylesheets="false" showHeader="false" sideBar="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false">
 	<c:CommunityHeadResource />
-	<style type="text/css">
-		.messageText { padding:15px 30px; margin-bottom:20px; border:1px solid #ebccd1; background-color:#f2dede; color:#a94442;}
-		.messageText span { display:none; }
-		table.messageTable { width:100%; }
-		.sky-form .message { display: block; }
-	</style>
 	<apex:variable var="iuniqueid" value="{!LOWER(JSENCODE($CurrentPage.parameters.fieldSetName))}"/>
-	<apex:form styleClass="sky-form">
-		<apex:pageMessages id="pageMessages"/>
-		<header class="text-right">
-			<button id="svbtn" class="btn-u margin-right-5" type="button" onclick="startSubmitAction();return false;">{!$Label.BTN_Save}</button>
-			<button id="cnlbtn" class="btn-u btn-u-default margin-right-5" type="button" onclick="parent.cancelEditLayout{!iuniqueid}(); return false;">{!$Label.BTN_Cancel}</button>
-		</header>
-		<fieldset>
-			<c:CommunityFieldLayout fl="{!flayout}" so="{!so}"/>
-		</fieldset>
-		<apex:outputPanel layout="none" rendered="{!!ISBLANK(TagSection)}">
-			<fieldset><section>
-				<apex:outputLabel value="{!$Label.LBL_Select_Tags}" styleClass="label"/>
-				<c:CommunityTagSelector oId="{!so['Id']}" oType="{!tagSection[0]}" fName="{!tagSection[1]}"/>
-			</section></fieldset>
-		</apex:outputPanel>
-		<footer class="text-right">
-			<button id="svbtn" class="btn-u margin-right-5" type="button" onclick="startSubmitAction();return false;">{!$Label.BTN_Save}</button>
-			<button id="cnlbtn" class="btn-u btn-u-default margin-right-5" type="button" onclick="parent.cancelEditLayout{!iuniqueid}(); return false;">{!$Label.BTN_Cancel}</button>
-		</footer>
-		<apex:actionFunction action="{!saveAction}" name="saveobject" rerender="pageMessages" oncomplete="stopSubmitAction();"/>
-	</apex:form>
+	<div class="CommunityShowEditObject">
+		<apex:form styleClass="sky-form">
+			<apex:pageMessages id="pageMessages"/>
+			<header class="text-right">
+				<button id="svbtn" class="btn-u margin-right-5" type="button" onclick="startSubmitAction();return false;">{!$Label.BTN_Save}</button>
+				<button id="cnlbtn" class="btn-u btn-u-default margin-right-5" type="button" onclick="parent.cancelEditLayout{!iuniqueid}(); return false;">{!$Label.BTN_Cancel}</button>
+			</header>
+			<fieldset>
+				<c:CommunityFieldLayout fl="{!flayout}" so="{!so}"/>
+			</fieldset>
+			<apex:outputPanel layout="none" rendered="{!!ISBLANK(TagSection)}">
+				<fieldset><section>
+					<apex:outputLabel value="{!$Label.LBL_Select_Tags}" styleClass="label"/>
+					<c:CommunityTagSelector oId="{!so['Id']}" oType="{!tagSection[0]}" fName="{!tagSection[1]}"/>
+				</section></fieldset>
+			</apex:outputPanel>
+			<footer class="text-right">
+				<button id="svbtn" class="btn-u margin-right-5" type="button" onclick="startSubmitAction();return false;">{!$Label.BTN_Save}</button>
+				<button id="cnlbtn" class="btn-u btn-u-default margin-right-5" type="button" onclick="parent.cancelEditLayout{!iuniqueid}(); return false;">{!$Label.BTN_Cancel}</button>
+			</footer>
+			<apex:actionFunction action="{!saveAction}" name="saveobject" rerender="pageMessages" oncomplete="stopSubmitAction();"/>
+		</apex:form>
+	</div>
 	<c:CommunityFootResource />
 	<script>
 		var $jm = jQuery.noConflict();

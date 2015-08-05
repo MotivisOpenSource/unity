@@ -25,7 +25,7 @@
     <link rel="stylesheet" href="{!$Resource.assets}/plugins/scrollbar/src/perfect-scrollbar.css"/>
     <link rel="stylesheet" href="{!$Resource.assets}/plugins/owl-carousel/owl-carousel/owl.carousel.css"/>
     <link rel="stylesheet" href="{!$Resource.assets}/plugins/sky-forms/version-2.0.1/css/custom-sky-forms.css"/>
-    <link rel="stylesheet" href="{!$Resource.assets}/css/plugins/cropper.css"/>
+    <!-- <link rel="stylesheet" href="{!$Resource.assets}/css/plugins/cropper.css"/> -->
 
 
     <!-- CSS Page Style -->
@@ -42,7 +42,7 @@
     <link rel="stylesheet" href="{!$Resource.assets}/css/custom.css"/>
 
     <!-- Removed Inline Styles -->
-    <link rel="stylesheet" href="{!$Resource.UITEST}/assets/css/app.styles.css"/>
+    <link rel="stylesheet" href="{!$Resource.assets}/css/app/app.styles.css"/>
     <!-- Themes Styles -->
-    <link rel="stylesheet" href="{!$Resource.UITEST}/assets/css/app.themes.css"/>
+    <link rel="stylesheet" href="{!$Resource.assets}/css/app/app.themes.css"/>
 </apex:component>

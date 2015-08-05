@@ -6,6 +6,7 @@ public with sharing class UnityAdminController {
 	public Boolean crEdit { get { return crEdit == true; } set; }
 	public Boolean csEdit { get { return csEdit == true; } set; }
 	public Boolean ctsEdit { get { return ctsEdit == true; } set; }
+	public String colorSchemeName { get; set; }
 
 	public UnityAdminController() {
 		cr = Community_Registration__c.getOrgDefaults();
@@ -98,9 +99,31 @@ public with sharing class UnityAdminController {
 			if (dfr.getName().endsWith('__c')) {
 				fieldList.add(dfr.getName());
 			}
+			if(dfr.getName().contains('Color_Scheme')){
+				colorSchemeName = dfr.getName();
+			}
 		}
 		fieldList.sort();
 		return fieldList;
+	}
+
+	public List<SelectOption> getColorSchemeItems(){
+		List<SelectOption> options = new List<SelectOption>();
+		options.add(new SelectOption('Green ','Green (default)'));
+		options.add(new SelectOption('Blue','Blue'));
+		options.add(new SelectOption('Orange','Orange'));
+		options.add(new SelectOption('Red','Red'));
+		options.add(new SelectOption('Light','Light'));
+		options.add(new SelectOption('Purple','Purple'));
+		options.add(new SelectOption('Aqua','Aqua'));
+		options.add(new SelectOption('Brown','Brown'));
+		options.add(new SelectOption('Dark-Blue','Dark Blue'));
+		options.add(new SelectOption('Light-Green','Ligth Green'));
+		options.add(new SelectOption('Dark-Red','Dark Red'));
+		options.add(new SelectOption('Teal','Teal'));
+
+		return options;
+
 	}
 
 	public void editCTS() {

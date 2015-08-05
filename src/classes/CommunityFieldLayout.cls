@@ -12,7 +12,6 @@ global with sharing class CommunityFieldLayout {
 			collectedFields.add((isPP && fieldItem.endsWith('__c')) ? (inpp + fieldItem) : fieldItem);
 		}
 		flds = new List<Field>();
-		System.Debug(infs.getFields());
 		for (Schema.FieldSetMember f : infs.getFields()) {
 			Schema.DescribeFieldResult dfr2 = indso.fields.getMap().get(f.getFieldPath()).getDescribe();
 			if (dfr2.isAccessible()) {

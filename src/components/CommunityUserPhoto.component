@@ -13,7 +13,7 @@
 	</style>
 	
 	<!-- JCROP -->
-	<link rel="stylesheet" href="{!$Resource.Jcrop}/Jcrop-master/css/jquery.Jcrop.min.css" type="text/css"/>
+	<link rel="stylesheet" href="{!$Resource.assets}/plugins/jcrop/css/jquery.Jcrop.min.css" type="text/css"/>
 	<!-- Removed Inline Styles -->
  	<!--<link rel="stylesheet" href="{!$Resource.UITEST}/assets/css/app.styles.css" type="text/css"/>-->	
 	<script>	

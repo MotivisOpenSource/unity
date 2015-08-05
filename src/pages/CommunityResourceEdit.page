@@ -1,4 +1,4 @@
-<apex:page standardController="Community_Resource__c" extensions="CommunityResourceController" action="{!initFromEdit}" showHeader="false" sideBar="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false">
+<apex:page standardController="Community_Resource__c" extensions="CommunityResourceController" action="{!initFromEdit}" showHeader="false" sideBar="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false" standardStylesheets="false">
 <apex:composition template="{!$Site.Template}">
 <apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
 <apex:define name="body">
@@ -10,7 +10,6 @@
 	</style>
 	<div class="CommunityResourceEdit" >
 		<apex:form styleClass="sky-form">
-
 			<header>
 				<div class="row">
 					<div class="col-md-6 text-left" style="padding-left:35px;">
@@ -23,7 +22,6 @@
 					</div>
 				</div>
 			</header>
-
 			<apex:pageMessages id="pageMessages"/>
 			<fieldset>
 				<c:CommunityFieldLayout fl="{!rlayout}" so="{!resource}"/>
@@ -42,42 +40,44 @@
 						<i class="fa fa-asterisk color-red" title="required"></i>&nbsp;{!$ObjectType.Community_Resource__c.Fields.Primary_Tag__c.Label}
 					</label>
 					<label class="input">
-						<div class="div-like-input clearfix">
-							<span id="ptcon" class="tags-container clearfix">
-								<apex:outputText value="{!primaryTagHtml}" escape="false"/>
-								<input id="ptin" class="input-inviz" type="text" data-provide="typeahead" autocomplete="off" size="2" style="display:{!IF(ISBLANK(resource.Primary_Tag__c),'block','none')};"></input>
-							</span>
-							<input id="ptag" name="ptag" style="display:none" visibility="hidden" required="required"/>
-							<apex:inputHidden value="{!resource.Primary_Tag__c}" id="ptag"/>
-						</div>
-						<div class="panel-link">
-							<div class="panel-heading" onclick="toggleTagSection(this);">
-								<i id="tagicon" class="fa fa-caret-right"></i>&nbsp;<span>{!$Label.LBL_Select_Prim_Tags}</span>
+						<div class="CommunityTagSelector">
+							<div class="div-like-input clearfix">
+								<span id="ptcon" class="tags-container clearfix">
+									<apex:outputText value="{!primaryTagHtml}" escape="false"/>
+									<input id="ptin" class="input-inviz" type="text" data-provide="typeahead" autocomplete="off" size="2" style="display:{!IF(ISBLANK(resource.Primary_Tag__c),'block','none')};"></input>
+								</span>
+								<input id="ptag" name="ptag" style="display:none" visibility="hidden" required="required"/>
+								<apex:inputHidden value="{!resource.Primary_Tag__c}" id="ptag"/>
 							</div>
-							<div id="tagsectionPrim" class="panel-body" style="display:none;">
-								<div class="panel-group acc-v1" id="accordion-2">
-									<apex:variable value="{!1}" var="rowNumPrim"/>
-									<apex:repeat value="{!AvailablePriTags}" var="themePrim">
-										<div class="panel panel-default">
-											<div class="panel-heading">
-												<h4 class="panel-title">
-													<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#accordion-2" href="#collapsePrim-{!rowNumPrim}" aria-expanded="false">
-														{!themePrim.name}
-													</a>
-												</h4>
-											</div>
-											<div id="collapsePrim-{!rowNumPrim}" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
-												<div class="panel-body">
-													<ul class="list-unstyled blog-tags">
-														<apex:repeat value="{!themePrim.tags}" var="tagPrim">
-															<li><a href="javascript:;" onclick="addPrimTag('{!tagPrim.id}','{!JSENCODE(tagPrim.fullname)}');"><i class="fa fa-tags"></i>&nbsp;{!tagPrim.name}</a></li>
-														</apex:repeat>
-													</ul>
+							<div class="panel-link">
+								<div class="panel-heading" onclick="toggleTagSection(this);">
+									<i id="tagicon" class="fa fa-caret-right"></i>&nbsp;<span>{!$Label.LBL_Select_Prim_Tags}</span>
+								</div>
+								<div id="tagsectionPrim" class="panel-body" style="display:none;">
+									<div class="panel-group acc-v1" id="accordion-2">
+										<apex:variable value="{!1}" var="rowNumPrim"/>
+										<apex:repeat value="{!AvailablePriTags}" var="themePrim">
+											<div class="panel panel-default">
+												<div class="panel-heading">
+													<h4 class="panel-title">
+														<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#accordion-2" href="#collapsePrim-{!rowNumPrim}" aria-expanded="false">
+															{!themePrim.name}
+														</a>
+													</h4>
+												</div>
+												<div id="collapsePrim-{!rowNumPrim}" class="panel-collapse collapse" aria-expanded="false">
+													<div class="panel-body">
+														<ul class="list-unstyled blog-tags">
+															<apex:repeat value="{!themePrim.tags}" var="tagPrim">
+																<li><a href="javascript:;" onclick="addPrimTag('{!tagPrim.id}','{!JSENCODE(tagPrim.fullname)}');"><i class="fa fa-tags"></i>&nbsp;{!tagPrim.name}</a></li>
+															</apex:repeat>
+														</ul>
+													</div>
 												</div>
 											</div>
-										</div>
-										<apex:variable var="rowNumPrim" value="{!rowNumPrim + 1}"/>
-									</apex:repeat>
+											<apex:variable var="rowNumPrim" value="{!rowNumPrim + 1}"/>
+										</apex:repeat>
+									</div>
 								</div>
 							</div>
 						</div>

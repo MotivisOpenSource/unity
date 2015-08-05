@@ -4,33 +4,33 @@
 <apex:define name="body">
 	<apex:form styleClass="sky-form">
 		<header><div class="row">
-			<div class="col-md-6 text-left" style="padding-left:35px;">
+			<div class="col-md-6 text-left padding-left-35">
 				<h2>{!IF(ISNULL(event.Id),$Label.BTN_Create_Event,$Label.BTN_Edit_Event)}</h2>
 			</div>
-			<div class="col-md-6 text-right" style="padding-right:25px;">
+			<div class="col-md-6 text-right padding-right-25">
 				<apex:commandButton action="{!Submit}" value="{!$Label.BTN_Submit}" styleClass="btn-u"/>
 				&nbsp;
 				<apex:outputLink value="{!IF(ISBLANK($CurrentPage.parameters.retURL),$Page.CommunityEventsList,JSENCODE($CurrentPage.parameters.retURL))}" styleClass="btn-u">{!$Label.BTN_Cancel}</apex:outputLink>
 			</div>
 		</div></header>
 		<apex:pageMessages id="pageMessages"/>
-		<fieldset>
-			<c:CommunityFieldLayout fl="{!elayout}" so="{!event}"/>
-		</fieldset>
-		<fieldset>
-			<section>
-				<label class="label">{!$Label.LBL_Event_Group}</label>
-				<label class="input"><apex:input value="{!connectedGroupStr}" list="{!AllGroupsInStringArray}"/></label>
-			</section>
-		</fieldset>
-		<fieldset>
-			<section>
-				<apex:outputLabel value="{!$Label.LBL_Select_Tags}" styleClass="label"/>
-				<label class="input">
-					<c:CommunityTagSelector oId="{!event.Id}" oType="{!$ObjectType.Community_Event_Tag__c.Name}" fName="{!$ObjectType.Community_Event_Tag__c.Fields.Community_Event__c.Name}"/>
-				</label>
-			</section>
-		</fieldset>
+			<fieldset>
+				<c:CommunityFieldLayout fl="{!elayout}" so="{!event}"/>
+			</fieldset>
+			<fieldset>
+				<section>
+					<label class="label">{!$Label.LBL_Event_Group}</label>
+					<label class="input"><apex:input value="{!connectedGroupStr}" list="{!AllGroupsInStringArray}"/></label>
+				</section>
+			</fieldset>
+			<fieldset>
+				<section>
+					<apex:outputLabel value="{!$Label.LBL_Select_Tags}" styleClass="label"/>
+					<label class="input">
+							<c:CommunityTagSelector oId="{!event.Id}" oType="{!$ObjectType.Community_Event_Tag__c.Name}" fName="{!$ObjectType.Community_Event_Tag__c.Fields.Community_Event__c.Name}"/>
+					</label>
+				</section>
+			</fieldset>
 	</apex:form>
 </apex:define>
 </apex:composition>
