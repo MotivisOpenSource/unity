@@ -1,0 +1,89 @@
+<apex:component controller="CommunityHomeNotificationsController">
+	<div class="profile CommunityHomeNotifications">
+        <div class="headline"><h2><i class="fa fa-bell-o"></i> {!$Label.LBL_Notifications}</h2></div>
+		<div id="notif-panel"></div>
+	</div>
+
+	<script id="nPanel" type="text/template">
+		<ul id="scrollbar5" class="list-unstyled contentHolder margin-bottom-20 ps-container">
+			<% _.each(rc, function(n){ %>
+				<li class="notification">
+					<div class="overflow-h">
+						<a href = "<%= n.ParentURL %>" class="notifyClass">
+							<% if(n.Type == 'Message') {%>
+								<i class="<%= n.ClassStyle %>"></i>
+							<% } else { %>
+								<img class="rounded-x" src="<%= n.Image %>" alt=""/>
+							<% } %>
+							
+			            	 <span><strong><%= n.Name%></strong> <%= n.Message%></span>
+			            </a>
+		                 <small><%= n.DateString%></small><br>
+	                </div>  
+	            </li>
+	        <% }); %>
+		</ul>
+		<% if (sizeData > limitSize) {%>
+			<button type="button" class="btn-u btn-u-default btn-u-sm btn-block" onclick = "changeLimit(); return false;">Load More</button>
+		<% } %>
+	</script>
+
+	<script type="text/javascript">
+		
+		$(document).ready(function() {
+			loadNotifications();
+		});
+
+		var sizeData = 0;
+		var limitSize = 10;
+		var notifications;
+
+		function loadNotifications(){
+			Visualforce.remoting.Manager.invokeAction(
+				'{!$RemoteAction.CommunityHomeNotificationsController.notifications}',
+				function(result, event){
+					if(result.split('EMPTY').length > 1){
+						var div = document.createElement('div');
+						div.innerHTML = result;
+						$('#notif-panel').html(result.substring(5, result.length));
+					}else{
+						var div = document.createElement('div');
+						div.innerHTML = result;
+						_.templateSettings.variable = 'rc';
+						var template = _.template($('#nPanel').html());
+						notifications = JSON.parse(div.firstChild.nodeValue);
+						var notificationsCopy = notifications.slice(0,limitSize);
+						//sizeData = notifications.length;
+						$('#notif-panel').prepend(template(notificationsCopy));
+
+						jQuery(document).ready(function ($) {
+							"use strict";
+							$('.contentHolder').perfectScrollbar();
+						});
+					}	
+				}
+			);
+		}
+
+		function changeLimit(){
+			limitSize += 10;
+			_.templateSettings.variable = 'rc';
+			var template = _.template($('#nPanel').html());
+			var notificationsCopy = notifications.slice(0,limitSize);
+			$('#notif-panel').empty();
+			$('#notif-panel').prepend(template(notificationsCopy));
+
+			jQuery(document).ready(function ($) {
+				"use strict";
+				$('.contentHolder').perfectScrollbar();
+			});
+
+		}
+
+		
+
+	</script>
+
+
+
+</apex:component>

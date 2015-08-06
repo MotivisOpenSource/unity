@@ -1,0 +1,75 @@
+<apex:page showHeader="false" sidebar="false" standardStylesheets="false" docType="html-5.0" applyBodyTag="false"	applyHtmlTag="false">
+	<apex:composition template="{!$Site.Template}">
+		<apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
+		<apex:define name="body">
+			<!--=== Search Block ===-->
+			<div class="search-block parallaxBg content CommunityDiscover">
+				<div class="container">
+					<div class="col-md-6 col-md-offset-3">
+						<h1><apex:outputText value="{!$Label.LBL_DiscoverTitle}" escape="false"/></h1>
+
+						<div class="input-group">
+							<input id="mainsearch" type="text" class="form-control" placeholder="{!$Label.LBL_Search_Placeholder}"/>
+							<span class="input-group-btn">
+								<button class="btn-u btn-u-lg" type="button" onclick="performSearch();"><i class="fa fa-search"></i></button>
+							</span>
+							<script>
+								$(document).on('keyup', '#mainsearch', function(event) {
+									event.preventDefault();
+									if (event.keyCode == 13) {
+										performSearch();
+									}
+								});
+								function performSearch() {
+									if ($('#mainsearch').val().length > 1) {
+										window.open('{!$Page.CommunitySearch}?s=' + encodeURIComponent($('#mainsearch').val()), '_self');
+									}
+									return false;
+								}
+							</script>
+						</div>
+						<a class="hp tooltips s-tip" title="{!$Label.LBL_Search_Help_Tooltip}" data-placement="bottom" data-html="true" data-toggle="tooltip" href="javascript:;">
+							{!$Label.LBL_Need_Search}
+						</a>
+					</div>
+				</div>
+			</div><!--/container-->
+			<!--=== End Search Block ===-->
+
+			<!--=== Content ===-->
+			<div class="container content paddingCategories">
+				<!-- Top Categories -->
+				<c:CommunityTopCategories />
+				<!-- End Top Categories -->
+			</div><!--/container-->
+			<!--=== End Content ===-->
+
+			<!--=== Parallax Counter ===--
+			<div class="parallax-counter-v2 parallaxBg1">
+				<div class="container">
+					<ul class="row list-row">
+						<li class="col-md-4 col-sm-6 col-xs-12 md-margin-bottom-30">
+							<div class="counters rounded">
+								<span class="counter">102</span>
+								<h4>Clubs</h4>
+							</div>
+						</li>
+						<li class="col-md-4 col-sm-6 col-xs-12 md-margin-bottom-30">
+							<div class="counters rounded">
+								<span class="counter">24583</span>
+								<h4>Active Students</h4>
+							</div>
+						</li>
+						<li class="col-md-4 col-sm-6 col-xs-12">
+							<div class="counters rounded">
+								<span class="counter">102</span>
+								<h4>Days Until Graduation</h4>
+							</div>
+						</li>
+					</ul>
+				</div>
+			</div>
+			<!--=== End Parallax Counter ===-->
+		</apex:define>
+	</apex:composition>
+</apex:page>

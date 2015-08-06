@@ -1,0 +1,114 @@
+<apex:component layout="none">
+	<apex:attribute name="fl" description="" type="CommunityFieldLayout" required="true"/>
+	<apex:attribute name="so" description="" type="SObject" required="true"/>
+	<apex:variable var="index" value="{!0}"/>
+	<apex:repeat value="{!fl.flds}" var="fld">
+		<section>
+
+			<label class="label">
+				<apex:outputPanel layout="none" rendered="{!fld.tyrion}">
+					<i class="fa fa-asterisk color-red" title="required"></i>&nbsp;
+				</apex:outputPanel>
+				{!fld.label}
+			</label>
+
+			<!-- INPUT -->
+			<apex:outputLabel styleClass="input" rendered="{!fld.ftype == 'input'}">
+				<apex:inputField id="inputId" value="{!so[fld.name]}" required="{!fld.tyrion}"/>
+			</apex:outputLabel>
+
+			<!-- EMAIL -->
+			<apex:outputLabel styleClass="input" rendered="{!fld.ftype == 'email'}">
+				<apex:inputField id="emailId" value="{!so[fld.name]}" required="{!fld.tyrion}"/>
+			</apex:outputLabel>
+
+			<!-- URL -->
+			<apex:outputLabel styleClass="input" rendered="{!fld.ftype == 'url'}">
+				<apex:inputField id="urlId" value="{!so[fld.name]}" required="{!fld.tyrion}"/>
+			</apex:outputLabel>
+
+			<!-- TEXTAREA -->
+			<apex:outputLabel styleClass="textarea" rendered="{!fld.ftype == 'textarea'}">
+				<apex:inputField value="{!so[fld.name]}" required="{!fld.tyrion}"/>
+			</apex:outputLabel>
+
+			<!-- CHECKBOX -->
+			<apex:outputLabel styleClass="checkbox" rendered="{!fld.ftype == 'checkbox'}">
+				<apex:inputCheckbox value="{!so[fld.name]}" required="{!fld.tyrion}"/><i></i>
+			</apex:outputLabel>
+
+			<!-- PICKLIST -->
+			<apex:outputLabel styleClass="select" rendered="{!fld.ftype == 'picklist'}">
+				<apex:inputField value="{!so[fld.name]}" required="{!fld.tyrion}"/>
+				<i></i>
+			</apex:outputLabel>
+
+			<!-- MULTIPICKLIST -->
+			<apex:outputPanel layout="none" rendered="{!fld.ftype == 'multipicklist'}">
+				<apex:inputField id="msfld" value="{!so[fld.name]}" required="{!fld.tyrion}" styleClass="form-control"/>
+				<i></i>
+			</apex:outputPanel>
+
+			<!-- DATE -->
+			<apex:outputLabel styleClass="input" rendered="{!fld.ftype == 'date'}">
+				<apex:inputField value="{!so[fld.name]}" required="{!fld.tyrion}" styleClass="cs-date"/>
+			</apex:outputLabel>
+
+			<!-- DATETIME -->
+			<apex:outputLabel styleClass="input" rendered="{!fld.ftype == 'datetime'}">
+				<apex:inputField value="{!so[fld.name]}" required="{!fld.tyrion}" styleClass="cs-datetime"/>
+			</apex:outputLabel>
+
+			<!-- INTEGER -->
+			<apex:outputLabel styleClass="input" rendered="{!fld.ftype == 'integer'}">
+				<apex:inputField id="integerId" value="{!so[fld.name]}"  required="{!fld.tyrion}"/>
+			</apex:outputLabel>
+
+			<!-- DOUBLE -->
+			<apex:outputLabel styleClass="input" rendered="{!fld.ftype == 'double'}">
+				<apex:inputField id="doubleId" value="{!so[fld.name]}"  required="{!fld.tyrion}"/><!-- !!!!!!!!!!!!!! -->
+			</apex:outputLabel>
+
+			<!-- REFERENCE -->
+			<apex:outputLabel styleClass="input reflbl{!index}" rendered="{!fld.ftype == 'reference'}">
+				<i id="text{!index}" class="icon-append fa fa-search"></i>
+				<apex:inputField value="{!so[fld.name]}" required="{!fld.tyrion}"/>
+				<script>
+					jQuery('.reflbl{!index} #text{!index}.icon-append').detach().appendTo('.reflbl{!index} a');
+					jQuery('.reflbl{!index} a').detach().prependTo('.reflbl{!index}').find('img').remove();
+				</script>
+				<apex:variable var="index" value="{!index + 1}"/>
+			</apex:outputLabel>
+
+			<!-- LABEL (other, not updateable) -->
+			<apex:outputLabel styleClass="label" rendered="{!fld.ftype == 'label'}">
+				<apex:outputField value="{!so[fld.name]}"/>
+			</apex:outputLabel>
+		</section>
+	</apex:repeat>
+	<script>
+	//datetime
+		if(jQuery('.cs-datetime')) {
+			var currentdate = new Date(); 
+			//var datetime = (currentdate.getMonth()+1) + '/' + currentdate.getDate() + '/' + currentdate.getFullYear() + ' ' + currentdate.getHours() + ":"  + currentdate.getMinutes();
+			jQuery('.cs-datetime').datetimepicker({
+				//minDate:datetime,
+				format:'m/d/Y h:i A',
+				formatTime:'h:i A',
+				formatDate:'m/d/Y',
+				step:30
+			});
+		}
+		//date
+		if(jQuery('.cs-date')) {
+			jQuery('.cs-date').datetimepicker({
+				timepicker:false,
+				format:'m/d/Y',
+				formatDate:'m/d/Y',
+			});
+		}
+		//multipicklist
+		jQuery('select[id$=msfld]').show();
+		jQuery('.multiSelectPicklistTable').hide();
+	</script>
+</apex:component>

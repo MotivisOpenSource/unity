@@ -1,0 +1,81 @@
+<apex:component >
+	<apex:attribute name="so" type="SObject" required="true" description="sobject with fields to display"/>
+	<apex:attribute name="fsc" type="Schema.FieldSet" required="true" description="field set"/>
+	<apex:attribute name="efsc" type="String" required="false" description="edit field set name (optional)"/>
+	<apex:attribute name="tn" type="String" required="false" description="tag object name"/>
+	<apex:attribute name="tfn" type="String" required="false" description="reference to parent field in tag object name"/>
+	<apex:attribute name="tl" type="String" required="false" description="section title"/>
+	<apex:attribute name="mdl" type="Boolean" required="false" default="false" description="display as modal"/>
+	<apex:attribute name="edt" type="Boolean" required="false" default="false" description="is editable"/>
+	<apex:attribute name="son" type="String" required="false" description="name of the object"/>
+
+	<apex:variable var="uniqueid" value="{!LOWER(IF(ISBLANK(efsc),fsc.Name,efsc))}"/>
+	<apex:outputPanel layout="none" rendered="{!mdl}">
+		<button class="btn-u margin-bottom-10" data-toggle="modal" title="click here" data-target="#{!uniqueid}aboutomodal">
+			<i class="fa fa-question-circle"></i>&nbsp;{!$Label.LBL_about_this_group}
+		</button>
+		<div id="{!uniqueid}aboutomodal" class="modal fadeb" tabindex="-1" role="dialog" aria-labelledby="label{!uniqueid}aboutomodal" aria-hidden="true" >
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button aria-hidden="true" data-dismiss="modal" class="close" type="button">&times;</button>
+						<h4 id="label{!uniqueid}aboutomodal" class="modal-title">
+							{!tl}
+							<span id="action{!uniqueid}" style="display:none;">&nbsp;<i class="fa fa-spinner fa-pulse"></i></span>
+						</h4>
+					</div>
+					<div class="modal-body">
+						<apex:outputPanel layout="none" rendered="{!edt}">
+							<button id="btnupme{!uniqueid}" class="btn-u pull-right margin-right-5" type="button" onclick="makeEditLayout{!uniqueid}(); return false;">{!$Label.BTN_Edit}</button>
+						</apex:outputPanel>
+					</div>
+				</div>
+			</div>
+		</div>
+	</apex:outputPanel>
+
+	<apex:outputPanel layout="block" styleClass="row margin-bottom-10" rendered="{!!mdl}">
+		<div class="col-md-8">
+			<h2 class="heading-md">
+				{!tl}
+				<span id="action{!uniqueid}" style="display:none;">&nbsp;<i class="fa fa-spinner fa-pulse"></i></span>
+			</h2>
+		</div>
+		<apex:outputPanel layout="block" styleClass="col-md-4 text-right" rendered="{!edt}">
+			<button id="btnupme{!uniqueid}" class="btn-u btn-u-xs margin-right-5" type="button" onclick="makeEditLayout{!uniqueid}(); return false;">{!$Label.BTN_Edit}</button>
+		</apex:outputPanel>
+	</apex:outputPanel>
+	<span id="{!uniqueid}fieldsarea" style="display:none;">
+		<div class="sky-form">
+			<dl class="dl-horizontal">
+				<apex:repeat value="{!fsc.fields}" var="fs">
+					<apex:outputPanel layout="none" rendered="{!ISBLANK(son) || $ObjectType[son].fields[fs.fieldPath].Accessible}">
+						<dt class="margin-bottom-10"><strong>{!fs.label}</strong></dt>
+						<dd><apex:outputField value="{!so[fs.fieldPath]}"/></dd>
+					</apex:outputPanel>
+				</apex:repeat>
+			</dl>
+		</div>
+		<c:CommunityTagDisplay oId="{!so['Id']}" oType="{!tn}" fName="{!tfn}" rendered="{!!ISNULL(tn) && !ISNULL(tfn)}" sl="true"/>
+	</span>
+	<script>
+		$('#{!uniqueid}aboutomodal').length > 0 ? $('#{!uniqueid}fieldsarea').detach().appendTo('#{!uniqueid}aboutomodal .modal-body').show() : $('#{!uniqueid}fieldsarea').show();
+	</script>
+	<apex:outputPanel layout="none" rendered="{!edt}"><script>
+		function makeEditLayout{!uniqueid}() {
+			if ($('#meframe{!uniqueid}').length == 0) {
+				$('#{!uniqueid}fieldsarea').hide();
+				$('[id^=btnupme]').hide();
+				var itxt = '<iframe id="meframe{!uniqueid}" frameborder="0" src="{!$Page.CommunityShowEditObject}?objectId={!so["Id"]}';
+				itxt += '&fieldSetName={!IF(ISBLANK(efsc),fsc.Name,efsc)}&objectName={!fsc.SObjectType}&tn={!tn}&tfn={!tfn}" width="100%" height="auto"/>';
+				$('#{!uniqueid}fieldsarea').before(itxt);
+				$('#action{!uniqueid}').show();
+			}
+		}
+		function cancelEditLayout{!uniqueid}() {
+			$('#meframe{!uniqueid}').remove();
+			$('#{!uniqueid}fieldsarea').show();
+			$('[id^=btnupme]').show();
+		}
+	</script></apex:outputPanel>
+</apex:component>

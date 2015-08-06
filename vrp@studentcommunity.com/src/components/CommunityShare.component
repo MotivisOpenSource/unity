@@ -1,0 +1,241 @@
+<apex:component controller="CommunityShareController" allowDml="true">
+	<apex:attribute name="sO" type="SObject" assignTo="{!sobj}" required="true" description="Parent Object" />
+
+	<button id="shareButton" class="btn-u" data-toggle="modal" data-target="#shareModal" title="{!$Label.BTN_Rechat}" onclick="loadGroupSuggestions();return false;">{!$Label.BTN_Rechat}</button>
+
+	<div class="modal fade in CommunityShare" id="shareModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false" style="display:none;">
+		<!--<i class="fa fa-spinner fa-pulse m-status"></i>-->
+		<div id="shareModalDialog" class="modal-dialog">
+			<div class="modal-content text-align-left">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+					<h4 class="modal-title" id="myModalLabel">{!$Label.BTN_Rechat}</h4>
+				</div>
+				<div class="modal-body">
+					<apex:outputPanel id="messageArea">
+						<apex:outputPanel id="messageAreaIn" layout="block" styleClass="alert alert-danger fade in" rendered="{!hasMessage}">
+							<strong>Oh snap!</strong>&nbsp;{!message}
+						</apex:outputPanel>
+					</apex:outputPanel>
+					<div action="" class="sky-form">
+						<fieldset>
+							<section>
+								<apex:outputLabel value="{!$Label.LBL_Share_Link_Url}"/>
+								<label class="input">
+									<apex:inputText value="{!shareLinkUrl}" disabled="true"/>
+								</label>
+							</section>
+							<section>
+								<apex:outputLabel value="{!$Label.LBL_Share_Link_Name}"/>
+								<label class="input">
+									<apex:inputText id="linkName" value="{!shareLinkName}" disabled="true"/>
+								</label>
+							</section>
+							<section>
+								<label class="textarea">
+									<apex:inputTextarea id="commentArea" value="{!shareComment}" styleClass="full-width"/>
+								</label>
+							</section>
+							<section id = "selectedGroup">
+								<apex:outputLabel value="{!$Label.LBL_Share_To_A_Group}"/>
+								<div class="div-like-input clearfix">
+									<div id="groupsContainer" class="groups-container clearfix">
+										<input id="groupsInput" class="input-inviz" type="text"  autocomplete="off" size="2"></input>
+									</div>
+									<input id="groups" name="groups" style="display:none" visibility="hidden"/>
+								</div>
+							</section>
+							<section>
+								<apex:commandLink value="Add Groups" onclick="getAvailableGroups(false); return false;" styleClass="addGroups"/>
+							</section>
+							<section>
+								<apex:inputCheckbox id="shareOnProfile" title="{!$Label.LBL_Share_on_Profile}"/>
+								&nbsp;<apex:outputLabel for="shareOnProfile" value="{!$Label.LBL_Share_on_Profile}"/>
+							</section>
+						</fieldset>
+					</div>
+					<apex:outputPanel id="availGroupsPanel" layout="Block">
+						<apex:inputHidden id="availGroupsOut" value="{!availGroups}" />
+						<div class="panel-group acc-v1" id="accordion-1">
+							
+								<div class="panel-body">
+									<ul class="list-unstyled blog-tags">
+										<apex:repeat value="{!AvailableGroupsControls}" var="group">
+											<li><a href="javascript:;" onclick="addtti('{!group.Chatter_Group_ID__c}','{!JSENCODE(group.name)}');"><i class="fa fa-users"></i>&nbsp;{!group.name}</a>													
+											</li>
+										</apex:repeat>
+									</ul>
+								</div>
+							<br/><apex:commandButton id="doneBtn" value="{!$Label.LBL_Done}" onclick="getAvailableGroups(true); return false;" styleClass="btn-u btn-u-primary"/>
+						</div>
+					</apex:outputPanel>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn-u btn-u-default margin-right-10" data-dismiss="modal">{!$label.BTN_Cancel}</button>
+					<apex:commandButton id="shBtn"  value="{!$Label.BTN_Share}" onclick="shareForGroups(); return false;" styleClass="btn-u btn-u-primary"/>
+				</div>
+			</div>
+		</div>
+	</div>
+	<apex:actionFunction action="{!availableGroupsProcess}" name="availableGroupsProcess" rerender="availGroupsPanel"/>
+	<script>
+
+		var searchGroups = _.debounce(function(query, process) {
+			Visualforce.remoting.Manager.invokeAction(
+				'{!$RemoteAction.CommunityShareController.getGroupsSelector}',
+				query,
+				function(result, event) {
+					if(result == null) return;
+					var div = document.createElement('div');
+					div.innerHTML = result;
+					var gdata = JSON.parse(div.firstChild.nodeValue);
+					groups = [];
+					groups_map = [];
+					_.each(gdata, function (group, ix, list) {
+						groups.push(group.name);
+						groups_map.push(group);
+					});
+					process(groups);
+				}
+			);
+		}, 300);
+
+		jQuery(document).ready(function() {
+			jQuery("[id $= 'availGroupsPanel']").hide();
+			jQuery('#groupsInput').typeahead({
+				source:function (query, process) {
+					searchGroups(query, process);
+				},
+				updater: function(item) {
+					_.each(groups_map, function (group, ix, list) {
+						if ((group.name) == item) {
+							addtti(group.id,item);
+						}
+					});
+					return '';
+				}
+			});
+
+
+		});
+
+		function addtti(tid,fn) {
+			if (jQuery('span[id='+tid+']').length == 0) {
+				var span = '<span id="'+tid+'" class="item guestItem"><span>'+fn+'</span><a href="javascript:void(0);" onclick="removeGroup(\''+tid+'\')" class="remove"><img src="/s.gif"></a></span>';
+				jQuery('#groupsInput').before(span);
+				jQuery('#groups').val(jQuery('#groups').val() + tid + ',');
+				jQuery('[id$=sbtbtn]').css('opacity','1').removeAttr('disabled');
+			}
+			groupsForShare();
+		}
+
+		function removeGroup(inp) {
+			jQuery('#groupsContainer #'+inp).remove();
+			jQuery('#groups').val(jQuery('#groups').val().replace(inp+',' ,''));
+			if (jQuery('#sectionnote').length > 0) {
+				jQuery('#sectionnote').remove();
+				jQuery('[id$=sbtbtn]').css('opacity','1').removeAttr('disabled');
+			}
+			if (jQuery('#groupsContainer span.item').length == 0) {
+				jQuery('[id$=sbtbtn]').css('opacity','0.65').attr('disabled','disabled');
+			}
+		}
+
+		function groupsForShare(){
+			var groups = jQuery("div.groups-container span.item");
+			var groupsSet = [];
+			var groupsIds = "";
+			_.each(groups, function(item){
+				groupsSet.push(item.id);
+			})
+			groupsIds = groupsSet.join();
+			return groupsIds;
+		}
+
+		function shareForGroups(){
+			var groupsIds = groupsForShare();
+			var shareComment = jQuery("[id *= 'commentArea']").val();
+			var sobjId = window.location.href.split("id=")[1];
+			var linkName = jQuery("input[id *='linkName']").val();
+			var shareOnProfile = jQuery("input[id $='shareOnProfile']").is(':checked');
+			console.log(jQuery("input[id $='shareOnProfile']"));
+			Visualforce.remoting.Manager.invokeAction(
+				'{!$RemoteAction.CommunityShareController.shareForGroups}',
+				groupsIds,
+				shareComment,
+				linkName,
+				sobjId,
+				shareOnProfile,
+				function(result, event) {
+					if(result.split('ERR').length > 1){
+						var div = document.createElement('div');
+						div.innerHTML = result;
+						jQuery('[id *= "messageArea"]').html('<div id="messageAreaIn" layout="block" class="alert alert-danger fade in"><strong>Error!</strong> ' + result.substring(3, result.length)+'</div>');
+						jQuery('[id *= "messageArea"]').show();
+					}else{
+						jQuery('#shareModalDialog').hide();
+						jQuery('#shareModal').modal('hide');
+					}
+				}
+			);
+		}
+
+		function getAvailableGroups(bool){
+			var a = '{!availGroups}';
+			if(jQuery("[id $= 'availGroupsOut']").val() == "false"){
+				availableGroupsProcess();
+			}
+			if(bool == false){
+				jQuery("[id $= 'availGroupsPanel']").show();
+				_.each(jQuery(".sky-form section"),function(item){
+					if(item.id == "") {
+						item.style.display = "none";
+					}
+				});
+				jQuery(".modal-footer").hide();
+			}else {
+				jQuery("[id $= 'availGroupsPanel']").hide();
+				_.each(jQuery(".sky-form section"),function(item){
+					item.style.display = "block";
+				});
+				jQuery(".modal-footer").show();
+			}
+		}
+
+		function toggleFunc(tag){
+			var tagId = tag.id.toString();
+			tagId = tagId.split("_")[1];
+			var grId = "#gr_"+tagId;
+			jQuery(grId).toggle();
+		}
+		
+		jQuery("[id$=commentArea]").attr('placeholder','{!$Label.LBL_Link_InputBox}');
+		jQuery("[id$=inGroup]").attr('list','list');
+
+		function completeShare() {
+			if (jQuery("[id$=messageAreaIn]").length > 0) {
+				jQuery('#shareModalDialog').show();
+			}
+			else {
+				jQuery('#shareModal').modal('hide');
+			}
+		}
+
+		function loadGroupSuggestions() {
+			if (jQuery('#list').children().length == 0) {
+				Visualforce.remoting.Manager.invokeAction(
+					'{!$RemoteAction.CommunityShareController.getGroups}',
+					'',
+					function(result, event) {
+						var div = document.createElement('div');
+						div.innerHTML = result;
+						jQuery('#list').html(div.firstChild.nodeValue);
+					}
+				);
+			}
+			jQuery('#shareModalDialog').show();
+			jQuery("[id$=messageAreaIn]").remove();
+			jQuery("[id$=inGroup]").val('');
+		}
+	</script>
+</apex:component>

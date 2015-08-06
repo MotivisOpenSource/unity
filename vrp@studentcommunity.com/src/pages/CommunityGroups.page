@@ -1,0 +1,194 @@
+<apex:page controller="CommunityGroupsController" showHeader="false" sideBar="false" standardStylesheets="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false">
+<apex:composition template="{!$Site.Template}">
+<apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
+<apex:define name="body">
+	<div class="profile CommunityGroups" ng-app="GroupsApp" ng-controller="GroupsController">
+		<div class="container content"><div class="row">
+			<!--LEFT-->
+			<div class="col-md-3 md-margin-bottom-40">
+				<c:CommunityUserPhoto />
+				<c:CommunityFeedNavigation pn="5"/>
+			</div>
+			<!--LEFT-->
+			<!--MIDDLE-->
+			<div class="col-md-9">
+				<div class="profile-body margin-bottom-20">
+					<div class="row margin-bottom-20">
+						<div class="col-md-6 ">
+							<apex:form ><div class="input-group">
+								<apex:inputText id="gsid" value="{!searchQuery}" html-placeholder="{!$Label.LBL_SearchByName}" onkeyup="sgsa(this);" styleClass="form-control"/>
+								<span class="input-group-btn">
+									<button id="quickSearchButton" class="btn-u">
+										<apex:actionStatus id="searchLoad">
+											<apex:facet name="start">
+												<i class="fa fa-spinner fa-pulse"></i>
+											</apex:facet>
+											<apex:facet name="stop">
+												<i class="fa fa-search"></i>
+											</apex:facet>
+										</apex:actionStatus>
+									</button>
+								</span>
+								<apex:actionFunction name="searchaction" rerender="hdnrrarea,snmbtn" status="searchLoad" oncomplete="preparesearch();">
+									<apex:param name="sf" assignTo="{!startFrom}" value=""/>
+								</apex:actionFunction>
+								<script>
+									$('[id$=gsid]').keypress(function(event){
+										if (event.keyCode == 10 || event.keyCode == 13) {
+											event.preventDefault();
+										}
+									});
+									var sgsa = _.debounce(function(inthis) {
+										if (inthis.value.trim().length != 1) {
+											searchaction(0);
+										}
+									}, 500);
+								</script>
+							</div></apex:form>
+						</div>
+						<apex:outputPanel layout="block" styleClass="col-md-6" rendered="{!ShowCreateGroupBtn}">
+							<a href="{!$Page.CommunityGroupCreate}" class="btn-u">{!$Label.BTN_Create_Group}</a>
+						</apex:outputPanel>
+					</div>
+					<div class="tab-v1">
+						<ul class="nav nav-tabs">
+							<li class="{!IF(currentFilter=='all_groups', 'active', '')}"><a  href="{!$Page.CommunityGroups}?f=all_groups">{!$Label.LBL_AllGroups}</a></li>
+							<li class="{!IF(currentFilter=='my_groups', 'active', '')}"><a href="{!$Page.CommunityGroups}?f=my_groups" >{!$Label.LBL_MyGroups}</a></li>
+							<li class="{!IF(currentFilter=='recommended_groups', 'active', '')}"><a href="{!$Page.CommunityGroups}?f=recommended_groups">{!$Label.LBL_RecommendedGroups}</a></li>
+						</ul>
+						<div class="tab-content">
+							<div class="tab-pane active" id="groups">
+								<div class="table-search-v2">
+									<apex:outputPanel id="snmbtn">
+										<apex:outputPanel layout="block" rendered="{!Groups.hasMore}" styleClass="row">
+											<button id="showMore" class="btn-u btn-u-default btn-block conversation_nav" onclick="makeshm({!startFrom + limitSize}); return false;">
+												<apex:actionStatus id="shmLoad">
+													<apex:facet name="start">
+														<i class="fa fa-spinner fa-pulse"></i>
+													</apex:facet>
+													<apex:facet name="stop">
+														{!$Label.LBL_ShowMore}
+													</apex:facet>
+												</apex:actionStatus>
+											</button>
+										</apex:outputPanel>
+										<apex:outputPanel layout="block" styleClass="alert alert-warning" rendered="{!Groups.totalRecords == 0}">
+											<i class="fa fa-exclamation-triangle"></i>&nbsp;&nbsp;{!$Label.LBL_NoGroupsFound}
+										</apex:outputPanel>
+									</apex:outputPanel>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!--MIDDLE-->
+		</div></div>
+	</div>
+	<apex:form >
+		<apex:actionFunction name="showmoreaction" rerender="hdnrrarea,snmbtn" status="shmLoad" oncomplete="appendGroups();">
+			<apex:param name="sf" assignTo="{!startFrom}" value=""/>
+		</apex:actionFunction>
+	</apex:form>
+	<apex:outputPanel layout="block" id="hdnrrarea" style="display:none">
+		<apex:repeat value="{!Groups.Groups}" var="g">
+			<div class="col-sm-6 sm-margin-bottom-20">
+				<div class="profile-blog">
+					<img class="rounded-x" src="{!g.GroupPhotoUrl}" alt="" />
+					<div class="name-location">
+						<strong><a href="{!$Page.CommunityGroupDetailPage}?gr={!g.GroupId}">{!g.GroupName}</a></strong>
+						<span><i class="fa fa-map-marker"></i>{!g.GroupLastActivityDateFormatted}</span>
+					</div>
+					<div class="clearfix margin-bottom-20"></div>
+					<p>{!g.GroupDescription}</p>
+					<hr />
+					<ul id="gr{!g.GroupId}" class="list-inline share-list" >
+						<li><i class="fa fa-group"></i><span name="folc">{!g.GroupMembersCount}</span>&nbsp;{!$Label.LBL_Followers}</li>
+						<apex:outputPanel layout="none" rendered="{!g.CurrentMemberRole == 'Owner'}">
+							<li class="gr-plus"><i class="fa fa-star"></i>{!$Label.LBL_Owner}</li>
+						</apex:outputPanel>
+						<apex:outputPanel layout="none" rendered="{!g.CurrentMemberRole == 'Standard'}">
+							<li class="gr-plus"><i class="fa fa-check-circle"></i><a href="javascript:;" onclick="chckabtn('2','{!g.GroupId}');">{!$Label.LBL_Member}</a></li>
+						</apex:outputPanel>
+						<apex:outputPanel layout="none" rendered="{!g.CurrentMemberRole == 'Admin'}">
+							<li class="gr-plus"><i class="fa fa-star-half-o"></i><a href="javascript:;" onclick="chckabtn('2','{!g.GroupId}');">{!$Label.LBL_Manager}</a></li>
+						</apex:outputPanel>
+						<apex:outputPanel layout="none" rendered="{!g.CurrentMemberRole == 'NotAMember' && g.NotAMemberStatus == 'Join'}">
+							<li class="bl-plus"><i class="fa fa-plus-circle"></i><a href="javascript:;" onclick="chckabtn('1','{!g.GroupId}');">{!$Label.BTN_Join}</a></li>
+						</apex:outputPanel>
+						<apex:outputPanel layout="none" rendered="{!g.CurrentMemberRole == 'NotAMember' && g.NotAMemberStatus == 'Requested'}">
+							<li class="or-plus"><i class="fa fa-times-circle"></i><a href="javascript:;" onclick="chckabtn('6','{!g.GroupId}');">{!$Label.LBL_Requested}</a></li>
+						</apex:outputPanel>
+						<apex:outputPanel layout="none" rendered="{!g.CurrentMemberRole == 'NotAMember' && g.NotAMemberStatus == 'RequestToJoin'}">
+							<li class="bl-plus"><i class="fa fa-minus-circle"></i><a href="javascript:;" onclick="chckabtn('5','{!g.GroupId}');">{!$Label.LBL_RequestToJoin}</a></li>
+						</apex:outputPanel>
+					</ul>
+				</div>
+			</div>
+		</apex:repeat>
+	</apex:outputPanel>
+	<script>
+		var showMoreBusy = true;
+		appendGroups();
+		function chckabtn(a,gid) {
+			if (a != '0') {
+				var fa = true;
+				if (a == '2' || a == '4') {
+					fa = confirm('{!$Label.LBL_LeaveGroup_Message}');
+				}
+				else if (a == '6') {
+					fa = confirm('{!$Label.LBL_CancelRequest_Message}');
+				}
+				if (fa) {
+					$('#gr' + gid + ' [class$=plus] i').attr('class','fa fa-spinner fa-pulse');
+					Visualforce.remoting.Manager.invokeAction(
+						'{!$RemoteAction.CommunityGroupsController.membershipGroup}',
+						$('#gr' + gid + ' [name=folc]').text(),
+						gid,
+						a,
+						function(result, event) {
+							var ihtml = '<li><i class="fa fa-group"></i><span name="folc">'+result.memberCount+'</span>&nbsp;{!$Label.LBL_Followers}</li>';
+							ihtml += '<li class="'+result.lnkStyle+'"><i class="fa '+result.lnkIcon+'"></i><a href="javascript:;"';
+							ihtml += ' onclick="chckabtn(\''+result.action+'\',\''+result.groupId+'\');">'+result.btnLabel+'</a></li>';
+							$('#gr' + gid).html(ihtml);
+						}
+					);
+				}
+			}
+		}
+		function appendGroups() {
+			var fg = $('.table-search-v2 .row.margin-bottom-20').last();
+			var activerow;
+			if (fg.length > 0 && fg.last().find('.col-sm-6').length < 2) {
+				activerow = fg.last();
+			}
+			$('[id$=hdnrrarea] .col-sm-6').each(function(index,el) {
+				if (activerow == undefined || activerow.find('.col-sm-6').length > 1) {
+					activerow = $('<div/>', { class:'row margin-bottom-20' }).insertBefore('[id$=snmbtn]');
+				}
+				$(el).clone().appendTo(activerow);
+			});
+			$('[id$=hdnrrarea] .col-sm-6').remove();
+			showMoreBusy = false;
+		}
+		function preparesearch() {
+			$('.table-search-v2 .row.margin-bottom-20').remove();
+			appendGroups();
+		}
+		function makeshm(v) {
+			if (!showMoreBusy) {
+				showMoreBusy = true;
+				showmoreaction(v);
+			}
+		}
+		$(document).ready(function(){
+			$(window).scroll(function() {
+				if($(window).scrollTop() == $(document).height() - $(window).height()) {
+					$('#showMore').click();
+				}
+			});
+		});
+	</script>
+</apex:define>
+</apex:composition>
+</apex:page>

@@ -1,0 +1,104 @@
+<apex:page controller="CommunityEventController" action="{!initFromList}" showHeader="false" sideBar="false" standardStylesheets="true" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false">
+<apex:composition template="{!$Site.Template}">
+<apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
+<apex:define name="body">
+	<div class="breadcrumbs margin-bottom-10">
+		<div class="container">
+			<h1 class="pull-left">{!$ObjectType.Community_Events__c.labelPlural}</h1>
+			<ul class="pull-right breadcrumb">
+				<li class="active">{!$Label.LBL_Events}</li>
+			</ul>
+		</div>
+	</div>
+	<apex:outputPanel layout="block" styleClass="profile" id="form" rendered="{!$ObjectType.Community_Events__c.accessible}">
+		<div class="container content">
+			<div class="row margin-bottom-10">
+				<div class="col-md-6 text-left">
+					<h4>{!$Label.LBL_Current_Events_Title}</h4><br/>
+					<h6>{!TodayStr}</h6>
+				</div>
+				<div class="col-md-6 text-right">
+					<apex:form >
+						<apex:outputLink value="{!urlForNewEvent}" rendered="{!$ObjectType.Community_Events__c.createable}" styleClass="btn-u">{!$Label.BTN_Create_Event}</apex:outputLink>
+					</apex:form>
+				</div>
+			</div>
+			<apex:repeat value="{!eventsPage}" var="ep">
+				<!-- div class="row margin-bottom-20"->
+				<ul class="list-row">
+					<apex:repeat value="{!ep}" var="epRow">
+						<!-- div class="col-md-3 col-sm-6"->
+						<li class="col-md-3 col-sm-6 md-margin-bottom-30">
+							<div class="profile-blog tag-box-v3 block-grid-v1 rounded">
+								<div class="name-location">
+									<strong><a href="{!$Page.CommunityEventDetail}?id={!epRow.id}">{!epRow.name}</a></strong>
+								</div>
+								<div class="caption">
+									<h6>{!epRow.eWhen}</h6>
+									<p>{!epRow.teaser}</p>
+								</div>
+							</div>
+						</li>
+						<!-- /div->
+					</apex:repeat>
+				</ul>
+				<!-- /div-->
+					<div class="blog-twitter row">
+						<apex:repeat value="{!ep}" var="epRow">
+							<div class="col-md-3 col-sm-6">
+								<div class="blog-twitter-inner">
+									<h4><a href="{!$Page.CommunityEventDetail}?id={!epRow.id}">{!epRow.name}</a></h4> 
+									<span class="twitter-time margin-bottom-5">
+										<h6>{!$Label.LBL_When}{!epRow.eWhen}</h6>
+									</span>
+									<p>{!epRow.teaser}</p>
+									<apex:outputPanel layout="block" rendered="{!!ISBLANK(epRow.eGroupId)}">
+										<h6>{!$Label.LBL_Event_Group}:&nbsp;</h6><a href="{!$Page.CommunityGroupDetailPage}?gc={!epRow.eGroupId}">{!epRow.eGroupName}</a>
+									</apex:outputPanel>
+									<apex:outputPanel layout="block" rendered="{!epRow.tags.size > 0}">
+										<h6>{!$Label.LBL_CreateGroup_Tags}:&nbsp;</h6>
+										<apex:repeat value="{!epRow.tags}" var="tag">
+											<br/>
+											<a href="{!$Page.CommunityEventsList}?t={!tag.id}">{!tag.name}</a>
+										</apex:repeat>
+									</apex:outputPanel>
+								</div>
+								<!--ul class="list-unstyled blog-tags">
+									<apex:repeat value="{!epRow.tags}" var="tag">
+										<li>
+											<a href="{!$Page.CommunityEventsList}?t={!tag.id}">
+												<i class="fa fa-tags"></i>&nbsp;{!tag.name}
+											</a>
+										</li>
+									</apex:repeat>
+								</ul-->
+							</div>
+						</apex:repeat>
+					</div>
+			</apex:repeat>
+			<apex:form >
+				<ul class="pager">
+					<apex:outputPanel layout="none" rendered="{!eventsHasPrevious}">
+						<li class="previous">
+							<apex:commandLink action="{!eventsFirstPage}" value="{!$Label.LBL_First}" rerender="form"/>
+						</li>
+						<li class="previous">
+							<apex:commandLink action="{!eventsPreviousPage}" value="{!$Label.LBL_Previous}" rerender="form" styleClass="margin-left-5"/>
+						</li>
+					</apex:outputPanel>
+					<li><apex:outputText value="{!$Label.LBL_Page} {!eventsPageNumber} {!$Label.LBL_of} {!eventsPagesTotal}"/></li>
+					<apex:outputPanel layout="none" rendered="{!eventsHasNext}">
+						<li class="next">
+							<apex:commandLink action="{!eventsLastPage}" value="{!$Label.LBL_Last}" rerender="form" styleClass="margin-left-5"/>
+						</li>
+						<li class="next">
+							<apex:commandLink action="{!eventsNextPage}" value="{!$Label.LBL_Next}" rerender="form"/>
+						</li>
+					</apex:outputPanel>
+				</ul>
+			</apex:form>
+		</div>
+	</apex:outputPanel>
+</apex:define>
+</apex:composition>
+</apex:page>

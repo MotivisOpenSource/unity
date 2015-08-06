@@ -1,0 +1,12 @@
+<apex:page showHeader="false" sideBar="false" standardStylesheets="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false">
+<apex:composition template="{!$Site.Template}">
+<apex:define name="title">404</apex:define>
+<apex:define name="body">
+	<!--=== Content Part ===-->
+	<div class="container content Community404">
+		<i class="fa fa-smile-o"></i> Ooops...
+	</div><!--/container-->  
+	<!-- End Content Part -->
+</apex:define>
+</apex:composition>
+</apex:page>

@@ -1,0 +1,90 @@
+<apex:page standardController="Community_Events__c" extensions="CommunityEventController" action="{!initFromView}" showHeader="false" sideBar="false" standardStylesheets="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false">
+	<apex:composition template="{!$Site.Template}">
+		<apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
+		<apex:define name="body">
+			<script src="{!$Resource.CommunityResources}/js/jquery-1.11.2.min.js"></script>
+			<div class="breadcrumbs margin-bottom-10">
+				<div class="container">
+					<h1 class="pull-left">{!$ObjectType.Community_Events__c.LabelPlural}</h1>
+					<ul class="pull-right breadcrumb">
+						<li><a href="{!$Page.CommunityEventsList}">{!$Label.LBL_Events}</a></li>
+						<li class="active">{!event.Name__c}</li>
+					</ul>
+				</div>
+			</div>
+			<div class="profile CommunityEventDetail">
+				<div class="container content">
+					<div class="row text-center margin-bottom-20">
+						<div id="eventData" class="pull-left">
+							<h3>{!event.Name__c}</h3>
+							<span id="startEndDate">{!$ObjectType.Community_Events__c.Fields.Start__c.Label}: {!StartDate} / {!$ObjectType.Community_Events__c.Fields.End__c.Label}: {!EndDate}</span>
+						</div>
+						<div class="pull-right">
+							<apex:form id="theform">
+								<c:CommunityFollow parentId="{!event.Id}"/>
+								<c:CommunityShare sO="{!event}" rendered="{!!permissionShareBanned}"/>
+								<apex:outputPanel layout="none" rendered="{!permissionsEdit && !!permissionShareBanned}">&nbsp;</apex:outputPanel>
+								<apex:outputLink value="{!urlForEditEvent}" rendered="{!permissionsEdit}" styleClass="btn-u">{!$Label.BTN_Edit}</apex:outputLink>
+								<apex:outputPanel layout="none" rendered="{!permissionsEdit}">&nbsp;</apex:outputPanel>
+								<apex:outputLink value="{!urlForCloneEvent}" styleClass="btn-u" rendered="{!permissionsClone}">{!$Label.BTN_Clone}</apex:outputLink>
+								&nbsp;
+							</apex:form>
+						</div>
+					</div>
+					<apex:outputPanel layout="block" styleClass="sky-form margin-bottom-20">
+						<div class="dl-horizontal">
+							<apex:outputField value="{!event.Description__c}"/>
+							<hr/>
+							<apex:repeat value="{!elayout.flds}" var="fs">
+								<apex:outputPanel layout="none">
+									<dt><strong>{!IF(contains(fs.name,"Street_Address__c"),$Label.LBL_Location,fs.label)}</strong></dt>
+									<dd>
+										<apex:outputField value="{!event[fs.name]}"/>
+									</dd>
+									<hr/>
+								</apex:outputPanel>
+							</apex:repeat>
+							<br/>
+							<apex:outputPanel rendered="{!!ISNULL(RelatedToEventGroup)}">
+								<hr/>
+								<span>
+									<strong>{!$Label.LBL_Event_Group}:&nbsp;</strong>
+								</span>
+								<span>
+									<apex:outputLink value="{!$Page.CommunityGroupDetailPage}?gc={!RelatedToEventGroup.Id}">{!RelatedToEventGroup.Name}</apex:outputLink>
+									&nbsp;&nbsp;
+								</span>
+								<hr/>
+							</apex:outputPanel>
+							<span id = "tagsSection">
+								<p><strong>{!$Label.LBL_Related_Tags}</strong></p>
+								<div>
+									<c:CommunityTagDisplay oId="{!event.Id}" oType="{!$ObjectType.Community_Event_Tag__c.Name}" fName="{!$ObjectType.Community_Event_Tag__c.Fields.Community_Event__c.Name}"/>
+									<hr/>
+								</div>
+							</span>
+						</div>
+					</apex:outputPanel>
+				</div>
+				<hr/>
+				<br/>
+				
+				<div class="row">
+					<div class="col-sm-12">
+						<div id="feed" class="profile-edit tab-pane fade in active">
+							<c:CommunityFeed pid="{!event.Id}"/>
+						</div>
+					</div>
+				</div>
+			</div>
+		</apex:define>
+	</apex:composition>
+	<script>
+		jQuery(document).ready(function(){
+			if(!$("#tagsSection").find("a").size()) $("#tagsSection").hide();
+			if(jQuery("#startEndDate").text().split("End: ")[1] == ""){
+				jQuery("#startEndDate").text(jQuery("#startEndDate").text().split("/ End: ")[0]);
+			}
+		});
+	</script>
+</apex:page>

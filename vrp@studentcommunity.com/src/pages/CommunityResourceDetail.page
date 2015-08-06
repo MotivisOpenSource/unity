@@ -1,0 +1,61 @@
+<apex:page standardController="Community_Resource__c" extensions="CommunityResourceController" action="{!initFromView}" showHeader="false" sideBar="false" standardStylesheets="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false">
+<apex:composition template="{!$Site.Template}">
+<apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
+<apex:define name="body">
+	<style>
+	</style>
+	<div class="breadcrumbs margin-bottom-10">
+		<div class="container">
+			<h1 class="pull-left">{!$ObjectType.Community_Resource__c.Label}</h1>
+			<ul class="pull-right breadcrumb">
+				<li><a href="{!$Page.CommunityHome}">Home</a></li>
+				<li><a href="{!$Page.CommunityResources}">Resources</a></li>
+				<li class="active"><a href="{!$Page.CommunitySearch}{!breadcumbs[0]}">{!breadcumbs[1]}</a>{!resource.Name}</li>
+			</ul>
+		</div>
+	</div>
+	<div class="profile CommunityResourceDetail">
+		<div class="container content">
+			<apex:outputPanel layout="block" styleClass="row text-center margin-bottom-20" rendered="{!$ObjectType.Community_Resource__c.Updateable}">
+				<apex:outputLink value="{!urlForEditResource}" styleClass="btn-u">{!$Label.BTN_Edit_Resource}</apex:outputLink>
+			</apex:outputPanel>
+			<apex:outputPanel layout="block" styleClass="sky-form">
+				<dl class="dl-horizontal">
+					<apex:repeat value="{!rlayout.flds}" var="fs">
+						<dt><strong>{!fs.label}</strong></dt>
+						<dd><apex:outputField value="{!resource[fs.name]}"/></dd>
+						<hr/>
+					</apex:repeat>
+					<dt><strong>Resource</strong></dt>
+					<dd>
+						<!-- <i class="expand-list rounded-x fa {!ResourceLink[2]}" style="width:24px;"></i>&nbsp; -->
+						<a href="{!ResourceLink[1]}" target="_blank">{!ResourceLink[0]}</a>
+						<apex:outputPanel layout="none" rendered="{!$ObjectType.Community_Resource__c.Updateable}">
+							&nbsp;
+							<button class="btn btn-xs rounded btn-default" data-toggle="modal" data-target="#uploadResourceDialog">{!$Label.BTN_Update_Resource}</button>
+						</apex:outputPanel>
+					</dd>
+					<hr/>
+					<dt><strong>Tags</strong></dt>
+					<dd>
+						<ul class="list-unstyled blog-tags">
+							<apex:repeat value="{!tags}" var="tag">
+								<li>
+									<a href="{!$Page.CommunitySearch}{!tag[1]}" target="_blank">
+										<i class="fa fa-tags"></i>&nbsp;{!tag[0]}
+									</a>
+								</li>
+							</apex:repeat>
+						</ul>
+					</dd>
+				</dl>
+			</apex:outputPanel>
+		</div>
+	</div>
+	<apex:form rendered="{!$ObjectType.Community_Resource__c.Updateable}">
+		<c:CommunityResourceDialog lt="{!linkText}" fn="{!imgFileName}" ft="{!imgContentType}" fb="{!imgBody}"/>
+		<apex:actionFunction name="submitResource" action="{!saveResource}"/>
+	</apex:form>
+</apex:define>
+</apex:composition>
+</apex:page>

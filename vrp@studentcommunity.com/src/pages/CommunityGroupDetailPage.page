@@ -1,0 +1,302 @@
+<apex:page showHeader="false" sideBar="false" controller="CommunityGroupDetailPageController" standardStylesheets="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false">
+<apex:composition template="{!$Site.Template}">
+<apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
+<apex:define name="body">
+    <!--=== Breadcrumbs ===-->
+    <div class="breadcrumbs margin-bottom-10">
+        <div class="container">
+            <apex:outputPanel id="containerHead">
+                <h1 class="pull-left">{!control.Name}</h1>
+                <ul class="pull-right breadcrumb">
+                    <li><a href="{!$Page.CommunityHome}">Home</a></li>
+                    <li><a href="{!$Page.CommunityGroups}">{!$Label.LBL_Groups}</a></li>
+                    <li class="active">{!control.Name}</li>
+                </ul>
+            </apex:outputPanel>
+        </div>
+    </div><!--/breadcrumbs-->
+    <!--=== End Breadcrumbs ===-->
+
+    <apex:outputPanel layout="block" styleClass="profile">
+        <apex:outputPanel layout="block" styleClass="content container">
+            <apex:outputPanel layout="block" styleClass="row">
+
+                <!--Left Sidebar-->
+                <div class="col-md-3 md-margin-bottom-20">
+                    <div class="chatter-photo"><c:CommunityUserPhoto current="false" photoUrl="{!chatterGroup.FullPhotoUrl}" currentGroupRole="{!groupRoleString}"/></div>
+                    <c:CommunityAboutGroup so="{!control}"
+                        fsc="{!Fieldset}"
+                        tn="{!$ObjectType.Community_Group_Control_Tag__c.Name}"
+                        tfn="{!$ObjectType.Community_Group_Control_Tag__c.Fields.Group_Control__c.Name}"
+                        tl="{!$Label.LBL_About_this_group}"
+                        mdl="true"
+                        edt="{!GroupEditable}"
+                        son="Community_Group_Control__c"
+                    />
+                    <c:CommunityFeedNavigation currentGroupId="{!chatterGroup.Id}" pn="5"/>
+                </div>
+                <!--End Left Sidebar-->
+
+                <!-- Center -->
+                <div class="col-md-7 md-margin-bottom-20">
+                    <div id="feed" class="profile-edit">
+                        <c:CommunityFeed pid="{!chatterGroup.Id}" rendered="{!!HideFeedComponent}" fu="true"/>
+                        <apex:outputPanel layout="block" styleClass="alert alert-danger fade in" rendered="{!HideFeedComponent}">
+                            <i class="fa fa-exclamation-triangle"></i>&nbsp;&nbsp;{!$Label.LBL_PrivateGroup}
+                        </apex:outputPanel>
+                    </div>
+                </div>
+                <!-- End Center -->
+
+                <!-- Right Sidebar-->
+                <apex:outputPanel id="rightpanel" layout="block" styleClass="col-md-2 md-margin-bottom-20 profile-edit">
+                    <apex:form >
+                        <apex:outputPanel id="btnaction">
+                            <button type="button" class="btn btn-u{!ActionButton.btnStyle} btn-xs" onclick="chckabtn('{!ActionButton.action}');return false;" title="{!ActionButton.title}">
+                                <i class="fa {!ActionButton.btnIcon}"></i>
+                                &nbsp;{!ActionButton.btnLabel}
+                            </button>
+                        </apex:outputPanel>
+                        <script>
+                            function chckabtn(a) {
+                                if (a != '0') {
+                                    var fa = true;
+                                    if (a == '2') {
+                                        fa = confirm('{!$Label.LBL_LeaveGroup_Message}');
+                                    }
+                                    else { 
+                                        if (a == '4') {
+                                            fa = confirm('{!$Label.LBL_Confirm_Remove_Manager}');
+                                        }
+                                        else if (a == '6') {
+                                            fa = confirm('{!$Label.LBL_CancelRequest_Message}');
+                                        }
+                                    }
+                                    if (fa) {
+                                        pgmsha(a);
+                                        $('[id$=btnaction] i').attr('class','fa fa-spinner fa-pulse');
+                                    }
+                                }
+                            }
+                        </script>
+                        <apex:actionFunction action="{!performGroupMembershipAction}" name="pgmsha" rerender="rightpanel">
+                            <apex:param name="par" assignTo="{!groupMode}" value=""/>
+                        </apex:actionFunction>
+                    </apex:form>
+                    <div class="headline"><h4>{!$Label.LBL_Members}</h4></div>
+                    <ul class="list-unstyled blog-photos">
+                        <apex:repeat value="{!members.users}" var="member">
+                            <li>
+                                <a href="{!$Page.CommunityProfilePage}?id={!member.id}">
+                                    <img class="hover-effect" src="{!member.photourl}" title="{!member.name}{!IF(ISBLANK(member.role),'', ' (' + member.role + ')')}"/>
+                                </a>
+                            </li>
+                        </apex:repeat>
+                    </ul>
+                    <div class="{!IF(RequestCount > 0,'margin-bottom-5','margin-bottom-20')}">
+                        <a href="#newConversationModal" role="button" data-toggle="modal" onclick="switchToMemberMode();memberLayout();">
+                            <span>{!$Label.LBL_Show_All} ({!members.totalUsers})</span>
+                        </a>
+                    </div>
+                    <apex:outputPanel layout="block" rendered="{!RequestCount > 0}" styleClass="margin-bottom-20">
+                        <a href="#newConversationModal" role="button" data-toggle="modal" onclick="switchToRequestMode();memberLayout();" class="modal__pending__link">
+                            <strong>{!$Label.LBL_Pending} ({!RequestCount})</strong>
+                        </a>
+                    </apex:outputPanel>
+                    <div class="blog-twitter">
+                        <div class="headline"><h4>{!$Label.LBL_Upcoming_Events}</h4></div>
+                        <apex:outputPanel layout="block" styleClass="margin-bottom-5">
+                            <apex:outputLink value="{!UrlForCreateEvent}" rendered="{!showCreateEvent}">{!$Label.BTN_Create_Event}</apex:outputLink>
+                        </apex:outputPanel>
+                        <apex:repeat value="{!Events}" var="ev">
+                            <div class="blog-twitter-inner">
+                                <a href="{!$Page.CommunityEventDetail}?id={!ev.id}">{!ev.name}</a> 
+                                <span class="twitter-time">{!ev.ftime}</span>
+                            </div>
+                        </apex:repeat>
+                        <apex:outputPanel layout="block" styleClass="tag-box tag-box-v6" rendered="{!Events.size == 0}">
+                            <p>{!$Label.LBL_No_Upcoming_Events_Group}</p>
+                        </apex:outputPanel>
+                    </div>
+                    <apex:outputPanel layout="none" rendered="{!showFilesSection}">
+                        <div class="headline"><h4>{!$Label.LBL_Group_Files}</h4></div>
+                        <apex:outputPanel layout="none" rendered="{!FilesController.filesTotal > 0}">
+                            <a href="{!$Page.CommunityGroupFiles}?gr={!chatterGroup.Id}">
+                                <span>{!$Label.LBL_Show_All} ({!FilesController.filesTotal})</span>
+                            </a>
+                            <ul class="list-unstyled">
+                                <apex:repeat value="{!FilesController.FileList}" var="fs">
+                                    <li>
+                                        <i class="fa {!fs.aicon}"></i>&nbsp;
+                                        <a href="{!$Page.CommunityGroupFiles}?f={!fs.documentId}&gr={!chatterGroup.Id}" role="button" data-toggle="modal">{!fs.ShortName}</a>
+                                    </li>
+                                </apex:repeat>
+                            </ul>
+                        </apex:outputPanel>
+                        <apex:outputPanel layout="block" rendered="{!FilesController.filesTotal == 0}" styleClass="blog-twitter">
+                            <div class="tag-box tag-box-v6"><p>{!$Label.LBL_Files_NoFilesMessage}</p></div>
+                        </apex:outputPanel>
+                    </apex:outputPanel>
+                </apex:outputPanel>
+                <!-- End Right Sidebar-->
+            </apex:outputPanel>
+            <!--/end row-->
+        </apex:outputPanel>
+        <!--/container-->
+    </apex:outputPanel>
+    <div class="modal fade" id="newConversationModal" tabindex="-1" role="dialog" aria-labelledby="newConversationModalLabel" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog">
+            <apex:form id="memlist" styleClass="modal-content sky-form">
+                <div class="modal-header">
+                    <button aria-hidden="true" data-dismiss="modal" class="close" type="button" onclick="switchToMemberMode();return false;">&times;</button>
+                    <h4 id="newConversationModalLabel" class="modal-title">
+                        <span id="mmtid2">
+                            {!IF(requestMode,$Label.LBL_PendingRequestsManager_Title,$Label.LBL_Group_Members)}
+                        </span>
+                        <apex:actionStatus id="statusLoad">
+                            <apex:facet name="start">
+                                &nbsp;<i class="fa fa-spinner fa-pulse"></i>
+                            </apex:facet>
+                        </apex:actionStatus>
+                    </h4>
+                </div>
+                <apex:outputPanel id="memin" layout="block" styleClass="modal-body">
+                    <section>
+                        <label class="input">
+                            <i class="icon-append fa fa-search"></i>
+                            <apex:inputText id="srchid" value="{!members.query}" html-placeholder="{!$Label.LBL_SearchByName}" onkeyup="searchAction(this);"/>
+                        </label>
+                    </section>
+                    <script>
+                        $('[id$=srchid]').keypress(function(event){
+                            if (event.keyCode == 10 || event.keyCode == 13) {
+                                event.preventDefault();
+                            }
+                        });
+                    </script>
+                    <apex:outputPanel id="allpb" layout="block">
+                        <apex:outputPanel layout="block" styleClass="alert alert-warning" rendered="{!members.users.size == 0}">
+                            <i class="fa fa-exclamation-triangle"></i>&nbsp;&nbsp;{!$Label.LBL_NoUsersFound}
+                        </apex:outputPanel>
+                        <table class="table table-hover" id="groupmembertable">
+                            <apex:repeat value="{!members.users}" var="mmbr" id="membermodal">
+                                <tr>
+                                    <td width="50px">
+                                        <a href="{!$Page.CommunityProfilePage}?id={!mmbr.id}">
+                                            <apex:image styleClass="rounded-x margin-top-0 margin-bottom-0" url="{!mmbr.photourl}" width="50px" height="50px"/>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <div class="name-location">
+                                            <a href="{!$Page.CommunityProfilePage}?id={!mmbr.id}">
+                                                <strong>{!mmbr.name}</strong>
+                                            </a><br/>
+                                            <span>{!mmbr.role}</span>
+                                        </div>
+                                    </td>
+                                    <td id="cell{!mmbr.id}" class="text-right">
+                                        <apex:outputPanel layout="none" rendered="{!memberMode && mmbr.follow && mmbr.id != $User.Id}">
+                                            <button id="{!mmbr.id}" type="button" class="btn btn-u btn-u-blue" onclick="toogleFollowing('{!mmbr.id}');return false;">
+                                                <i class="fa fa-check"></i>
+                                                &nbsp;{!$Label.BTN_Following}
+                                            </button>
+                                        </apex:outputPanel>
+                                        <apex:outputPanel layout="none" rendered="{!memberMode && !mmbr.follow && mmbr.id != $User.Id}">
+                                            <button id="{!mmbr.id}" type="button" class="btn btn-u" onclick="toogleFollowing('{!mmbr.id}');return false;">
+                                                <i class="fa fa-plus-circle"></i>
+                                                &nbsp;{!$Label.LBL_Follow}
+                                            </button>
+                                        </apex:outputPanel>
+                                        <apex:outputPanel layout="none" rendered="{!requestMode}">
+                                            <button class="btn-u" onclick="msproc(7,'{!mmbr.id}');return false;" type="button">
+                                                <i class="fa fa-plus-circle" ></i>&nbsp;{!$Label.BTN_Accept}
+                                            </button>
+                                            <button class="btn-u btn-u-red" onclick="msproc(8,'{!mmbr.id}');return false;" type="button">
+                                                <i class="fa fa-times-circle" ></i>&nbsp;{!$Label.BTN_Decline}
+                                            </button>
+                                        </apex:outputPanel>
+                                    </td>
+                                </tr>
+                            </apex:repeat>
+                        </table>
+                        <apex:outputPanel layout="none" rendered="{!members.showPagination}">
+                            <ul class="pager">
+                                <apex:outputPanel layout="none" rendered="{!members.hasPrevious}">
+                                    <li class="previous">
+                                        <apex:commandLink action="{!members.firstPage}" value="{!$Label.LBL_First}" rerender="memlist" status="statusLoad"/>
+                                    </li>
+                                    <li class="previous">
+                                        <apex:commandLink action="{!members.previousPage}" value="{!$Label.LBL_Previous}" rerender="memlist" styleClass="margin-left-5" status="statusLoad"/>
+                                    </li>
+                                </apex:outputPanel>
+                                <li><apex:outputText value="{!$Label.LBL_Page} {!members.pageNumber} {!$Label.LBL_of} {!members.totalPages}"/></li>
+                                <apex:outputPanel layout="none" rendered="{!members.hasNext}">
+                                    <li class="next">
+                                        <apex:commandLink action="{!members.lastPage}" value="{!$Label.LBL_Last}" rerender="memlist" styleClass="margin-left-5" status="statusLoad"/>
+                                    </li>
+                                    <li class="next">
+                                        <apex:commandLink action="{!members.nextPage}" value="{!$Label.LBL_Next}" rerender="memlist" status="statusLoad"/>
+                                    </li>
+                                </apex:outputPanel>
+                            </ul>
+                        </apex:outputPanel>
+                    </apex:outputPanel>
+                </apex:outputPanel>
+                <div class="modal-footer">
+                    <button data-dismiss="modal" type="button" class="button btn-u-default" id="closeDialogButton" onclick="switchToMemberMode();return false;">{!$Label.LBL_Done}</button>
+                </div>
+                <apex:actionFunction name="switchToMemberMode" action="{!switchToMemberMode}" rerender="memlist,rightpanel" status="statusLoad"/>
+                <apex:actionFunction name="switchToRequestMode" action="{!switchToRequestMode}" rerender="memlist" status="statusLoad"/>
+                <apex:actionFunction action="{!members.firstPage}" name="firstPage" rerender="allpb" status="statusLoad"/>
+                <apex:actionFunction action="{!performRequestAction}" name="accdeca" rerender="allpb">
+                    <apex:param name="accepted" assignTo="{!accepted}" value=""/>
+                    <apex:param name="requesterId" assignTo="{!requesterId}" value=""/>
+                </apex:actionFunction>
+            </apex:form>
+            <script>typeof(_) != 'undefined' || document.write('<script src="{!$Resource.CommunityResources}/js/underscore/underscore-min.js">')</script>
+            <script>
+                function msproc(inm,inid) {
+                    if ($('#groupmembertable .fa-spinner').length == 0) {
+                        $('#cell'+inid+' .btn-u').removeAttr('onclick');
+                        $('#cell'+inid+' i.'+((inm==7)?'fa-plus-circle':'fa-times-circle')).attr('class','fa fa-spinner fa-pulse');
+                        accdeca(inm == 7, inid);
+                    }
+                }
+                function toogleFollowing(inid) {
+                    Visualforce.remoting.Manager.invokeAction(
+                        '{!$RemoteAction.CommunityGroupDetailPageController.toggleSubscriber}',
+                        inid,
+                        function(result, event) {}
+                    );
+                    if ($('#' + inid + '.btn-u-blue').length == 0) {
+                        $('#' + inid).addClass('btn-u-blue').html('<i class="fa fa-check"></i>&nbsp;{!$Label.BTN_Following}');
+                        $('#' + inid + ' i').attr('class','fa fa-check');
+                    }
+                    else {
+                        $('#' + inid).removeClass('btn-u-blue').html('<i class="fa fa-plus-circle"></i>&nbsp;{!$Label.LBL_Follow}');
+                    }
+                }
+                var searchAction = _.debounce(function(inthis) {
+                    if (inthis.value.trim().length != 1) {
+                        firstPage();
+                    }
+                }, 500);
+                function memberLayout() {
+                    $('#mmtid2').remove();
+                    $('[id$=memin]').hide();
+                }
+            </script>
+            <apex:outputPanel layout="none" rendered="{!RequestCount > 0 && ShowPendingMembers}">
+                <script>
+                    $(document).ready(function() {
+                        switchToRequestMode();
+                        memberLayout();
+                        $('#newConversationModal').modal('show');
+                    });
+                </script>
+            </apex:outputPanel>
+        </div>
+    </div>
+</apex:define>
+</apex:composition>
+</apex:page>

@@ -1,0 +1,72 @@
+<apex:page standardController="Community_Events__c" extensions="CommunityEventController" standardStylesheets="false" action="{!initFromEdit}" showHeader="false" sideBar="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false">
+<apex:composition template="{!$Site.Template}">
+<apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
+<apex:define name="body">
+<div class="CommunityEventEdit" >
+		<apex:form styleClass="sky-form">
+			<header>
+				<div class="row">
+					<div class="col-md-6 text-left padding-left-35">
+						<h2>{!IF(ISNULL(event.Id),$Label.BTN_Create_Event,$Label.BTN_Edit_Event)}</h2>
+					</div>
+					<div class="col-md-6 text-right padding-right-25">
+						<apex:commandButton action="{!Submit}" value="{!$Label.BTN_Submit}" styleClass="btn-u"/>
+						&nbsp;
+						<apex:outputLink value="{!IF(ISBLANK($CurrentPage.parameters.retURL),$Page.CommunityEventsList,JSENCODE($CurrentPage.parameters.retURL))}" styleClass="btn-u">{!$Label.BTN_Cancel}</apex:outputLink>
+					</div>
+				</div>
+			</header>
+			<apex:pageMessages id="pageMessages"/>
+			
+				<fieldset>
+					<c:CommunityFieldLayout fl="{!elayout}" so="{!event}"/>
+				</fieldset>
+				<fieldset>
+					<section>
+						<label class="label">{!$Label.LBL_Event_Group}</label>
+						<label class="input"><apex:input value="{!connectedGroupStr}" list="{!AllGroupsInStringArray}"/></label>
+					</section>
+				</fieldset>
+				<fieldset>
+					<section>
+						<apex:outputLabel value="{!$Label.LBL_Select_Tags}" styleClass="label"/>
+						<label class="input">
+								<c:CommunityTagSelector oId="{!event.Id}" oType="{!$ObjectType.Community_Event_Tag__c.Name}" fName="{!$ObjectType.Community_Event_Tag__c.Fields.Community_Event__c.Name}"/>
+						</label>
+					</section>
+				</fieldset>
+			
+		</apex:form>
+	</div>
+</apex:define>
+</apex:composition>
+
+
+<apex:stylesheet value="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.css" />
+<script type="text/javascript" src="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.js"></script>
+
+<script>
+/*
+	var dateElements = $(".dateInput input");
+	
+	_.each(dateElements, function(e){
+		e.className = "validate-datetimepicker";
+		e.removeAttribute("onfocus");		
+	});
+
+	if(jQuery('.validate-datetimepicker')) {
+		var currentdate = new Date(); 
+		var datetime = (currentdate.getMonth()+1) + '/' + currentdate.getDate() + '/' + currentdate.getFullYear() + ' ' + currentdate.getHours() + ":"  + currentdate.getMinutes();
+		$('.validate-datetimepicker').datetimepicker({
+			minDate:datetime,
+			format:'m/d/Y h:i A',
+			formatTime:'h:i A',
+			formatDate:'m/d/Y',
+			step:30
+		});
+	}
+*/	
+</script>
+
+
+</apex:page>
