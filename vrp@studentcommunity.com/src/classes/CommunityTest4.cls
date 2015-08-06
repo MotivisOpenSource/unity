@@ -178,6 +178,7 @@ private class CommunityTest4 {
 	}
 
 	static testMethod void test_AboutGroupComponentController() {
+		System.assert(true);
 		//deprecated
 	}
 

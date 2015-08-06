@@ -25,6 +25,7 @@
     <link rel="stylesheet" href="{!$Resource.assets}/plugins/scrollbar/src/perfect-scrollbar.css"/>
     <link rel="stylesheet" href="{!$Resource.assets}/plugins/owl-carousel/owl-carousel/owl.carousel.css"/>
     <link rel="stylesheet" href="{!$Resource.assets}/plugins/sky-forms/version-2.0.1/css/custom-sky-forms.css"/>
+    <link rel="stylesheet" href="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.css"/>
     <!-- <link rel="stylesheet" href="{!$Resource.assets}/css/plugins/cropper.css"/> -->
 
 

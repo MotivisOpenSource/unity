@@ -77,21 +77,21 @@
 									<tbody>
 										<apex:repeat value="{!FileList}" var="fs2"><tr>
 											<td class="file-actions">
-												<apex:outputLink value="#cglayout" onclick="makepreview('{!fs2.previewUrl}','{!fs2.name}');" html-role="button" html-data-toggle="modal" rendered="{!!ISBLANK(fs2.previewUrl)}">
+												<apex:outputLink value="#cglayout" onclick="makepreview('{!JSENCODE(fs2.previewUrl)}','{!JSENCODE(fs2.name)}');" html-role="button" html-data-toggle="modal" rendered="{!!ISBLANK(fs2.previewUrl)}">
 													<i class='fa fa-file-text' title="{!$Label.BTN_Preview}"></i>
 												</apex:outputLink>
 												<apex:outputLink value="{!fs2.downloadUrl}" rendered="{!!ISBLANK(fs2.downloadUrl)}"><i class='fa fa-download' title="{!$Label.BTN_Download}"></i></apex:outputLink>
-												<apex:outputLink value="#cglayout" onclick="makenv('{!fs2.versionId}');" html-role="button" html-data-toggle="modal" rendered="{!fs2.modifiable}"><i class='fa fa-upload' title="{!$Label.BTN_Upload}"></i></apex:outputLink>
+												<apex:outputLink value="#cglayout" onclick="makenv('{!JSENCODE(fs2.versionId)}');" html-role="button" html-data-toggle="modal" rendered="{!fs2.modifiable}"><i class='fa fa-upload' title="{!$Label.BTN_Upload}"></i></apex:outputLink>
 												<apex:outputPanel styleClass="dropdown" rendered="{!enableShare}">
 													<i class='fa fa-share dropdown-toggle' data-toggle="dropdown" title="{!$Label.LBL_Share}"></i>
 													<ul class="dropdown-menu" role="menu">
-														<li ><a href="#cglayout" onclick="sharep('{!fs2.versionId}');" role="menuitem" data-toggle="modal" tabindex="-1">{!$Label.LBL_Files_SharePeople}</a></li>
-														<li ><a href="#cglayout" onclick="shareg('{!fs2.versionId}');" role="menuitem" data-toggle="modal" tabindex="-1">{!$Label.LBL_Files_ShareGroup}</a></li>
+														<li ><a href="#cglayout" onclick="sharep('{!JSENCODE(fs2.versionId)}');" role="menuitem" data-toggle="modal" tabindex="-1">{!$Label.LBL_Files_SharePeople}</a></li>
+														<li ><a href="#cglayout" onclick="shareg('{!JSENCODE(fs2.versionId)}');" role="menuitem" data-toggle="modal" tabindex="-1">{!$Label.LBL_Files_ShareGroup}</a></li>
 													</ul>
 												</apex:outputPanel>
-												<apex:outputLink value="#cglayout" onclick="upver('{!fs2.versionId}');" html-role="button" html-data-toggle="modal" rendered="{!fs2.modifiable}"><i class='fa fa-pencil' title="{!$Label.BTN_Edit}"></i></apex:outputLink>
+												<apex:outputLink value="#cglayout" onclick="upver('{!JSENCODE(fs2.versionId)}');" html-role="button" html-data-toggle="modal" rendered="{!fs2.modifiable}"><i class='fa fa-pencil' title="{!$Label.BTN_Edit}"></i></apex:outputLink>
 												<span id="{!fs2.versionId}" onclick="followa(this,{!fs2.following});"><i class="fa fa-plus-circle{!IF(fs2.following,' active','')}" title="{!IF(fs2.following, $Label.BTN_Following, $Label.LBL_Follow)}"></i></span>
-												<apex:outputPanel onclick="delfg('{!fs2.versionId}');" rendered="{!fs2.modifiable}"><i id="df{!fs2.versionId}" class="fa fa-trash" title="{!$Label.LBL_Delete}"></i></apex:outputPanel>
+												<apex:outputPanel onclick="delfg('{!JSENCODE(fs2.versionId)}');" rendered="{!fs2.modifiable}"><i id="df{!JSENCODE(fs2.versionId)}" class="fa fa-trash" title="{!$Label.LBL_Delete}"></i></apex:outputPanel>
 											</td>
 											<td><i class="fa {!fs2.aicon}"></i>&nbsp;<a href="{!$Page.CommunityGroupFiles}?f={!fs2.documentId}&gr={!chatterGroupId}">{!fs2.name}</a></td>
 											<td class="hidden-sm"><a href="{!$Page.CommunityProfilePage}?id={!fs2.ownerId}">{!fs2.ownerName}</a></td>
@@ -133,25 +133,25 @@
 									<a href="{!FileDetail.downloadUrl}"><i class='fa fa-download'></i>{!$Label.BTN_Download}</a>
 								</li>
 								<apex:outputPanel layout="none" rendered="{!FileDetail.modifiable}"><li>
-									<a href="#cglayout" onclick="makenv('{!FileDetail.versionId}');" role="button" data-toggle="modal"><i class='fa fa-upload'></i>{!$Label.LBL_Upload_File}</a>
+									<a href="#cglayout" onclick="makenv('{!JSENCODE(FileDetail.versionId)}');" role="button" data-toggle="modal"><i class='fa fa-upload'></i>{!$Label.LBL_Upload_File}</a>
 								</li></apex:outputPanel>
 								<apex:outputPanel layout="none" rendered="{!enableShare}"><li class="dropdown">
 									<a class="dropdown-toggle" data-toggle="dropdown">
 										<i class='fa fa-share'></i>{!$Label.LBL_Share}
 									</a>
 									<ul class="dropdown-menu" role="menu">
-										<li><a href="#cglayout" onclick="sharep('{!FileDetail.versionId}');" role="menuitem" data-toggle="modal" tabindex="-1">{!$Label.LBL_Files_SharePeople}</a></li>
-										<li><a href="#cglayout" onclick="shareg('{!FileDetail.versionId}');" role="menuitem" data-toggle="modal" tabindex="-1">{!$Label.LBL_Files_ShareGroup}</a></li>
+										<li><a href="#cglayout" onclick="sharep('{!JSENCODE(FileDetail.versionId)}');" role="menuitem" data-toggle="modal" tabindex="-1">{!$Label.LBL_Files_SharePeople}</a></li>
+										<li><a href="#cglayout" onclick="shareg('{!JSENCODE(FileDetail.versionId)}');" role="menuitem" data-toggle="modal" tabindex="-1">{!$Label.LBL_Files_ShareGroup}</a></li>
 									</ul>
 								</li></apex:outputPanel>
 								<apex:outputPanel layout="none" rendered="{!FileDetail.modifiable}"><li>
-									<a href="#cglayout" onclick="upver('{!FileDetail.versionId}');" role="button" data-toggle="modal"><i class='fa fa-pencil'></i>{!$Label.BTN_Edit}</a>
+									<a href="#cglayout" onclick="upver('{!JSENCODE(FileDetail.versionId)}');" role="button" data-toggle="modal"><i class='fa fa-pencil'></i>{!$Label.BTN_Edit}</a>
 								</li></apex:outputPanel>
 								<li><a>
 									<span id="{!FileDetail.versionId}" onclick="followa(this,{!FileDetail.following});"><i class="fa fa-plus-circle{!IF(FileDetail.following,' active','')}"></i></span>
 									{!$Label.LBL_Follow}
 								</a></li>
-								<apex:outputPanel layout="none" rendered="{!FileDetail.modifiable}"><li><span onclick="delfg('{!FileDetail.versionId}');">
+								<apex:outputPanel layout="none" rendered="{!FileDetail.modifiable}"><li><span onclick="delfg('{!JSENCODE(FileDetail.versionId)}');">
 									<a href="javascript:;"><i id="df{!FileDetail.versionId}" class='fa fa-trash'></i>{!$Label.LBL_Delete}</a>
 								</span></li></apex:outputPanel>
 							</ul>
@@ -251,7 +251,7 @@
 										ContentVersion.VersionData =  new sforce.Base64Binary(binary).toString();
 										/*ContentVersion.Description = $('#nvta').val();*/
 										ContentVersion.ReasonForChange = $('#nvta').val();
-										ContentVersion.ContentDocumentId = '{!ParentDocumentId}';
+										ContentVersion.ContentDocumentId = '{!JSENCODE(ParentDocumentId)}';
 										ContentVersion.NetworkId = '{!CommunityId}';
 										ContentVersion.PathOnClient = $('#nvfile')[0].files[0].name;
 										sforce.connection.create(

@@ -31,42 +31,24 @@
 					<section>
 						<apex:outputLabel value="{!$Label.LBL_Select_Tags}" styleClass="label"/>
 						<label class="input">
-								<c:CommunityTagSelector oId="{!event.Id}" oType="{!$ObjectType.Community_Event_Tag__c.Name}" fName="{!$ObjectType.Community_Event_Tag__c.Fields.Community_Event__c.Name}"/>
+							<c:CommunityTagSelector oId="{!event.Id}" oType="{!$ObjectType.Community_Event_Tag__c.Name}" fName="{!$ObjectType.Community_Event_Tag__c.Fields.Community_Event__c.Name}"/>
 						</label>
 					</section>
 				</fieldset>
-			
 		</apex:form>
 	</div>
+	<script>
+		$('document').on('ready', function(){
+			var $tableRows = $('.message').find('table').find('tbody > tr');
+			console.log($tableRows);
+			if ($tableRows.size() > 1) {
+				$tableRows.first().hide();
+			}
+			else {
+				console.log('No need to remove');
+			}
+		});
+	</script>
 </apex:define>
 </apex:composition>
-
-
-<apex:stylesheet value="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.css" />
-<script type="text/javascript" src="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.js"></script>
-
-<script>
-/*
-	var dateElements = $(".dateInput input");
-	
-	_.each(dateElements, function(e){
-		e.className = "validate-datetimepicker";
-		e.removeAttribute("onfocus");		
-	});
-
-	if(jQuery('.validate-datetimepicker')) {
-		var currentdate = new Date(); 
-		var datetime = (currentdate.getMonth()+1) + '/' + currentdate.getDate() + '/' + currentdate.getFullYear() + ' ' + currentdate.getHours() + ":"  + currentdate.getMinutes();
-		$('.validate-datetimepicker').datetimepicker({
-			minDate:datetime,
-			format:'m/d/Y h:i A',
-			formatTime:'h:i A',
-			formatDate:'m/d/Y',
-			step:30
-		});
-	}
-*/	
-</script>
-
-
 </apex:page>

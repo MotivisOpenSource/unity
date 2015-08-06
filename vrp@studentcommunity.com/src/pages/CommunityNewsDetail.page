@@ -63,7 +63,7 @@
 					</apex:outputPanel>
 				</apex:repeat>
 				
-					<apex:outputText value="{!news.Content__c}" escape="false"/>
+					<apex:outputText value="{!JSENCODE(news.Content__c)}" escape="false"/>
 				
 			</div>
 			<div class="row margin-bottom-20">

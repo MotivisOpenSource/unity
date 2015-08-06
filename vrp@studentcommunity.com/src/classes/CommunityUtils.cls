@@ -1,4 +1,4 @@
-public class CommunityUtils {
+public without sharing class CommunityUtils {
     //Moderate Chatter
     public static Boolean isModerateChatter() {
 		Boolean Result = [SELECT PermissionsModerateChatter,Name,id FROM Profile WHERE Id =: UserInfo.getProfileId()].PermissionsModerateChatter;

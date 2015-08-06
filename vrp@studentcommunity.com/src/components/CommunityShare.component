@@ -61,7 +61,7 @@
 								<div class="panel-body">
 									<ul class="list-unstyled blog-tags">
 										<apex:repeat value="{!AvailableGroupsControls}" var="group">
-											<li><a href="javascript:;" onclick="addtti('{!group.Chatter_Group_ID__c}','{!JSENCODE(group.name)}');"><i class="fa fa-users"></i>&nbsp;{!group.name}</a>													
+											<li><a href="javascript:;" onclick="addtti('{!group.Chatter_Group_ID__c}','{!JSENCODE(group.name)}');"><i class="fa fa-users"></i>&nbsp;{!JSENCODE(group.name)}</a>													
 											</li>
 										</apex:repeat>
 									</ul>

@@ -376,9 +376,10 @@ private class CommunityTest2 {
 		ctdc.filterName = 'Community_News__c';
 		ctdc.objectId = cnews.Id;
 		ctdc.objectType = 'Community_News_Tag__c';
-		//List<CommunityTagDisplayController.Tag> tags = ctdc.getTags(Page.CommunityNews.getUrl());
+		Test.setCurrentPage(Page.CommunityNews);
+		List<CommunityTagDisplayController.Tag> tags = ctdc.getTags();
 		//List<CommunityTagDisplayController.Tag> tags2 = ctdc.tags;
-		//System.Assert((tags2.size()>0),true);
+		System.Assert((tags.size()>0),true);
 		ctdc.objectType = 'Community_Event_Tag__c';
 		//tags2 = ctdc.tags;
 	}

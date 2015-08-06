@@ -300,7 +300,7 @@ public with sharing class CommunityEventController {
 
 	public String connectedGroupStr { get;set; }
 	public PageReference submit() { /// without sharing
-		System.Debug('1212121212');
+		PageReference pr;
 		try {
 			if (String.isBlank(event.Teaser__c) && String.isNotBlank(event.Description__c)) {
 				event.Teaser__c = event.Description__c.stripHtmlTags().abbreviate(140);
@@ -309,9 +309,6 @@ public with sharing class CommunityEventController {
 			if((!String.isBlank(connectedGroupStr) && !validateGroupStr(connectedGroupStr))
 				|| (event.Public__c == false && string.isBlank(connectedGroupStr))
 			){
-				/*ApexPages.Message myMsg = new ApexPages.Message(ApexPages.Severity.ERROR, Label.ERR_Please_Select_Group);
-				ApexPages.addMessage(myMsg);
-				return NULL;*/
 				throw new CommunityEventException(Label.ERR_Please_Select_Group);
 			}
 
@@ -332,16 +329,10 @@ public with sharing class CommunityEventController {
 					WHERE Community_Event__c =: event.Id and Community_Group_Control__c != null
 					ORDER BY CreatedDate DESC
 				];
-		
-			/*if(event.Public__c == false && string.isBlank(connectedGroupStr)) {	
-				ApexPages.Message myMsg = new ApexPages.Message(ApexPages.Severity.ERROR, Label.ERR_Please_Select_Group);
-				ApexPages.addMessage(myMsg);
-				return NULL;
-			}*/
+			
 			if(string.isBlank(connectedGroupStr)) {
 				// delete all records related for this Event where group is not null
 				delete communityEventTagList;
-
 			}
 			else {
 				// create group
@@ -367,18 +358,14 @@ public with sharing class CommunityEventController {
 					insert communityEventTag;
 				}
 			}
-			PageReference cloneRef = Page.CommunityEventDetail;
-			cloneRef.setRedirect(true);
-			cloneRef.getParameters().put('id',event.Id);
-			return cloneRef;
+			pr = Page.CommunityEventDetail;
+			pr.setRedirect(true);
+			pr.getParameters().put('id',event.Id);
 		}
 		catch (Exception e) {
-			System.Debug('error');
-			System.Debug(e);
 			ApexPages.addMessages(e);
-			return NULL;
 		}
-		return NULL;
+		return pr;
 	}
 
 	public Boolean validateGroupStr(String groupStr){

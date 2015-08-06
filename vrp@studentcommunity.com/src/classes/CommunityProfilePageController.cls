@@ -1,4 +1,4 @@
-global with sharing class CommunityProfilePageController {
+global without sharing class CommunityProfilePageController {
 
 	public Boolean allOk { get;set; }
 	public Boolean current { get;set; }
@@ -273,7 +273,7 @@ global with sharing class CommunityProfilePageController {
 
 	public List<DigestItem> getDigestSettings() {
 		List<DigestItem> resultList = new List<DigestItem>();
-		List<Community_Group_Control__c> chGroups = [SELECT Chatter_Group_ID__c FROM Community_Group_Control__c];
+		List<Community_Group_Control__c> chGroups = [SELECT Chatter_Group_ID__c FROM Community_Group_Control__c LIMIT 250];
 		List<String> chGroupsIds = new List<String>();
 		List<String> colGroupsIds = new List<String>();
 		for(Community_Group_Control__c chGroup : chGroups){

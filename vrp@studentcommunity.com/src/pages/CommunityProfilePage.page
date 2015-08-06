@@ -2,7 +2,7 @@
 <apex:composition template="{!$Site.Template}">
 <apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
 <apex:define name="body">
-    <!--=== Profile ===-->
+    <!--=== Profile ===-->    
     <div class="profile CommunityProfilePage">
         <div class="container content">
             <div class="row">
@@ -21,7 +21,12 @@
                             </div>
                             <div class="col-md-6">
                                 <apex:form id="btnaction">
-                                    <apex:commandLink action="{!subscribeUser}" styleClass="btn-u {!IF(isSubscribe,'btn-u-blue','')} pull-right margin-right-5" rerender="btnaction" onclick="$(this).find('i').attr('class','fa fa-spinner fa-pulse');">
+                                <!-- <apex:commandLink id="btnactionLink" action="{!subscribeUser}" styleClass="btn-u {!IF(isSubscribe,'btn-u-blue','')} pull-right margin-right-5" rerender="btnaction" onclick="$(this).find('i').attr('class','fa fa-spinner fa-pulse'); $('[id$=btnactionLink]').addClass('disabled');'" onComplete="$('[id$=btnactionLink]').removeClass('disabled');"> -->
+                                    <apex:commandLink id="btnactionLink" 
+                                    	action="{!subscribeUser}" 
+                                    	styleClass="btn-u {!IF(isSubscribe,'btn-u-blue','')} pull-right margin-right-5" 
+                                    	rerender="btnaction" onclick="$(this).find('i').attr('class','fa fa-spinner fa-pulse'); $('[id$=btnactionLink]').addClass('disabled'); $('[id$=btnactionLink]').attr('disabled','disabled');" 
+                                    	onComplete="$('[id$=btnactionLink]').removeClass('disabled');$('[id$=btnactionLink]').removeAttr('disabled');">
                                         <i class="fa {!IF(isSubscribe,'fa-check','fa-plus-circle')}"></i>&nbsp;{!IF(isSubscribe,$Label.BTN_Following,$Label.LBL_Follow)}
                                     </apex:commandLink>
                                 </apex:form>

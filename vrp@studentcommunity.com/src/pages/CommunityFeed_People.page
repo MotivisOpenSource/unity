@@ -46,8 +46,8 @@
 																<img class="media-object rounded-x" ng-src="{{ p.MemberPhotoUrl }}" src="/s.gif" alt="" />
 															</a>
 															<div class="pull-right">
-																<button class="btn-u" ng-hide="p.MemberIsFollowing" ng-click="followAction(p);"><i class="fa fa-plus-circle"></i>&nbsp;Follow</button>
-																<button class="btn-u btn-u-blue" ng-show="p.MemberIsFollowing" ng-click="unFollowAction(p);"><i class="fa fa-check"></i>&nbsp;Following</button>
+																<button class="btn-u follow" ng-hide="p.MemberIsFollowing" ng-click="followAction(p);"><i class="fa fa-plus-circle"></i>&nbsp;Follow</button>
+																<button class="btn-u btn-u-blue follow" ng-show="p.MemberIsFollowing" ng-click="unFollowAction(p);"><i class="fa fa-check"></i>&nbsp;Following</button>
 															</div>
 															<div class="media-body">
 																<h4 class="media-heading">
@@ -91,8 +91,8 @@
 																<img class="media-object rounded-x" ng-src="{{ p.MemberPhotoUrl }}" src="/s.gif" alt="" />
 															</a>
 															<div class="pull-right">
-																<button class="btn-u" ng-hide="p.MemberIsFollowing" ng-click="followAction(p);"><i class="fa fa-plus-circle"></i>&nbsp;Follow</button>
-																<button class="btn-u btn-u-blue" ng-show="p.MemberIsFollowing" ng-click="unFollowAction(p);"><i class="fa fa-check"></i>&nbsp;Following</button>
+																<button class="btn-u follow" ng-hide="p.MemberIsFollowing" ng-click="followAction(p);"><i class="fa fa-plus-circle"></i>&nbsp;Follow</button>
+																<button class="btn-u btn-u-blue follow" ng-show="p.MemberIsFollowing" ng-click="unFollowAction(p);"><i class="fa fa-check"></i>&nbsp;Following</button>
 															</div>
 															<div class="media-body">
 																<h4 class="media-heading">
@@ -186,6 +186,9 @@
 										if (event.status) {
 											deferred.resolve(result);
 											$rootScope.getDataStatus = 'Finished';
+											// eneble buttons
+											jQuery('.follow').removeClass('disabled');
+											jQuery('.follow').removeAttr('disabled');
 										} else {
 											deferred.reject(event);
 											$rootScope.getDataStatus = 'Finished';
@@ -293,6 +296,7 @@
 					};
 					$scope.followAction = function(p) {
 						p.MemberIsFollowing = true;
+						
 						$scope.followUnfollow(p.MemberId, p.MemberIsFollowing);
 					}
 					$scope.unFollowAction = function(p) {
@@ -300,6 +304,8 @@
 						$scope.followUnfollow(p.MemberId, p.MemberIsFollowing);
 					}
 					$scope.followUnfollow = function(pId, isFollow) {
+						jQuery('.follow').attr('disabled','disabled');
+						$('.follow').addClass('disabled')
 						var def = subscriberAction(pId, isFollow);
 						if (def != null) {
 							$scope.inProgress = false;
