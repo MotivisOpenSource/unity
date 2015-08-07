@@ -99,7 +99,7 @@
 		if(jQuery('.cs-date')) {
 			jQuery('.cs-date').datetimepicker({
 				timepicker:false,
-				formatDate: ucDateFormat(),
+				format: ucDateFormat(),
 			});
 		}
 		function ucDateFormat() {

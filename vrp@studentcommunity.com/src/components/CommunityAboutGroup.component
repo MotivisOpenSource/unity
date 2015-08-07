@@ -56,7 +56,7 @@
 				</apex:repeat>
 			</dl>
 		</div>
-		<c:CommunityTagDisplay oId="{!so['Id']}" oType="{!tn}" fName="{!tfn}" rendered="{!!ISNULL(tn) && !ISNULL(tfn)}" sl="true"/>
+		<c:CommunityTagDisplay oId="{!so['Id']}" oType="{!tn}" fName="{!tfn}" rendered="{!!ISNULL(tn) && !ISNULL(tfn)}"/>
 	</span>
 	<script>
 		$('#{!uniqueid}aboutomodal').length > 0 ? $('#{!uniqueid}fieldsarea').detach().appendTo('#{!uniqueid}aboutomodal .modal-body').show() : $('#{!uniqueid}fieldsarea').show();

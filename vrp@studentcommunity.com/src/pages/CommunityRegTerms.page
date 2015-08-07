@@ -2,19 +2,7 @@
 <apex:composition template="{!$Site.Template}">
 <apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
 <apex:define name="body">
-    
-    <style type="text/css">
-        /*
-        *.messageText { padding:15px 30px; margin-bottom:20px; border:1px solid #ebccd1; background-color:#f2dede; color:#a94442;}
-        */
-        .messageText span { display:none; }
-        table.messageTable { width:100%; background-color:#f2dede; padding:15px 30px;}
-        .sky-form .message { display: block; }
-        .errorMsg { color:#a94442; }
-        .errorMsg { border-color: #ff0000 #0000ff;  }
-    </style>
-    
-    <div class="container content"><apex:outputPanel layout="block" styleClass="row" rendered="{!ISBLANK(errorMessage)}">
+    <div class="container content CommunityRegTerms"><apex:outputPanel layout="block" styleClass="row" rendered="{!ISBLANK(errorMessage)}">
     <!--LEFT -->
     <div class="col-md-3">
         <ul class="list-group sidebar-nav-v1" id="sidebar-nav-1">

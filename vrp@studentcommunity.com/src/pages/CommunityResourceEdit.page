@@ -2,20 +2,14 @@
 <apex:composition template="{!$Site.Template}">
 <apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
 <apex:define name="body">
-	<style type="text/css">
-		.messageText { padding:15px 30px; margin-bottom:20px; border:1px solid #ebccd1; background-color:#f2dede; color:#a94442;}
-		.messageText span { display:none; }
-		table.messageTable { width:100%; }
-		.sky-form .message { display: block; }
-	</style>
 	<div class="CommunityResourceEdit" >
 		<apex:form styleClass="sky-form">
 			<header>
 				<div class="row">
-					<div class="col-md-6 text-left" style="padding-left:35px;">
+					<div class="col-md-6 text-left padding-left-35">
 						<h2>{!IF(ISNULL(resource.Id),$Label.BTN_Create_Resource, $Label.BTN_Edit_Resource)}</h2>
 					</div>
-					<div class="col-md-6 text-right" style="padding-right:25px;">
+					<div class="col-md-6 text-right padding-right-25">
 						<button type="button" class="btn-u" onclick="submitResource();return false;">{!$Label.BTN_Submit}</button>
 						&nbsp;
 						<apex:outputLink value="{!IF(ISBLANK($CurrentPage.parameters.retURL),$Page.CommunityResources,JSENCODE($CurrentPage.parameters.retURL))}" styleClass="btn-u">{!$Label.BTN_Cancel}</apex:outputLink>

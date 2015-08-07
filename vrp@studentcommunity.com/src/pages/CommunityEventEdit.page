@@ -37,18 +37,6 @@
 				</fieldset>
 		</apex:form>
 	</div>
-	<script>
-		$('document').on('ready', function(){
-			var $tableRows = $('.message').find('table').find('tbody > tr');
-			console.log($tableRows);
-			if ($tableRows.size() > 1) {
-				$tableRows.first().hide();
-			}
-			else {
-				console.log('No need to remove');
-			}
-		});
-	</script>
 </apex:define>
 </apex:composition>
 </apex:page>

@@ -554,11 +554,14 @@ public with sharing class CommunityEventController {
 		}
 	}
 
-	public String[] getAllGroupsInStringArray() {
-		List<Community_Group_Control__c> availibleGroupsControll = [SELECT Chatter_Group_ID__c, Id FROM Community_Group_Control__c WHERE Status__c = 'Approved'];
+	public List<String> getAllGroupsInStringArray() {
+		Set<Id> chatterGroups = new Set<Id>();
+		for (Community_Group_Control__c gcItem : [SELECT Chatter_Group_ID__c FROM Community_Group_Control__c WHERE Status__c = 'Approved']) {
+			chatterGroups.add(gcItem.Chatter_Group_ID__c);
+		}
 		List<String> groupIds = new List<String>();
-		for (Community_Group_Control__c aGroup : availibleGroupsControll){
-			groupIds.add(aGroup.Chatter_Group_ID__c); 
+		for (CollaborationGroup cgItem : [SELECT Id FROM CollaborationGroup WHERE Id IN :chatterGroups AND NetworkId = :Network.getNetworkId()]) {
+			groupIds.add(cgItem.Id);
 		}
 		return CommunityUtils.getNamesOfAvailableGroups(groupIds);
 	}

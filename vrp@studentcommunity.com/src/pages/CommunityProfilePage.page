@@ -1,4 +1,4 @@
-<apex:page showHeader="false" sideBar="false" standardStylesheets="true" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false" controller="CommunityProfilePageController">
+<apex:page showHeader="false" sideBar="false" standardStylesheets="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false" controller="CommunityProfilePageController">
 <apex:composition template="{!$Site.Template}">
 <apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
 <apex:define name="body">
@@ -202,7 +202,7 @@
                                                 </a>
                                             </h4>
                                             </div>
-                                            <div id="{!ints.id}" class="panel-collapse collapse" aria-expanded="false" style="">
+                                            <div id="{!ints.id}" class="panel-collapse collapse" aria-expanded="false">
                                                 <form class="sky-form" id="sky-form" action="" novalidate="novalidate">
                                                     <fieldset><div class="row"><div class="col col-8">
                                                         <apex:repeat value="{!ints.it}" var="init">

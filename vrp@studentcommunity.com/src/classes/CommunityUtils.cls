@@ -1,4 +1,4 @@
-public without sharing class CommunityUtils {
+public with sharing class CommunityUtils {
     //Moderate Chatter
     public static Boolean isModerateChatter() {
 		Boolean Result = [SELECT PermissionsModerateChatter,Name,id FROM Profile WHERE Id =: UserInfo.getProfileId()].PermissionsModerateChatter;
@@ -306,7 +306,7 @@ public without sharing class CommunityUtils {
 	public static List<String> getNamesOfAvailableGroups(List<String> groupIds){
 		List<String> groupsNames = new List<String>();
 		try {
-			List<ConnectApi.BatchResult> batchResults = ConnectApi.ChatterGroups.getGroupBatch(Network.getNetworkId(), groupIds);
+			List<ConnectApi.BatchResult> batchResults = ConnectApi.ChatterGroups.getGroupBatch(Network.getNetworkId(),groupIds);
 			for(ConnectApi.BatchResult batchResult : batchResults){
 				if (batchResult.isSuccess()) {
 					ConnectApi.ChatterGroup aGroup = (ConnectApi.ChatterGroup) batchResult.getResult();

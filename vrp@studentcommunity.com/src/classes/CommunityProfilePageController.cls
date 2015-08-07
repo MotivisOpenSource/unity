@@ -1,4 +1,4 @@
-global without sharing class CommunityProfilePageController {
+global with sharing class CommunityProfilePageController {
 
 	public Boolean allOk { get;set; }
 	public Boolean current { get;set; }
@@ -119,7 +119,8 @@ global without sharing class CommunityProfilePageController {
 					}
 				}
 			}
-			Set<String> profileFields = new Set<String> {'Id', 'Name', 'Contact__r.Name', 'Contact__c'};
+			String pp46 = CommunityUtils.getPackagePrefix();
+			Set<String> profileFields = new Set<String> {'Id', 'Name', pp46 + 'Contact__r.Name', pp46 + 'Contact__c'};
 			for (CommunityFieldLayout fs2 : overviewTab) {
 				profileFields.addAll(fs2.prepareFieldList());
 			}
@@ -132,7 +133,6 @@ global without sharing class CommunityProfilePageController {
 		catch (Exception e) {
 			allOk = false;
 		}
-		System.debug('\n**getfsMap():' + getfsMap().keyset() + '\nfieldsets:' + fieldsets);
 	}
 
 	public Map<String, Schema.FieldSet> getfsMap() {

@@ -61,11 +61,16 @@
 					<apex:outputPanel layout="none" rendered="{!!ISBLANK(news[fs.fieldPath])}">
 						<apex:outputField value="{!news[fs.fieldPath]}"/><br/>
 					</apex:outputPanel>
-				</apex:repeat>
-				
-					<apex:outputText value="{!JSENCODE(news.Content__c)}" escape="false"/>
-				
-			</div>
+				</apex:repeat>				
+					<div style="display:none;">
+						<apex:outputField value="{!news.Content__c}" />
+					</div>
+					<script>
+						$( document ).ready(function() {
+							jQuery('.margin-bottom-20').before( jQuery('.sfdc_richtext') );
+						});
+					</script>
+				</div>
 			<div class="row margin-bottom-20">
 				<div class="col-sm-12">
 					<c:CommunityTagDisplay oId="{!news.Id}" oType="{!$ObjectType.Community_News_Tag__c.Name}" fName="{!$ObjectType.Community_News_Tag__c.Fields.Community_News__c.Name}"/>

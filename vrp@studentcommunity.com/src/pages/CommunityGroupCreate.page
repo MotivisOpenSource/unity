@@ -5,15 +5,6 @@
     
     <div class="container content CommunityGroupCreate">
     <div class="row">
-    <style>
-        .jcrop-keymgr {
-          opacity: 0;
-        }
-        .imgsizeStyle {
-            max-height: 350px;
-        }
-    </style>
-
     <!--LEFT-->
     <div class="col-md-3 md-margin-bottom-40">
         <c:CommunityUserPhoto />
@@ -62,7 +53,7 @@
                             <label class="label"><i class="fa fa-asterisk color-red" title="required"></i>&nbsp;{!$ObjectType.Community_Group_Control__c.Fields.Name.Label}</label>
                             <label class="input">
                                 <apex:inputField id="namefield" html-maxlength="40" value="{!currentGroup.Name}" styleClass="margin-bottom-5" onkeyup="nameKeyUp(this);" required="true"/>
-                                <button id="nabtn" onclick="checkName();return false;" class="btn-u btn-u-sm" disabled="disabled" style="opacity:0.65;">Check Availability</button>
+                                <button id="nabtn" onclick="checkName();return false;" class="btn-u btn-u-sm opacity-65" disabled="disabled">Check Availability</button>
                             </label>
                         </section>
                         <c:CommunityFieldLayout fl="{!flayout}" so="{!currentGroup}"/>
@@ -113,7 +104,7 @@
                     <div class="pad">
                         <hr/>
                     </div>
-                    <div style="width:100px;height:100px;overflow:hidden; float:left; margin-right:15px;">
+                    <div class="preview-img__container clearfix">
                         <img src="#" id="previewImgCreateGroup" style="display:none;" />
                     </div>
                    

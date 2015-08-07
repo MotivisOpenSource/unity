@@ -17,10 +17,10 @@
 					</div>
 				</div>
 				<apex:pageBlock >
+					<apex:pageMessages id="pageMessages"/>
 					<fieldset>
 						<c:CommunityFieldLayout fl="{!flayout}" so="{!news}"/>
 					</fieldset>
-					<apex:pageMessages id="pageMessages"/>
 					<fieldset id="cnpbs1">
 						<section>
 							<apex:outputLabel value="{!$Label.LBL_Select_Image}"/>

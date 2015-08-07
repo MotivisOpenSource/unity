@@ -352,10 +352,10 @@
 								<table class="table table-hover" id="groupmembertable">
 									<apex:repeat value="{!allusers.users}" var="us">
 										<tr>
-											<td onclick="window.open('{!$Page.CommunityProfilePage}?id={!us.id}','_self');" style="cursor:pointer;width:80px;">
+											<td onclick="window.open('{!$Page.CommunityProfilePage}?id={!us.id}','_self');" class="cursor-pointer width-80">
 												<apex:image styleClass="media-object rounded-x" url="{!us.photourl}"/>
 											</td>
-											<td onclick="window.open('{!$Page.CommunityProfilePage}?id={!us.id}','_self');" style="cursor:pointer;">
+											<td onclick="window.open('{!$Page.CommunityProfilePage}?id={!us.id}','_self');" class="cursor-pointer">
 												<div><strong>{!us.name}</strong></div>
 												<div>{!us.role}</div>
 											</td>
@@ -403,7 +403,7 @@
 												</apex:outputPanel>
 											</td>
 											<apex:outputPanel layout="none" rendered="{!managerMode && changeOwnerMode}">
-												<td style="width:20px;">
+												<td class="width-20">
 													<apex:outputPanel layout="none" rendered="{!!us.owner}">
 														<label class="radio">
 															<input type="radio" name="{!us.id}" onclick="radiogaga(this);"/>
@@ -482,7 +482,7 @@
 					</apex:outputPanel>
 					<apex:outputPanel layout="none" rendered="{!changeOwnerMode}">
 						<button type="button" class="btn-u btn-u-default" value="{!$Label.BTN_Cancel}" onclick="changeowner('cancel');">{!$Label.BTN_Cancel}</button>
-						<button id="owabtn" type="button" class="btn-u" value="{!$Label.BTN_Save}" onclick="changeowner(this.name);" disabled="disabled" style="opacity:0.65">{!$Label.BTN_Save}</button>
+						<button id="owabtn" type="button" class="btn-u opacity-65" value="{!$Label.BTN_Save}" onclick="changeowner(this.name);" disabled="disabled">{!$Label.BTN_Save}</button>
 						<script>
 							function radiogaga(elem) {
 								$('#groupmembertable [type=radio]').prop('checked',false);
