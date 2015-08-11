@@ -224,6 +224,8 @@ public with sharing class CommunityResourceController {
 		catch (Exception e) {
 			ApexPages.addMessages(e);
 		}
+		System.debug('\n**FG: ' + this);
+		imgBody = NULL;
 		return pr;
 	}
 }

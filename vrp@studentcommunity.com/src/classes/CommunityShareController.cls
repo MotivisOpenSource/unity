@@ -6,7 +6,7 @@ global with sharing class CommunityShareController {
 	public String shareGroup { get;set; }
 	public Boolean hasMessage { get { return hasMessage == NULL ? false : hasMessage; } set; }
 	public String message { get; set; }
-	public List<TagsForGroup> AvailableGroups { get; set; }
+	public List<GroupFinderWrapper> AvailableGroups { get; set; }
 	public List<GroupFinderWrapper> listGroupFindWrapper { get; set; }
 	public Boolean availGroups {
 		get {
@@ -187,11 +187,12 @@ global with sharing class CommunityShareController {
 				wrapper.add(new GroupFinderWrapper(cGroups.get(cgiCGC.get(gc)), cgiCGC.get(gc)));
 			}
 		}
+		
 		tagsForGroups.sort();
 		if(!wrapper.isEmpty()) {
 			tagsForGroups.add(new TagsForGroup(Label.LBL_Other, wrapper));
 		}
-		AvailableGroups = tagsForGroups;
+		AvailableGroups = getMyGroupsInGroupFinderWrapper(null);
 		listGroupFindWrapper = new List<GroupFinderWrapper>();
 		for (TagsForGroup tfg : tagsForGroups) {
 			for (GroupFinderWrapper gfw : tfg.wrapperGroup) {
@@ -212,12 +213,6 @@ global with sharing class CommunityShareController {
 					if(String.valueOf(aGroup.myRole) != 'NotAMember' && String.valueOf(aGroup.myRole) != 'NotAMemberPrivateRequested'){
 						groupsNames.add(aGroup.name);
 					}
-					// will need in a future
-					/*if((String.valueOf(aGroup.myRole) != 'NotAMember' 
-						&& String.valueOf(aGroup.myRole) != 'NotAMemberPrivateRequested' 
-						&& String.valueOf(aGroup.visibility) == 'PrivateAccess') || String.valueOf(aGroup.visibility) == 'PublicAccess'){
-						groupsNames.add(aGroup.name);
-					}*/
 				}
 				else {
 					// Operation failed. Print errors.
@@ -230,7 +225,28 @@ global with sharing class CommunityShareController {
 		}
 		return groupsNames;
 	}
-
+	
+	
+	public static List<GroupFinderWrapper> getMyGroupsInGroupFinderWrapper(String query){
+		String SearchQuery = query == null ? '%%' : '%'+query+'%';
+		Set<Id> chatterGroups = new Set<Id>();
+		List<GroupFinderWrapper> groupsNames = new List<GroupFinderWrapper>();
+		for (Community_Group_Control__c gcItem : [SELECT Chatter_Group_ID__c FROM Community_Group_Control__c WHERE Status__c = 'Approved' AND Name LIKE :SearchQuery LIMIT 100]) {
+			chatterGroups.add(gcItem.Chatter_Group_ID__c);
+		}
+		List<String> groupIdList = new List<String>();
+		for (CollaborationGroup cgItem : [
+											SELECT Id, Name FROM CollaborationGroup Where NetworkId = :Network.getNetworkId() AND ID in :chatterGroups AND
+												ID in (SELECT CollaborationGroupId FROM CollaborationGroupMember WHERE
+												MemberId = :UserInfo.getUserId()) LIMIT 100 ] ) {
+			groupIdList.add(cgItem.Id);
+			groupsNames.add(new GroupFinderWrapper(cgItem.Name,cgItem.Id));
+		}
+		return groupsNames;
+	}
+	
+	
+	
 	//remote actions
 	@RemoteAction
 	global static String getGroups(String query) {
@@ -246,29 +262,8 @@ global with sharing class CommunityShareController {
 	}
 
 	@RemoteAction
-	global static String getGroupsSelector(String query){
-		List<GroupFinderWrapper> result = new List<GroupFinderWrapper>();
-		Set<String> gcSet = new Set<String>();
-		List<String> gcList = new List<String>();
-		for (Community_Group_Control__c cgc : [SELECT Chatter_Group_ID__c FROM Community_Group_Control__c 
-												WHERE Chatter_Group_ID__c != NULL AND Status__c = 'Approved']) {
-			gcSet.add(cgc.Chatter_Group_ID__c);
-		}
-		Set<String> groupsNamesSet = new Set<String>();
-		
-		if(gcSet.isEmpty()) return null;
-		
-		gcList.addAll(gcSet);
-		groupsNamesSet.addAll(getNamesOfAvailableGroups(gcList));
-		
-		if(groupsNamesSet.isEmpty()) return null;
-		
-		for (CollaborationGroup cg : [SELECT Id, Name FROM CollaborationGroup WHERE Id IN :gcSet AND NetworkId = :Network.getNetworkId() ORDER BY Name]) {
-			if(groupsNamesSet.contains(cg.Name)){
-				result.add(new GroupFinderWrapper(cg.Name, cg.Id));
-			}
-		}
-		return JSON.serialize(result);
+	global static String getGroupsSelector(String getGroupsSelector){		
+		return JSON.serialize(getMyGroupsInGroupFinderWrapper(getGroupsSelector));
 	}
 
 	global class TagsForGroup implements Comparable{

@@ -15,7 +15,7 @@ public with sharing class CommunityObjectController {
 			List<String> fieldList = new List<String> { 'Id', 'Name' };
 			Map<String, Schema.SObjectType> GlobalDescribeMap = Schema.getGlobalDescribe();
 			Schema.SObjectType SObjectTypeObj = GlobalDescribeMap.get(soName);
-			Schema.DescribeSObjectResult DescribeSObjectResultObj = SObjectTypeObj.getDescribe();			
+			Schema.DescribeSObjectResult DescribeSObjectResultObj = SObjectTypeObj.getDescribe();
 			flayout = new CommunityFieldLayout(
 				soId,
 				DescribeSObjectResultObj.FieldSets.getMap().get(CommunityUtils.getPackagePrefix()+fieldSetName),

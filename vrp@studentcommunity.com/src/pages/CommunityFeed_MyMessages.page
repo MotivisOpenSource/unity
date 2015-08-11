@@ -315,7 +315,7 @@
 			</div>
 		</apex:define>
 		<apex:define name="scripts">
-			
+			<script type="text/javascript" src="{!$Resource.CommunityResources}/js/Typeahead/typeahead.bundle.custom.js" ></script>
 			<script type="text/template" id="messageRowTemplate">
 				<li class="messageRow">
 					<div class="messagePhoto">
@@ -339,10 +339,10 @@
 				</li>
 			</script>
 			<script type="text/template" id="suggestionTemplate">
-                <img class="rounded-x" src="<%= MemberPhotoUrl %>" alt="<%= MemberName %>">
-                <div class="overflow-h">
-                    <span><strong><%= MemberName %></strong></span>
-                </div>    
+				<img class="rounded-x" src="<%= MemberPhotoUrl %>" alt="<%= MemberName %>">
+				<div class="overflow-h">
+					<span><strong><%= MemberName %></strong></span>
+				</div>	
 			</script>
 			<script type="text/template" id="suggestionSelectedTemplate">
 				<li class="search-choice item_<%= member.MemberId %>" data-member="<%= member.MemberId %>">
@@ -361,7 +361,7 @@
 				var MESSAGES_QUICK_FIND_INPUT = '#messageSearchInput';
 				var MESSAGES_PER_PAGE = {!MessagesPerPage};
 				var RECIPIENT_INPUT_BOX = '#recipientInputBox';
-				var RECIPIENTS_CONTAINER = '#recipientsContainer';
+				var RECIPIENTS_CONTAINER = '#recipientsContainer .search-field';
 
 				var BTN_DISABLED_CLASS= 'state-disabled';
 
@@ -452,9 +452,6 @@
 				}
 				function messageValidationHandler (el, err_el, disabled_cls, btn, txt_lim) {
 					var replyText = $(el).val();
-					console.log(replyText && replyText.length < txt_lim);
-					console.log(replyText && replyText.length > txt_lim && !$(err_el).is(':visible'));
-					console.log(!replyText);
 					if (replyText && replyText.length < txt_lim) {
 						if ($(err_el).is(':visible')) {
 							$(err_el).hide();
@@ -537,7 +534,7 @@
 					function ttHandler(event, memberData, name) {
 						var alreadyAdded = $('li.search-choice.item_'+memberData.MemberId);
 						if (alreadyAdded.length == 0) {
-							$(RECIPIENTS_CONTAINER).prepend(_.template(suggestionSelectedTemplate)({ member: memberData}));
+							$(RECIPIENTS_CONTAINER).before(_.template(suggestionSelectedTemplate)({ member: memberData}));
 						}
 						$(this).val('');
 						newConversationValidationHandler('#newConversationButton', BTN_DISABLED_CLASS);

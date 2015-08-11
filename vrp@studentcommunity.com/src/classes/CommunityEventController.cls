@@ -553,7 +553,7 @@ public with sharing class CommunityEventController {
 			name += cet.Community_Tag__r.Name;
 		}
 	}
-
+	/*
 	public List<String> getAllGroupsInStringArray() {
 		Set<Id> chatterGroups = new Set<Id>();
 		for (Community_Group_Control__c gcItem : [SELECT Chatter_Group_ID__c FROM Community_Group_Control__c WHERE Status__c = 'Approved']) {
@@ -564,5 +564,22 @@ public with sharing class CommunityEventController {
 			groupIds.add(cgItem.Id);
 		}
 		return CommunityUtils.getNamesOfAvailableGroups(groupIds);
+	}
+	*/
+	public List<String> getAllGroupsInStringArray() {
+		Set<Id> chatterGroups = new Set<Id>();
+		List<String> groupsNames = new List<String>();
+		for (Community_Group_Control__c gcItem : [SELECT Chatter_Group_ID__c FROM Community_Group_Control__c WHERE Status__c = 'Approved']) {
+			chatterGroups.add(gcItem.Chatter_Group_ID__c);
+		}
+		List<String> groupIds = new List<String>();
+		for (CollaborationGroup cgItem : [
+											SELECT Id, Name FROM CollaborationGroup Where NetworkId = :Network.getNetworkId() AND ID in :chatterGroups AND
+												ID in (SELECT CollaborationGroupId FROM CollaborationGroupMember WHERE
+														 MemberId = :UserInfo.getUserId() ) ] ) {
+			groupIds.add(cgItem.Id);
+			groupsNames.Add(cgItem.Name);
+		}		
+		return groupsNames;
 	}
 }

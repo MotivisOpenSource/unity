@@ -5,7 +5,7 @@ trigger CommunityResource on Community_Resource__c (after undelete, before inser
 
 	for (Community_Resource__c crItem : Trigger.new) {
 		if (crItem.Quick_Link__c != true && crItem.Help_Link__c != true && String.isBlank(crItem.Primary_Tag__c)) {
-			crItem.Primary_Tag__c.addError('Primary Tag: You must enter a value');
+			crItem.Primary_Tag__c.addError(Label.ERR_Please_Enter_Value);
 		}
 
 		if (crItem.Quick_Link__c == true

@@ -13,6 +13,22 @@ public with sharing class CommunityUtils {
 		return Result;
 	}
 	
+ public static Boolean isModerateChatterAndModerateNetworkFeeds() {
+		Profile prof = [SELECT PermissionsModerateChatter,PermissionsModerateNetworkFeeds,Name,id FROM Profile WHERE Id =: UserInfo.getProfileId()];
+		Boolean Result = false;
+		if (prof.PermissionsModerateChatter != true && prof.PermissionsModerateNetworkFeeds != true) {
+			for (PermissionSetAssignment psa : [SELECT PermissionSet.PermissionsModerateChatter, PermissionSet.PermissionsModerateNetworkFeeds FROM PermissionSetAssignment WHERE AssigneeId = :UserInfo.getUserId()]) {
+				if (psa.PermissionSet.PermissionsModerateChatter == true || psa.PermissionSet.PermissionsModerateNetworkFeeds) {
+					Result = true;
+					break;
+				}
+			}
+		}else{
+			Result = true;
+		}
+		return Result;
+	}
+
 	public static Boolean isModifyAllData() {
 		Boolean Result = [SELECT PermissionsModifyAllData FROM Profile WHERE Id =: UserInfo.getProfileId()].PermissionsModifyAllData;
 		if (Result != true) {

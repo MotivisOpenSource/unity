@@ -6,10 +6,10 @@
 		<apex:form styleClass="sky-form">
 			<header>
 				<div class="row">
-					<div class="col-md-6 text-left padding-left-35">
+					<div class="col-md-6 text-left" style="padding-left:35px;">
 						<h2>{!IF(ISNULL(resource.Id),$Label.BTN_Create_Resource, $Label.BTN_Edit_Resource)}</h2>
 					</div>
-					<div class="col-md-6 text-right padding-right-25">
+					<div class="col-md-6 text-right" style="padding-right:25px;">
 						<button type="button" class="btn-u" onclick="submitResource();return false;">{!$Label.BTN_Submit}</button>
 						&nbsp;
 						<apex:outputLink value="{!IF(ISBLANK($CurrentPage.parameters.retURL),$Page.CommunityResources,JSENCODE($CurrentPage.parameters.retURL))}" styleClass="btn-u">{!$Label.BTN_Cancel}</apex:outputLink>
@@ -20,6 +20,7 @@
 			<fieldset>
 				<c:CommunityFieldLayout fl="{!rlayout}" so="{!resource}"/>
 			</fieldset>
+
 			<fieldset>
 				<label class="label"><i class="fa fa-asterisk color-red" title="required"></i>&nbsp;Resource</label>
 				<apex:outputPanel id="resblock" layout="block" styleClass="requiredInput">
@@ -27,7 +28,7 @@
 					<button id="resbname" class="btn-u btn-u-sm" data-toggle="modal" data-target="#uploadResourceDialog" onclick="cancelDialog();return false;">{!$Label.BTN_Upload_Resource}</button>
 				</apex:outputPanel>
 			</fieldset>
-			
+
 			<fieldset>
 				<section>
 					<label class="label">
