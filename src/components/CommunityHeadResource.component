@@ -41,7 +41,6 @@
 
     <!-- CSS Customization -->
     <link rel="stylesheet" href="{!$Resource.assets}/css/custom.css"/>
-
     <!-- Removed Inline Styles -->
     <link rel="stylesheet" href="{!$Resource.assets}/css/app/app.styles.css"/>
     <!-- Themes Styles -->

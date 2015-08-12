@@ -23,6 +23,22 @@
 	<!-- JS Customization -->
 	<script type="text/javascript" src="{!$Resource.assets}/js/custom.js"></script>
 	<!-- JS Implementing Plugins -->
+	<script>
+			// remove bad styles from apex:pageMessages
+			
+			jQuery('.calert').ready( function () {
+				var calert = jQuery('.calert');
+				calert.find('h4').remove();
+				calert.find('br').remove();
+				calert.find('img').remove();
+				//console.log('1');
+				//console.log(jQuery('.calert .messageText').text().trim() );
+				if(!calert.find('.messageText').text().trim()) {
+					calert.find('.messageText').remove();
+				}
+				calert.css("display","block");
+			});
+	</script>
 	<script type="text/javascript">
 		jQuery(document).ready(function() {
 			App.init();
@@ -32,11 +48,11 @@
 			$('.contentHolder').perfectScrollbar();
 		});
 	</script>
+	
 
 	<!--[if lt IE 9]>
 		<script src="{!$Resource.assets}/plugins/respond.js"></script>
 		<script src="{!$Resource.assets}/plugins/html5shiv.js"></script>
 		<script src="{!$Resource.assets}/js/plugins/placeholder-IE-fixes.js"></script>
 	<![endif]-->
-
 </apex:component>

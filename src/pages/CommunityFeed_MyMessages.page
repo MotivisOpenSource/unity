@@ -518,8 +518,11 @@
 							query,
 							function(result, event) {
 								window.suggestedRecipients = [];
-								$.each( result, function( key, value ) {
-								  suggestedRecipients.push(value);
+								$.each(result, function(key, value) {
+									var div = document.createElement('div');
+									div.innerHTML = value.MemberName;
+									value.MemberName = div.firstChild.nodeValue
+									suggestedRecipients.push(value);
 								});
 								process(suggestedRecipients);
 							}
@@ -536,7 +539,7 @@
 						if (alreadyAdded.length == 0) {
 							$(RECIPIENTS_CONTAINER).before(_.template(suggestionSelectedTemplate)({ member: memberData}));
 						}
-						$(this).val('');
+						event.target.value='';
 						newConversationValidationHandler('#newConversationButton', BTN_DISABLED_CLASS);
 					}
 					var recipientInput = $(RECIPIENT_INPUT_BOX);
@@ -552,15 +555,15 @@
 								lazyLoad(query, process);
 							},
 							templates: {
-								empty: [
-								  '<span><strong>Ooops! Nothing found.</strong></span>',
-								].join('\n'),
+								empty: ['<span><strong>Ooops! Nothing found.</strong></span>',].join('\n'),
 								suggestion: _.template(suggestedTemplate)
 							}
 						}
 					).bind('typeahead:selected', function(event, memberData, name) {
 						ttHandler(event, memberData, name);
-					}).bind('typeahead:closed', function() {$(RECIPIENT_INPUT_BOX).val('');});
+					}).bind('typeahead:closed', function() {
+						$(RECIPIENT_INPUT_BOX).val('');
+					});
 				}
 				function searchStatusBtn() {
 					$('#messageSearchButton').attr('disabled','disabled').addClass('disabled');

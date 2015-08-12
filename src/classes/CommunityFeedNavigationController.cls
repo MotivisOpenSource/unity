@@ -25,50 +25,7 @@ public with sharing class CommunityFeedNavigationController {
 		}
 		return result;
 	}
-/*
-	// Photo Upload Section
-	public Blob photoBody { get; set; }
-	public String photoName { get; set; }
-	public String photoContentType { get; set; }
-	public Boolean uploadMode { get { return uploadMode == NULL ? false : uploadMode; } set; }
-// 	public Integer cropX { get; set; }
-// 	public Integer cropY { get; set; }
-// 	public Integer cropSize { get; set; }
-	public String cropX { get; set; }
-	public String cropY { get; set; }
-	public String cropSize { get; set; }
 
-	public String getUserPhotoUrl() {
-		return [SELECT FullPhotoUrl FROM User WHERE Id = :UserInfo.getUserId()].FullPhotoUrl;
-	}
-
-	public void uploadmode() {
-		uploadMode = true;
-	}
-
-	public PageReference photoaction() {
-		if (photoBody != NULL) {
-			ConnectApi.PhotoInput pi = new ConnectApi.PhotoInput();
-			pi.cropX = Integer.valueOf(cropX);
-			pi.cropY = Integer.valueOf(cropY);
-			pi.cropSize = Integer.valueOf(cropSize);
-			if(!Test.isRunningTest()){
-			ConnectApi.ChatterUsers.setPhotoWithAttributes(
-				Network.getNetworkId(),
-				UserInfo.getUserId(),
-				pi,
-				new ConnectApi.BinaryInput(photoBody, photoContentType, photoName)
-			);
-		}
-		}
-		PageReference pr = new PageReference(ApexPages.currentPage().getUrl());
-		pr.setRedirect(true);
-		return pr;
-	}
-	
-	// 	
-	
-*/	
 
 	public String getPhotoUrl() {
 		return [SELECT FullPhotoUrl FROM User WHERE Id = :UserInfo.getUserId()].FullPhotoUrl;
@@ -102,7 +59,7 @@ public with sharing class CommunityFeedNavigationController {
 	
 	public String modalTitle { 
 		get {
-			if (ApexPages.currentPage().getParameters().get('gr') != null) {
+			if (getGroupId != null) {
 				return Label.LBL_Upload_Group_Photo;
 			}	
 			else return Label.LBL_Upload_Profile_Photo;
@@ -110,10 +67,28 @@ public with sharing class CommunityFeedNavigationController {
 		set;
 	}
 	
+	private String grID = ApexPages.currentPage().getParameters().get('gr');
+	private String gcID = ApexPages.currentPage().getParameters().get('gc');
+	
+	private String getGroupId { 
+		get {
+			if( grID != null) {
+				return grID;
+			}	
+			else if (gcID!= null) {
+				List<Community_Group_Control__c> ls = [SELECT ID, Chatter_Group_ID__c FROM Community_Group_Control__c WHERE ID =: gcID LIMIT 1];				
+				return ls[0].Chatter_Group_ID__c;
+			}
+			return null;
+		}
+		set;
+	}
+	
+	
 	public String actionPhotoLabel { 
 		get {
-		        if (ApexPages.currentPage().getParameters().get('gr') != null) {
-				    ConnectApi.Photo photoGroup = ConnectApi.ChatterGroups.getPhoto(Network.getNetworkId(), ApexPages.currentPage().getParameters().get('gr'));
+		        if (getGroupId != null) {
+				    ConnectApi.Photo photoGroup = ConnectApi.ChatterGroups.getPhoto(Network.getNetworkId(), getGroupId);
 				    return (String.valueOf(photoGroup).contains('default')||(photoGroup==null))?Label.LBL_Add_Photo:Label.BTN_Update;						
 		        }
 		        else {
@@ -129,7 +104,7 @@ public with sharing class CommunityFeedNavigationController {
 	
 	public String permitions {	 
 		get { 
-	        if (ApexPages.currentPage().getParameters().get('gr') != null) {
+	        if (getGroupId != null) {
 	            return (CommunityUtils.isModerateChatter() == true || CommunityUtils.isModifyAllData() == true || (groupRole == 'Owner' || groupRole == 'Manager'))?'true':'false';	/////////////////////////					
 	        }
 	        else {
@@ -151,10 +126,10 @@ public with sharing class CommunityFeedNavigationController {
 				pi.cropY = Integer.valueOf(cropY);
 				pi.cropSize = Integer.valueOf(cropSize)-1;
 				System.debug(pi);
-				if (ApexPages.currentPage().getParameters().get('gr') != null) {
+				if (getGroupId != null) {
 					ConnectApi.ChatterGroups.setPhotoWithAttributes(
     					Network.getNetworkId(),
-    					ApexPages.currentPage().getParameters().get('gr'),
+    					getGroupId,
     					pi,
     					new ConnectApi.BinaryInput(photoBody, photoContentType, photoName)
 					); 

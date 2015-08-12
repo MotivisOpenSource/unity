@@ -50,7 +50,9 @@
 									<li><a data-toggle="tab" href="#feed">{!$Label.LBL_Feed}</a></li>
 								</ul>
 							</apex:outputPanel>
-							<apex:pageMessages id="pageMessages"/>
+							<div class="calert">
+								<apex:pageMessages id="pageMessages"/>
+							</div>
 							<div class="tab-content">
 								<div id="profile" class="profile-edit tab-pane fade in active">
 									<div class="row margin-bottom-20">

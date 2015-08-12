@@ -9,7 +9,7 @@
             <apex:repeat value="{!leftSideBar.items}" var="mi">
                 <li class="list-group-item {!IF(mi.current,'active','menu-item-link')}">
                     <a href="{!$Page.CommunityRegTerms}{!mi.StepParam}">
-                        <div style="width:15px; display:inline-block;">
+                        <div class="width-15 display-inline-block">
                             <i class="fa {!IF(mi.active,'fa-circle-o','fa-check-circle-o plus')}"></i>
                         </div>
                         {!mi.name}
@@ -46,8 +46,14 @@
                 </script>
             </div>
         </div></header>
-        <apex:pageMessages id="pageMessages"/>
         <apex:outputPanel layout="none" rendered="{!stepName == 'info'}">
+        	<fieldset>
+		        <section>
+			        <div class="calert">
+							<apex:pageMessages id="pageMessages"/>
+					</div>
+				</section>
+			</fieldset>
             <apex:repeat value="{!overviewTab}" var="ot">
                 <fieldset>
                     <section>
@@ -61,8 +67,8 @@
             <fieldset class="margin-bottom-20">
                 <apex:outputField value="{!caText.Terms_Body__c}"/>
                 <div class="text-center margin-top-20">
-                    <apex:inputCheckbox rendered="{!!tcCheckBox}" value="{!tcCheckBox}" id="terms-checkbox" onchange="chkchkb(this);" style="vertical-align:top;"/>
-                    <apex:inputCheckbox rendered="{!tcCheckBox}" value="{!tcCheckBox}" disabled="{!tcCheckBox}" id="terms-checkbox-checked" style="vertical-align:top;"/>
+                    <apex:inputCheckbox rendered="{!!tcCheckBox}" value="{!tcCheckBox}" id="terms-checkbox" onchange="chkchkb(this);" styleClass="vertical-align-top"/>
+                    <apex:inputCheckbox rendered="{!tcCheckBox}" value="{!tcCheckBox}" disabled="{!tcCheckBox}" id="terms-checkbox-checked" styleClass="vertical-align-top"/>
                     &nbsp;<label>{!$Label.LBL_AgreeToTerms}</label>
                 </div>
                 <button id="bsbtbtn" class="btn-u pull-right" type="button" style="opacity:{!IF(disabledNext,'0.65','1')};" onclick="completeCurrentStep();btnstatus();return false;">
