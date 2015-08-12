@@ -2,10 +2,6 @@
 <apex:composition template="{!$Site.Template}">
 <apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
 <apex:define name="body">
-	<style>
-		.thumbnail-style a.btn-more.sticky { background-color: #e74c3c; }
-		.thumbnail-style a.btn-more.sticky:hover { text-decoration:none; box-shadow:0 0 0 2px #d04436; }
-	</style>
 	<div class="breadcrumbs margin-bottom-10">
 		<div class="container">
 			<h1 class="pull-left">{!$ObjectType.Community_News__c.labelPlural}</h1>
@@ -14,7 +10,7 @@
 			</ul>
 		</div>
 	</div>
-	<apex:outputPanel layout="block" styleClass="profile" id="form" rendered="{!$ObjectType.Community_News__c.accessible}">
+	<apex:outputPanel layout="block" styleClass="profile CommunityNews" id="form" rendered="{!$ObjectType.Community_News__c.accessible}">
 		<div class="container content">
 			<div class="row margin-bottom-10">
 				<div class="col-md-6 text-left">

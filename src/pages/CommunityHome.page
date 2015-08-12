@@ -2,21 +2,8 @@
 <apex:composition template="{!$Site.Template}">
 <apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
 <apex:define name="body">
-    <style>
-        .text-on-img {
-            display:inline-block;   
-            position:relative;
-        }
-        .text-on-img h1 {
-            display:inline-block;
-            position:absolute;
-            top:10%;   
-            left:10%;  
-            color: white;    
-        }   
-    </style>
     <!--=== Content Part ===-->
-    <div class="container content">
+    <div class="container content CommunityHome">
         <div class="row magazine-page">
             <div class="col-md-12">
                 <!-- Magazine Slider -->

@@ -3,9 +3,9 @@
 		<apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
 		<apex:define name="body">
 		<div class="profile">
-			<div class="container content paddingCategories" >
+			<div class="container content paddingCategories CommunitySearch" >
 				<div class="headline"><h2>Results found for {!FilterName}</h2></div>
-				<div style="text-align:center;font-size:+1em;">
+				<div class="results">
 					<apex:outputPanel layout="none" rendered="{!mode == 'discover' || mode == 'search'}">
 						<a href="#groupresults">Groups</a>({!groups.totalRecords})&nbsp;|&nbsp;
 						<a href="#newsresults">News</a>({!news.totalRecords})&nbsp;|&nbsp;
@@ -110,7 +110,7 @@
 							<div class="headline">
 								<h3>Event results for {!FilterName}</h3>
 								<a href="javascript:;" title="Scroll Back to results" onclick="$('div#topcontrol').click();">
-									<i class="icon-custom icon-sm fa fa-angle-up" style="border-color:white;"></i>
+									<i class="icon-custom icon-sm fa fa-angle-up"></i>
 								</a>
 							</div>
 							<apex:outputPanel layout="block" styleClass="text-center" rendered="{!events.showPagination}">
@@ -131,7 +131,7 @@
 										<tbody>
 											<apex:repeat value="{!events.results}" var="ev">
 											<tr>
-												<td style="width:200px;">
+												<td class="width-200">
 													<div class="date-formats">
 														{!ev.fdate}
 													</div>
@@ -162,7 +162,7 @@
 							<div class="headline">
 								<h3>News results for {!FilterName}</h3>
 								<a href="javascript:;" title="Scroll Back to results" onclick="$('div#topcontrol').click();">
-									<i class="icon-custom icon-sm fa fa-angle-up" style="border-color:white;"></i>
+									<i class="icon-custom icon-sm fa fa-angle-up"></i>
 								</a>
 							</div>
 							<apex:outputPanel layout="block" styleClass="text-center" rendered="{!news.showPagination}">
@@ -183,7 +183,7 @@
 										<tbody>
 											<apex:repeat value="{!news.results}" var="nw">
 											<tr>
-												<td style="width:90px;">
+												<td class="width-90">
 													<img class="rounded-x" src="{!nw.imagePath}" alt="" />
 												</td>
 												<td styleClass="td-width">
@@ -218,7 +218,7 @@
 							<apex:outputPanel styleClass="headline" rendered="{!mode == 'discover' || mode == 'search'}">
 								<h3>Resources results for {!FilterName}</h3>
 								<a href="javascript:;" title="Scroll Back to results" onclick="$('div#topcontrol').click();">
-									<i class="icon-custom icon-sm fa fa-angle-up" style="border-color:white;"></i>
+									<i class="icon-custom icon-sm fa fa-angle-up"></i>
 								</a>
 							</apex:outputPanel>
 							<apex:outputPanel layout="block" styleClass="text-center" rendered="{!resources.showPagination}">
@@ -240,7 +240,7 @@
 											<apex:repeat value="{!resources.results}" var="rs">
 											<tr>
 												<td styleClass="td-width">
-													<a href="{!rs.detailUrl}" style="text-decoration:none;">
+													<a href="{!rs.detailUrl}" class="text-decoration-none">
 														<h3>{!rs.title}</h3>
 														<p><apex:outputText value="{!rs.teaser}" escape="false"/></p>
 													</a>

@@ -39,6 +39,10 @@ public with sharing class CommunityGroupManageController {
 					String tempFieldName = isPP ? f.getFieldPath().replace(pp,'') : f.getFieldPath();
 					collectedFields.add(tempFieldName);
 				}
+				for (Schema.FieldSetMember f : SObjectType.Community_Group_Control__c.FieldSets.ViewGroup.getFields()) {
+					String tempFieldName = isPP ? f.getFieldPath().replace(pp,'') : f.getFieldPath();
+					collectedFields.add(tempFieldName);
+				}
 			}
 			List<String> fieldList = new List<String>();
 			fieldList.addAll(collectedFields);
@@ -48,6 +52,10 @@ public with sharing class CommunityGroupManageController {
 			return cgcList.size() > 0 ? cgcList[0] : NULL;
 		}
 		return NULL;
+	}
+
+	public Schema.FieldSet getFieldset() {
+		return SObjectType.Community_Group_Control__c.FieldSets.EditGroup;
 	}
 
 	public void editModeAction() {

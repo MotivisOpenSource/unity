@@ -44,7 +44,10 @@
 				</apex:outputPanel>
 			</apex:pageBlockSectionItem>
 			<apex:repeat value="{!FieldsCTS}" var="fs">
-				<apex:inputField value="{!cts[fs]}" rendered="{!ctsEdit}"/>
+				<apex:inputField value="{!cts[fs]}" rendered="{!IF(ctsEdit && fs != colorSchemeName, true, false)}"/>
+				<apex:selectList value="{!cts[fs]}" size="1" rendered="{!IF(ctsEdit && fs == colorSchemeName, true, false)}">
+            		<apex:selectOptions value="{!colorSchemeItems}"/>
+       			</apex:selectList>
 				<apex:outputField value="{!cts[fs]}" rendered="{!!ctsEdit}"/>
 			</apex:repeat>
 		</apex:pageBlockSection>

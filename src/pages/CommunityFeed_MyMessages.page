@@ -29,7 +29,7 @@
 					<apex:param name="token" assignTo="{!SelectedPageToken}" value="" />
 				</apex:actionFunction>
 			</apex:form>
-			<div class="profile">
+			<div class="profile CommunityFeed_MyMessages">
 				<div class="container content">
 					<!-- PAGE HEADER -->
 					<!--<apex:outputPanel styleClass="headline" layout="block">
@@ -107,7 +107,7 @@
 											</apex:outputPanel>
 											<apex:repeat value="{!Conversations}" var="conversation">
 												<div  class="media media-v2 conversation {!IF(NOT(conversation.IsRead), 'unread', 'replied')}" onclick="goToConversation('{!JSENCODE(conversation.ConversationId)}');">
-													<a class="pull-left" style="position: relative;" href="#">
+													<a class="pull-left" href="#">
 														<img src="{!conversation.LatestMessage.Sender.MemberPhotoUrl}" alt="{!conversation.LatestMessage.Sender.MemberName}" width="45" height="45" class="media-object rounded-x" title="{!conversation.LatestMessage.Sender.MemberName}" />
 														<apex:outputPanel layout="none" rendered="{!NOT(conversation.IsRead)}">
 															<i class="fa fa-wechat indicator"/>
@@ -315,10 +315,7 @@
 			</div>
 		</apex:define>
 		<apex:define name="scripts">
-			<!--<apex:includeScript value="{!$Resource.CommunityResources}/js/jquery-1.11.2.min.js" />-->
 			<script type="text/javascript" src="{!$Resource.CommunityResources}/js/Typeahead/typeahead.bundle.custom.js" ></script>
-			<script type="text/javascript" src="{!$Resource.CommunityResources}/js/underscore/underscore-min.js" ></script>
-
 			<script type="text/template" id="messageRowTemplate">
 				<li class="messageRow">
 					<div class="messagePhoto">
@@ -342,10 +339,10 @@
 				</li>
 			</script>
 			<script type="text/template" id="suggestionTemplate">
-                <img class="rounded-x" src="<%= MemberPhotoUrl %>" alt="<%= MemberName %>">
-                <div class="overflow-h">
-                    <span><strong><%= MemberName %></strong></span>
-                </div>    
+				<img class="rounded-x" src="<%= MemberPhotoUrl %>" alt="<%= MemberName %>">
+				<div class="overflow-h">
+					<span><strong><%= MemberName %></strong></span>
+				</div>	
 			</script>
 			<script type="text/template" id="suggestionSelectedTemplate">
 				<li class="search-choice item_<%= member.MemberId %>" data-member="<%= member.MemberId %>">
@@ -364,7 +361,7 @@
 				var MESSAGES_QUICK_FIND_INPUT = '#messageSearchInput';
 				var MESSAGES_PER_PAGE = {!MessagesPerPage};
 				var RECIPIENT_INPUT_BOX = '#recipientInputBox';
-				var RECIPIENTS_CONTAINER = '#recipientsContainer';
+				var RECIPIENTS_CONTAINER = '#recipientsContainer .search-field';
 
 				var BTN_DISABLED_CLASS= 'state-disabled';
 
@@ -455,9 +452,6 @@
 				}
 				function messageValidationHandler (el, err_el, disabled_cls, btn, txt_lim) {
 					var replyText = $(el).val();
-					console.log(replyText && replyText.length < txt_lim);
-					console.log(replyText && replyText.length > txt_lim && !$(err_el).is(':visible'));
-					console.log(!replyText);
 					if (replyText && replyText.length < txt_lim) {
 						if ($(err_el).is(':visible')) {
 							$(err_el).hide();
@@ -540,7 +534,7 @@
 					function ttHandler(event, memberData, name) {
 						var alreadyAdded = $('li.search-choice.item_'+memberData.MemberId);
 						if (alreadyAdded.length == 0) {
-							$(RECIPIENTS_CONTAINER).prepend(_.template(suggestionSelectedTemplate)({ member: memberData}));
+							$(RECIPIENTS_CONTAINER).before(_.template(suggestionSelectedTemplate)({ member: memberData}));
 						}
 						$(this).val('');
 						newConversationValidationHandler('#newConversationButton', BTN_DISABLED_CLASS);
@@ -574,90 +568,6 @@
 					$('#messageSearchButton .fa-spinner').show();
 				}
 			</script>
-			<style type="text/css">
-				.media.conversation:hover {
-					background: #e5f6d5;
-				}
-				.profile .panel-heading {
-					background-color: #f7f7f7;
-				}
-				.typeahead-choices {
-					position: relative;
-					margin: 0;
-					padding: 0;
-					width: 100%;
-					height: auto !important;
-					height: 1%;
-					border: 1px solid #aaa;
-					background-color: #fff;
-					background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(1%, #eeeeee), color-stop(15%, #ffffff));
-					background-image: -webkit-linear-gradient(#eeeeee 1%, #ffffff 15%);
-					background-image: -moz-linear-gradient(#eeeeee 1%, #ffffff 15%);
-					background-image: -o-linear-gradient(#eeeeee 1%, #ffffff 15%);
-					background-image: linear-gradient(#eeeeee 1%, #ffffff 15%);
-					cursor: text;
-				}
-				.typeahead-choices li.search-choice {
-					position: relative;
-					margin: 4px 2px 3px;
-					padding: 2px 3px;
-					border: 1px solid #aaa;
-					max-width: 100%;
-					border-radius: 3px;
-					background-color: #eeeeee;
-					background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(20%, #f4f4f4), color-stop(50%, #f0f0f0), color-stop(52%, #e8e8e8), color-stop(100%, #eeeeee));
-					background-image: -webkit-linear-gradient(#f4f4f4 20%, #f0f0f0 50%, #e8e8e8 52%, #eeeeee 100%);
-					background-image: -moz-linear-gradient(#f4f4f4 20%, #f0f0f0 50%, #e8e8e8 52%, #eeeeee 100%);
-					background-image: -o-linear-gradient(#f4f4f4 20%, #f0f0f0 50%, #e8e8e8 52%, #eeeeee 100%);
-					background-image: linear-gradient(#f4f4f4 20%, #f0f0f0 50%, #e8e8e8 52%, #eeeeee 100%);
-					background-size: 100% 19px;
-					background-repeat: repeat-x;
-					background-clip: padding-box;
-					box-shadow: 0 0 2px white inset, 0 1px 0 rgba(0, 0, 0, 0.05);
-					color: #333;
-					cursor: default;
-					float: left;
-				}
-				.typeahead-choices li.search-field {
-					float: left;
-				}
-				.typeahead-choices li {
-					list-style: none;
-				}
-				.typeahead-choices .notification:hover {
-					background: #eee;
-					cursor: pointer;
-				}
-				.tt-dropdown-menu {
-					width: 410px;
-					left: 69px;
-					top: 43px;
-					z-index: 200;
-					height: auto;
-				}
-				.tt-dataset-suggestedRecipients {
-					padding: 0 0;
-					display: block;
-					position: absolute;
-					border: 1px solid #7d7d84;
-					background: #fff;
-					width: 27em;
-					z-index: 90;
-				}
-				.tt-input {
-					border: none;
-				}
-				.conversation { cursor: pointer;}
-				.conversation.unread .indicator {
-					position: absolute;
-					right: 0;
-					top: 0;
-				}
-				.conversation.unread p {
-					font-weight: bold;
-				}
-
-			</style>
 		</apex:define>
 
 	</apex:composition>

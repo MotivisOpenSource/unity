@@ -8,176 +8,43 @@
 	<!-- <apex:includeScript value="{!$Resource.CommunityResources}/js/Typeahead/bootstrap3-typeahead.min.js"/> -->
 	<!-- <apex:includeScript value="{!$Resource.CommunityResources}/js/underscore/underscore-min.js"/> -->
 
-	<style>
-		.typeahead {
-			border-radius: 4px;
-			margin-top: 2px;
-		}
-		.dropdown-menu {
-			background-clip: padding-box;
-			background-color: #ffffff;
-			border: 1px solid rgba(0, 0, 0, 0.2);
-			border-radius: 6px;
-			box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-			display: none;
-			float: left;
-			left: 0;
-			list-style: outside none none;
-			margin: 2px 0 0;
-			min-width: 160px;
-			padding: 5px 0;
-			position: absolute;
-			top: 100%;
-			z-index: 1000;
-		}
-		.dropdown-menu a {
-			clear: both;
-			color: #333333;
-			display: block;
-			font-weight: normal;
-			line-height: 20px;
-			padding: 3px 20px;
-			white-space: nowrap;
-		}
-		.dropdown-menu li > a:hover, .dropdown-menu li > a:focus, .dropdown-submenu:hover > a {
-			background-color: #0081c2;
-			background-image: linear-gradient(to bottom, #0088cc, #0077b3);
-			background-repeat: repeat-x;
-			color: #ffffff;
-			text-decoration: none;
-		}
-		.dropdown-menu .active > a, .dropdown-menu .active > a:hover {
-			background-color: #0081c2;
-			background-image: -moz-linear-gradient(center top , #0088cc, #0077b3);
-			background-repeat: repeat-x;
-			color: #ffffff;
-			outline: 0 none;
-			text-decoration: none;
-		}
-		.dropdown-menu .disabled > a, .dropdown-menu .disabled > a:hover {
-			color: #999999;
-		}
-		.dropdown-menu .disabled > a:hover {
-			background-color: transparent;
-			cursor: default;
-			text-decoration: none;
-		}
-		.div-like-input {
-			cursor: text;
-			padding: 5px 5px 5px;
-			background-color: white;
-			border: 1px solid #cccccc;
-			box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) inset;
-			box-sizing: border-box;
-			color: rgba(0, 0, 0, 0.75);
-			transition: box-shadow 0.45s ease 0s, border-color 0.45s ease-in-out 0s;
-			border-radius: 3px;
-			margin-bottom: 5px;
-			min-height: 39px;
-		}
-		.tags-container .item {
-			text-decoration: none;
-			white-space: nowrap;
-			border: 1px solid #d4dadc;
-			padding: 2px 5px;
-			-moz-border-radius: 4px;
-			-webkit-border-radius: 4px;
-			background: #eff7fa;
-			color: #015ba7;
-			margin-right: 3px;
-			margin-bottom: 3px;
-			float: left;
-			line-height: normal;
-		}
-		.tags-container {
-			line-height: 22px;
-/*			overflow: hidden;
-			display: inline;*/
-		}
-		.div-like-input input.input-inviz {
-			margin-bottom: 0px;
-			display: block;
-			width: 200px;
-			padding: 2px 5px;
-			font-size: 12px;
-			height: 24px;
-			border: none;
-			box-shadow: none;
-		}
-		.input-inviz:focus {
-			background: inherit;
-		}
-		.tags-container a.remove img {
-			background: transparent url(/img/chatter/message_item_x.png) no-repeat scroll left top;
-			width: 8px;
-			height: 8px;
-			margin-bottom: 4px;
-		}
-		.tags-container a.remove:hover img {
-			background-position: 0 50%;
-		}
-		.tags-container a {
-			margin-left: 5px;
-		}
-		.panel-success .panel-heading:hover a {
-			text-decoration:none;
-			color:black;
-			background-color:#f8f8f8;
-		}
-		.panel-heading .fa {
-			width:10px;
-		}
-		.div-like-input input.input-inviz {
-			float: left;
-			display: inline-block;
-		}
-		.panel-heading span {
-			cursor:pointer;
-		}
-		.panel-link .panel-heading {
-			color:#72c02c;
-			padding:0 15px;
-		}
-		.panel-link .panel-heading span:hover {
-			text-decoration:underline;
-		}
-	</style>
-
-	<div class="div-like-input clearfix">
-		<div id="tagsContainer" class="tags-container clearfix">
-			<input id="tagsInput" class="input-inviz" type="text" data-provide="typeahead" autocomplete="off" size="2"></input>
+	<div class="CommunityTagSelector">
+		<div class="div-like-input clearfix">
+			<div id="tagsContainer" class="tags-container clearfix">
+				<input id="tagsInput" class="input-inviz" type="text" data-provide="typeahead" autocomplete="off" size="2"></input>
+			</div>
+			<input id="tags" name="tags" style="display:none" visibility="hidden"/>
 		</div>
-		<input id="tags" name="tags" style="display:none" visibility="hidden"/>
-	</div>
-	<div class="panel-link">
-	<!-- div class="panel panel-success" -->
-		<div class="panel-heading" onclick="toggleTagSection(this);">
-			<i id="tagicon" class="fa fa-caret-right"></i>&nbsp;<span>{!$Label.LBL_TagHelper_Link}</span>
-		</div>
-		<div id="tagsection" class="panel-body" style="display:none;">
-			<div class="panel-group acc-v1" id="accordion-1">
-				<apex:variable value="{!1}" var="rowNum"/>
-				<apex:repeat value="{!AvailableTags}" var="theme">
-					<div class="panel panel-default">
-						<div class="panel-heading">
-							<h4 class="panel-title">
-								<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#accordion-1" href="#collapse-{!rowNum}" aria-expanded="false">
-									{!theme.name}
-								</a>
-							</h4>
-						</div>
-						<div id="collapse-{!rowNum}" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
-							<div class="panel-body">
-								<ul class="list-unstyled blog-tags">
-									<apex:repeat value="{!theme.tags}" var="tag">
-										<li><a href="javascript:;" onclick="addtti('{!tag.id}','{!JSENCODE(tag.fullname)}');"><i class="fa fa-tags"></i>&nbsp;{!tag.name}</a></li>
-									</apex:repeat>
-								</ul>
+		<div class="panel-link">
+		<!-- div class="panel panel-success" -->
+			<div class="panel-heading" onclick="toggleTagSection(this);">
+				<i id="tagicon" class="fa fa-caret-right"></i>&nbsp;<span>{!$Label.LBL_TagHelper_Link}</span>
+			</div>
+			<div id="tagsection" class="panel-body" style="display:none;">
+				<div class="panel-group acc-v1" id="accordion-1">
+					<apex:variable value="{!1}" var="rowNum"/>
+					<apex:repeat value="{!AvailableTags}" var="theme">
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<h4 class="panel-title">
+									<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#accordion-1" href="#collapse-{!rowNum}" aria-expanded="false">
+										{!theme.name}
+									</a>
+								</h4>
+							</div>
+							<div id="collapse-{!rowNum}" class="panel-collapse collapse" aria-expanded="false">
+								<div class="panel-body">
+									<ul class="list-unstyled blog-tags">
+										<apex:repeat value="{!theme.tags}" var="tag">
+											<li><a href="javascript:;" onclick="addtti('{!tag.id}','{!JSENCODE(tag.fullname)}');"><i class="fa fa-tags"></i>&nbsp;{!tag.name}</a></li>
+										</apex:repeat>
+									</ul>
+								</div>
 							</div>
 						</div>
-					</div>
-					<apex:variable var="rowNum" value="{!rowNum + 1}"/>
-				</apex:repeat>
+						<apex:variable var="rowNum" value="{!rowNum + 1}"/>
+					</apex:repeat>
+				</div>
 			</div>
 		</div>
 	</div>

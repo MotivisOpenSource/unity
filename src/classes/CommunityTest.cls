@@ -171,7 +171,7 @@ private class CommunityTest {
 		insert ct;
 		ApexPages.currentPage().getParameters().put('id',u.Id);
 		CommunityProfilePageController cppc = new CommunityProfilePageController();
-		cppc.overviewTab[0].getShowSection();
+		//cppc.overviewTab[0].getShowSection();
 		cppc.getStudentName();
 		cppc.changePassword();
 		cppc.cancelChangePassword();
@@ -253,7 +253,7 @@ private class CommunityTest {
 		String uCE = cec.urlForCloneEvent;
 		cec.getTodayStr();
 		cec.getAllGroupsInStringArray();
-		cec.getTitle();
+		//cec.getTitle();
 
 		PageReference pr2 = cec.cancel();
 		System.assertEquals(true, pr2 != null);
@@ -264,129 +264,48 @@ private class CommunityTest {
 		cec.initFromView();
 
 	}
-	
+
 	@IsTest(SeeAllData=true)
 	static void test_CommunityFeed_MyMessagesController() {
-	    
-	   Account acc = new Account(Name='testAccount');
-		insert acc;
-		Contact con = new Contact(LastName='TCLN', MailingPostalCode='99013', email='testc@testdomain.com', AccountId=acc.Id, Primary_Role__c='Student');
-		insert con;
-		Profile profile = [SELECT Id FROM Profile WHERE Name = 'System Administrator'];
-		User u = new User(alias='alias', email='email@email.com', emailencodingkey='UTF-8', lastname='lastname', firstname = 'firstName', languagelocalekey='en_US',
-			localesidkey='en_US', profileid = profile.Id, timezonesidkey='America/Los_Angeles', username='ttsde.tedf2@testmail.com',
-			FederationIdentifier='TestContactName.TestContactLastname2', Community_Contact_ID__c=con.Id);
-		insert u;	
-		
-		FeedItem feedIt = new FeedItem();
-		feedIt.Title = 'Test Feed';
-		feedIt.Body = 'Test Body';
-		feedIt.ParentId = u.id;
-		insert feedIt;
-		
-		CollaborationGroup cg = new CollaborationGroup();
-		cg.Name = 'newgroup';
-		cg.CollaborationType = 'Public' ;
-		insert cg;	
 
-		CollaborationGroup gr = [SELECT Id, Name FROM CollaborationGroup LIMIT 1];
-		System.assertEquals(true, gr != null);
-		
-		CommunityFeed_MyMessagesController cfMMC = new CommunityFeed_MyMessagesController();
-		Integer mpp = cfMMC.MessagesPerPage;
-		String spt = cfMMC.SelectedPageToken;
-		CommunityFeed_MyMessagesController.searchUsers('');
-
-
-		CommunityFeed_MyMessagesController.ChatterGroupMember cgm2 = new CommunityFeed_MyMessagesController.ChatterGroupMember(u, false);
-		CommunityFeed_MyMessagesController.ChatterGroupMember cgm3 = new CommunityFeed_MyMessagesController.ChatterGroupMember(u, false, '');
-		CommunityFeed_MyMessagesController.ChatterGroupMember cgm4 = new CommunityFeed_MyMessagesController.ChatterGroupMember(new CollaborationGroupMember());
-		CommunityFeed_MyMessagesController.ChatterMessageSegment cms = new CommunityFeed_MyMessagesController.ChatterMessageSegment('txt','Text');
-
-		
-	  
-		CollaborationGroupMember cgm = new CollaborationGroupMember(CollaborationGroupId=cg.id,MemberId = u.Id,NotificationFrequency='P');
-		insert cgm;
-		
-		
-		Test.startTest();
-			List<CommunityFeed_MyMessagesController.ChatterConversation> conv = cfMMC.getConversations('', spt, 5);
-			
-			ApexPages.currentPage().getParameters().put('c',conv[0].ConversationId);
-			CommunityFeed_MyMessagesController cfMMC_1 = new CommunityFeed_MyMessagesController();
-			String npt = cfMMC_1.NextPageToken;
-			cfMMC.SearchQuery = '1212';
-			//cfMMC_1.showMoreConversations();
-			//cfMMC_1.loadOlderMessages();
-			cfMMC_1.newConversation('test 2', u.id);
-			cfMMC_1.SearchQuery = 'test';
-			System.assertEquals(true, true);
-			//cfMMC_1.doSearchMessages();
-			//cfMMC_1.searchConversations(spt, 5, 'testQuery');
-			//cfMMC_1.markConversationRead();
-			//CommunityFeed_MyMessagesController.sendMessage( 'texr',u.Id  );
-
-		Test.stopTest();
-	    
-	    /*
-	    
-	    
-	    //error ! test git
 		Account acc = new Account(Name='testAccount');
 		insert acc;
-		Contact con = new Contact(LastName='TCLN', MailingPostalCode='99013', email='testc@testdomain.com', AccountId=acc.Id, Primary_Role__c='Student');
-		insert con;
+		List<Contact> cons = new List<Contact> {
+			new Contact(LastName='TCLN', MailingPostalCode='99013', email='testc@testdomain.com', AccountId=acc.Id, Primary_Role__c='Student'),
+			new Contact(LastName='TCLO', MailingPostalCode='99013', email='testo@testdomain.com', AccountId=acc.Id, Primary_Role__c='Student')
+		};
+		insert cons;
 		Profile profile = [SELECT Id FROM Profile WHERE Name = 'System Administrator'];
-		User u = new User(alias='alias', email='email@email.com', emailencodingkey='UTF-8', lastname='lastname', firstname = 'firstName', languagelocalekey='en_US',
-			localesidkey='en_US', profileid = profile.Id, timezonesidkey='America/Los_Angeles', username='ttsde.tedf2@testmail.com',
-			FederationIdentifier='TestContactName.TestContactLastname2', Community_Contact_ID__c=con.Id);
-		insert u;	
-		
-		FeedItem feedIt = new FeedItem();
-		feedIt.Title = 'Test Feed';
-		feedIt.Body = 'Test Body';
-		feedIt.ParentId = u.id;
-		insert feedIt;
-		
-		CollaborationGroup cg = new CollaborationGroup();
-		cg.Name = 'newgroup';
-		cg.CollaborationType = 'Public' ;
-		insert cg;	
-
-		CollaborationGroup gr = [SELECT Id, Name FROM CollaborationGroup LIMIT 1];
-		System.assertEquals(true, gr != null);
-		
-		CommunityFeed_MyMessagesController cfMMC = new CommunityFeed_MyMessagesController();
-		Integer mpp = cfMMC.MessagesPerPage;
-		String spt = cfMMC.SelectedPageToken;
-		CommunityFeed_MyMessagesController.searchUsers('');
-
-
-		CommunityFeed_MyMessagesController.ChatterGroupMember cgm2 = new CommunityFeed_MyMessagesController.ChatterGroupMember(u, false);
-		CommunityFeed_MyMessagesController.ChatterGroupMember cgm3 = new CommunityFeed_MyMessagesController.ChatterGroupMember(u, false, '');
-		CommunityFeed_MyMessagesController.ChatterGroupMember cgm4 = new CommunityFeed_MyMessagesController.ChatterGroupMember(new CollaborationGroupMember());
-		CommunityFeed_MyMessagesController.ChatterMessageSegment cms = new CommunityFeed_MyMessagesController.ChatterMessageSegment('txt','Text');
-
-		
-		Test.startTest();
-			List<CommunityFeed_MyMessagesController.ChatterConversation> conv = cfMMC.getConversations('', spt, 5);
-			ApexPages.currentPage().getParameters().put('c',conv[0].ConversationId);
-			CommunityFeed_MyMessagesController cfMMC_1 = new CommunityFeed_MyMessagesController();
-			String npt = cfMMC_1.NextPageToken;
-			//cfMMC.showMoreConversations();//
-			cfMMC_1.loadOlderMessages();
-			cfMMC_1.newConversation('test 2', u.id);
-			cfMMC_1.SearchQuery = 'test';
-			System.assertEquals(true, true);
-			//cfMMC_1.doSearchMessages();//
-			//cfMMC_1.searchConversations(spt, 5, 'testQuery');//
-			cfMMC_1.markConversationRead();//
-			
-
-		Test.stopTest();
-		*/
+		List<User> us = new List<User> {
+			new User(alias='alias', email='email@email.com', emailencodingkey='UTF-8', lastname='lopez', firstname = 'guillermo', languagelocalekey='en_US',
+				localesidkey='en_US', profileid=profile.Id, timezonesidkey='America/Los_Angeles', username='ttsde.tedf2@testmail.com',
+				FederationIdentifier='TestContactName.TestContactLastname2', Community_Contact_ID__c=cons[0].Id),
+			new User(alias='alias2', email='email2@email.com', emailencodingkey='UTF-8', lastname='hu', firstname = 'yovo', languagelocalekey='en_US',
+				localesidkey='en_US', profileid=profile.Id, timezonesidkey='America/Los_Angeles', username='ttsde.tedf3@testmail.com',
+				FederationIdentifier='TestContactName.TestContactLastname6', Community_Contact_ID__c=cons[1].Id)
+		};
+		insert us;
+		System.runAs(us[0]) {
+			CommunityFeed_MyMessagesController cfhdgcb = new CommunityFeed_MyMessagesController();
+			CommunityFeed_MyMessagesController.ChatterMessage cm = cfhdgcb.newConversation('balalayka',us[1].Id);
+			CommunityFeed_MyMessagesController.postMessage(cm.ConversationId,'gorbachev',cm.MessageId);
+			cfhdgcb.markConversationRead(cm.ConversationId, true);
+		}
+		System.runAs(us[1]) {
+			List<CommunityFeed_MyMessagesController.ChatterGroupMember> sl = CommunityFeed_MyMessagesController.searchUsers('guillermo');
+			System.assert(sl.size() > 0);
+			String cid = CommunityFeed_MyMessagesController.sendMessage('matreshka',sl[0].MemberId);
+			ApexPages.currentPage().getParameters().put('c',cid);
+			CommunityFeed_MyMessagesController cfhdgcb2 = new CommunityFeed_MyMessagesController();
+			cfhdgcb2.markConversationRead();
+			cfhdgcb2.SelectedPageToken = cfhdgcb2.NextPageToken;
+		}
+		CommunityFeed_MyMessagesController.ChatterGroupMember takemeonbaliplease = new CommunityFeed_MyMessagesController.ChatterGroupMember(us[1], false);
+		takemeonbaliplease = new CommunityFeed_MyMessagesController.ChatterGroupMember(us[1], false, '');
+		takemeonbaliplease = new CommunityFeed_MyMessagesController.ChatterGroupMember(new CollaborationGroupMember());
+		CommunityFeed_MyMessagesController.ChatterMessageSegment ortoborabora = new CommunityFeed_MyMessagesController.ChatterMessageSegment('txt','Text');
 	}
-	
+
 	@IsTest(SeeAllData=true)
 	static void test_CommunityFeed_PeopleController() {
 		Account acc = new Account(Name='testAccount');
@@ -410,7 +329,7 @@ private class CommunityTest {
 		CommunityFeed_PeopleController.subscriberAction(u.Id, true);
 		CommunityFeed_PeopleController cfpc = new CommunityFeed_PeopleController();
 	}
-	
+
 	@IsTest(SeeAllData=true)
 	static void test_CommunityGroupDetailPageController() {
 		Account acc = new Account(Name='testAccount');
@@ -421,17 +340,17 @@ private class CommunityTest {
 		User u = new User(alias='alias', email='email@email.com', emailencodingkey='UTF-8', lastname='lastname', firstname = 'firstName', languagelocalekey='en_US',
 			localesidkey='en_US', profileid = profile.Id, timezonesidkey='America/Los_Angeles', username='ttsde.tedf2@testmail.com',
 			FederationIdentifier='TestContactName.TestContactLastname2', Community_Contact_ID__c=con.Id);
-		insert u;		
+		insert u;
 		Community_Theme__c cth = new Community_Theme__c(Name='t',Theme_Type__c='Interest');
 		insert cth;
 		Community_Tag__c ct = new Community_Tag__c(Name='t',Community_Theme__c=cth.Id);
-		insert ct;					
+		insert ct;
 		CollaborationGroup cg = new CollaborationGroup();
 		cg.Name = 'newgroup';
 		cg.CollaborationType = 'Public' ;
-		insert cg;			
+		insert cg;
 		Community_Group_Control__c group1 = new Community_Group_Control__c(Name='1212t',Discoverable__c=true,Type__c='Public',Network__c='Internal', Chatter_Group_ID__c=cg.Id);
-		insert 	group1;			
+		insert 	group1;
 		Community_Group_Control__c c1 = new Community_Group_Control__c(
 			Name = 'Test Private',
 			Type__c = 'Private'

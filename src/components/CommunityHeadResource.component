@@ -1,44 +1,49 @@
-<apex:component access="global">
+<apex:component access="global" layout="none">
 
-	<!-- Meta -->
-	<meta charset="utf-8"/>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-	<meta name="description" content=""/>
-	<meta name="author" content=""/>
+    <!-- Meta -->
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="description" content=""/>
+    <meta name="author" content=""/>
 
-	<!-- Favicon -->
-	<link rel="shortcut icon" href="favicon.ico"/>
-	<!-- iOS Icons -->
-	<link rel="apple-touch-icon" href="{!$Resource.assets}/img/ios/AppIcon.appiconset/Icon-60@2x.png"/>
-	<link rel="apple-touch-icon" sizes="180x180" href="{!$Resource.assets}/img/ios/AppIcon.appiconset/Icon-60@3x.png"/>
-	<link rel="apple-touch-icon" sizes="76x76" href="{!$Resource.assets}/img/ios/AppIcon.appiconset/Icon-76.png"/>
-	<link rel="apple-touch-icon" sizes="152x152" href="{!$Resource.assets}/img/ios/AppIcon.appiconset/Icon-76@2x.png"/>
-	<link rel="apple-touch-icon" sizes="58x58" href="{!$Resource.assets}/img/ios/AppIcon.appiconset/Icon-Small@2x.png"/>
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="favicon.ico"/>
+    <!-- iOS Icons -->
+    <link rel="apple-touch-icon" href="{!$Resource.assets}/img/ios/AppIcon.appiconset/Icon-60@2x.png"/>
+    <link rel="apple-touch-icon" sizes="180x180" href="{!$Resource.assets}/img/ios/AppIcon.appiconset/Icon-60@3x.png"/>
+    <link rel="apple-touch-icon" sizes="76x76" href="{!$Resource.assets}/img/ios/AppIcon.appiconset/Icon-76.png"/>
+    <link rel="apple-touch-icon" sizes="152x152" href="{!$Resource.assets}/img/ios/AppIcon.appiconset/Icon-76@2x.png"/>
+    <link rel="apple-touch-icon" sizes="58x58" href="{!$Resource.assets}/img/ios/AppIcon.appiconset/Icon-Small@2x.png"/>
 
-	<!-- CSS Global Compulsory -->
-	<link rel="stylesheet" href="{!$Resource.assets}/plugins/bootstrap/css/bootstrap.min.css"/>
-	<link rel="stylesheet" href="{!$Resource.assets}/css/style.css"/>
+    <!-- CSS Global Compulsory -->
+    <link rel="stylesheet" href="{!$Resource.assets}/plugins/bootstrap/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="{!$Resource.assets}/css/style.css"/>
 
-	<!-- CSS Implementing Plugins -->
-	<link rel="stylesheet" href="{!$Resource.assets}/plugins/line-icons/line-icons.css"/>
-	<link rel="stylesheet" href="{!$Resource.assets}/plugins/font-awesome/css/font-awesome.min.css"/>
-	<link rel="stylesheet" href="{!$Resource.assets}/plugins/scrollbar/src/perfect-scrollbar.css"/>
-	<link rel="stylesheet" href="{!$Resource.assets}/plugins/owl-carousel/owl-carousel/owl.carousel.css"/>
-	<link rel="stylesheet" href="{!$Resource.assets}/plugins/sky-forms/version-2.0.1/css/custom-sky-forms.css"/>
-	<link rel="stylesheet" href="{!$Resource.assets}/css/plugins/cropper.css"/>
-	<link rel="stylesheet" href="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.css" />
+    <!-- CSS Implementing Plugins -->
+    <link rel="stylesheet" href="{!$Resource.assets}/plugins/line-icons/line-icons.css"/>
+    <link rel="stylesheet" href="{!$Resource.assets}/plugins/font-awesome/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="{!$Resource.assets}/plugins/scrollbar/src/perfect-scrollbar.css"/>
+    <link rel="stylesheet" href="{!$Resource.assets}/plugins/owl-carousel/owl-carousel/owl.carousel.css"/>
+    <link rel="stylesheet" href="{!$Resource.assets}/plugins/sky-forms/version-2.0.1/css/custom-sky-forms.css"/>
+    <link rel="stylesheet" href="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.css"/>
+    <!-- <link rel="stylesheet" href="{!$Resource.assets}/css/plugins/cropper.css"/> -->
 
 
-	<!-- CSS Page Style -->
-	<link rel="stylesheet" href="{!$Resource.assets}/css/pages/blog_magazine.css"/>
-	
-	<link rel="stylesheet" href="{!$Resource.assets}/css/pages/page_search.css"/>
-	<link rel="stylesheet" href="{!$Resource.assets}/css/pages/profile.css"/>
-	<link rel="stylesheet" href="{!$Resource.assets}/css/app.css"/>
+    <!-- CSS Page Style -->
+    <link rel="stylesheet" href="{!$Resource.assets}/css/pages/blog_magazine.css"/>
+    
+    <link rel="stylesheet" href="{!$Resource.assets}/css/pages/page_search.css"/>
+    <link rel="stylesheet" href="{!$Resource.assets}/css/pages/profile.css"/>
+    <link rel="stylesheet" href="{!$Resource.assets}/css/app.css"/>
 
-	<!-- CSS Theme -->
-	<link rel="stylesheet" href="{!$Resource.assets}/css/theme-colors/default.css"/>
+    <!-- CSS Theme -->
+    <link rel="stylesheet" href="{!$Resource.assets}/css/theme-colors/default.css"/>
 
-	<!-- CSS Customization -->
-	<link rel="stylesheet" href="{!$Resource.assets}/css/custom.css"/>
+    <!-- CSS Customization -->
+    <link rel="stylesheet" href="{!$Resource.assets}/css/custom.css"/>
+
+    <!-- Removed Inline Styles -->
+    <link rel="stylesheet" href="{!$Resource.assets}/css/app/app.styles.css"/>
+    <!-- Themes Styles -->
+    <link rel="stylesheet" href="{!$Resource.assets}/css/app/app.themes.css"/>
 </apex:component>

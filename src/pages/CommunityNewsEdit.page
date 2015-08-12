@@ -1,68 +1,62 @@
-<apex:page standardController="Community_News__c" extensions="CommunityNewsController" action="{!initFromEdit}" showHeader="false" sideBar="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false">
-<!-- <script type="text/javascript" src="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.js"></script>  -->
-<!--<script src="{!$Resource.CommunityResources}/js/underscore/underscore-min.js"></script> -->
-<!--<script type="text/javascript" src="{!$Resource.assets}/plugins/sky-forms/version-2.0.1/js/jquery-ui.min.js"></script> -->
-<!--<apex:stylesheet value="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.css" />-->
-
-
+<apex:page standardController="Community_News__c" extensions="CommunityNewsController" action="{!initFromEdit}" showHeader="false" sideBar="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false" standardStylesheets="false">
 <apex:composition template="{!$Site.Template}">
 <apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
 <apex:define name="body">
-	<style>
-		.row .bPageBlock { border-top:3px solid #72c02c; }
-		.errorText { padding:15px 30px; margin-bottom:20px; border:1px solid #ebccd1; background-color:#f2dede; color:#a94442;}
-   	</style>
-	<div class="row">
-		<apex:form id="cnsp1" style="display:none;" styleClass="col-sm-12">
-			<div class="row margin-bottom-10">
-				<div class="col-md-6 text-left" style="padding-left:35px;">
-					<h2>{!$Label.BTN_Create_News}</h2>
+	<div class="container">
+		<div class="row CommunityNewsEdit">
+			<apex:form id="cnsp1" style="display:none;" styleClass="sky-form">
+				<div class="row margin-bottom-10">
+					<div class="col-md-6 text-left title-container">
+						<h2>{!$Label.BTN_Create_News}</h2>
+					</div>
+					<div class="col-md-6 text-right buttons-container">
+						<apex:commandButton action="{!submitFirstStep}" value="{!$Label.LBL_Next}" styleClass="btn-u"/>
+						&nbsp;
+						<apex:outputLink value="{!IF(ISBLANK($CurrentPage.parameters.retURL),$Page.CommunityNews,JSENCODE($CurrentPage.parameters.retURL))}" rendered="{!ISBLANK(news.Id)}" styleClass="btn-u">{!$Label.BTN_Cancel}</apex:outputLink>
+						<apex:commandButton action="{!cancel}" value="{!$Label.BTN_Cancel}" styleClass="btn-u" immediate="true" rendered="{!!ISBLANK(news.Id)}"/>
+					</div>
 				</div>
-				<div class="col-md-6 text-right" style="padding-right:25px;">
-					<apex:commandButton action="{!submitFirstStep}" value="{!$Label.LBL_Next}" styleClass="btn-u"/>
-					&nbsp;
-					<apex:outputLink value="{!IF(ISBLANK($CurrentPage.parameters.retURL),$Page.CommunityNews,JSENCODE($CurrentPage.parameters.retURL))}" rendered="{!ISBLANK(news.Id)}" styleClass="btn-u">{!$Label.BTN_Cancel}</apex:outputLink>
-					<apex:commandButton action="{!cancel}" value="{!$Label.BTN_Cancel}" styleClass="btn-u" immediate="true" rendered="{!!ISBLANK(news.Id)}"/>
-				</div>
-			</div>
-			<apex:pageBlock >
-				<apex:pageMessages id="pageMessages"/>
-				<apex:pageBlockSection id="cnpbs1" columns="1" collapsible="false">
-					<apex:repeat value="{!fieldset}" var="fs">
-						<apex:inputField value="{!news[fs.fieldPath]}" required="{!OR(fs.required, fs.dbrequired)}"/>
-					</apex:repeat>
-					<apex:pageBlockSectionItem >
-						<apex:outputLabel value="{!$Label.LBL_Select_Image}"/>
-						<apex:outputPanel layout="none">
-							<select id="imsel1" onchange="checkimg();">
-								<option value="">{!$Label.BTN_Select}</option>
-								<option value="f">{!$Label.BTN_ChooseFile}</option>								
-								<apex:outputPanel rendered="{!IF($Setup.Community_Settings__c.Image_Library_Folder__c!='',true,false)}">
-									<option value="e">{!$Label.LBL_Choose_from_Library}</option>
+				<apex:pageBlock >
+					<apex:pageMessages id="pageMessages"/>
+					<fieldset>
+						<c:CommunityFieldLayout fl="{!flayout}" so="{!news}"/>
+					</fieldset>
+					<fieldset id="cnpbs1">
+						<section>
+							<apex:outputLabel value="{!$Label.LBL_Select_Image}"/>
+							<apex:outputPanel layout="none">
+								<select id="imsel1" onchange="checkimg();">
+									<option value="">{!$Label.BTN_Select}</option>
+									<option value="f">{!$Label.BTN_ChooseFile}</option>
+									<apex:outputPanel rendered="{!IF($Setup.Community_Settings__c.Image_Library_Folder__c!='',true,false)}">
+										<option value="e">{!$Label.LBL_Choose_from_Library}</option>
+									</apex:outputPanel>
+								</select><br/>
+								<apex:inputFile id="cnif1f" value="{!imgBody}" fileName="{!imgFileName}" contentType="{!imgContentType}" style="display:none;" onchange="preview(this);"/>
+								<apex:outputPanel id="cnif1e" layout="block" style="display:none;">
+									<br />
+									<a href="#chose_from_library_modal" class="btn-u" data-toggle="modal">{!$Label.LBL_Choose_from_Library}</a>
+									<br />
+									<br />
 								</apex:outputPanel>
-							</select><br/>
-							<apex:inputFile id="cnif1f" value="{!imgBody}" fileName="{!imgFileName}" contentType="{!imgContentType}" style="display:none; margin:5px 0;" onchange="preview(this);"/>
-							<apex:outputPanel id="cnif1e" layout="block" style="display:none;">
-								<br />
-								<a href="#chose_from_library_modal" class="btn-u" data-toggle="modal">{!$Label.LBL_Choose_from_Library}</a>
-								<br />
-								<br />
+								<div id="iidf" style="{!IF(ISBLANK(news.Image_Path__c),'display:none;','')}">
+									<apex:image id="preview_image" url="{!news.Image_Path__c}" width="200px"/>
+								</div>
+								<div style="display:none;">
+									<apex:inputField value="{!news.Image_Path__c}" id="image_path_field"/>
+								</div>
 							</apex:outputPanel>
-							<div id="iidf" style="{!IF(ISBLANK(news.Image_Path__c),'display:none;','')}">
-								<apex:image id="preview_image" url="{!news.Image_Path__c}" width="200px"/>
-							</div>
-							<div style="display:none;">
-								<apex:inputField value="{!news.Image_Path__c}" id="image_path_field"/>
-							</div>
-						</apex:outputPanel>
-					</apex:pageBlockSectionItem>
-					<apex:pageBlockSectionItem >
-						<apex:outputLabel value="{!$Label.LBL_Select_Tags}"/>
-						<c:CommunityTagSelector oId="{!news.Id}" oType="{!$ObjectType.Community_News_Tag__c.Name}" fName="{!$ObjectType.Community_News_Tag__c.Fields.Community_News__c.Name}"/>
-					</apex:pageBlockSectionItem>
-				</apex:pageBlockSection>
-			</apex:pageBlock> 
-		</apex:form>
+						</section>
+					</fieldset>
+					<fieldset>
+						<section>
+							<apex:outputLabel value="{!$Label.LBL_Select_Tags}"/>
+							<c:CommunityTagSelector oId="{!news.Id}" oType="{!$ObjectType.Community_News_Tag__c.Name}" fName="{!$ObjectType.Community_News_Tag__c.Fields.Community_News__c.Name}"/>
+						</section>
+					</fieldset>
+				</apex:pageBlock> 
+			</apex:form>
+		</div>
 	</div>
 	<div class="modal fade in" id="chose_from_library_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false" style="display:none;">
 		<div class="modal-dialog">
@@ -71,7 +65,7 @@
 					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 					<h4 class="modal-title" id="myModalLabel">{!$Label.LBL_Select_Image}</h4>
 				</div>
-				<div class="modal-body" style="overflow-y: auto; height:350px; ">
+				<div class="modal-body">
 					<div id='libraryimagescontent'>
 					</div>
 					<div class="clearfix"></div>
@@ -118,13 +112,7 @@
 			}
 			return newArr;
 		}
-		function prepareSelect() {
-			//var folderName = "{!$Setup.Community_Settings__c.Image_Library_Folder__c}";
-			//alert("1"+folderName);
-			//if ("{!$Setup.Community_Settings__c.Image_Library_Folder__c}" != "") {
-				//"{!$Setup.Community_Settings__c.Image_Library_Folder__c}"
-			//	$F('#shooseFromLibId').show();
-			//}
+		function prepareSelect() {			
 			if ($imagesCache.length == 0) {
 				var docs = new SObjectModel.Document();
 				docs.retrieve(
@@ -219,26 +207,6 @@
 					.height(120)*/;
 			};
 			$F('#iidf').show();
-		}
-
-		var dateElements = $F(".dateInput input");
-	
-		_.each(dateElements, function(e){
-			e.className = "validate-datetimepicker";
-			e.removeAttribute("onfocus");
-			
-		});
-
-		if(jQuery('.validate-datetimepicker')) {
-			var currentdate = new Date(); 
-			var datetime = (currentdate.getMonth()+1) + '/' + currentdate.getDate() + '/' + currentdate.getFullYear() + ' ' + currentdate.getHours() + ":"  + currentdate.getMinutes();
-			$F('.validate-datetimepicker').datetimepicker({
-				minDate:datetime,
-				format:'m/d/Y h:i A',
-				formatTime:'h:i A',
-				formatDate:'m/d/Y',
-				step:30
-			});
 		}
 	</script>
 </apex:define>

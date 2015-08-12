@@ -6,21 +6,22 @@ global with sharing class CommunityShareController {
 	public String shareGroup { get;set; }
 	public Boolean hasMessage { get { return hasMessage == NULL ? false : hasMessage; } set; }
 	public String message { get; set; }
-	public List<TagsForGroup> AvailableGroups { get; set; }
+	public List<GroupFinderWrapper> AvailableGroups { get; set; }
 	public List<GroupFinderWrapper> listGroupFindWrapper { get; set; }
-	public Boolean availGroups { 
-		get{
-			if(AvailableGroups != null) return true;
-			return false;
+	public Boolean availGroups {
+		get {
+			return AvailableGroups != NULL;
 		}
-	 	set; }
+		set;
+	}
+/*
 	public Boolean showShareButton { 
 		get{
 			Community_Settings__c cs = Community_Settings__c.getOrgDefaults();
 			return cs.Disable_Share__c != true;
 		}
 	}
-
+*/
 	public SObject sobj {
 		get;
 		set {
@@ -61,9 +62,9 @@ global with sharing class CommunityShareController {
 
 		try {
 			Set<String> gcSet2 = new Set<String>();
-			for (Community_Group_Control__c cgc2 : [SELECT Chatter_Group_ID__c 
-													FROM Community_Group_Control__c 
-													WHERE Chatter_Group_ID__c IN :groupsIds 
+			for (Community_Group_Control__c cgc2 : [SELECT Chatter_Group_ID__c
+													FROM Community_Group_Control__c
+													WHERE Chatter_Group_ID__c IN :groupsIds
 													AND Status__c = 'Approved']) {
 				gcSet2.add(cgc2.Chatter_Group_ID__c);
 			}
@@ -77,7 +78,8 @@ global with sharing class CommunityShareController {
 				message = 'ERR '+Label.LBL_No_share_destination;
 				return message;
 			
-			}else if(!gcSet2.isEmpty()){
+			}
+			else if(!gcSet2.isEmpty()){
 				cgrec = [ SELECT Id, NetworkId
 						FROM CollaborationGroup
 						WHERE NetworkId = :Network.getNetworkId() AND Id IN :gcSet2
@@ -91,12 +93,10 @@ global with sharing class CommunityShareController {
 									NetworkScope = Network.getNetworkId(),
 									Body = shareComment	);
 				message	= 'SUCCESS';
-					
 			}
 			if (!cgrec.isEmpty()) {
 				
 				List<FeedItem> shareFeeds = new List<FeedItem>();
-
 				for(CollaborationGroup gr : cgrec){
 					shareFeeds.add(
 						new FeedItem (
@@ -106,7 +106,6 @@ global with sharing class CommunityShareController {
 									NetworkScope = gr.NetworkId,
 									Body = shareComment	)
 					);
-
 				}
 				insert shareFeeds;
 				message	= 'SUCCESS';
@@ -121,9 +120,6 @@ global with sharing class CommunityShareController {
 		}
 		return message;
 	}
-	
-
-	
 
 	public void availableGroupsProcess(){
 		
@@ -135,7 +131,7 @@ global with sharing class CommunityShareController {
 		// Create a list of group IDs.
 		List<String> groupIds = new List<String>();
 		for (CollaborationGroup aGroup : groups){
-		    groupIds.add(aGroup.id); 
+			groupIds.add(aGroup.id); 
 		}
 
 		if(groupIds.isEmpty()) return;
@@ -191,23 +187,19 @@ global with sharing class CommunityShareController {
 				wrapper.add(new GroupFinderWrapper(cGroups.get(cgiCGC.get(gc)), cgiCGC.get(gc)));
 			}
 		}
+		
 		tagsForGroups.sort();
 		if(!wrapper.isEmpty()) {
-		    tagsForGroups.add(new TagsForGroup(Label.LBL_Other, wrapper));
-		    //System.debug(new TagsForGroup(Label.LBL_Other, wrapper));
+			tagsForGroups.add(new TagsForGroup(Label.LBL_Other, wrapper));
 		}
-		
-		
-		AvailableGroups = tagsForGroups;	
-		
-		
-		listGroupFindWrapper = new List<GroupFinderWrapper>();	
-		for (TagsForGroup tfg : tagsForGroups) {			
-			for (GroupFinderWrapper gfw : tfg.wrapperGroup) {							
+		AvailableGroups = getMyGroupsInGroupFinderWrapper(null);
+		listGroupFindWrapper = new List<GroupFinderWrapper>();
+		for (TagsForGroup tfg : tagsForGroups) {
+			for (GroupFinderWrapper gfw : tfg.wrapperGroup) {
 				listGroupFindWrapper.add(gfw);
 			}
-		}		
-		listGroupFindWrapper.sort();	
+		}
+		listGroupFindWrapper.sort();
 	}
 
 	public static List<String> getNamesOfAvailableGroups(List<String> groupIds){
@@ -217,29 +209,44 @@ global with sharing class CommunityShareController {
 			List<ConnectApi.BatchResult> batchResults = ConnectApi.ChatterGroups.getGroupBatch(Network.getNetworkId(), groupIds);
 			for(ConnectApi.BatchResult batchResult : batchResults){
 				if (batchResult.isSuccess()) {
-			        ConnectApi.ChatterGroup aGroup = (ConnectApi.ChatterGroup) batchResult.getResult();
-			        if(String.valueOf(aGroup.myRole) != 'NotAMember' && String.valueOf(aGroup.myRole) != 'NotAMemberPrivateRequested'){
-			        	groupsNames.add(aGroup.name);
-			        }
-			        // will need in a future
-			        /*if((String.valueOf(aGroup.myRole) != 'NotAMember' 
-			        	&& String.valueOf(aGroup.myRole) != 'NotAMemberPrivateRequested' 
-			        	&& String.valueOf(aGroup.visibility) == 'PrivateAccess') || String.valueOf(aGroup.visibility) == 'PublicAccess'){
-			        	groupsNames.add(aGroup.name);
-			        }*/
-			    }
-			    else {
-			        // Operation failed. Print errors.
-			        System.debug('FAILURE');
-			        System.debug(batchResult.getErrorMessage());
-			    }
+					ConnectApi.ChatterGroup aGroup = (ConnectApi.ChatterGroup) batchResult.getResult();
+					if(String.valueOf(aGroup.myRole) != 'NotAMember' && String.valueOf(aGroup.myRole) != 'NotAMemberPrivateRequested'){
+						groupsNames.add(aGroup.name);
+					}
+				}
+				else {
+					// Operation failed. Print errors.
+					System.debug('FAILURE');
+					System.debug(batchResult.getErrorMessage());
+				}
 			}
 		}catch(Exception e){
 			System.debug('FAILURE: '+e.getMessage());
 		}
 		return groupsNames;
 	}
-
+	
+	
+	public static List<GroupFinderWrapper> getMyGroupsInGroupFinderWrapper(String query){
+		String SearchQuery = query == null ? '%%' : '%'+query+'%';
+		Set<Id> chatterGroups = new Set<Id>();
+		List<GroupFinderWrapper> groupsNames = new List<GroupFinderWrapper>();
+		for (Community_Group_Control__c gcItem : [SELECT Chatter_Group_ID__c FROM Community_Group_Control__c WHERE Status__c = 'Approved' AND Name LIKE :SearchQuery LIMIT 100]) {
+			chatterGroups.add(gcItem.Chatter_Group_ID__c);
+		}
+		List<String> groupIdList = new List<String>();
+		for (CollaborationGroup cgItem : [
+											SELECT Id, Name FROM CollaborationGroup Where NetworkId = :Network.getNetworkId() AND ID in :chatterGroups AND
+												ID in (SELECT CollaborationGroupId FROM CollaborationGroupMember WHERE
+												MemberId = :UserInfo.getUserId()) LIMIT 100 ] ) {
+			groupIdList.add(cgItem.Id);
+			groupsNames.add(new GroupFinderWrapper(cgItem.Name,cgItem.Id));
+		}
+		return groupsNames;
+	}
+	
+	
+	
 	//remote actions
 	@RemoteAction
 	global static String getGroups(String query) {
@@ -255,29 +262,8 @@ global with sharing class CommunityShareController {
 	}
 
 	@RemoteAction
-	global static String getGroupsSelector(String query){
-		List<GroupFinderWrapper> result = new List<GroupFinderWrapper>();
-		Set<String> gcSet = new Set<String>();
-		List<String> gcList = new List<String>();
-		for (Community_Group_Control__c cgc : [SELECT Chatter_Group_ID__c FROM Community_Group_Control__c 
-												WHERE Chatter_Group_ID__c != NULL AND Status__c = 'Approved']) {
-			gcSet.add(cgc.Chatter_Group_ID__c);
-		}
-		Set<String> groupsNamesSet = new Set<String>();
-		
-		if(gcSet.isEmpty()) return null;
-		
-		gcList.addAll(gcSet);
-		groupsNamesSet.addAll(getNamesOfAvailableGroups(gcList));
-		
-		if(groupsNamesSet.isEmpty()) return null;
-		
-		for (CollaborationGroup cg : [SELECT Id, Name FROM CollaborationGroup WHERE Id IN :gcSet AND NetworkId = :Network.getNetworkId() ORDER BY Name]) {
-			if(groupsNamesSet.contains(cg.Name)){
-				result.add(new GroupFinderWrapper(cg.Name, cg.Id));
-			}
-		}
-		return JSON.serialize(result);
+	global static String getGroupsSelector(String getGroupsSelector){		
+		return JSON.serialize(getMyGroupsInGroupFinderWrapper(getGroupsSelector));
 	}
 
 	global class TagsForGroup implements Comparable{
@@ -290,10 +276,10 @@ global with sharing class CommunityShareController {
 		}
 
 		global Integer compareTo(Object compareTo) {
-	    	TagsForGroup compareToEmp = (TagsForGroup)compareTo;
-	        if (this.TagName == compareToEmp.TagName) return 0;
-	        if (this.TagName > compareToEmp.TagName) return 1;
-	        return -1;   
+			TagsForGroup compareToEmp = (TagsForGroup)compareTo;
+			if (this.TagName == compareToEmp.TagName) return 0;
+			if (this.TagName > compareToEmp.TagName) return 1;
+			return -1;   
 		}
 		
 	}
@@ -308,10 +294,10 @@ global with sharing class CommunityShareController {
 		}
 
 		global Integer compareTo(Object compareTo) {
-	    	GroupFinderWrapper compareToEmp = (GroupFinderWrapper)compareTo;
-	        if (this.name == compareToEmp.name) return 0;
-	        if (this.name > compareToEmp.name) return 1;
-	        return -1;   
+			GroupFinderWrapper compareToEmp = (GroupFinderWrapper)compareTo;
+			if (this.name == compareToEmp.name) return 0;
+			if (this.name > compareToEmp.name) return 1;
+			return -1;
 		}
 
 	}
@@ -334,30 +320,4 @@ global with sharing class CommunityShareController {
 		}
 		set;
 	}
-	
-	
-	
-
-	/*
-	public static void test1() {
-		CommunityShareController cscNews = new CommunityShareController();
-		CommunityShareController cscEvents = new CommunityShareController();
-		Community_News__c cnews = new Community_News__c(Title__c='t',Feature_on_Home_Page_Slot__c = '1',Make_Entry_Sticky__c=true,Status__c = 'Appoowed',Teaser__c='t',Entry_Date__c=Datetime.now(),Expiration_Date__c=Datetime.now().addDays(1));
-		insert cnews;
-		
-		Community_Events__c cevent = new Community_Events__c(Name__c = 'Event Test',Start__c = system.now(),End__c = system.now().addDays(2),Description__c = 'Description',Public__c = true);
-		insert cevent;
-		
-		
-		Community_Group_Control__c group1 = new Community_Group_Control__c(Name='t1',Discoverable__c=true,Type__c='Public',Network__c='Internal');
-		insert 	group1;
-		cscNews.sobj = cnews;
-		//(String idsGroups, String shareComment, String shareLinkName, String sobjId, Boolean shareLinkProfile)
-		CommunityShareController.shareForGroups(group1.Id,'shareComment','sdsdsdsd',cnews.Id,true);
-		cscEvents.sobj = cevent;
-			
-		//csc.init();
-	}
-	*/
-	
 }

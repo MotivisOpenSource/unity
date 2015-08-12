@@ -37,7 +37,7 @@
 											<li class="{!IF(ISBLANK($CurrentPage.parameters.tab) || $CurrentPage.parameters.tab=='all_people' || $CurrentPage.parameters.tab!='people_i_follow', 'active', '')}" ng-click="page.goToFirst();"><a  href="{!$Page.CommunityFeed_People}?tab=all_people">All People</a></li>
 											<li class="{!IF($CurrentPage.parameters.tab=='people_i_follow', 'active', '')}" ng-click="page.goToFirst();"><a href="{!$Page.CommunityFeed_People}?tab=people_i_follow" >People I Follow</a></li>
 										</ul>
-										<div class="tab-content">
+										<div class="tab-content" style="display:none;">
 											<apex:outputPanel layout="none" rendered="{!IF(ISBLANK($CurrentPage.parameters.tab) || $CurrentPage.parameters.tab=='all_people' || $CurrentPage.parameters.tab!='people_i_follow', true, false)}">
 												<div class="tab-pane active" id="all_people_tab">
 													<div class="col-md-12">
@@ -46,28 +46,33 @@
 																<img class="media-object rounded-x" ng-src="{{ p.MemberPhotoUrl }}" src="/s.gif" alt="" />
 															</a>
 															<div class="pull-right">
-																<button class="btn-u" ng-hide="p.MemberIsFollowing" ng-click="followAction(p);"><i class="fa fa-plus-circle"></i>&nbsp;Follow</button>
-																<button class="btn-u btn-u-blue" ng-show="p.MemberIsFollowing" ng-click="unFollowAction(p);"><i class="fa fa-check"></i>&nbsp;Following</button>
+																<button class="btn-u follow" ng-hide="p.MemberIsFollowing" ng-click="followAction(p);"><i class="fa fa-plus-circle"></i>&nbsp;Follow</button>
+																<button class="btn-u btn-u-blue follow" ng-show="p.MemberIsFollowing" ng-click="unFollowAction(p);"><i class="fa fa-check"></i>&nbsp;Following</button>
 															</div>
 															<div class="media-body">
 																<h4 class="media-heading">
-																	<strong><a href="{!$Page.CommunityProfilePage}?id={{ p.MemberId }}">{{ p.MemberName }}</a></strong>
+																	<strong><a href="{!$Page.CommunityProfilePage}?id={{ p.MemberId }}"><div ng-bind-html="p.MemberName"></div></a></strong>
 																	<!--<small>5 hours ago</small>-->
 																</h4>
 																<p>
-																	{{ p.MemberRole }}
+																	<div ng-bind-html="p.MemberRole"></div>
 																</p>
 															</div>
 														</div>
 													</div>
 													<ul class="pager">
-														<li class="previous" ng-hide="page.currentPage == 1">
+														<li class="previous" ng-hide="page.currentPage == 1 || page.totalPages() == 0">
 															<a href="javascript:;" ng-click="page.goToFirst();">{!$Label.LBL_First}</a>
 														</li>
-														<li class="previous" ng-hide="page.currentPage == 1">
+														<li class="previous" ng-hide="page.currentPage == 1 || page.totalPages() == 0">
 															<a class="margin-left-5" href="javascript:;" ng-click="page.goToPrev();">{!$Label.LBL_Previous}</a>
 														</li>
-														<li>{!$Label.LBL_Page}&nbsp;{{ page.currentPage }}&nbsp;{!$Label.LBL_of}&nbsp;{{ page.totalPages() }}</li>
+														<li ng-hide="page.totalPages() == 0">
+															{!$Label.LBL_Page}&nbsp;{{ page.currentPage }}&nbsp;{!$Label.LBL_of}&nbsp;{{ page.totalPages() }}
+														</li>
+														<li ng-hide="page.totalPages() != 0">
+															<div class="alert alert-danger">{!$Label.ERR_No_Records}</div>
+														</li>
 														<li class="next" ng-hide="page.currentPage >= page.totalPages()">
 															<a class="margin-left-5" href="javascript:;" ng-click="page.goToLast();">{!$Label.LBL_Last}</a>
 														</li>
@@ -86,27 +91,32 @@
 																<img class="media-object rounded-x" ng-src="{{ p.MemberPhotoUrl }}" src="/s.gif" alt="" />
 															</a>
 															<div class="pull-right">
-																<button class="btn-u" ng-hide="p.MemberIsFollowing" ng-click="followAction(p);"><i class="fa fa-plus-circle"></i>&nbsp;Follow</button>
-																<button class="btn-u btn-u-blue" ng-show="p.MemberIsFollowing" ng-click="unFollowAction(p);"><i class="fa fa-check"></i>&nbsp;Following</button>
+																<button class="btn-u follow" ng-hide="p.MemberIsFollowing" ng-click="followAction(p);"><i class="fa fa-plus-circle"></i>&nbsp;Follow</button>
+																<button class="btn-u btn-u-blue follow" ng-show="p.MemberIsFollowing" ng-click="unFollowAction(p);"><i class="fa fa-check"></i>&nbsp;Following</button>
 															</div>
 															<div class="media-body">
 																<h4 class="media-heading">
-																	<strong><a href="{!$Page.CommunityProfilePage}?id={{ p.MemberId }}">{{ p.MemberName }}</a></strong>
+																	<strong><a href="{!$Page.CommunityProfilePage}?id={{ p.MemberId }}"><div ng-bind-html="p.MemberName"></div></a></strong>
 																</h4>
 																<p>
-																	{{ p.MemberRole }}
+																	<div ng-bind-html="p.MemberRole"></div>
 																</p>
 															</div>
 														</div>
 													</div>
 													<ul class="pager">
-														<li class="previous" ng-hide="page.currentPage == 1">
+														<li class="previous" ng-hide="page.currentPage == 1 || page.totalPages() == 0">
 															<a href="javascript:;" ng-click="page.goToFirst();">{!$Label.LBL_First}</a>
 														</li>
-														<li class="previous" ng-hide="page.currentPage == 1">
+														<li class="previous" ng-hide="page.currentPage == 1 || page.totalPages() == 0">
 															<a class="margin-left-5" href="javascript:;" ng-click="page.goToPrev();">{!$Label.LBL_Previous}</a>
 														</li>
-														<li>{!$Label.LBL_Page}&nbsp;{{ page.currentPage }}&nbsp;{!$Label.LBL_of}&nbsp;{{ page.totalPages() }}</li>
+														<li ng-hide="page.totalPages() == 0">
+															{!$Label.LBL_Page}&nbsp;{{ page.currentPage }}&nbsp;{!$Label.LBL_of}&nbsp;{{ page.totalPages() }}
+														</li>
+														<li ng-hide="page.totalPages() != 0">
+															<div class="alert alert-danger">{!$Label.ERR_No_Records}</div>
+														</li>
 														<li class="next" ng-hide="page.currentPage >= page.totalPages()">
 															<a class="margin-left-5" href="javascript:;" ng-click="page.goToLast();">{!$Label.LBL_Last}</a>
 														</li>
@@ -131,8 +141,9 @@
 		<apex:define name="scripts">
 			<script type="text/javascript" src="{!$Resource.CommunityResources}/js/underscore/underscore-min.js" ></script>
 			<script type="text/javascript" src="{!$Resource.CommunityResources}/js/angularjs/angular.min.js" ></script>
+			<script type="text/javascript" src="//code.angularjs.org/1.4.0/angular-sanitize.js"></script> 
 			<script type="text/javascript">
-				var PeoplesApp = angular.module('PeoplesApp', []);
+				var PeoplesApp = angular.module('PeoplesApp', ['ngSanitize']);
 				PeoplesApp.factory('getPeoples', ['$q', '$rootScope', function($q, $rootScope) {
 					return function() {
 						var deferred = $q.defer();
@@ -145,6 +156,7 @@
 										if (event.status) {
 											deferred.resolve(result);
 											$rootScope.getDataStatus = 'Finished';
+											jQuery(".tab-content").show();
 										} else {
 											deferred.reject(event);
 											$rootScope.getDataStatus = 'Finished';
@@ -174,6 +186,9 @@
 										if (event.status) {
 											deferred.resolve(result);
 											$rootScope.getDataStatus = 'Finished';
+											// eneble buttons
+											jQuery('.follow').removeClass('disabled');
+											jQuery('.follow').removeAttr('disabled');
 										} else {
 											deferred.reject(event);
 											$rootScope.getDataStatus = 'Finished';
@@ -215,6 +230,14 @@
 							input = output;
 						}
 						scope.page.totalRecords = input.length;
+
+						// fix for filter pagination 
+						var round = input.length / (scope.page.pageSize * scope.page.currentPage);
+						if(Math.round(round) < 0.5){
+							var currPage = Math.ceil(input.length / scope.page.pageSize);
+							scope.page.currentPage = currPage<1?1:currPage;
+						}
+
 						return input;
 					}
 				});
@@ -273,6 +296,7 @@
 					};
 					$scope.followAction = function(p) {
 						p.MemberIsFollowing = true;
+						
 						$scope.followUnfollow(p.MemberId, p.MemberIsFollowing);
 					}
 					$scope.unFollowAction = function(p) {
@@ -280,6 +304,8 @@
 						$scope.followUnfollow(p.MemberId, p.MemberIsFollowing);
 					}
 					$scope.followUnfollow = function(pId, isFollow) {
+						jQuery('.follow').attr('disabled','disabled');
+						$('.follow').addClass('disabled')
 						var def = subscriberAction(pId, isFollow);
 						if (def != null) {
 							$scope.inProgress = false;
@@ -322,6 +348,7 @@
 					$scope.allPeople = [
 					];
 					window.scope = $scope;
+					//jQuery(".tab-content").show();
 				}]);
 			</script>
 		</apex:define>

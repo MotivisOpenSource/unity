@@ -1,0 +1,54 @@
+<apex:page Controller="CommunityObjectController" standardStylesheets="false" showHeader="false" sideBar="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false">
+<!--[if IE 8]> <html lang="en" class="ie8"> <![endif]-->
+<!--[if IE 9]> <html lang="en" class="ie9"> <![endif]-->
+<!--[if !IE]><!-->
+<html lang="en" class="theme--{!$Setup.Community_Template_Settings__c.Color_Scheme__c}"><!--<![endif]-->
+	<c:CommunityHeadResource />
+	<apex:variable var="iuniqueid" value="{!LOWER(JSENCODE($CurrentPage.parameters.fieldSetName))}"/>
+	<div class="CommunityShowEditObject">
+		<apex:form styleClass="sky-form">
+			<apex:pageMessages id="pageMessages"/>
+			<header class="text-right">
+				<button id="svbtn" class="btn-u margin-right-5" type="button" onclick="startSubmitAction();return false;">{!$Label.BTN_Save}</button>
+				<button id="cnlbtn" class="btn-u btn-u-default margin-right-5" type="button" onclick="parent.cancelEditLayout{!iuniqueid}(); return false;">{!$Label.BTN_Cancel}</button>
+			</header>
+			<fieldset>
+				<c:CommunityFieldLayout fl="{!flayout}" so="{!so}"/>
+			</fieldset>
+			<apex:outputPanel layout="none" rendered="{!!ISBLANK(TagSection)}">
+				<fieldset><section>
+					<apex:outputLabel value="{!$Label.LBL_Select_Tags}" styleClass="label"/>
+					<c:CommunityTagSelector oId="{!so['Id']}" oType="{!tagSection[0]}" fName="{!tagSection[1]}"/>
+				</section></fieldset>
+			</apex:outputPanel>
+			<footer class="text-right">
+				<button id="svbtn" class="btn-u margin-right-5" type="button" onclick="startSubmitAction();return false;">{!$Label.BTN_Save}</button>
+				<button id="cnlbtn" class="btn-u btn-u-default margin-right-5" type="button" onclick="parent.cancelEditLayout{!iuniqueid}(); return false;">{!$Label.BTN_Cancel}</button>
+			</footer>
+			<apex:actionFunction action="{!saveAction}" name="saveobject" rerender="pageMessages" oncomplete="stopSubmitAction();"/>
+		</apex:form>
+	</div>
+	<c:CommunityFootResource />
+	<script>
+		var $jm = jQuery.noConflict();
+		$jm(document).bind('DOMSubtreeModified', function() {
+			parent.document.getElementById('meframe{!iuniqueid}').height = document.body.scrollHeight + 'px';
+		});
+		function startSubmitAction() {
+			parent.$('#action{!iuniqueid}').show();
+			$jm('button[id$=btn]').css('opacity','0.65').attr('disabled','disabled');
+			saveobject();
+		}
+		function stopSubmitAction() {
+			parent.$('#action{!iuniqueid}').hide();
+			$jm('button[id$=btn]').css('opacity','1').removeAttr('disabled');
+		}
+		function finishSubmitAction() {
+			$jm('body').hide();
+			parent.window.location.href = parent.window.location.href;
+		}
+		$jm(document).ready(stopSubmitAction);
+	</script>
+	<apex:outputText value="{!$Setup.Community_Template_Settings__c.Color_Scheme__c}" style="display:none;"/>
+</html>
+</apex:page>

@@ -4,19 +4,15 @@
 <apex:attribute name="ft" type="String" required="true" description="File Type" />
 <apex:attribute name="fn" type="String" required="true" description="File Name" />
 <apex:attribute name="cm" type="Boolean" required="false" default="false" description="Create Mode" />
-<div class="modal fade" id="uploadResourceDialog" aria-live="assertive" role="dialog" tabindex="-1" aria-labelledby="uploadResourceDialogLabel" aria-hidden="true">
+<div class="modal fade CommunityResourceDialog" id="uploadResourceDialog" aria-live="assertive" role="dialog" tabindex="-1" aria-labelledby="uploadResourceDialogLabel" aria-hidden="true">
 	<div class="modal-dialog">
-		<style>
-			.icon { font-size:2.4em; border: 2px solid #777; width: 48px; height: 48px; padding-top: 6px;}
-			.icon:hover { color:#72c02c; border-color:#72c02c; }
-		</style>
 		<div class="modal-content">
 			<div class="modal-header">
 				<button id="closemodal" aria-hidden="true" data-dismiss="modal" class="close" type="button">&times;</button>
 				<h4 id="uploadResourceDialogLabel" class="modal-title">{!$Label.BTN_Upload_Resource}</h4>
 			</div>
 			<div class="modal-body sky-form">
-				<div id="upd1" class="row" style="margin-bottom:20px">
+				<div id="upd1" class="row margin-bottom-20">
 					<div class="col-md-3"></div>
 					<div class="col-md-3 text-center">
 						<a href="javascript:;" onclick="showSection('updl');">

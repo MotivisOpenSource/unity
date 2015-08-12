@@ -18,3 +18,4 @@ config/.settings
 starterpack.sublime-settings
 *.xml
 src/classes/CommunityGroupCreateController.cls-meta.xml
+*.bak

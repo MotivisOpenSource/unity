@@ -35,32 +35,27 @@ public with sharing class CommunityResourceController {
 	public String imgFileName { get;set; }
 	public String imgContentType { get;set; }
 	public String linkText { get;set; }
+	public CommunityFieldLayout rlayout { get;set; }
 	
 	private String TAGS_INPUT_NAME = 'tags';
 
 	// -- methods --
 	@TestVisible private void init() {
 		resource = (Community_Resource__c)stdctrl.getRecord();
+		// prepare field layout
+		List<String> fieldList = new List<String> {
+			'Id', 'Name', 'Resource_Name__c', 'Link__c', 'Primary_Tag__c', 'Primary_Tag__r.Community_Theme__r.Name', 'Primary_Tag__r.Name', 'Quick_Link__c', 'Help_Link__c',
+			'(SELECT Id, IsNote, Title FROM NotesAndAttachments WHERE IsNote = false ORDER BY CreatedDate DESC LIMIT 1)'
+		};
+		rlayout = new CommunityFieldLayout(
+			resource.Id,
+			(mode == 'edit') ? SObjectType.Community_Resource__c.FieldSets.EditResource : SObjectType.Community_Resource__c.FieldSets.ViewResource,
+			SObjectType.Community_Resource__c,
+			fieldList,
+			CommunityUtils.getPackagePrefix()
+		);
 		if (resource.Id != NULL) {
-			Set<String> collectedFields = new Set<String> {
-				'Id', 'Name', 'Resource_Name__c', 'Link__c', 'Primary_Tag__c', 'Primary_Tag__r.Community_Theme__r.Name', 'Primary_Tag__r.Name', 'Quick_Link__c', 'Help_Link__c',
-				'(SELECT Id, IsNote, Title FROM NotesAndAttachments WHERE IsNote = false ORDER BY CreatedDate DESC LIMIT 1)'
-					};
-			String pp = CommunityUtils.getPackagePrefix();
-			Boolean isPP = String.isNotBlank(pp);
-			for (Schema.FieldSetMember f : fieldset) {
-				String tempFieldName = isPP ? f.getFieldPath().replace(pp,'') : f.getFieldPath();
-				collectedFields.add(tempFieldName);
-			}
-			List<String> cfAsList = new List<String>();
-			cfAsList.addAll(collectedFields);
-			resource = Database.query('SELECT ' + String.join(cfAsList, ', ') + ' FROM Community_Resource__c WHERE Id = \'' + resource.Id + '\'');
-		}
-	}
-
-	public List<Schema.FieldSetMember> fieldset {
-		get {
-			return (mode == 'edit') ? SObjectType.Community_Resource__c.FieldSets.EditResource.getFields() : SObjectType.Community_Resource__c.FieldSets.ViewResource.getFields();
+			resource = (Community_Resource__c)rlayout.getRecord();
 		}
 	}
 
@@ -229,6 +224,8 @@ public with sharing class CommunityResourceController {
 		catch (Exception e) {
 			ApexPages.addMessages(e);
 		}
+		System.debug('\n**FG: ' + this);
+		imgBody = NULL;
 		return pr;
 	}
 }

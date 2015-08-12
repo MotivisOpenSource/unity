@@ -10,7 +10,7 @@
 				<apex:repeat value="{!tagColumn}" var="tag">
 					<div class="content-boxes-v3 margin-bottom-10 md-margin-bottom-20">
 						<i class="icon-custom icon-sm rounded-x {!theme.themeIconColor} {!tag.iconStyle}"></i>
-						<div class="content-boxes-in-v3" style="padding-top:10px">
+						<div class="content-boxes-in-v3 padding-top-10">
 							<h3>
 								<apex:outputLink value="{!$Page.CommunitySearch}?{!tag.Parameter}">
 									{!tag.name}

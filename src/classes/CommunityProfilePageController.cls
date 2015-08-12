@@ -4,11 +4,12 @@ global with sharing class CommunityProfilePageController {
 	public Boolean current { get;set; }
 	public String currentProfileId { get;set; }
 	public Community_Profile__c currentProfile { get;set; }
-	public List<FieldSection> overviewTab { get;set; }
+	public List<CommunityFieldLayout> overviewTab { get;set; }
 	public Id currentUserId { get;set; }
 	public List<ProfileTab> profiles { get;set; }
 	public transient String FullPhotoUrl { get;set; }
 	public transient List<InterestSection> interests { get;set; }
+	public List<List<String>> fieldsets { get;set; }
 
 	private Id contactId;
 	private static Map<String, Schema.SObjectField> CP_FIELDS = SObjectType.Community_Profile__c.fields.getMap();
@@ -81,34 +82,47 @@ global with sharing class CommunityProfilePageController {
 			String section1 = Label.LBL_About_me;
 			String section2 = Label.LBL_Contact;
 			// select contact with field from fieldset
-			overviewTab = new List<FieldSection>();
+			overviewTab = new List<CommunityFieldLayout>();
 			String rtName = currentProfile.RecordType.Name.replace('/','');
-			Map<String, FieldSection> tabMap = new Map<String, FieldSection>();
-			for (Schema.FieldSet fsItem : SObjectType.Community_Profile__c.FieldSets.getMap().values()) {
+			Map<String, CommunityFieldLayout> tabMap = new Map<String, CommunityFieldLayout>();
+			Schema.DescribeSObjectResult dsorProfile = SObjectType.Community_Profile__c;
+			fieldsets = new List<List<String>>();
+			List<String> fsNamesWithPrefix = new List<String>();
+			Map<String,Schema.FieldSet> shfs = SObjectType.Community_Profile__c.FieldSets.getMap();
+			fsNamesWithPrefix.addAll(shfs.keySet());
+			for (String sfName : fsNamesWithPrefix) {
+				Schema.FieldSet fsItem = shfs.get(sfName);
 				String fsLabel = fsItem.getLabel();
 				if (fsLabel.contains(':')) {
 					String[] parts = fsLabel.split(':');
 					if (parts.size() == 3 && parts[0] == rtName && parts[2].isNumeric()) {
+						fieldsets.add(new List<String> {sfName, parts[1]});
 						Integer sNum = Integer.valueOf(parts[2]);
 						Boolean notAdded = true;
+						CommunityFieldLayout cflTemp =  new CommunityFieldLayout(
+							fsItem,
+							dsorProfile,
+							CommunityUtils.getPackagePrefix(),
+							parts[1],
+							sNum
+						);
 						for (Integer ii = 0; ii < overviewTab.size(); ii++) {
 							if (overviewTab[ii].sectionOrder >= sNum) {
-								overviewTab.add(ii, new FieldSection(fsItem, parts[1], sNum));
+								overviewTab.add(ii,cflTemp);
 								notAdded = false;
 								break;
 							}
 						}
 						if (notAdded) {
-							overviewTab.add(new FieldSection(fsItem, parts[1], sNum));
+							overviewTab.add(cflTemp);
 						}
 					}
 				}
 			}
-			Set<String> profileFields = new Set<String> {'Id', 'Name', 'Contact__r.Name'};
-			for (FieldSection fs2 : overviewTab) {
-				for (FieldItem fi2 : fs2.fi) {
-					profileFields.add(fi2.name);
-				}
+			String pp46 = CommunityUtils.getPackagePrefix();
+			Set<String> profileFields = new Set<String> {'Id', 'Name', pp46 + 'Contact__r.Name', pp46 + 'Contact__c'};
+			for (CommunityFieldLayout fs2 : overviewTab) {
+				profileFields.addAll(fs2.prepareFieldList());
 			}
 			List<String> fieldList = new List<String>();
 			fieldList.addAll(profileFields);
@@ -119,6 +133,10 @@ global with sharing class CommunityProfilePageController {
 		catch (Exception e) {
 			allOk = false;
 		}
+	}
+
+	public Map<String, Schema.FieldSet> getfsMap() {
+		return SObjectType.Community_Profile__c.FieldSets.getMap();
 	}
 
 	public String getStudentName() {
@@ -184,10 +202,11 @@ global with sharing class CommunityProfilePageController {
 
 	public Boolean getShowChangePassword() {
 		Set<String> noredirect = new Set<String> { 'Standard', 'Salesforce' };
-		Map<Id, Profile> studentsProfiles = new Map<Id, Profile>([SELECT Id FROM Profile WHERE Name LIKE '%Community%']);
+		//Map<Id, Profile> studentsProfiles = new Map<Id, Profile>([SELECT Id FROM Profile WHERE Name LIKE '%Community%']);
+		Boolean isCommunityUser = [SELECT Id, isPortalEnabled FROM User WHERE Id =: Userinfo.getUserId()].isPortalEnabled;
 		Community_Settings__c cs = Community_Settings__c.getInstance();
 		return !noredirect.contains(Userinfo.getUserType())
-				&& studentsProfiles.containsKey(Userinfo.getProfileId())
+				&& isCommunityUser
 				&& (cs == NULL || cs.Disable_Change_Password__c != true);
 	}
 
@@ -254,10 +273,20 @@ global with sharing class CommunityProfilePageController {
 
 	public List<DigestItem> getDigestSettings() {
 		List<DigestItem> resultList = new List<DigestItem>();
+		List<Community_Group_Control__c> chGroups = [SELECT Chatter_Group_ID__c FROM Community_Group_Control__c LIMIT 250];
+		List<String> chGroupsIds = new List<String>();
+		List<String> colGroupsIds = new List<String>();
+		for(Community_Group_Control__c chGroup : chGroups){
+			chGroupsIds.add(chGroup.Chatter_Group_ID__c);
+		}
+		for(CollaborationGroup cg : [SELECT Id FROM CollaborationGroup WHERE Id IN :chGroupsIds AND NetworkId = :Network.getNetworkId()]){
+			colGroupsIds.add(cg.Id);
+		}
 		for (CollaborationGroupMember cgmItem : [
 					SELECT CollaborationGroupId, CollaborationGroup.Name, NotificationFrequency
 					FROM CollaborationGroupMember
 					WHERE MemberId = :UserInfo.getUserId()
+					AND CollaborationGroupId IN :colGroupsIds
 					ORDER BY CollaborationGroup.Name
 						]) {
 			resultList.add(new DigestItem(cgmItem));
@@ -312,67 +341,6 @@ global with sharing class CommunityProfilePageController {
 			update cgm;
 		}
 		return '';
-	}
-
-	public class FieldSection {
-		public String sectionLabel { get;set; }
-		public Integer sectionOrder;
-		public List<FieldItem> fi { get;set; }
-
-		public FieldSection(Schema.FieldSet infs, String inlabel, Integer inorder) {
-			fi = new List<FieldItem>();
-			sectionLabel = inlabel;
-			sectionOrder = inorder;
-			for (Schema.FieldSetMember f3 : infs.getFields()) {
-				fi.add(new FieldItem(f3));
-			}
-		}
-
-		public Boolean getShowSection() {
-			Boolean result = false;
-			for (FieldItem fi1 : this.fi) {
-				result = fi1.isAccessible ? true : result;
-			}
-			return result;
-		}
-
-		public Boolean getShowSectionReg() {
-			Boolean result = false;
-			for (FieldItem fi2 : this.fi) {
-				result = (fi2.isAccessible && !fi2.regDB) ? true : result;
-			}
-			return result;
-		}
-	}
-
-	private static Map<DisplayType, String> TYPE_TO_STYLE = new Map<DisplayType, String> {
-		DisplayType.String => 'input', DisplayType.TextArea => 'textarea', DisplayType.Boolean => 'checkbox',
-		DisplayType.DateTime => 'text', DisplayType.Date => 'text', DisplayType.Time => 'text'
-	};
-
-	public class FieldItem {
-		public String name { get;set; }
-		public String label { get;set; }
-		public Boolean required { get;set; }
-		public Boolean isUpdateable { get;set; }
-		public Boolean isAccessible { get;set; }
-		public String inputStyle { get { return inputStyle == NULL ? 'input' : inputStyle; } set; }
-		public Boolean checkbox { get;set;}
-		public Boolean reqFieldSet { get;set; }
-		public Boolean regDB { get;set; }
-
-		public FieldItem(Schema.FieldSetMember infsm) {
-			name = infsm.getFieldPath();
-			required = infsm.getRequired() || infsm.getDBRequired();
-			reqFieldSet = infsm.getRequired();
-			regDB = infsm.getDBRequired();
-			DescribeFieldResult dfr = CP_FIELDS.get(name).getDescribe();
-			isUpdateable = dfr.isUpdateable();
-			isAccessible = dfr.isAccessible();
-			label = dfr.getLabel();
-			inputStyle = TYPE_TO_STYLE.get(dfr.getType());
-			checkbox = dfr.getType() == DisplayType.Boolean;
-		}
 	}
 
 	public class ProfileTab {

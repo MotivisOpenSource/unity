@@ -1,30 +1,14 @@
-<apex:page showHeader="false" sideBar="false" standardStylesheets="true" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false" controller="CommunityProfilePageController">
+<apex:page showHeader="false" sideBar="false" standardStylesheets="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false" controller="CommunityProfilePageController">
 <apex:composition template="{!$Site.Template}">
 <apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
 <apex:define name="body">
-<style>
-.p-st-blk {
-	display: inline-block;
-	width: 40px;
-	text-align: right;
-	vertical-align: middle;
-	height: 24px;
-	margin-top: -12px;
-}
-.p-chb {
-	font-size:1.3em;
-	color:coral;
-	font-weight:bold;
-	vertical-align: middle;
-}
-</style>
-	<!--=== Profile ===-->
-	<div class="profile">
+	<!--=== Profile ===-->	
+	<div class="profile CommunityProfilePage">
 		<div class="container content">
 			<div class="row">
 				<!--Left Sidebar-->
 				<div class="col-md-3 md-margin-bottom-40">
-					<c:CommunityUserPhoto current="{!current}" photoUrl="{!FullPhotoUrl}" fmode="true"/>
+					<c:CommunityUserPhoto current="{!current}" photoUrl="{!FullPhotoUrl}"/>
 					<c:CommunityFeedNavigation pn="3"/>
 				</div>
 				<!--End Left Sidebar-->
@@ -37,7 +21,12 @@
 							</div>
 							<div class="col-md-6">
 								<apex:form id="btnaction">
-									<apex:commandLink action="{!subscribeUser}" styleClass="btn-u {!IF(isSubscribe,'btn-u-blue','')} pull-right margin-right-5" rerender="btnaction" onclick="$(this).find('i').attr('class','fa fa-spinner fa-pulse');">
+								<!-- <apex:commandLink id="btnactionLink" action="{!subscribeUser}" styleClass="btn-u {!IF(isSubscribe,'btn-u-blue','')} pull-right margin-right-5" rerender="btnaction" onclick="$(this).find('i').attr('class','fa fa-spinner fa-pulse'); $('[id$=btnactionLink]').addClass('disabled');'" onComplete="$('[id$=btnactionLink]').removeClass('disabled');"> -->
+									<apex:commandLink id="btnactionLink" 
+										action="{!subscribeUser}" 
+										styleClass="btn-u {!IF(isSubscribe,'btn-u-blue','')} pull-right margin-right-5" 
+										rerender="btnaction" onclick="$(this).find('i').attr('class','fa fa-spinner fa-pulse'); $('[id$=btnactionLink]').addClass('disabled'); $('[id$=btnactionLink]').attr('disabled','disabled');" 
+										onComplete="$('[id$=btnactionLink]').removeClass('disabled');$('[id$=btnactionLink]').removeAttr('disabled');">
 										<i class="fa {!IF(isSubscribe,'fa-check','fa-plus-circle')}"></i>&nbsp;{!IF(isSubscribe,$Label.BTN_Following,$Label.LBL_Follow)}
 									</apex:commandLink>
 								</apex:form>
@@ -62,69 +51,88 @@
 								</ul>
 							</apex:outputPanel>
 							<apex:pageMessages id="pageMessages"/>
-								<div class="tab-content">
-									<div id="profile" class="profile-edit tab-pane fade in active">
-									<div class="margin-bottom-20">
-										<apex:outputPanel layout="none" rendered="{!current}">
-											<h2 class="heading-md">{!$Label.LBL_ManageDetails_Title}</h2>
-										</apex:outputPanel>
-									</div>
-									<apex:form id="theform" rendered="{!allOk}">
-										<apex:variable var="index" value="{!0}"/>
-										<div class="margin-bottom-10" style="text-align:right;">
-											<apex:repeat value="{!profiles}" var="p">
-												<apex:commandLink action="{!init}" value="{!p.name}" rendered="{!!p.active}" rerender="theform" immediate="true" styleClass="btn-u btn-u-sm btn-u-default margin-right-5" status="statusLoad">
-													<apex:param name="currentProfileId" value="{!p.profileId}" assignTo="{!currentProfileId}"/>
-												</apex:commandLink>
-												<apex:outputText value="{!p.name}" rendered="{!p.active}" styleClass="btn-u margin-right-5"/>
-											</apex:repeat>
-											<div class="p-st-blk">
+							<div class="tab-content">
+								<div id="profile" class="profile-edit tab-pane fade in active">
+									<div class="row margin-bottom-20">
+										<div class="col-md-6 text-left">
+											<h2 class="heading-md">
+												<apex:outputText value="{!$Label.LBL_ManageDetails_Title}" rendered="{!current}"/>
 												<apex:actionStatus id="statusLoad">
-													<apex:facet name="start">
-														<i class="fa fa-spinner fa-pulse" style="font-size:2.5em;"></i>
-													</apex:facet>
+													<apex:facet name="start">&nbsp;<i class="fa fa-spinner fa-pulse"></i></apex:facet>
 												</apex:actionStatus>
-											</div>
+											</h2>
 										</div>
-										<apex:variable var="index" value="{!0}"/>
-										<apex:repeat value="{!overviewTab}" var="ot">
-											<apex:outputPanel layout="block" rendered="{!ot.ShowSection}" styleClass="sky-form">
-												<!--header>{!ot.sectionLabel}</header-->
-												<header>{!$Label[ot.sectionLabel]}</header>
-												<div class="margin-bottom-15"></div>
-												<dl class="dl-horizontal"><apex:repeat value="{!ot.fi}" var="otfi">
-													<apex:outputPanel rendered="{!otfi.isAccessible}" layout="none">
-													<dt class="margin-bottom-10"><strong>{!otfi.label}</strong></dt>
-													<dd>
-														<span id="vfld{!index}">
-															<apex:outputField id="vfldo" value="{!currentProfile[otfi.name]}"/>
-															<apex:outputLink value="javascript:void(0);" styleClass="pull-right" onclick="shwe('{!index}');" rendered="{!otfi.isUpdateable && current}">
-																<i class="fa fa-pencil"></i>
-															</apex:outputLink>
-														</span>
-														<apex:outputPanel rendered="{!otfi.isUpdateable && current}" layout="none">
-															<div id="efld{!index}" style="display:none;" class="{!otfi.inputStyle}">
-																<apex:inputField id="vflde" value="{!currentProfile[otfi.name]}" required="{!otfi.required}"/>
-																<apex:outputPanel layout="none" rendered="{!otfi.checkbox}"><i onclick="$('#efld{!index} [id$=vflde]').click();"></i></apex:outputPanel>
-																<span style="display:none;">
-																	<span id="bcp{!index}">{!currentProfile[otfi.name]}</span>
-																	<span id="{!index}bcps" name="{!index}">n</span>
-																</span>
-															</div>
-														</apex:outputPanel>
-													</dd>
-													</apex:outputPanel>
-													<apex:variable var="index" value="{!index + 1}"/>
-													
-												</apex:repeat></dl>
-												<hr/>
-											</apex:outputPanel>
+										<div class="col-md-6 text-right">
+											<apex:form id="theform" rendered="{!allOk}">
+												<apex:repeat value="{!profiles}" var="p">
+													<apex:commandLink action="{!init}" value="{!p.name}" rendered="{!!p.active}" rerender="theform,prlayout" immediate="true" styleClass="btn-u btn-u-sm btn-u-default margin-right-5" status="statusLoad">
+														<apex:param name="currentProfileId" value="{!p.profileId}" assignTo="{!currentProfileId}"/>
+													</apex:commandLink>
+													<apex:outputText value="{!p.name}" rendered="{!p.active}" styleClass="btn-u margin-right-5"/>
+												</apex:repeat>
+											</apex:form>
+										</div>
+									</div>
+									<apex:outputPanel id="prlayout">
+										<apex:repeat value="{!fieldsets}" var="ffi">
+											<c:CommunityAboutGroup so="{!currentProfile}" fsc="{!fsMap[ffi[0]]}" tl="{!$Label[ffi[1]]}" edt="{!current && $ObjectType.Community_Profile__c.Updateable}" son="Community_Profile__c"/>
 										</apex:repeat>
-										<apex:outputPanel layout="block" id="btnblk" style="display:none;">
-											<apex:commandButton action="{!Init}" value="{!$Label.BTN_Cancel}" rerender="theform" status="statusLoad" styleClass="btn-u btn-u-sm btn-u-default margin-right-5"/>
-											<apex:commandButton action="{!Submit}" value="{!$Label.BTN_Save_Changes}" rerender="theform" status="statusLoad" styleClass="btn-u"/>
+									</apex:outputPanel>
+								<!-- apex:form id="theform" rendered="{!allOk}">
+									<apex:variable var="index" value="{!0}"/>
+									<div class="margin-bottom-10" style="text-align:right;">
+										<apex:repeat value="{!profiles}" var="p">
+											<apex:commandLink action="{!init}" value="{!p.name}" rendered="{!!p.active}" rerender="theform" immediate="true" styleClass="btn-u btn-u-sm btn-u-default margin-right-5" status="statusLoad">
+												<apex:param name="currentProfileId" value="{!p.profileId}" assignTo="{!currentProfileId}"/>
+											</apex:commandLink>
+											<apex:outputText value="{!p.name}" rendered="{!p.active}" styleClass="btn-u margin-right-5"/>
+										</apex:repeat>
+										<div class="p-st-blk">
+											<apex:actionStatus id="statusLoad">
+												<apex:facet name="start">
+													<i class="fa fa-spinner fa-pulse" style="font-size:2.5em;"></i>
+												</apex:facet>
+											</apex:actionStatus>
+										</div>
+									</div>
+									<apex:variable var="index" value="{!0}"/>
+									<apex:repeat value="{!overviewTab}" var="ot">
+										<apex:outputPanel layout="block" rendered="{!ot.ShowSection}" styleClass="sky-form">
+											<header>{!$Label[ot.sectionLabel]}</header>
+											<div class="margin-bottom-15"></div>
+											<dl class="dl-horizontal"><apex:repeat value="{!ot.fi}" var="otfi">
+												<apex:outputPanel rendered="{!otfi.isAccessible}" layout="none">
+												<dt class="margin-bottom-10"><strong>{!otfi.label}</strong></dt>
+												<dd>
+													<span id="vfld{!index}">
+														<apex:outputField id="vfldo" value="{!currentProfile[otfi.name]}"/>
+														<apex:outputLink value="javascript:void(0);" styleClass="pull-right" onclick="shwe('{!index}');" rendered="{!otfi.isUpdateable && current}">
+															<i class="fa fa-pencil"></i>
+														</apex:outputLink>
+													</span>
+													<apex:outputPanel rendered="{!otfi.isUpdateable && current}" layout="none">
+														<div id="efld{!index}" style="display:none;" class="{!otfi.inputStyle}">
+															<apex:inputField id="vflde" value="{!currentProfile[otfi.name]}" required="{!otfi.required}"/>
+															<apex:outputPanel layout="none" rendered="{!otfi.checkbox}"><i onclick="$('#efld{!index} [id$=vflde]').click();"></i></apex:outputPanel>
+															<span style="display:none;">
+																<span id="bcp{!index}">{!currentProfile[otfi.name]}</span>
+																<span id="{!index}bcps" name="{!index}">n</span>
+															</span>
+														</div>
+													</apex:outputPanel>
+												</dd>
+												</apex:outputPanel>
+												<apex:variable var="index" value="{!index + 1}"/>
+												
+											</apex:repeat></dl>
+											<hr/>
 										</apex:outputPanel>
-									</apex:form>
+									</apex:repeat>
+									<apex:outputPanel layout="block" id="btnblk" style="display:none;">
+										<apex:commandButton action="{!Init}" value="{!$Label.BTN_Cancel}" rerender="theform" status="statusLoad" styleClass="btn-u btn-u-sm btn-u-default margin-right-5"/>
+										<apex:commandButton action="{!Submit}" value="{!$Label.BTN_Save_Changes}" rerender="theform" status="statusLoad" styleClass="btn-u"/>
+									</apex:outputPanel>
+								</apex:form-->
 								</div>
 								<apex:outputPanel layout="none" rendered="{!current}">
 								<apex:outputPanel layout="none" rendered="{!ShowChangePassword}">
@@ -176,7 +184,7 @@
 											</dd>
 										</dl>
 										<apex:commandButton action="{!cancelChangePassword}" value="{!$Label.BTN_Cancel}" rerender="passwordform,pageMessages" styleClass="btn-u btn-u-sm btn-u-default margin-right-5"/>
-										<apex:commandButton id="psch" action="{!changePassword}" value="{!$Label.BTN_Save_Changes}" rerender="passwordform,pageMessages" styleClass="btn-u disabled"/>
+										<apex:commandButton id="psch" action="{!changePassword}" value="{!$Label.BTN_Save_Changes}" rerender="passwordform,pageMessages" styleClass="btn-u"/>
 										<script>
 											$('[id$=psch]').attr('disabled','disabled').css('opacity','0.65');
 										</script>
@@ -194,7 +202,7 @@
 												</a>
 											</h4>
 											</div>
-											<div id="{!ints.id}" class="panel-collapse collapse" aria-expanded="false" style="">
+											<div id="{!ints.id}" class="panel-collapse collapse" aria-expanded="false">
 												<form class="sky-form" id="sky-form" action="" novalidate="novalidate">
 													<fieldset><div class="row"><div class="col col-8">
 														<apex:repeat value="{!ints.it}" var="init">
@@ -228,14 +236,6 @@
 									</div>
 								</div>
 								<div id="settings" class="profile-edit tab-pane fade">
-									<style>
-										.sky-form .toggle i.red-btn { border-color:#ff0024 !important; }
-										.sky-form .toggle i.red-btn:before { background-color:#ff0024; }
-										.sky-form .toggle i.red-btn:after { color:#ff0024; }
-										.sky-form .toggle i.green-btn { border-color:#72c02c !important;}
-										.sky-form .toggle i.green-btn:before { background-color:#72c02c; }
-										.sky-form .toggle i.green-btn:after { color:#72c02c; }
-									</style>
 									<h2 class="heading-md">{!$Label.LBL_NotificationSettings_Title}</h2><br/>
 									<h5>{!$Label.LBL_NotificationSettings_Message1}</h5><hr/>
 									<form class="sky-form" id="sky-form" action="">
@@ -275,11 +275,6 @@
 									</script>
 								</div>
 								<div id="digest" class="profile-edit tab-pane fade">
-									<style>
-										#digest .table thead { background:#f7f7f7; }
-										#digest i.rounded-x { width:24px; height:24px; }
-										#digest i.rounded-x.fa { background:#72c02c; color:white; border-color:#72c02c; }
-									</style>
 									<h2 class="heading-md">{!$Label.LBL_ManageDigest_Title}</h2><br/>
 									<h5>{!$Label.LBL_ManageDigest_Message1}</h5><hr/>
 									<div class="margin-bottom-10">
@@ -371,7 +366,7 @@
 		</div>
 		<!--/container-->
 	</div>
-	<script>
+	<!--script>
 		var iepp = 'z';
 		var iepf = false;
 		window.onload = function() {
@@ -417,6 +412,8 @@
 			}
 			$('#vfld' + ini).show();
 		}
+	</script-->
+	<script>
 		function passformready() {
 			var ff = $('[id$=passwordform] dd input');
 			var r = ff.length > 0;
@@ -434,7 +431,7 @@
 			}
 		}
 		function profileformready() {
-			return $('[id$=btnblk]').css('display') != 'none';
+			/*return $('[id$=btnblk]').css('display') != 'none';*/return false;
 		}
 	</script>
 	<!--=== End Profile ===-->

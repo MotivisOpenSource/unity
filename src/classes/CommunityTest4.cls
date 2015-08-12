@@ -8,7 +8,7 @@ private class CommunityTest4 {
 		CollaborationGroup cg1 = new CollaborationGroup();
 		cg1.Name = 'newgroup';
 		cg1.CollaborationType = 'Public' ;
-		insert cg1;		
+		insert cg1;
 		List<CollaborationGroup> cg = [SELECT Id, Name FROM CollaborationGroup LIMIT 1];
 		List<User> us = [SELECT Id, Name FROM User LIMIT 1];
 		rewriter.mapRequestUrl(new PageReference('https://motivis-developer-edition.ap2.force.com/studentcommunity/_ui/core/chatter/groups/GroupProfilePage?g='+cg[0].ID+'&filter=requests&fromEmail=1'));
@@ -176,35 +176,44 @@ private class CommunityTest4 {
 		String leaveLabel = Label.LBL_LeavePage_Message;
 		System.assert(true);
 	}
-	
+
 	static testMethod void test_AboutGroupComponentController() {
-		Community_Theme__c cth = new Community_Theme__c(Name='t',Theme_Type__c='Interest');
-		insert cth;
-		Community_Tag__c ct = new Community_Tag__c(Name='t',Community_Theme__c=cth.Id);
-		insert ct;		
-		ApexPages.currentPage().getParameters().put('tags',ct.Id);
-		CollaborationGroup cg = new CollaborationGroup();
-		cg.Name = 'newgroup';
-		cg.CollaborationType = 'Public' ;
-		insert cg;			
-		Community_Group_Control__c cgc = new Community_Group_Control__c(Name='1212t',Discoverable__c=true,Type__c='Public',Network__c='Internal', Chatter_Group_ID__c=cg.Id);
-		insert cgc; 
-		ApexPages.currentPage().getParameters().put('gc',cgc.Id); 
-		ApexPages.currentPage().getParameters().put('gr',cg.Id);  	
-		CommunityAboutGroupComponentController cagcc = new CommunityAboutGroupComponentController();
-		cagcc.control = cagcc.pullGroupControlRecord();
-		cagcc.currentGroupControlId = cagcc.control.Id;		
-		System.assert(String.valueOf(cagcc.control.Name)==String.valueOf('1212t'));
-		cagcc.groupRole = 'Owner';
-		String s = cagcc.canEdit;
-		cagcc.getTagsCount();
-		cagcc.submitAction();		
-		cagcc.cancelAction();
-		cagcc.control.Discoverable__c = false;
-		cagcc.submitAction();
-		ApexPages.currentPage().getParameters().put('gc',null); 
-		ApexPages.currentPage().getParameters().put('gr',null);
-		cagcc.control = cagcc.pullGroupControlRecord();  	
-		cagcc.allOk = true;	
+		System.assert(true);
+		//deprecated
+	}
+
+	static testMethod void test_CommunityObjectController() {
+		Account acc = new Account(Name='testAccount');
+		insert acc;
+		Contact con = new Contact(LastName='TCLN', MailingPostalCode='99013', email='testc@testdomain.com', AccountId=acc.Id, Primary_Role__c='Student');
+		insert con;
+		Profile profile = [SELECT Id FROM Profile WHERE Name = 'System Administrator'];
+		User u = new User(alias='alias', email='email@email.com', emailencodingkey='UTF-8', lastname='lastname', firstname = 'firstName', languagelocalekey='en_US',
+			localesidkey='en_US', profileid = profile.Id, timezonesidkey='America/Los_Angeles', username='ttsde.tedf2@testmail.com',
+			FederationIdentifier='TestContactName.TestContactLastname2', Community_Contact_ID__c=con.Id);
+		insert u;
+		Community_Group_Control__c cgc =  new Community_Group_Control__c(Name='ts',Discoverable__c=true,Type__c='Public',Network__c='Internal');
+		insert cgc;
+		ApexPages.currentPage().getParameters().put('fieldSetName','EditGroup');
+		ApexPages.currentPage().getParameters().put('objectId',cgc.Id);
+		ApexPages.currentPage().getParameters().put('objectName','Community_Group_Control__c');
+		System.runAs(u) {
+			CommunityObjectController coc3 = new CommunityObjectController();
+			coc3.saveAction();
+		}
+		Community_Profile__c cp = [SELECT Id FROM Community_Profile__c WHERE Contact__c = :con.Id LIMIT 1];
+		System.Debug(cp);
+		ApexPages.currentPage().getParameters().put('fieldSetName',CommunityUtils.getPackagePrefix()+'Student_About_Me_1');
+		ApexPages.currentPage().getParameters().put('objectId',cp.Id);
+		ApexPages.currentPage().getParameters().put('objectName',CommunityUtils.getPackagePrefix()+'Community_Profile__c');
+		ApexPages.currentPage().getParameters().put('tn','wrong');
+		ApexPages.currentPage().getParameters().put('tfn','wrong');
+		CommunityObjectController coc = new CommunityObjectController();
+		System.Debug(coc.so);
+		System.runAs(u) {
+			CommunityObjectController coc2 = new CommunityObjectController();
+			System.assert(coc2.so != NULL);
+			coc2.saveAction();
+		}
 	}
 }

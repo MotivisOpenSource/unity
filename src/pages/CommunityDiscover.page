@@ -2,23 +2,8 @@
 	<apex:composition template="{!$Site.Template}">
 		<apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
 		<apex:define name="body">
-			<style>
-				.tooltip-inner {
-					max-width: 500px;
-					text-align: left;
-				}
-				.tooltip-inner li {
-					color:white;
-				}
-				.tooltips.s-tip {
-					background-color:#72c02c;
-					color:white;
-					padding:5px 10px;
-					text-decoration:none;
-				}
-			</style>
 			<!--=== Search Block ===-->
-			<div class="search-block parallaxBg content">
+			<div class="search-block parallaxBg content CommunityDiscover">
 				<div class="container">
 					<div class="col-md-6 col-md-offset-3">
 						<h1><apex:outputText value="{!$Label.LBL_DiscoverTitle}" escape="false"/></h1>

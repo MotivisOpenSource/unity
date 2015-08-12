@@ -16,11 +16,11 @@ global with sharing class CommunityTagSelectorController {
 				}
 			}
 		}
-		String query = 'SELECT Id, Community_Tag__c FROM ' + objectType + ' WHERE ' + filterName + ' =: objectId';
+		String query = 'SELECT Id, Community_Tag__c FROM ' + String.escapeSingleQuotes(objectType) + ' WHERE ' + String.escapeSingleQuotes(filterName) + ' =: objectId';
 		query += objectType.endsWith('Community_Event_Tag__c__') ? ' AND Community_Group_Control__c = NULL' : '';
 		query += CommunityUtils.accessSystemTagLevel() > 1 ? '' : ' AND Community_Tag__r.Community_Theme__r.Theme_Type__c != \'System\'';
 		List<sObject> deleteList = new List<sObject>();
-		for (SObject obj : Database.query(query)) {
+		for (SObject obj : Database.query((query))) {
 			if (tagsIdsSet.contains((String)obj.get('Community_Tag__c'))) {
 				tagsIdsSet.remove((String)obj.get('Community_Tag__c'));
 			}

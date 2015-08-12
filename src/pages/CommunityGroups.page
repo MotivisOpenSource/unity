@@ -2,8 +2,7 @@
 <apex:composition template="{!$Site.Template}">
 <apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
 <apex:define name="body">
-	<apex:includeScript value="{!$Resource.CommunityResources}/js/underscore/underscore-min.js"/>
-	<div class="profile" ng-app="GroupsApp" ng-controller="GroupsController">
+	<div class="profile CommunityGroups" ng-app="GroupsApp" ng-controller="GroupsController">
 		<div class="container content"><div class="row">
 			<!--LEFT-->
 			<div class="col-md-3 md-margin-bottom-40">
@@ -19,7 +18,7 @@
 							<apex:form ><div class="input-group">
 								<apex:inputText id="gsid" value="{!searchQuery}" html-placeholder="{!$Label.LBL_SearchByName}" onkeyup="sgsa(this);" styleClass="form-control"/>
 								<span class="input-group-btn">
-									<button id="quickSearchButton" class="btn-u" style="min-width:40px;">
+									<button id="quickSearchButton" class="btn-u">
 										<apex:actionStatus id="searchLoad">
 											<apex:facet name="start">
 												<i class="fa fa-spinner fa-pulse"></i>

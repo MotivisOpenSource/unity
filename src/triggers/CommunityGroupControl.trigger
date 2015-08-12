@@ -20,7 +20,13 @@ trigger CommunityGroupControl on Community_Group_Control__c (before insert, afte
 				validationPassed = false;
 			}
 			else {
-				checkUniqueNamesMap.put(cgcItem.Name, cgcItem);
+				if (cgcItem.Name.Length()>40) {
+					cgcItem.addError(Label.ERR_Name_is_too_long);
+					validationPassed = false;
+				}
+			    else {
+				    checkUniqueNamesMap.put(cgcItem.Name, cgcItem);
+			    }
 			}
 			// Operation block
 			if (validationPassed && cgcItem.Chatter_Group_ID__c == NULL) {
@@ -61,16 +67,16 @@ trigger CommunityGroupControl on Community_Group_Control__c (before insert, afte
 		if (GroupControlIdByChatterGroupId.size() > 0) {
 			List<Community_Group_Manager__c> membersCommunityGroup = new List<Community_Group_Manager__c>();
 			for (CollaborationGroupMember cgmItem : [
-						SELECT MemberId, CollaborationGroupId
+						SELECT MemberId, CollaborationGroup.OwnerId
 						FROM CollaborationGroupMember
-						WHERE CollaborationGroupId IN :GroupControlIdByChatterGroupId.keySet()]
+						WHERE CollaborationGroupId IN :GroupControlIdByChatterGroupId.keySet() AND CollaborationRole = 'Admin']
 							) {
 				Community_Group_Control__c cgcFromMap = GroupControlIdByChatterGroupId.get(cgmItem.CollaborationGroupId);
 				membersCommunityGroup.add(
 					new Community_Group_Manager__c(
 						Group_Control__c = cgcFromMap.Id,
 						Group_Manager_User__c = cgmItem.MemberId,
-						Manager_Role__c = (cgcFromMap.OwnerId == cgmItem.MemberId ? 'Owner' : 'Manager')
+						Manager_Role__c = (cgmItem.CollaborationGroup.OwnerId == cgmItem.MemberId ? 'Owner' : 'Manager')
 					)
 				);
 			}
@@ -98,6 +104,10 @@ trigger CommunityGroupControl on Community_Group_Control__c (before insert, afte
 			if (cgcItem2.Name != Trigger.oldMap.get(cgcItem2.Id).Name) {
 				if (checkUniqueNamesMap2.containsKey(cgcItem2.Name)) {
 					cgcItem2.addError(Label.ERR_Dup_Group_Name);
+					validationPassed2 = false;
+				}
+				if (cgcItem2.Name.Length()>40) {
+					cgcItem2.addError(Label.ERR_Name_is_too_long);
 					validationPassed2 = false;
 				}
 				checkUniqueNamesMap2.put(cgcItem2.Name, cgcItem2);

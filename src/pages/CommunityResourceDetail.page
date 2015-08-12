@@ -3,9 +3,6 @@
 <apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
 <apex:define name="body">
 	<style>
-		.sky-form .dl-horizontal hr {
-			margin:6px 0;
-		}
 	</style>
 	<div class="breadcrumbs margin-bottom-10">
 		<div class="container">
@@ -17,22 +14,22 @@
 			</ul>
 		</div>
 	</div>
-	<div class="profile">
+	<div class="profile CommunityResourceDetail">
 		<div class="container content">
 			<apex:outputPanel layout="block" styleClass="row text-center margin-bottom-20" rendered="{!$ObjectType.Community_Resource__c.Updateable}">
 				<apex:outputLink value="{!urlForEditResource}" styleClass="btn-u">{!$Label.BTN_Edit_Resource}</apex:outputLink>
 			</apex:outputPanel>
 			<apex:outputPanel layout="block" styleClass="sky-form">
 				<dl class="dl-horizontal">
-					<apex:repeat value="{!fieldset}" var="fs">
+					<apex:repeat value="{!rlayout.flds}" var="fs">
 						<dt><strong>{!fs.label}</strong></dt>
-						<dd><apex:outputField value="{!resource[fs.fieldPath]}"/></dd>
+						<dd><apex:outputField value="{!resource[fs.name]}"/></dd>
 						<hr/>
 					</apex:repeat>
 					<dt><strong>Resource</strong></dt>
 					<dd>
 						<!-- <i class="expand-list rounded-x fa {!ResourceLink[2]}" style="width:24px;"></i>&nbsp; -->
-						<a href="{!ResourceLink[1]}" target="_blank" style="color:#72c02c;">{!ResourceLink[0]}</a>
+						<a href="{!ResourceLink[1]}" target="_blank">{!ResourceLink[0]}</a>
 						<apex:outputPanel layout="none" rendered="{!$ObjectType.Community_Resource__c.Updateable}">
 							&nbsp;
 							<button class="btn btn-xs rounded btn-default" data-toggle="modal" data-target="#uploadResourceDialog">{!$Label.BTN_Update_Resource}</button>

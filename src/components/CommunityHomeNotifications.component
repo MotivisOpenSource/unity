@@ -1,18 +1,5 @@
 <apex:component controller="CommunityHomeNotificationsController">
-
-	<style>
-
-	div.overflow-h:hover{
-		background-color : #f4f4f4;
-
-	}
-	a.notifyClass {
-	  text-decoration: none;
-	}
-
-	</style>
-
-	<div class="profile">
+	<div class="profile CommunityHomeNotifications">
         <div class="headline"><h2><i class="fa fa-bell-o"></i> {!$Label.LBL_Notifications}</h2></div>
 		<div id="notif-panel"></div>
 	</div>

@@ -1,28 +1,33 @@
 public with sharing class CommunityEventController {
 
-	public Boolean permissionsEdit {get{
-		if(CommunityUtils.isModifyAllData()) return true;
-		if(SObjectType.Community_Events__c.isUpdateable() && event.UserRecordAccess.HasEditAccess) return true;
-		return false;
-	} set;}
-
-	public Boolean permissionsClone {get{
-		if(SObjectType.Community_Events__c.isCreateable()) return true;
-		return false;
-	} set;}
-
-	public Boolean permissionShareBanned {get{
-		if (event.Events_Tag_Joins__r != NULL) {
-			for (Community_Event_Tag__c item : event.Events_Tag_Joins__r) {
-				if(item.Group_Type__c != NULL && item.Group_Type__c != 'Public') return true;
-			}
+	public Boolean permissionsEdit {
+		get {
+			return CommunityUtils.isModifyAllData()
+					|| (SObjectType.Community_Events__c.isUpdateable() && event.UserRecordAccess.HasEditAccess);
 		}
-		if(!event.Public__c) return true;
-		return false;
+	}
 
-	} set;}
+	public Boolean permissionsClone {
+		get {
+			return SObjectType.Community_Events__c.isCreateable();
+		}
+	}
 
-	public List<Schema.FieldSetMember> fieldsetRes { get; set; }
+	public Boolean permissionShareBanned {
+		get {
+			Boolean result = Community_Settings__c.getOrgDefaults().Disable_Share__c == true;
+			if (!result && event.Events_Tag_Joins__r != NULL) {
+				for (Community_Event_Tag__c item : event.Events_Tag_Joins__r) {
+					if(item.Group_Type__c != NULL && item.Group_Type__c != 'Public') {
+						result = true;
+						break;
+					}
+				}
+			}
+			result = event.Public__c == false ? true : result;
+			return result;
+		}
+	}
 
 	private String datetimeToUTC(DateTime dati) {
 		String dt = dati.format('yyyy-MM-dd HH:mm:ss','Etc/UTC');
@@ -53,18 +58,16 @@ public with sharing class CommunityEventController {
 
 	public PageReference downloadICS() {
 		String docName = String.format('{0}.ics', new List<String> { this.event.Name__c });
-		Document att = deleteICSDocument(docName);		
-		if (att == NULL) {		
+		Document att = deleteICSDocument(docName);
+		if (att == NULL) {
 			Community_Events__c e = [SELECT Id, Owner.Name, OwnerId FROM Community_Events__c WHERE Id =:event.Id];
-			System.Debug(e);
 			User userForContact = [SELECT ID, ContactId, Email,Community_Contact_ID__c  FROM User WHERE ID =:e.OwnerId LIMIT 1] ;
-			System.Debug(userForContact);
-			String contactEmail;			
+			String contactEmail;
 			if(userForContact.ContactId!=null) {
 				List<Contact> listContact = [SELECT ID, Email FROM Contact WHERE ID =: userForContact.ContactId LIMIT 1];
-				Contact contactUser = listContact.size()>0?listContact[0]:null; 
+				Contact contactUser = listContact.size()>0?listContact[0]:null;
 				if(contactUser.Email != null) contactEmail = contactUser.Email;
-				else contactEmail = '';							
+				else contactEmail = '';
 			}
 			else {
 				if(userForContact.Community_Contact_ID__c!=null) {
@@ -81,15 +84,13 @@ public with sharing class CommunityEventController {
 				IsPublic = true
 			);
 			insert att;
-		}		
+		}
 		PageReference pr = new PageReference('/servlet/servlet.FileDownload');
 		pr.setRedirect(true);
 		pr.getParameters().put('file', att.Id);
-		System.Debug(pr);
 		return pr;
 	}
 
-	
 	private Document deleteICSDocument(String name){
 		List<Document> atts = [SELECT Id, Name FROM Document WHERE Name =: name AND IsPublic = true LIMIT 5];
 		Document att = NULL;
@@ -103,7 +104,6 @@ public with sharing class CommunityEventController {
 	}
 
 	private Blob generateCalendarEvent(Community_Events__c e, String ownerName, String ownerEmail, String currentUserName, String currentUserEmail) {
-		
 		String icsString = 'BEGIN:VCALENDAR'
 			+ '\nVERSION:2.0'
 			+ '\nPRODID:-//Microsoft Corporation//Outlook for Mac MIMEDIR//EN'
@@ -141,7 +141,7 @@ public with sharing class CommunityEventController {
 				(e.End__c != NULL ? datetimeToUTC(e.End__c) : ''),
 				(e.Street_Address__c != NULL ? e.Street_Address__c : ''),
 				datetimeToUTC(DateTime.now()),
-				(e.Description__c != NULL ? e.Description__c.stripHtmlTags() : '')
+				(e.Description__c != NULL ? e.Description__c : '')
 			}
 		);
 		Blob icsFile = Blob.valueOf(icsBody);
@@ -157,10 +157,8 @@ public with sharing class CommunityEventController {
 
 	// CONSTRUCTOR
 	public CommunityEventController() {
-
 	}
-	
-	
+
 	public CommunityEventController(ApexPages.StandardController stdController) {
 		stdctrl = stdController;
 		event = (Community_Events__c)stdController.getRecord();
@@ -191,8 +189,8 @@ public with sharing class CommunityEventController {
 
 	// -- variables --
 	public Community_Events__c event { get;set; }
-	public Map<String, Community_Event_Tag__c> eventTagMap { get; set; }
-	public List<Community_Event_Tag__c> eventTagList { get; set; }
+	public CommunityFieldLayout elayout { get;set; }
+	public transient Community_Group_Control__c relatedToEventGroup { get; set; }
 
 	private String TAGS_INPUT_NAME = 'tags';
 	private String formatEventLocation(Community_Events__c e) {
@@ -229,105 +227,65 @@ public with sharing class CommunityEventController {
 
 	// -- methods --
 	private void init() {
-		
-		/*
-		* select name of related group for event
-		*/
-		String groupId = ApexPages.currentPage().getParameters().get('gr');
-		if(groupId == NULL) {
-			Community_Group_Control__c conObj = getRelatedToEventGroup();			
-			if ( conObj != null) {		
-				connectedGroupStr = conObj.Name;
-				groupId = conObj.Chatter_Group_ID__c;
-			}
-			else connectedGroupStr = '';
-		}
-		else {
-			List<Community_Group_Control__c> groupList1 = [Select Id, Name, Chatter_Group_ID__c From Community_Group_Control__c Where Chatter_Group_ID__c = : groupId limit 1];
-			if (groupList1.isEmpty()) {
-				connectedGroupStr = '';
-			}
-			else {
-				connectedGroupStr = groupList1[0].Name;
-			}
-		}
-		
-		eventTagMap = new Map<String, Community_Event_Tag__c>();
-
-		if (event != NULL && event.Id != NULL) {
-			Set<String> collectedFields = new Set<String> {'Id', 'Name', 'Name__c', 'Start__c', 'End__c', 'Building__c', 'Room__c', 'Street_Address__c', 'City__c', 'State__c', 'Zip__c', 'Teaser__c', 'Description__c', 'UserRecordAccess.HasEditAccess', 'OwnerId', 'Public__c'};
-			String pp = CommunityUtils.getPackagePrefix();
-			Boolean isPP = String.isNotBlank(pp);
-			for (Schema.FieldSetMember f : fieldset) {
-				String tempFieldName = isPP ? f.getFieldPath().replace(pp,'') : f.getFieldPath();
-				collectedFields.add(tempFieldName);
-			}
-			String query = '';
-			String sep = 'SELECT ';
-			List<String> cfAsList = new List<String>();
-			cfAsList.addAll(collectedFields);
-			for (String cfItem : cfAsList) {
-				query += sep + cfItem;
-				sep = ', ';
-			}
-			String tagSubQuery = 'SELECT Id, Community_Tag__c, Group_Type__c, Community_Tag__r.Community_Theme__r.Name, Community_Tag__r.Name, Community_Group_Control__r.Name, Community_Group_Control__r.Group_Control_SF_ID__c FROM Events_Tag_Joins__r WHERE Community_Group_Control__c = NULL AND Community_Tag__c != NULL';
-			query += ', (' + CommunityUtils.systemTagFilter(' AND Community_Tag__r.Community_Theme__r.Theme_Type__c', tagSubQuery) + ')';
-			query += ' FROM Community_Events__c WHERE Id = \'' + event.Id + '\'';
-			event = Database.query(query);
+		List<String> fieldList = new List<String> {
+			'Id', 'Name', 'Name__c', 'Start__c', 'End__c', 'Building__c', 'Room__c', 'Street_Address__c', 'City__c', 'State__c', 'Zip__c', 'Teaser__c',
+			'Description__c', 'UserRecordAccess.HasEditAccess', 'OwnerId', 'Public__c'
+		};
+		elayout = new CommunityFieldLayout(
+			event.Id,
+			(mode == 'edit') ? SObjectType.Community_Events__c.FieldSets.EditEvent : SObjectType.Community_Events__c.FieldSets.ViewEvent,
+			SObjectType.Community_Events__c,
+			fieldList,
+			CommunityUtils.getPackagePrefix()
+		);
+		if (event.Id != NULL) {
+			event = (Community_Events__c)elayout.getRecord();
 			if (mode == 'view') {
 				event.Street_Address__c = formatEventLocation(event);
-			}
-			
-			fieldsetRes = fieldset;
-			if(event.Street_Address__c == NULL){
-				Integer pos = 0;
-				for(Schema.FieldSetMember fsA : fieldset){
-					if(fsA.getLabel().containsIgnoreCase('Street Address')){
-						break;
-					}
-					pos++;
+				Set<String> excludeFields = new Set<String>();
+				String ppp = CommunityUtils.getPackagePrefix();
+				Boolean hpp = String.isNotBlank(ppp);
+				for (String fItem : new List<String> {'Building__c', 'Room__c', 'City__c', 'State__c', 'Zip__c'}) {
+					excludeFields.add((hpp && fItem.endsWith('__c')) ? (ppp + fItem) : fItem);
 				}
-				fieldsetRes.remove(pos);
+				List<CommunityFieldLayout.Field> nflds = new List<CommunityFieldLayout.Field>();
+				for (CommunityFieldLayout.Field ffItem : elayout.flds) {
+					if (!excludeFields.contains(ffItem.name)) {
+						nflds.add(ffItem);
+					}
+				}
+				elayout.flds = nflds;
 			}
-			
-			
-
 		}
-		if (ApexPages.currentPage().getParameters().get('cloneId') != NULL) {
+		else if (ApexPages.currentPage().getParameters().get('cloneId') != NULL) {
 			try {
 				Id cloneId = Id.valueOf(ApexPages.currentPage().getParameters().get('cloneId'));
 				String cquery = '';
 				String csep = 'SELECT ';
-				for (Schema.FieldSetMember cf : fieldset) {
-					cquery += csep + cf.getFieldPath();
+				for (CommunityFieldLayout.Field cf : elayout.flds) {
+					cquery += csep + cf.name;
 					csep = ', ';
 				}
 				cquery += ' FROM Community_Events__c WHERE Id = \'' + cloneId + '\'';
 				Community_Events__c cevent = Database.query(cquery);
-				for (Schema.FieldSetMember cf2 : fieldset) {
-					String fName = cf2.getFieldPath();
-					event.put(fName, cevent.get(fName));
+				for (CommunityFieldLayout.Field cf2 : elayout.flds) {
+					event.put(cf2.name, cevent.get(cf2.name));
 				}
 			}
 			catch (Exception e) {
 				ApexPages.addMessages(e);
 			}
 		}
-
-		if (event != NULL) {
-			if (event.Events_Tag_Joins__r != NULL) {
-				for (Community_Event_Tag__c item : event.Events_Tag_Joins__r) {
-					if (item != NULL) {
-						if (eventTagMap.get(item.Community_Group_Control__r.Name) == NULL) {
-							eventTagMap.put(item.Community_Group_Control__r.Name, item);
-						}
-					}
-				}
-			}
+		String groupId = ApexPages.currentPage().getParameters().get('gr');
+		if(String.isBlank(groupId)) {
+			List<Community_Event_Tag__c> cet = [SELECT Community_Group_Control__r.Chatter_Group_ID__c FROM Community_Event_Tag__c WHERE Community_Event__c = :event.Id AND Community_Group_Control__c != NULL];
+			groupId = cet.isEmpty() ? NULL : cet[0].Community_Group_Control__r.Chatter_Group_ID__c;
 		}
-
-		if (!eventTagMap.isEmpty()) {
-			eventTagList = eventTagMap.values();
+		connectedGroupStr = '';
+		if(String.isNotBlank(groupId)) {
+			List<Community_Group_Control__c> cgc = [SELECT Id, Name FROM Community_Group_Control__c WHERE Chatter_Group_ID__c = :groupId];
+			connectedGroupStr = cgc.isEmpty() ? '' : cgc[0].Name;
+			relatedToEventGroup = cgc.isEmpty() ? NULL :cgc[0];
 		}
 	}
 
@@ -342,17 +300,19 @@ public with sharing class CommunityEventController {
 
 	public String connectedGroupStr { get;set; }
 	public PageReference submit() { /// without sharing
+		PageReference pr;
 		try {
 			if (String.isBlank(event.Teaser__c) && String.isNotBlank(event.Description__c)) {
 				event.Teaser__c = event.Description__c.stripHtmlTags().abbreviate(140);
 			}
+
+			if((!String.isBlank(connectedGroupStr) && !validateGroupStr(connectedGroupStr))
+				|| (event.Public__c == false && string.isBlank(connectedGroupStr))
+			){
+				throw new CommunityEventException(Label.ERR_Please_Select_Group);
+			}
+
 			upsert event;
-			
-			if(!String.isBlank(connectedGroupStr) && !validateGroupStr(connectedGroupStr)){
-				ApexPages.Message myMsg = new ApexPages.Message(ApexPages.Severity.ERROR, Label.ERR_Please_Select_Group);
-				ApexPages.addMessage(myMsg);
-				return NULL;
-			}	
 
 			String tagsIdsString = ApexPages.currentPage().getParameters().get(TAGS_INPUT_NAME);
 			CommunityTagSelectorController ctsc = new CommunityTagSelectorController();
@@ -369,53 +329,43 @@ public with sharing class CommunityEventController {
 					WHERE Community_Event__c =: event.Id and Community_Group_Control__c != null
 					ORDER BY CreatedDate DESC
 				];
-		
-			if(event.Public__c == false && string.isBlank(connectedGroupStr)) {	
-				ApexPages.Message myMsg = new ApexPages.Message(ApexPages.Severity.ERROR, Label.ERR_Please_Select_Group);
-				ApexPages.addMessage(myMsg);
-				return NULL;		
-			}
+			
 			if(string.isBlank(connectedGroupStr)) {
-				// delete all records related for this Event where group is not null				
-				delete communityEventTagList;				
-
+				// delete all records related for this Event where group is not null
+				delete communityEventTagList;
 			}
 			else {
-				// create group				
+				// create group
 				List<Community_Group_Control__c> communityGroupControll = [
 						SELECT Id, Chatter_Group_ID__c
 						FROM Community_Group_Control__c
 						WHERE Name like :connectedGroupStr
 						ORDER BY CreatedDate DESC
 					];	
-				// check if the group exist				
+				// check if the group exist
 				if (communityGroupControll.isEmpty()) {
-					ApexPages.Message myMsg = new ApexPages.Message(ApexPages.Severity.ERROR,Label.ERR_Cant_Found_Group + connectedGroupStr );
-					ApexPages.addMessage(myMsg);
-					return NULL;
+					//ApexPages.Message myMsg = new ApexPages.Message(ApexPages.Severity.ERROR,Label.ERR_Cant_Found_Group + connectedGroupStr );
+					//ApexPages.addMessage(myMsg);
+					throw new CommunityEventException(Label.ERR_Cant_Found_Group + connectedGroupStr);
 				}
 				// delete all events if there was more than one record	
 				if(!(communityEventTagList.Size() == 1 && communityEventTagList[0].Community_Group_Control__c == communityGroupControll[0].Id )) {
 					
-					delete communityEventTagList ;				
-			System.debug('communityGroupControll[0].Id = '+communityGroupControll[0].Id);				
+					delete communityEventTagList ;
 					Community_Event_Tag__c communityEventTag = new Community_Event_Tag__c();
 					communityEventTag.Community_Event__c = event.Id;
 					communityEventTag.Community_Group_Control__c = communityGroupControll[0].Id;
-			System.debug('communityEventTag = '+communityEventTag);			
 					insert communityEventTag;
 				}
-			}		
-				
-			PageReference cloneRef = Page.CommunityEventDetail;
-			cloneRef.setRedirect(true);
-			cloneRef.getParameters().put('id',event.Id);
-			return cloneRef;			
+			}
+			pr = Page.CommunityEventDetail;
+			pr.setRedirect(true);
+			pr.getParameters().put('id',event.Id);
 		}
 		catch (Exception e) {
 			ApexPages.addMessages(e);
 		}
-		return NULL;
+		return pr;
 	}
 
 	public Boolean validateGroupStr(String groupStr){
@@ -427,26 +377,6 @@ public with sharing class CommunityEventController {
 		}
 		return false;
 	} 
-
-	public List<Schema.FieldSetMember> fieldset {
-		get {
-			List<Schema.FieldSetMember> resultList;
-			if (mode == 'edit') {
-				resultList = SObjectType.Community_Events__c.FieldSets.EditEvent.getFields();
-			}
-			else {
-				resultList = new List<Schema.FieldSetMember>();
-				Set<String> excludeFields = new Set<String> { 'Building__c', 'Room__c', 'City__c', 'State__c', 'Zip__c'};
-				Set<String> fieldsFLSAvailable = CommunityUtils.checkFLSFields('Community_Events__c', NULL);
-				for (Schema.FieldSetMember f2 : SObjectType.Community_Events__c.FieldSets.ViewEvent.getFields()) {
-					if (!excludeFields.contains(f2.getFieldPath()) && fieldsFLSAvailable.contains(f2.getFieldPath().toLowerCase())) {
-						resultList.add(f2);
-					}
-				}
-			}
-			return resultList;
-		}
-	}
 
 	public PageReference edit() {
 
@@ -623,56 +553,33 @@ public with sharing class CommunityEventController {
 			name += cet.Community_Tag__r.Name;
 		}
 	}
-	
-	
-		
-	/**
-	*	return string array of all groups to use it as list on view page
-	*/
-	public String[] getAllGroupsInStringArray() {
-		List<Community_Group_Control__c> availibleGroupsControll = [SELECT Chatter_Group_ID__c, Id
-                 FROM Community_Group_Control__c
-                 WHERE Status__c = 'Approved'];
-		//List<CollaborationGroup> groups = [SELECT Id, Name, CollaborationType, NetworkId FROM CollaborationGroup WHERE NetworkId =:Network.getNetworkId() and Status__c = 'Approved' LIMIT 1000];
-		List<String> groupIds = new List<String>();
-		for (Community_Group_Control__c aGroup : availibleGroupsControll){
-		    groupIds.add(aGroup.Chatter_Group_ID__c); 
+	/*
+	public List<String> getAllGroupsInStringArray() {
+		Set<Id> chatterGroups = new Set<Id>();
+		for (Community_Group_Control__c gcItem : [SELECT Chatter_Group_ID__c FROM Community_Group_Control__c WHERE Status__c = 'Approved']) {
+			chatterGroups.add(gcItem.Chatter_Group_ID__c);
 		}
-		System.debug('groupIds-' +groupIds);
-		System.debug('getNamesOfAvailableGroups-' +CommunityUtils.getNamesOfAvailableGroups(groupIds));
+		List<String> groupIds = new List<String>();
+		for (CollaborationGroup cgItem : [SELECT Id FROM CollaborationGroup WHERE Id IN :chatterGroups AND NetworkId = :Network.getNetworkId()]) {
+			groupIds.add(cgItem.Id);
+		}
 		return CommunityUtils.getNamesOfAvailableGroups(groupIds);
 	}
-	
-	/**
-	* return group related to event
 	*/
-	public Community_Group_Control__c getRelatedToEventGroup() {	
-		Community_Group_Control__c	result = null;
-		List<Community_Event_Tag__c> cet = [ 
-							SELECT Id, Name, Community_Group_Control__c
-				 			FROM Community_Event_Tag__c
-				 			Where Community_Event__c = :event.Id and Community_Group_Control__c != null
-				 			limit 1
-		];
-		if(!cet.isEmpty()) {
-			List<Community_Group_Control__c> cgc = [
-						SELECT Id, Name, Chatter_Group_ID__c
-						From Community_Group_Control__c
-						Where Id =:	cet[0].Community_Group_Control__c
-						limit 1
-			];
-			if (!cgc.isEmpty()) {
-				result = cgc[0];
-			}				
+	public List<String> getAllGroupsInStringArray() {
+		Set<Id> chatterGroups = new Set<Id>();
+		List<String> groupsNames = new List<String>();
+		for (Community_Group_Control__c gcItem : [SELECT Chatter_Group_ID__c FROM Community_Group_Control__c WHERE Status__c = 'Approved']) {
+			chatterGroups.add(gcItem.Chatter_Group_ID__c);
 		}
-		return result;
-		
-	}	
-		
-	public String getTitle(){
-		if (event.Id == null) return Label.BTN_Create_Event;
-		return Label.BTN_Edit_Event;		
+		List<String> groupIds = new List<String>();
+		for (CollaborationGroup cgItem : [
+											SELECT Id, Name FROM CollaborationGroup Where NetworkId = :Network.getNetworkId() AND ID in :chatterGroups AND
+												ID in (SELECT CollaborationGroupId FROM CollaborationGroupMember WHERE
+														 MemberId = :UserInfo.getUserId() ) ] ) {
+			groupIds.add(cgItem.Id);
+			groupsNames.Add(cgItem.Name);
+		}		
+		return groupsNames;
 	}
-	
-	
 }

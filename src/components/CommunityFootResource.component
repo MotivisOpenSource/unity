@@ -4,10 +4,17 @@
 	<apex:includeScript value="{!$Resource.CommunityResources}/js/underscore/underscore-min.js"/>
 	<apex:includeScript value="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.js"/>
 	<apex:includeScript value="{!$Resource.CommunityResources}/js/Typeahead/bootstrap3-typeahead.min.js"/>
+	
+	<script src="{!$Resource.CommunityResources}/js/Typeahead/bootstrap3-typeahead.min.js"></script>
+	
+	<!-- <script type="text/javascript" src="{!$Resource.CommunityResources}/js/Typeahead/typeahead.bundle.custom.js" ></script> -->
+	<script type="text/javascript" src="{!$Resource.CommunityResources}/js/underscore/underscore-min.js" ></script>
+	
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/jquery/jquery-migrate.min.js"></script>
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/bootstrap/js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/back-to-top.js"></script>
 	<script type="text/javascript" src="{!$Resource.assets}/js/plugins/cropper.js"></script>
+	<script type="text/javascript" src="{!$Resource.assets}/plugins/jcrop/js/jquery.Jcrop.min.js"/>
 	<!-- Scrollbar -->
 	<script src="{!$Resource.assets}/plugins/scrollbar/src/jquery.mousewheel.js"></script>
 	<script src="{!$Resource.assets}/plugins/scrollbar/src/perfect-scrollbar.js"></script>
