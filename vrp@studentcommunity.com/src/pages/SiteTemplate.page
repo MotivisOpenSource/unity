@@ -8,7 +8,10 @@
 			<apex:insert name="title"/>
 		</title>
 		<c:CommunityHeadResource />
-	</head> 
+		<script>
+			jQuery('.theme--').removeClass('theme--').addClass('theme--Green');
+		</script>
+	</head>
 	<body class="header-fixed boxed-layout container">
 		<div class="wrapper">
 			<c:CommunityMenu />
@@ -17,7 +20,7 @@
 		</div><!--/wrapper-->
 		<c:CommunityFootResource />
 		<apex:insert name="scripts"/>
-		<apex:outputText value="{!$Setup.Community_Template_Settings__c.Color_Scheme__c}" style="display:none;"/>
 	</body>
+	<apex:outputText value="{!$Setup.Community_Template_Settings__c.Color_Scheme__c}" style="display:none;"/>
 </html>
 </apex:page>

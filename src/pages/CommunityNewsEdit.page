@@ -1,10 +1,4 @@
 <apex:page standardController="Community_News__c" extensions="CommunityNewsController" action="{!initFromEdit}" showHeader="false" sideBar="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false" standardStylesheets="false">
-
-<script src="{!$Resource.CommunityResources}/js/underscore/underscore-min.js"></script>
-<script type="text/javascript" src="{!$Resource.assets}/plugins/sky-forms/version-2.0.1/js/jquery-ui.min.js"></script>
-<apex:stylesheet value="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.css" />
-<script type="text/javascript" src="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.js"></script>
-
 <apex:composition template="{!$Site.Template}">
 <apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
 <apex:define name="body">
@@ -23,10 +17,10 @@
 					</div>
 				</div>
 				<apex:pageBlock >
+					<apex:pageMessages id="pageMessages"/>
 					<fieldset>
 						<c:CommunityFieldLayout fl="{!flayout}" so="{!news}"/>
 					</fieldset>
-					<apex:pageMessages id="pageMessages"/>
 					<fieldset id="cnpbs1">
 						<section>
 							<apex:outputLabel value="{!$Label.LBL_Select_Image}"/>
@@ -213,26 +207,6 @@
 					.height(120)*/;
 			};
 			$F('#iidf').show();
-		}
-
-		var dateElements = $F(".dateInput input");
-	
-		_.each(dateElements, function(e){
-			e.className = "validate-datetimepicker";
-			e.removeAttribute("onfocus");
-			
-		});
-
-		if(jQuery('.validate-datetimepicker')) {
-			var currentdate = new Date(); 
-			var datetime = (currentdate.getMonth()+1) + '/' + currentdate.getDate() + '/' + currentdate.getFullYear() + ' ' + currentdate.getHours() + ":"  + currentdate.getMinutes();
-			$F('.validate-datetimepicker').datetimepicker({
-				minDate:datetime,
-				format:'m/d/Y h:i A',
-				formatTime:'h:i A',
-				formatDate:'m/d/Y',
-				step:30
-			});
 		}
 	</script>
 </apex:define>

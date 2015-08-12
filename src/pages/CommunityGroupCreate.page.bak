@@ -1,174 +1,277 @@
-<apex:page standardController="Community_Group_Control__c" extensions="CommunityGroupCreateController" action="{!initFromCreate}" showHeader="false" sideBar="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false">
+<apex:page standardController="Community_Group_Control__c" extensions="CommunityGroupCreateController" action="{!initFromCreate}" showHeader="false" sideBar="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false" standardStylesheets="false">
 <apex:composition template="{!$Site.Template}">
 <apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
 <apex:define name="body">
-	<apex:includeScript value="{!$Resource.assets}/plugins/jquery/jquery.min.js"/>
-	<div class="container content CommunityGroupCreate">
-	<div class="row">
-	<!--LEFT-->
-	<div class="col-md-3 md-margin-bottom-40">
-		<c:CommunityUserPhoto />
-		<c:CommunityFeedNavigation pn="5"/>
-	</div>
-	<!--LEFT-->
-	<!--MIDDLE-->
-	<div class="col-md-9 create-group">
-	<apex:form >
-		<div class="row margin-bottom-10">
-			<div class="col-sm-8 text-left title__container">
-				<!-- h2>{!$Label.BTN_Create_Group}&nbsp;({})</h2-->
-				<h2><apex:outputText value="{!headerText}"/></h2>
-			</div>
-			<div class="col-sm-4 text-right buttons__container">
-				<button id="sbtbtn" class="btn-u" type="button" style="opacity:{!IF(disabledNext,'0.65','1')};" onclick="cksbmbtn();">{!$Label.LBL_Next}</button>&nbsp;
-				<apex:outputLink value="{!IF(ISBLANK($CurrentPage.parameters.retURL),$Page.CommunityGroups+'?f=all_groups',JSENCODE($CurrentPage.parameters.retURL))}" styleClass="btn-u" rendered="{!step == 1}">{!$Label.BTN_Cancel}</apex:outputLink>
-				<apex:commandButton action="{!cancel}" value="{!$Label.BTN_Cancel}" styleClass="btn-u" rendered="{!step != 1}"/>
-				<apex:outputPanel layout="none" rendered="{!disabledNext}">
-					<script>
-						$('[id$=sbtbtn]').attr('disabled','disabled');
-					</script>
-				</apex:outputPanel>
-				<apex:actionFunction action="{!doSubmit}" name="dosubmit"/>
-				<script>
-					function cksbmbtn() {
-						var ds = true;
-						if ({!step == 3} && $('#tagsContainer span.item').length == 0) {
-							ds = confirm("{!$Label.LBL_CreateGroup_NoTagsMessage}");
-						}
-						if (ds) {
-							dosubmit();
-						}
-					}
-				</script>
-			</div>
-		</div>
-		<apex:outputPanel layout="block" styleClass="row" rendered="{!step == 1}">
-			<div class="col-sm-12">
-				<apex:pageBlock >
-					<div class="calert">
-						<apex:pageMessages id="pageMessages"/>
-					</div>
-					<apex:pageBlockSection columns="1" collapsible="false">
-						<apex:repeat value="{!fieldset}" var="fs">
-							<apex:inputField id="namefield" html-maxlength="40" value="{!CurrentGroup[fs.fieldPath]}" onkeyup="nameKeyUp(this);" required="{!OR(fs.required, fs.dbrequired)}" rendered="{!fs.fieldPath == 'Name'}"/>
-							<apex:inputField value="{!CurrentGroup[fs.fieldPath]}" required="{!OR(fs.required, fs.dbrequired)}" rendered="{!fs.fieldPath != 'Name'}"/>
-						</apex:repeat>
-						<script>
-							function nameKeyUp(el) {
-								var nval = el.value.trim();
-								if ($('#namess').length > 0) {
-									$('#namess').remove();
-									$('[id$=sbtbtn]').css('opacity','0.65').attr('disabled','disabled');
-								}
-								if (nval == '') {
-									$('#nabtn').attr('disabled','disabled');
-								}
-								else {
-									$('#nabtn').removeAttr('disabled');
-								}
-							}
-							$('[id$=namefield]').parent().append('<button id="nabtn" onclick="checkName();return false;" class="btn btn-xs rounded btn-default" disabled="desabled">Check Availability</button>');
-						</script>
-					</apex:pageBlockSection>
-				</apex:pageBlock>
-			</div>
-			<script>
-				function checkName() {
-					Visualforce.remoting.Manager.invokeAction(
-						'{!$RemoteAction.CommunityGroupCreateController.checkAvailability}',
-						$('[id$=namefield]').val().trim(),
-						function(result, event) {
-							if ($('#namess').length == 0) {
-								var res = result ? 
-									'<span id="namess" class="nameok"><i class="fa fa-check-circle-o"></i>{!$Label.MSG_Group_Name_Available}</span>'
-									: '<span id="namess" class="nameerr"><i class="fa fa-times-circle-o"></i>{!$Label.ERR_Dup_Group_Name}</span>';
-								$('[id$=namefield]').parent().append(res);
-								if (result) {
-									$('[id$=sbtbtn]').css('opacity','1').removeAttr('disabled');
-								}
-							}
-						}
-					);
-				}
-				if ($('[id$=namefield]').val().length > 0) {
-					checkName();
-				}
-			</script>
-		</apex:outputPanel>
-		<apex:outputPanel layout="block" styleClass="row u-page-block" rendered="{!step == 2}">
-				<div class="col-sm-4 text-center">
-					<img id="preview_image" alt="" src="{!EmptyGroupPhotoUrl}" width="100%" class="img-responsive img-bordered"/>
-				</div>
-				<div class="col-sm-8 sky-form">
-					<section id="filesection">
-						<label class="label">{!$Label.LBL_PictureUploadModal_SizeWarning}</label>
-						<label for="file" class="input input-file">
-							<div class="button">
-								<apex:inputFile value="{!imageBody}" fileName="{!imageFileName}" contentType="{!imageContentType}" accept="image/*" onchange="preview(this);"/>
-								{!$Label.BTN_ChooseFile}
-							</div><input type="text"/>
-						</label>
-					</section>
-				</div>
-				<script>
-					function preview(input) {
-						if (input.files && input.files[0]) {
-							$('#sectionnote').remove();
-							$('#filesection .input').removeClass('state-error');
-							$('[id$=sbtbtn]').css('opacity','0.65').attr('disabled','disabled');
-							input.parentNode.nextSibling.value = input.files[0].name;
-							if (input.files[0].type.indexOf('image/') != 0 || input.files[0].size > 8388608) {
-								$('#filesection .input').addClass('state-error');
-								$('#filesection').append('<div id="sectionnote" class="alert alert-danger fade in">{!$Label.ERR_Group_Picture_FileError}</div>');
-							}
-							else {
-								var reader = new FileReader();
-								reader.onload = function (e) {
-									$('#preview_image').attr('src', e.target.result);
-									$('[id$=sbtbtn]').css('opacity','1').removeAttr('disabled');
-								};
-								reader.readAsDataURL(input.files[0]);
-							}
-						}
-					}
-				</script>
-		</apex:outputPanel>
-		<apex:outputPanel layout="block" styleClass="row u-page-block" rendered="{!step == 3}">
-			<div class="col-sm-12 sky-form" style="padding-top:15px;">
-				<section>
-					<label class="input">
-						<c:CommunityTagSelector oId="{!CurrentGroup.Id}" oType="{!$ObjectType.Community_Group_Control_Tag__c.Name}" fName="{!$ObjectType.Community_Group_Control_Tag__c.Fields.Group_Control__c.Name}" mt="{!tagsCount}"/>
-					</label>
-				</section>
-			</div>
-		</apex:outputPanel>
-		<apex:outputPanel layout="block" styleClass="row u-page-block" rendered="{!step == 4}">
-			<div class="col-sm-12">
-				<apex:outputText value="{!termsAndConditions}" escape="false"/>
-				<div class="text-center margin-top-20">
-					<apex:inputCheckbox value="{!CurrentGroup.T_C_Accepted__c}" style="vertical-align:top;" onchange="chkchkb(this);"/>&nbsp;<label>{!$Label.LBL_AgreeToTerms}</label>
-				</div>
-				<script>
-					function chkchkb(el) {
-						if (el.checked) {
-							$('[id$=sbtbtn]').css('opacity','1').removeAttr('disabled');
-						}
-						else {
-							$('[id$=sbtbtn]').css('opacity','0.65').attr('disabled','disabled');
-						}
-					}
-				</script>
-			</div>
-		</apex:outputPanel>
-		<apex:outputPanel layout="block" styleClass="row u-page-block" rendered="{!step == 0}">
-			<div class="col-sm-12">
-				<div class="alert alert-danger fade in">
-					{!$Label.ERR_MissingPermission}
-				</div>
-			</div>
-		</apex:outputPanel>
-	</apex:form>
-	</div></div></div>
+    
+    <div class="container content CommunityGroupCreate">
+    <div class="row">
+    <style>
+        .jcrop-keymgr {
+          opacity: 0;
+        }
+        .imgsizeStyle {
+            max-height: 350px;
+        }
+    </style>
+
+    <!--LEFT-->
+    <div class="col-md-3 md-margin-bottom-40">
+        <c:CommunityUserPhoto />
+        <c:CommunityFeedNavigation pn="5"/>
+    </div>
+    <!--LEFT-->
+    <!--MIDDLE-->
+    <div class="col-md-9 create-group">
+    <apex:form styleClass="sky-form">
+        <div class="row margin-bottom-10">
+            <div class="col-sm-8 text-left title__container">
+                <!-- h2>{!$Label.BTN_Create_Group}&nbsp;({})</h2-->
+                <h2><apex:outputText value="{!headerText}"/></h2>
+            </div>
+            <div class="col-sm-4 text-right buttons__container">
+                <button id="sbtbtn" class="btn-u" type="button" style="opacity:{!IF(disabledNext,'0.65','1')};" onclick="cksbmbtn();">{!$Label.LBL_Next}</button>&nbsp;
+                <apex:outputLink value="{!IF(ISBLANK($CurrentPage.parameters.retURL),$Page.CommunityGroups+'?f=all_groups',JSENCODE($CurrentPage.parameters.retURL))}" styleClass="btn-u" rendered="{!step == 1}">{!$Label.BTN_Cancel}</apex:outputLink>
+                <apex:commandButton action="{!cancel}" value="{!$Label.BTN_Cancel}" styleClass="btn-u" rendered="{!step != 1}"/>
+                <apex:outputPanel layout="none" rendered="{!disabledNext}">
+                    <script>
+                        $('[id$=sbtbtn]').attr('disabled','disabled');
+                    </script>
+                </apex:outputPanel>
+                <apex:actionFunction action="{!doSubmit}" name="dosubmit"/>
+                <script>
+                    function cksbmbtn() {
+                        var ds = true;
+                        if ({!step == 3} && $('#tagsContainer span.item').length == 0) {
+                            ds = confirm("{!$Label.LBL_CreateGroup_NoTagsMessage}");
+                        }
+                        if (ds) {
+                            dosubmit();
+                        }
+                    }
+                </script>
+            </div>
+        </div>
+        <apex:outputPanel layout="block" styleClass="row" rendered="{!step == 1}">
+            <div class="col-sm-12">
+                <apex:pageBlock >
+                    <div class="calert">
+                        <apex:pageMessages id="pageMessages"/>
+                    </div>
+                    <fieldset>
+                        <section>
+                            <label class="label"><i class="fa fa-asterisk color-red" title="required"></i>&nbsp;{!$ObjectType.Community_Group_Control__c.Fields.Name.Label}</label>
+                            <label class="input">
+                                <apex:inputText id="namefield" value="{!currentGroup.Name}" styleClass="margin-bottom-5" onkeyup="nameKeyUp(this);" required="true"/>
+                                <button id="nabtn" onclick="checkName();return false;" class="btn-u btn-u-sm" disabled="disabled" style="opacity:0.65;">Check Availability</button>
+                            </label>
+                        </section>
+                        <c:CommunityFieldLayout fl="{!flayout}" so="{!currentGroup}"/>
+                    </fieldset>
+                    </apex:pageBlock>
+                </div>
+            <script>
+                function nameKeyUp(el) {
+                    var nval = el.value.trim();
+                    if ($('#namess').length > 0) {
+                        $('#namess').remove();
+                        $('[id$=sbtbtn]').css('opacity','0.65').attr('disabled','disabled');
+                        $('[id$=namefield]').parent().attr('class','input');
+                    }
+                    if (nval == '') {
+                        $('#nabtn').attr('disabled','disabled').css('opacity','0.65');
+                    }
+                    else {
+                        $('#nabtn').removeAttr('disabled').css('opacity','1');
+                    }
+                }
+                $('[id$=namefield]').parent().append('');
+                function checkName() {
+                    Visualforce.remoting.Manager.invokeAction(
+                        '{!$RemoteAction.CommunityGroupCreateController.checkAvailability}',
+                        $('[id$=namefield]').val().trim(),
+                        function(result, event) {
+                            if ($('#namess').length == 0) {
+                                var res = result ? 
+                                    '<span id="namess" class="nameok"><i class="fa fa-check-circle-o"></i>{!$Label.MSG_Group_Name_Available}</span>'
+                                    : '<span id="namess" class="nameerr"><i class="fa fa-times-circle-o"></i>{!$Label.ERR_Dup_Group_Name}</span>';
+                                $('[id$=namefield]').parent().append(res);
+                                if (result) {
+                                    $('[id$=sbtbtn]').css('opacity','1').removeAttr('disabled');
+                                }
+                            }
+                        }
+                    );
+                }
+                if ($('[id$=namefield]').val().length > 0) {
+                    checkName();
+                }
+            </script>
+        </apex:outputPanel>
+        <apex:outputPanel layout="block" styleClass="row u-page-block" rendered="{!step == 2}">
+                <div class="col-sm-4 text-center">
+                    <img id="preview_image" alt="" src="{!EmptyGroupPhotoUrl}" width="100%" class="img-responsive img-bordered"/>
+                    <div class="pad">
+                        <hr/>
+                    </div>
+                    <div style="width:100px;height:100px;overflow:hidden; float:left; margin-right:15px;">
+                        <img src="#" id="previewImgCreateGroup" style="display:none;" />
+                    </div>
+                   
+                </div>
+                <div class="col-sm-8 sky-form">
+                    <section id="filesection">
+                        <label class="label">{!$Label.LBL_PictureUploadModal_SizeWarning}</label>
+                        <label for="file" class="input input-file">
+                            <div class="button">
+                                <apex:inputFile value="{!imageBody}" fileName="{!imageFileName}" contentType="{!imageContentType}" accept="image/*" onchange="preview(this);"/>
+                                {!$Label.BTN_ChooseFile}
+                                <!-- hidden -->
+                                <apex:inputText id="cropXIdCr" value="{!cropXCr}" style="display:none" />
+                                <apex:inputText id="cropYIdCr" value="{!cropYCr}" style="display:none"/>
+                                <apex:inputText id="cropSizeIdCr" value="{!cropSizeCr}" style="display:none"/>
+                            </div><input type="text"/>
+                        </label>
+                        <div class="pad">
+                            <br/>
+                            <br/>
+                            <h5>{!$Label.LBL_Thumbnail}</h5>
+                            <hr/>
+                            <h6>{!$Label.LBL_Thumbnail_Use}</h6>
+                        </div>
+                    </section>
+                </div>
+                <script>
+                    var scaleCr = 1;
+                    function imageIsLoadedCr(e) {
+                        img2.src = e.target.result;
+                        console.log('1');
+                    }
+                    function preview(input) {
+                        // destroy jcrop
+                        console.log('3');
+                        var JcropAPI =jQuery('#preview_image').data('Jcrop');
+                        if(typeof JcropAPI !== 'undefined'){
+                            JcropAPI.destroy();
+                        };
+                        jQuery('#previewImgCreateGroup').attr('src', "#");
+                    
+                    
+                        if (input.files && input.files[0]) {
+                            $('#sectionnote').remove();
+                            $('#filesection .input').removeClass('state-error');
+                            $('[id$=sbtbtn]').css('opacity','0.65').attr('disabled','disabled');
+                            input.parentNode.nextSibling.value = input.files[0].name;
+                            if (input.files[0].type.indexOf('image/') != 0 || input.files[0].size > 8388608) {
+                                $('#filesection .input').addClass('state-error');
+                                $('#filesection').append('<div id="sectionnote" class="alert alert-danger fade in">{!$Label.ERR_Group_Picture_FileError}</div>');
+                            }
+                            else {
+                                var reader = new FileReader();
+                                reader.onload = imageIsLoadedCr;
+                                reader.readAsDataURL(input.files[0]);
+                            }
+                        }
+                    }
+                    function showPreview(coords) {
+                        rx = 100 / coords.w;
+                        ry = 100 / coords.h;            
+                        imgX = coords.x;
+                        imgY = coords.y;
+                        imgSize = coords.w;
+                        
+                        console.log('x ' + imgX + 'y ' + imgY + 'W ' + imgSize);
+                        jQuery('#previewImgCreateGroup').css({
+                            width: Math.round(rx *jQuery('#preview_image').width()) + 'px',
+                            height: Math.round(ry *jQuery('#preview_image').height()) + 'px',
+                            marginLeft: '-' + Math.round(100 / coords.w * coords.x) + 'px',
+                            marginTop: '-' + Math.round(100 / coords.h * coords.y) + 'px'
+                        });         
+                        jQuery('[id$=cropXIdCr]').val(Math.round(coords.x*scaleCr));
+                        jQuery('[id$=cropYIdCr]').val(Math.round(coords.y*scaleCr));
+                        jQuery('[id$=cropSizeIdCr]').val(Math.round(coords.w*scaleCr));
+                    }
+                    
+                        
+                    var imgRealHeightCr;
+                    var imgRealWidthCr;
+                    var img2 = new Image();
+                    img2.onload = function() {
+                        console.log('2');
+                        // calculate real width and height
+                        imgRealWidth = this.width;
+                        imgRealHeight = this.height;
+                        console.log("height-real: "+this.height+"width-real: "+this.width);
+                        
+                        // remove styles
+                        jQuery('#preview_image').removeAttr("width").removeAttr("height").css({ width: "auto" , height: "auto" });
+                        // set image and preview image
+                        jQuery('#preview_image').attr('src', img2.src);
+                        jQuery('#previewImgCreateGroup').attr('src',  img2.src);
+                        // add bootstrap class
+                        jQuery('#preview_image').addClass('img-responsive imgsizeStyle');
+                        
+                         // start cropping with params
+                        var imgWidth =jQuery('#preview_image').width();
+                        var imgHeight =jQuery('#preview_image').height();
+                        console.log("height: "+imgHeight+"width: "+imgWidth);
+                        scaleCr = imgRealWidth/$('#preview_image').width();
+                        console.log("scale" + scaleCr);
+                        var rectSide = (imgWidth >= imgHeight)?imgHeight/3:imgWidth/3;
+                        console.log("rectSide" + rectSide);
+                        jQuery('#preview_image').Jcrop({
+                            onChange: showPreview, onSelect: showPreview, aspectRatio: 1,
+                            setSelect: [ imgWidth/2-rectSide, imgHeight/2-rectSide, imgWidth/2+rectSide, imgHeight/2+rectSide ]
+                        });
+                        jQuery('#previewImgCreateGroup').show();
+                        $('[id$=sbtbtn]').css('opacity','1').removeAttr('disabled');
+                    
+                    
+                    /*  
+                        $('#previewImgCreateGroup').attr('src', img2.src);
+                        $('[id$=sbtbtn]').css('opacity','1').removeAttr('disabled');
+                        jQuery('#preview_image').Jcrop({ onChange: showPreview, onSelect: showPreview, aspectRatio: 1 });
+                        $('[id$=previewImgCreateGroup]').show(); */
+                        
+                    }
+                    
+                </script>
+        </apex:outputPanel>
+        <apex:outputPanel layout="block" styleClass="row u-page-block" rendered="{!step == 3}">
+            <div class="col-sm-12 sky-form">
+                <section>
+                    <label class="input">
+                        <c:CommunityTagSelector oId="{!CurrentGroup.Id}" oType="{!$ObjectType.Community_Group_Control_Tag__c.Name}" fName="{!$ObjectType.Community_Group_Control_Tag__c.Fields.Group_Control__c.Name}" mt="{!tagsCount}"/>
+                    </label>
+                </section>
+            </div>
+        </apex:outputPanel>
+        <apex:outputPanel layout="block" styleClass="row u-page-block" rendered="{!step == 4}">
+            <div class="col-sm-12">
+                <apex:outputText value="{!termsAndConditions}" escape="false"/>
+                <div class="text-center margin-top-20">
+                    <apex:inputCheckbox value="{!CurrentGroup.T_C_Accepted__c}" onchange="chkchkb(this);"/>&nbsp;<label>{!$Label.LBL_AgreeToTerms}</label>
+                </div>
+                <script>
+                    function chkchkb(el) {
+                        if (el.checked) {
+                            $('[id$=sbtbtn]').css('opacity','1').removeAttr('disabled');
+                        }
+                        else {
+                            $('[id$=sbtbtn]').css('opacity','0.65').attr('disabled','disabled');
+                        }
+                    }
+                </script>
+            </div>
+        </apex:outputPanel>
+        <apex:outputPanel layout="block" styleClass="row u-page-block" rendered="{!step == 0}">
+            <div class="col-sm-12">
+                <div class="alert alert-danger fade in">
+                    {!$Label.ERR_MissingPermission}
+                </div>
+            </div>
+        </apex:outputPanel>
+    </apex:form>
+    </div></div></div>
 </apex:define>
 </apex:composition>
 </apex:page>

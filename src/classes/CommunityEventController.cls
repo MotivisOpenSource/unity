@@ -300,17 +300,19 @@ public with sharing class CommunityEventController {
 
 	public String connectedGroupStr { get;set; }
 	public PageReference submit() { /// without sharing
+		PageReference pr;
 		try {
 			if (String.isBlank(event.Teaser__c) && String.isNotBlank(event.Description__c)) {
 				event.Teaser__c = event.Description__c.stripHtmlTags().abbreviate(140);
 			}
+
+			if((!String.isBlank(connectedGroupStr) && !validateGroupStr(connectedGroupStr))
+				|| (event.Public__c == false && string.isBlank(connectedGroupStr))
+			){
+				throw new CommunityEventException(Label.ERR_Please_Select_Group);
+			}
+
 			upsert event;
-			
-			if(!String.isBlank(connectedGroupStr) && !validateGroupStr(connectedGroupStr)){
-				ApexPages.Message myMsg = new ApexPages.Message(ApexPages.Severity.ERROR, Label.ERR_Please_Select_Group);
-				ApexPages.addMessage(myMsg);
-				return NULL;
-			}	
 
 			String tagsIdsString = ApexPages.currentPage().getParameters().get(TAGS_INPUT_NAME);
 			CommunityTagSelectorController ctsc = new CommunityTagSelectorController();
@@ -327,16 +329,10 @@ public with sharing class CommunityEventController {
 					WHERE Community_Event__c =: event.Id and Community_Group_Control__c != null
 					ORDER BY CreatedDate DESC
 				];
-		
-			if(event.Public__c == false && string.isBlank(connectedGroupStr)) {	
-				ApexPages.Message myMsg = new ApexPages.Message(ApexPages.Severity.ERROR, Label.ERR_Please_Select_Group);
-				ApexPages.addMessage(myMsg);
-				return NULL;
-			}
+			
 			if(string.isBlank(connectedGroupStr)) {
 				// delete all records related for this Event where group is not null
 				delete communityEventTagList;
-
 			}
 			else {
 				// create group
@@ -348,9 +344,9 @@ public with sharing class CommunityEventController {
 					];	
 				// check if the group exist
 				if (communityGroupControll.isEmpty()) {
-					ApexPages.Message myMsg = new ApexPages.Message(ApexPages.Severity.ERROR,Label.ERR_Cant_Found_Group + connectedGroupStr );
-					ApexPages.addMessage(myMsg);
-					return NULL;
+					//ApexPages.Message myMsg = new ApexPages.Message(ApexPages.Severity.ERROR,Label.ERR_Cant_Found_Group + connectedGroupStr );
+					//ApexPages.addMessage(myMsg);
+					throw new CommunityEventException(Label.ERR_Cant_Found_Group + connectedGroupStr);
 				}
 				// delete all events if there was more than one record	
 				if(!(communityEventTagList.Size() == 1 && communityEventTagList[0].Community_Group_Control__c == communityGroupControll[0].Id )) {
@@ -362,15 +358,14 @@ public with sharing class CommunityEventController {
 					insert communityEventTag;
 				}
 			}
-			PageReference cloneRef = Page.CommunityEventDetail;
-			cloneRef.setRedirect(true);
-			cloneRef.getParameters().put('id',event.Id);
-			return cloneRef;
+			pr = Page.CommunityEventDetail;
+			pr.setRedirect(true);
+			pr.getParameters().put('id',event.Id);
 		}
 		catch (Exception e) {
 			ApexPages.addMessages(e);
 		}
-		return NULL;
+		return pr;
 	}
 
 	public Boolean validateGroupStr(String groupStr){
@@ -558,13 +553,33 @@ public with sharing class CommunityEventController {
 			name += cet.Community_Tag__r.Name;
 		}
 	}
-
-	public String[] getAllGroupsInStringArray() {
-		List<Community_Group_Control__c> availibleGroupsControll = [SELECT Chatter_Group_ID__c, Id FROM Community_Group_Control__c WHERE Status__c = 'Approved'];
+	/*
+	public List<String> getAllGroupsInStringArray() {
+		Set<Id> chatterGroups = new Set<Id>();
+		for (Community_Group_Control__c gcItem : [SELECT Chatter_Group_ID__c FROM Community_Group_Control__c WHERE Status__c = 'Approved']) {
+			chatterGroups.add(gcItem.Chatter_Group_ID__c);
+		}
 		List<String> groupIds = new List<String>();
-		for (Community_Group_Control__c aGroup : availibleGroupsControll){
-			groupIds.add(aGroup.Chatter_Group_ID__c); 
+		for (CollaborationGroup cgItem : [SELECT Id FROM CollaborationGroup WHERE Id IN :chatterGroups AND NetworkId = :Network.getNetworkId()]) {
+			groupIds.add(cgItem.Id);
 		}
 		return CommunityUtils.getNamesOfAvailableGroups(groupIds);
+	}
+	*/
+	public List<String> getAllGroupsInStringArray() {
+		Set<Id> chatterGroups = new Set<Id>();
+		List<String> groupsNames = new List<String>();
+		for (Community_Group_Control__c gcItem : [SELECT Chatter_Group_ID__c FROM Community_Group_Control__c WHERE Status__c = 'Approved']) {
+			chatterGroups.add(gcItem.Chatter_Group_ID__c);
+		}
+		List<String> groupIds = new List<String>();
+		for (CollaborationGroup cgItem : [
+											SELECT Id, Name FROM CollaborationGroup Where NetworkId = :Network.getNetworkId() AND ID in :chatterGroups AND
+												ID in (SELECT CollaborationGroupId FROM CollaborationGroupMember WHERE
+														 MemberId = :UserInfo.getUserId() ) ] ) {
+			groupIds.add(cgItem.Id);
+			groupsNames.Add(cgItem.Name);
+		}		
+		return groupsNames;
 	}
 }

@@ -4,7 +4,6 @@
 <apex:define name="body">
 
 <script src="{!$Resource.CommunityResources}/js/jquery-1.11.2.min.js"></script>
-
 	<div class="breadcrumbs margin-bottom-10">
 		<div class="container">
 			<h1 class="pull-left">{!$ObjectType.Community_Events__c.LabelPlural}</h1>
@@ -33,53 +32,50 @@
 			</div>
 			<apex:outputPanel layout="block" styleClass="sky-form margin-bottom-20">
 				<div class="dl-horizontal">
-					<div class="pull-left" style="padding:0 0 20px 20px; width: 100%;">
-						<apex:outputField value="{!event.Description__c}"/>
+					<apex:outputField value="{!event.Description__c}"/>
+					<hr/>
+					<apex:repeat value="{!fieldsetRes}" var="fs">
+						<apex:outputPanel layout="none">
+							<dt><strong>{!IF(fs.fieldPath=='Street_Address__c',$Label.LBL_Location,fs.label)}</strong></dt>
+							<dd><apex:outputField value="{!event[fs.fieldPath]}"/></dd>
+							<hr/>
+						</apex:outputPanel>
+					</apex:repeat>
+					<div id="gCalendar" class="clearfix">
+						<apex:form >
+							<span class="gCalendar__label">{!$Label.LBL_AddToCalendar}:</span>
+							<a href="{!GoogleCalendarCreateEventHref}" target="_blank" class="btn btn-xs rounded btn-default">{!$Label.BTN_GoogleCal}</a> &nbsp;&nbsp;
+							<apex:commandLink value="{!$Label.BTN_ICS}" action="{!downloadICS}" target="_blank" styleClass="btn btn-xs rounded btn-default"/>
+						</apex:form>
+					</div>
+					<div id="groupsSection" class="clearfix">
 						<hr/>
-						<br/>
-						<apex:repeat value="{!fieldsetRes}" var="fs">
-							<apex:outputPanel layout="none">
-								<dt><strong>{!IF(fs.fieldPath=='Street_Address__c',$Label.LBL_Location,fs.label)}</strong></dt>
-								<dd><apex:outputField value="{!event[fs.fieldPath]}"/></dd>
-								<hr/>
-							</apex:outputPanel>
-						</apex:repeat>
-						<br/>
-						<div id="gCalendar" class="clearfix">
-							<apex:form >
-								<span class="gCalendar__label">{!$Label.LBL_AddToCalendar}:</span>
-								<a href="{!GoogleCalendarCreateEventHref}" target="_blank" class="btn btn-xs rounded btn-default">{!$Label.BTN_GoogleCal}</a> &nbsp;&nbsp;
-								<apex:commandLink value="{!$Label.BTN_ICS}" action="{!downloadICS}" target="_blank" styleClass="btn btn-xs rounded btn-default"/>
-							</apex:form>
+						<div class="pull-left">
+							<strong>{!$Label.LBL_Event_Group}:&nbsp;</strong>
 						</div>
-						<span id = "groupsSection">
+						<div>
+							<apex:outputLink value="{!$Page.CommunityGroupDetailPage}?gc={!RelatedToEventGroup.Id}" rendered="{!RelatedToEventGroup != NULL}">{!RelatedToEventGroup.Name}</apex:outputLink>
+								&nbsp;&nbsp;
+						</div>
+						<hr/>
+					</div>
+					<div id="tagsSection" class="clearfix">
+						<p><strong>{!$Label.LBL_Related_Tags}</strong></p>
+						<div>
+							<ul class="list-unstyled blog-tags">
+								<apex:repeat value="{!event.Events_Tag_Joins__r}" var="tag">
+									<li>
+										<a href="{!$Page.CommunityEventsList}?t={!tag.Community_Tag__c}" target="_blank">
+											<i class="fa fa-tags"></i>&nbsp;{!(tag.Community_Tag__r.Community_Theme__r.Name & '>' &tag.Community_Tag__r.Name)}
+										</a>
+									</li>
+								</apex:repeat>
+							</ul>
 							<hr/>
-							<span style="float:left;"><strong>{!$Label.LBL_Event_Group}:&nbsp;</strong></span>
-							<div style="color: #72c02c">
-								<apex:outputLink value="{!$Page.CommunityGroupDetailPage}?gc={!RelatedToEventGroup.Id}" rendered="{!RelatedToEventGroup != NULL}">{!RelatedToEventGroup.Name}</apex:outputLink>
-									&nbsp;&nbsp;
-							</div>
-							<hr/>
-						</span>
-						<span id = "tagsSection">
-							<p><strong>{!$Label.LBL_Related_Tags}</strong></p>
-							<div>
-								<ul class="list-unstyled blog-tags">
-									<apex:repeat value="{!event.Events_Tag_Joins__r}" var="tag">
-										<li>
-											<a href="{!$Page.CommunityEventsList}?t={!tag.Community_Tag__c}" target="_blank">
-												<i class="fa fa-tags"></i>&nbsp;{!(tag.Community_Tag__r.Community_Theme__r.Name & '>' &tag.Community_Tag__r.Name)}
-											</a>
-										</li>
-									</apex:repeat>
-								</ul>
-								<hr/>
-							</div>
-						</span>
+						</div>
 					</div>
 				</div>
 				<hr/>
-				<br/>
 			</apex:outputPanel>
 			<div class="row">
 				<div class="col-sm-12">
@@ -93,14 +89,15 @@
 </apex:define>
 </apex:composition>
 <script>
-	$(document).ready(function(){
-		if(!$("#groupsSection").find("a").size()) $("#groupsSection").hide();
-		if(!$("#tagsSection").find("a").size()) $("#tagsSection").hide();
-		if({!permissionShareBanned}) $("#shareButton").hide();
-		if($("#startEndDate").text().split("End: ")[1] == ""){
-			$("#startEndDate").text($("#startEndDate").text().split("/ End: ")[0]);
+	jQuery(document).ready(function(){
+		if(!jQuery("#groupsSection").find("a").size()) jQuery("#groupsSection").hide();
+		if(!jQuery("#tagsSection").find("a").size()) jQuery("#tagsSection").hide();
+		if({!permissionShareBanned}) jQuery("#shareButton").hide();
+		if(jQuery("#startEndDate").text().split("End: ")[1] == ""){
+			jQuery("#startEndDate").text(jQuery("#startEndDate").text().split("/ End: ")[0]);
 		}
 		console.log("#permissionShareBanned",{!permissionShareBanned});
 	});
+
 </script>
 </apex:page>

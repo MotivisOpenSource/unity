@@ -47,6 +47,9 @@
 	</apex:outputPanel>
 	<span id="{!uniqueid}fieldsarea" style="display:none;">
 		<div class="sky-form">
+			<div class="calert">
+				<apex:pageMessages id="pageMessages"/>
+			</div> 
 			<dl class="dl-horizontal">
 				<apex:repeat value="{!fsc.fields}" var="fs">
 					<apex:outputPanel layout="none" rendered="{!ISBLANK(son) || $ObjectType[son].fields[fs.fieldPath].Accessible}">

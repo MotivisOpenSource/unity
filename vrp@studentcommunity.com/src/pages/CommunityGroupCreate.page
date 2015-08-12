@@ -45,11 +45,11 @@
 		<apex:outputPanel layout="block" styleClass="row" rendered="{!step == 1}">
 			<div class="col-sm-12">
 				<apex:pageBlock >
-					<div class="calert">
-						<apex:pageMessages id="pageMessages"/>
-					</div>
 					<fieldset>
 						<section>
+							<div class="calert" style="display:none;">
+								<apex:pageMessages id="pageMessages"/>
+							</div>
 							<label class="label"><i class="fa fa-asterisk color-red" title="required"></i>&nbsp;{!$ObjectType.Community_Group_Control__c.Fields.Name.Label}</label>
 							<label class="input">
 								<apex:inputField id="namefield" html-maxlength="40" value="{!currentGroup.Name}" styleClass="margin-bottom-5" onkeyup="nameKeyUp(this);" required="true"/>

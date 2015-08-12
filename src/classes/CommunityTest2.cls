@@ -4,6 +4,8 @@ private class CommunityTest2 {
 	
 	@IsTest(SeeAllData=true)
 	static void test_CommunityFeedNavigationController() {
+		System.Debug('111111111111111222221');
+		
 		Account acc = new Account(Name='testAccount');
 		insert acc;
 		Contact con = new Contact(LastName='TCLN', MailingPostalCode='99013', email='testc@testdomain.com', AccountId=acc.Id, Primary_Role__c='Student');
@@ -13,41 +15,44 @@ private class CommunityTest2 {
 			localesidkey='en_US', profileid = profile.Id, timezonesidkey='America/Los_Angeles', username='ttsde.tedf2@testmail.com',
 			FederationIdentifier='TestContactName.TestContactLastname2', Community_Contact_ID__c=con.Id);
 		insert u;
-
+		
 		CollaborationGroup cg = new CollaborationGroup(Name = 'testGroup', CollaborationType = 'Public');
 		insert cg;
-		Community_Group_Control__c cgc = new Community_Group_Control__c(Chatter_Group_ID__c = cg.Id);
+		Community_Group_Control__c cgc = new Community_Group_Control__c(Chatter_Group_ID__c = cg.Id, Name='name');
 		insert cgc;
 		Community_Group_Manager__c cgm = new Community_Group_Manager__c(Group_Control__c = cgc.Id, Group_Manager_User__c = u.Id);
 		insert cgm;
-
+		
 		CommunityFeedNavigationController cfnc = new CommunityFeedNavigationController();
 		cfnc.MessageUnreadCount = 1;
 		Boolean sMessage = cfnc.showMessages;
-		System.assertEquals(true, sMessage);
+		System.debug(sMessage);
+		System.assertEquals(true, sMessage);		
 
 		cfnc.chatterGroupId = cg.Id;
 		Boolean showGM = cfnc.getShowGroupManager();
 		System.assertEquals(true, showGM);
-
-		/*cfnc.photoBody = Blob.valueOf('body');
-		cfnc.cropSize = 4;
-		cfnc.cropX = 2;
-		cfnc.cropY = 2;
+		
+		System.Debug('11111111111111');
+		cfnc.photoBody = Blob.valueOf('body');
+		cfnc.cropSize = '4';
+		cfnc.cropX = '2';
+		cfnc.cropY = '2';
 		cfnc.photoName = 'test Name';
 		cfnc.photoContentType = 'image/jpg';
-		Boolean uploadM = cfnc.uploadMode;
-		System.assertEquals(false, uploadM);*/
+		//Boolean uploadM = cfnc.uploadMode;
+		//System.assertEquals(false, uploadM);
 
-		/*cfnc.uploadmode();
-		System.assertEquals(true, cfnc.uploadMode);*/
+		//cfnc.uploadmode();
+		//System.assertEquals(true, cfnc.uploadMode);
 
-		/*String photoURL = cfnc.getUserPhotoUrl();*/
+		String photoURL = cfnc.getPhotoUrl();
 
 		PageReference ref = new PageReference('/apex/CommunityFeedNavigation'); 
     	Test.setCurrentPage(ref); 
-		PageReference pr = cfnc.photoaction();
-		System.assertEquals(true, pr != null);
+		//PageReference pr = cfnc.photoaction();
+		//System.assertEquals(true, pr != null);
+		
 		
 	}
 	
@@ -371,9 +376,10 @@ private class CommunityTest2 {
 		ctdc.filterName = 'Community_News__c';
 		ctdc.objectId = cnews.Id;
 		ctdc.objectType = 'Community_News_Tag__c';
-		//List<CommunityTagDisplayController.Tag> tags = ctdc.getTags(Page.CommunityNews.getUrl());
+		Test.setCurrentPage(Page.CommunityNews);
+		List<CommunityTagDisplayController.Tag> tags = ctdc.getTags();
 		//List<CommunityTagDisplayController.Tag> tags2 = ctdc.tags;
-		//System.Assert((tags2.size()>0),true);
+		System.Assert((tags.size()>0),true);
 		ctdc.objectType = 'Community_Event_Tag__c';
 		//tags2 = ctdc.tags;
 	}
@@ -546,7 +552,7 @@ private class CommunityTest2 {
         insert cg;
         CollaborationGroupMember cgmem = new CollaborationGroupMember(CollaborationGroupId=cg.id, MemberId = u.Id,NotificationFrequency='P');
         insert cgmem;
-        Community_Group_Control__c cgc = new Community_Group_Control__c(Chatter_Group_ID__c = cg.Id);
+        Community_Group_Control__c cgc = new Community_Group_Control__c(Chatter_Group_ID__c = cg.Id, Name='111111111');
         insert cgc;
         Community_Group_Manager__c cgm = new Community_Group_Manager__c(Group_Control__c = cgc.Id, Group_Manager_User__c = u.Id);
         insert cgm;

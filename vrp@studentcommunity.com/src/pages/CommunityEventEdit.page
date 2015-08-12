@@ -16,10 +16,14 @@
 					</div>
 				</div>
 			</header>
-			<apex:pageMessages id="pageMessages"/>
-			
+							
 				<fieldset>
+					<section>
+					<div class="calert">
+						<apex:pageMessages id="pageMessages"/>
+					</div>
 					<c:CommunityFieldLayout fl="{!elayout}" so="{!event}"/>
+					</section>
 				</fieldset>
 				<fieldset>
 					<section>

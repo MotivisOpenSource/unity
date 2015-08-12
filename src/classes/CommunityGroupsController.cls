@@ -97,8 +97,8 @@ public with sharing class CommunityGroupsController {
 				groupDetail.GroupMembersCount = collaborationGroupMap.get(Item.Chatter_Group_ID__c).MemberCount;
 				groupDetail.GroupLastActivityDate = collaborationGroupMap.get(Item.Chatter_Group_ID__c).LastFeedModifiedDate;
 				groupDetail.GroupId = Item.Chatter_Group_ID__c;
-				if (collaborationGroupMap.get(Item.Chatter_Group_ID__c).FullPhotoUrl != NULL) {
-					groupDetail.GroupPhotoUrl = collaborationGroupMap.get(Item.Chatter_Group_ID__c).FullPhotoUrl;
+				if (collaborationGroupMap.get(Item.Chatter_Group_ID__c).SmallPhotoUrl != NULL) {
+					groupDetail.GroupPhotoUrl = collaborationGroupMap.get(Item.Chatter_Group_ID__c).SmallPhotoUrl;
 				}
 				groupDetail.GroupLastActivityDate = collaborationGroupMap.get(Item.Chatter_Group_ID__c).LastFeedModifiedDate;
 				if (collaborationGroupMap.get(Item.Chatter_Group_ID__c).Owner.Id == UserInfo.getUserId()) {

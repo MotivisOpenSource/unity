@@ -97,7 +97,9 @@
 						</div>
 					</div><!--/end row-->
 					<!--End Group Stats Block-->
-					<apex:pageMessages id="pageMessages"/>
+					<!-- <div class="calert">
+						<apex:pageMessages id="pageMessages"/>
+					</div> -->
 					<!--Profile Body-->
 					<div class="profile-body margin-bottom-20">
 						<div class="tab-v1">

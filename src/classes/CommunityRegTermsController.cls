@@ -9,7 +9,6 @@ global with sharing class CommunityRegTermsController {
 	public Community_Profile__c currentProfile { get;set; }
 	public List<CommunityFieldLayout> overviewTab { get;set; }
 	public List<CommunityProfilePageController.InterestSection> interests { get;set; }
-	public transient String tcText { get; set; }
 	public transient Community_Admins__c caText { get; set; }
 	public Boolean tcCheckBox { get; set; }
 

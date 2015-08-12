@@ -283,81 +283,15 @@
 
 							<!-- EDIT GROUP-->
 							<div id="editgroup" class="profile-edit tab-pane fade">
-								<apex:outputPanel layout="none">
-									<h2 class="heading-md">{!$Label.LBL_ManageGroupPreferences}</h2><hr/>
-								</apex:outputPanel>
-								<apex:form id="theform" rendered="{!allOk}" styleClass="sky-form">
-									<apex:variable var="index" value="{!0}"/>
-									<div class="margin-bottom-15"></div>
-									<dl class="dl-horizontal">
-										<apex:repeat value="{!$ObjectType.Community_Group_Control__c.FieldSets.EditGroup}" var="fs">
-											<dt class="margin-bottom-10"><strong>{!fs.label}</strong></dt>
-											<dd>
-												<apex:outputPanel >
-													<span id="vfld{!index}">
-														<apex:outputField id="vfldo" value="{!control[fs.fieldPath]}"/>
-														<apex:outputLink value="javascript:void(0);" styleClass="pull-right" onclick="shwe('{!index}');">
-															<i class="fa fa-pencil"></i>
-														</apex:outputLink>
-													</span>
-													<apex:outputPanel layout="none">
-														<div id="efld{!index}" style="display:none;">
-															<apex:inputField styleClass="full-width" id="vflde" value="{!control[fs.fieldPath]}" required="{!fs.required}"/>
-															<span style="display:none;">
-																<span id="bcp{!index}">{!control[fs.fieldPath]}</span>
-																<span id="{!index}bcps" name="{!index}">n</span>
-															</span>
-														</div>
-													</apex:outputPanel>
-												</apex:outputPanel>
-											</dd>
-											<apex:variable var="index" value="{!index + 1}"/>
-										</apex:repeat>
-										<hr/>
-									</dl>
-									<apex:outputPanel layout="block" styleClass="row u-page-block">
-										<div class="col-sm-11 sky-form padding-top-15">
-											<section>
-												<label class="input" id="tagViewPanel">
-													<c:CommunityTagDisplay oId="{!control.Id}" oType="{!$ObjectType.Community_Group_Control_Tag__c.Name}" fName="{!$ObjectType.Community_Group_Control_Tag__c.Fields.Group_Control__c.Name}"/>
-												</label>
-												<label class="input" id="tagEditPanel" style="display:none;">
-													<c:CommunityTagSelector oId="{!control.Id}" oType="{!$ObjectType.Community_Group_Control_Tag__c.Name}" fName="{!$ObjectType.Community_Group_Control_Tag__c.Fields.Group_Control__c.Name}" mt="{!tagsCount}"/>
-												</label>
-											</section>
-										</div>
-										<div class="col-sm-1 sky-form padding-top-15" id="editPencil" >
-											<div id="pencilId" style="display:none">
-												<apex:outputLink value="javascript:void(0);" styleClass="pull-right" onclick="$('[id$=tagViewPanel]').hide();$('[id$=tagEditPanel]').show();$('[id$=btnblk]').show();$('[id$=editPencil]').hide();">
-													<i class="fa fa-pencil"></i>
-												</apex:outputLink>
-											</div>
-											<div id="addtagsId" style="display:none">											
-				                                <apex:outputLink value="javascript:void(0);" styleClass="pull-right btn-u" onclick="$('[id$=tagViewPanel]').hide();$('[id$=tagEditPanel]').show();$('[id$=btnblk]').show();$('[id$=editPencil]').hide();">
-				                                    <i class="fa fa-plus-circle"></i>&nbsp;{!$Label.LBL_Add_Tags}
-				                                </apex:outputLink>
-			                                </div>
-			                                <script type="text/javascript">
-			                                	function checkTags(){
-			                                		console.log('chek tag');
-				                                    if(isTagsEmpty()==true) {
-				                                        $('[id$=addtagsId]').show();  
-				                                    	console.log('true');      
-				                                    }
-				                                    else {
-				                                        $('[id$=pencilId]').show();
-				                                        console.log('false');
-				                                    }
-			                                    }
-			                                    checkTags();
-			                                </script>
-										</div>
-									</apex:outputPanel>	
-									<apex:outputPanel layout="block" id="btnblk" style="display:none;">
-										<apex:commandButton action="{!cancelAction}" value="{!$Label.BTN_Cancel}" rerender="theform" status="statusLoad" styleClass="btn-u btn-u-sm btn-u-default margin-right-5"/>
-										<apex:commandButton action="{!submitAction}" value="{!$Label.BTN_Save_Changes}" rerender="theform,pageMessages" status="statusLoad" styleClass="btn-u" onComplete="checkTags();"/>
-									</apex:outputPanel>
-								</apex:form>
+								<c:CommunityAboutGroup so="{!control}"
+									fsc="{!Fieldset}"
+									tn="{!$ObjectType.Community_Group_Control_Tag__c.Name}"
+									tfn="{!$ObjectType.Community_Group_Control_Tag__c.Fields.Group_Control__c.Name}"
+									tl="{!$Label.LBL_ManageGroupPreferences}"
+									mdl="false"
+									edt="true"
+									son="Community_Group_Control__c"
+								/>
 							</div>
 							<!-- END EDIT GROUP-->
 
@@ -418,10 +352,10 @@
 								<table class="table table-hover" id="groupmembertable">
 									<apex:repeat value="{!allusers.users}" var="us">
 										<tr>
-											<td onclick="window.open('{!$Page.CommunityProfilePage}?id={!us.id}','_self');" style="cursor:pointer;width:80px;">
+											<td onclick="window.open('{!$Page.CommunityProfilePage}?id={!us.id}','_self');" class="cursor-pointer width-80">
 												<apex:image styleClass="media-object rounded-x" url="{!us.photourl}"/>
 											</td>
-											<td onclick="window.open('{!$Page.CommunityProfilePage}?id={!us.id}','_self');" style="cursor:pointer;">
+											<td onclick="window.open('{!$Page.CommunityProfilePage}?id={!us.id}','_self');" class="cursor-pointer">
 												<div><strong>{!us.name}</strong></div>
 												<div>{!us.role}</div>
 											</td>
@@ -469,7 +403,7 @@
 												</apex:outputPanel>
 											</td>
 											<apex:outputPanel layout="none" rendered="{!managerMode && changeOwnerMode}">
-												<td style="width:20px;">
+												<td class="width-20">
 													<apex:outputPanel layout="none" rendered="{!!us.owner}">
 														<label class="radio">
 															<input type="radio" name="{!us.id}" onclick="radiogaga(this);"/>
@@ -548,7 +482,7 @@
 					</apex:outputPanel>
 					<apex:outputPanel layout="none" rendered="{!changeOwnerMode}">
 						<button type="button" class="btn-u btn-u-default" value="{!$Label.BTN_Cancel}" onclick="changeowner('cancel');">{!$Label.BTN_Cancel}</button>
-						<button id="owabtn" type="button" class="btn-u" value="{!$Label.BTN_Save}" onclick="changeowner(this.name);" disabled="disabled" style="opacity:0.65">{!$Label.BTN_Save}</button>
+						<button id="owabtn" type="button" class="btn-u opacity-65" value="{!$Label.BTN_Save}" onclick="changeowner(this.name);" disabled="disabled">{!$Label.BTN_Save}</button>
 						<script>
 							function radiogaga(elem) {
 								$('#groupmembertable [type=radio]').prop('checked',false);
@@ -573,51 +507,6 @@
 		</apex:actionFunction>
 	</apex:form>
 	<script>
-		var iepp = 'z';
-		var iepf = false;
-		window.onload = function() {
-		$(document).click(function(event) {
-			if (iepp != 'z') {
-				if (iepf == false) {
-					iepf = true;
-				}
-				else if ($(event.target).parents('#efld' + iepp).length == 0){
-					ende(iepp);
-					iepp='z';
-					iepf = false;
-				}
-			}
-		});
-		};
-		function chs(inchs) {
-			$('[id$=tab]').hide();
-			$('#' + inchs).show();
-			$('.smhu a.active').removeClass('active');
-			$('#' + inchs + 'a').addClass('active');
-		}
-		function shwe(ini) {
-			$('#vfld' + ini).hide();
-			$('#efld' + ini).show();
-			$('#efld' + ini + ' [id$=vflde]').focus();
-			$('[id$=btnblk]').show();
-			iepp=ini;
-		}
-		function ende(ini) {
-			$('#efld' + ini).hide();
-			if ($('#efld' + ini + ' [id$=vflde]').attr('type') == 'checkbox') {
-				$('#vfld' + ini + ' img').remove();
-				$('#vfld' + ini + ' .p-chb').remove();
-				$('#vfld' + ini).append('<i class="fa fa-'+($('#efld' + ini + ' [id$=vflde]').prop('checked')?'check-':'')+'square-o p-chb"></i>')
-			}
-			else {
-				var vtxt = $('#efld' + ini + ' [id$=vflde]').val();
-				if ($('#vfld' + ini + ' [id$=vfldo]').text() != vtxt) {
-					$('#vfld' + ini + ' [id$=vfldo]').text(vtxt).css('color','coral').css('font-weight','bold');
-					$('#' + ini + 'bcps').text('y');
-				}
-			}
-			$('#vfld' + ini).show();
-		}
 		function initScrollbars () {
 			$('.contentHolder').perfectScrollbar();
 		}

@@ -7,13 +7,18 @@
 	<apex:variable var="iuniqueid" value="{!LOWER(JSENCODE($CurrentPage.parameters.fieldSetName))}"/>
 	<div class="CommunityShowEditObject">
 		<apex:form styleClass="sky-form">
-			<apex:pageMessages id="pageMessages"/>
+			
 			<header class="text-right">
 				<button id="svbtn" class="btn-u margin-right-5" type="button" onclick="startSubmitAction();return false;">{!$Label.BTN_Save}</button>
 				<button id="cnlbtn" class="btn-u btn-u-default margin-right-5" type="button" onclick="parent.cancelEditLayout{!iuniqueid}(); return false;">{!$Label.BTN_Cancel}</button>
 			</header>
 			<fieldset>
-				<c:CommunityFieldLayout fl="{!flayout}" so="{!so}"/>
+				<section>
+					<div class="calert">
+						<apex:pageMessages id="pageMessages"/>
+					</div>
+					<c:CommunityFieldLayout fl="{!flayout}" so="{!so}"/>
+				</section>
 			</fieldset>
 			<apex:outputPanel layout="none" rendered="{!!ISBLANK(TagSection)}">
 				<fieldset><section>
@@ -30,24 +35,36 @@
 	</div>
 	<c:CommunityFootResource />
 	<script>
-		var $jm = jQuery.noConflict();
-		$jm(document).bind('DOMSubtreeModified', function() {
+		jQuery(document).bind('DOMSubtreeModified', function() {
 			parent.document.getElementById('meframe{!iuniqueid}').height = document.body.scrollHeight + 'px';
 		});
 		function startSubmitAction() {
-			parent.$('#action{!iuniqueid}').show();
-			$jm('button[id$=btn]').css('opacity','0.65').attr('disabled','disabled');
+			parent.jQuery('#action{!iuniqueid}').show();
+			jQuery('button[id$=btn]').css('opacity','0.65').attr('disabled','disabled');
 			saveobject();
 		}
 		function stopSubmitAction() {
-			parent.$('#action{!iuniqueid}').hide();
-			$jm('button[id$=btn]').css('opacity','1').removeAttr('disabled');
+			parent.jQuery('#action{!iuniqueid}').hide();
+			jQuery('button[id$=btn]').css('opacity','1').removeAttr('disabled');
+			
+			jQuery('.calert').ready( function () {
+				var calert = jQuery('.calert');
+				calert.find('h4').remove();
+				calert.find('br').remove();
+				calert.find('img').remove();
+				if(!calert.find('.messageText').text().trim()) {
+					calert.find('.messageText').remove();
+				}
+				calert.css("display","block");
+			});
+			
 		}
 		function finishSubmitAction() {
-			$jm('body').hide();
+			jQuery('body').hide();
 			parent.window.location.href = parent.window.location.href;
 		}
-		$jm(document).ready(stopSubmitAction);
+		jQuery(document).ready(stopSubmitAction);
+		
 	</script>
 	<apex:outputText value="{!$Setup.Community_Template_Settings__c.Color_Scheme__c}" style="display:none;"/>
 </html>

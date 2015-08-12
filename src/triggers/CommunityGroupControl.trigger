@@ -106,6 +106,10 @@ trigger CommunityGroupControl on Community_Group_Control__c (before insert, afte
 					cgcItem2.addError(Label.ERR_Dup_Group_Name);
 					validationPassed2 = false;
 				}
+				if (cgcItem2.Name.Length()>40) {
+					cgcItem2.addError(Label.ERR_Name_is_too_long);
+					validationPassed2 = false;
+				}
 				checkUniqueNamesMap2.put(cgcItem2.Name, cgcItem2);
 				excludeCurrentGroupControls.add(cgcItem2.Id);
 				if (cgcItem2.Chatter_Group_ID__c != NULL) {

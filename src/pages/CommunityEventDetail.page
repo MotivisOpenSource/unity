@@ -23,9 +23,11 @@
 							<apex:form id="theform">
 								<c:CommunityFollow parentId="{!event.Id}"/>
 								<c:CommunityShare sO="{!event}" rendered="{!!permissionShareBanned}"/>
+								<apex:outputPanel layout="none" rendered="{!permissionsEdit && !!permissionShareBanned}">&nbsp;</apex:outputPanel>
 								<apex:outputLink value="{!urlForEditEvent}" rendered="{!permissionsEdit}" styleClass="btn-u">{!$Label.BTN_Edit}</apex:outputLink>
 								<apex:outputPanel layout="none" rendered="{!permissionsEdit}">&nbsp;</apex:outputPanel>
 								<apex:outputLink value="{!urlForCloneEvent}" styleClass="btn-u" rendered="{!permissionsClone}">{!$Label.BTN_Clone}</apex:outputLink>
+								&nbsp;
 							</apex:form>
 						</div>
 					</div>

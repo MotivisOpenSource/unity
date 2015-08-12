@@ -119,7 +119,8 @@ global with sharing class CommunityProfilePageController {
 					}
 				}
 			}
-			Set<String> profileFields = new Set<String> {'Id', 'Name', 'Contact__r.Name', 'Contact__c'};
+			String pp46 = CommunityUtils.getPackagePrefix();
+			Set<String> profileFields = new Set<String> {'Id', 'Name', pp46 + 'Contact__r.Name', pp46 + 'Contact__c'};
 			for (CommunityFieldLayout fs2 : overviewTab) {
 				profileFields.addAll(fs2.prepareFieldList());
 			}
@@ -132,7 +133,6 @@ global with sharing class CommunityProfilePageController {
 		catch (Exception e) {
 			allOk = false;
 		}
-		System.debug('\n**getfsMap():' + getfsMap().keyset() + '\nfieldsets:' + fieldsets);
 	}
 
 	public Map<String, Schema.FieldSet> getfsMap() {
@@ -273,16 +273,20 @@ global with sharing class CommunityProfilePageController {
 
 	public List<DigestItem> getDigestSettings() {
 		List<DigestItem> resultList = new List<DigestItem>();
-		List<Community_Group_Control__c> chGroups = [SELECT Chatter_Group_ID__c FROM Community_Group_Control__c];
+		List<Community_Group_Control__c> chGroups = [SELECT Chatter_Group_ID__c FROM Community_Group_Control__c LIMIT 250];
 		List<String> chGroupsIds = new List<String>();
+		List<String> colGroupsIds = new List<String>();
 		for(Community_Group_Control__c chGroup : chGroups){
 			chGroupsIds.add(chGroup.Chatter_Group_ID__c);
+		}
+		for(CollaborationGroup cg : [SELECT Id FROM CollaborationGroup WHERE Id IN :chGroupsIds AND NetworkId = :Network.getNetworkId()]){
+			colGroupsIds.add(cg.Id);
 		}
 		for (CollaborationGroupMember cgmItem : [
 					SELECT CollaborationGroupId, CollaborationGroup.Name, NotificationFrequency
 					FROM CollaborationGroupMember
 					WHERE MemberId = :UserInfo.getUserId()
-					AND CollaborationGroupId IN :chGroupsIds
+					AND CollaborationGroupId IN :colGroupsIds
 					ORDER BY CollaborationGroup.Name
 						]) {
 			resultList.add(new DigestItem(cgmItem));

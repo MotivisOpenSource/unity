@@ -2,12 +2,6 @@
 <apex:composition template="{!$Site.Template}">
 <apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
 <apex:define name="body">
-	<style type="text/css">
-		.messageText { padding:15px 30px; margin-bottom:20px; border:1px solid #ebccd1; background-color:#f2dede; color:#a94442;}
-		.messageText span { display:none; }
-		table.messageTable { width:100%; }
-		.sky-form .message { display: block; }
-	</style>
 	<div class="CommunityResourceEdit" >
 		<apex:form styleClass="sky-form">
 			<header>
@@ -26,6 +20,7 @@
 			<fieldset>
 				<c:CommunityFieldLayout fl="{!rlayout}" so="{!resource}"/>
 			</fieldset>
+
 			<fieldset>
 				<label class="label"><i class="fa fa-asterisk color-red" title="required"></i>&nbsp;Resource</label>
 				<apex:outputPanel id="resblock" layout="block" styleClass="requiredInput">
@@ -33,7 +28,7 @@
 					<button id="resbname" class="btn-u btn-u-sm" data-toggle="modal" data-target="#uploadResourceDialog" onclick="cancelDialog();return false;">{!$Label.BTN_Upload_Resource}</button>
 				</apex:outputPanel>
 			</fieldset>
-			
+
 			<fieldset>
 				<section>
 					<label class="label">
@@ -98,31 +93,30 @@
 			<apex:actionFunction name="submitResourceAction" action="{!saveResource}"/>
 
 			<script>
-				var $jc = jQuery.noConflict();
 				function submitResource() {
-					if ($jc('#reslname').text().trim() == '') {
-						if ($jc('#reserr').length == 0) {
-							$jc('[id$=resblock]').append('<div id="reserr" class="errorMsg"><strong>Error:</strong> {!$Label.LBL_Message_select_resource}</div>');
+					if (jQuery('#reslname').text().trim() == '') {
+						if (jQuery('#reserr').length == 0) {
+							jQuery('[id$=resblock]').append('<div id="reserr" class="errorMsg"><strong>Error:</strong> {!$Label.LBL_Message_select_resource}</div>');
 						}
 					}
 					else {
 						submitResourceAction();
 					}
 				}
-				if ($jc('#reslname').text().trim() == '') {
-					$jc('#reslname').text($jc('[id$=it265]')[2].value);
+				if (jQuery('#reslname').text().trim() == '') {
+					jQuery('#reslname').text(jQuery('[id$=it265]')[2].value);
 				}
 				function removePrimTag(inp) {
-					$jc('#'+inp).remove();
-					$jc('#ptag').val($jc('#ptag').val().replace(inp+',' ,''));
-					$jc('#ptin').show();
+					jQuery('#'+inp).remove();
+					jQuery('#ptag').val(jQuery('#ptag').val().replace(inp+',' ,''));
+					jQuery('#ptin').show();
 				}
 				function addPrimTag(tid,fn) {
-					if($jc('#ptcon > span').length === 0) {
+					if(jQuery('#ptcon > span').length === 0) {
 						var span = '<span id="'+tid+'" class="item guestItem"><span>'+fn+'</span><a href="javascript:void(0);" onclick="removePrimTag(\''+tid+'\')" class="remove"><img src="/s.gif"></a></span>';
-						$jc('#ptin').before(span);
-						$jc('#ptin').hide();
-						$jc('[id$=ptag]').val(tid);
+						jQuery('#ptin').before(span);
+						jQuery('#ptin').hide();
+						jQuery('[id$=ptag]').val(tid);
 					}
 					else alert('{!$Label.LBL_Message_only_one_tag}');
 				}

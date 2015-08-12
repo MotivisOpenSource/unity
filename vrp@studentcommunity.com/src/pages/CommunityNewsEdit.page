@@ -17,9 +17,14 @@
 					</div>
 				</div>
 				<apex:pageBlock >
-					<apex:pageMessages id="pageMessages"/>
+					
 					<fieldset>
-						<c:CommunityFieldLayout fl="{!flayout}" so="{!news}"/>
+						<section>
+							<div class="calert">
+								<apex:pageMessages id="pageMessages"/>
+							</div>
+							<c:CommunityFieldLayout fl="{!flayout}" so="{!news}"/>
+						</section>
 					</fieldset>
 					<fieldset id="cnpbs1">
 						<section>
@@ -40,7 +45,7 @@
 									<br />
 								</apex:outputPanel>
 								<div id="iidf" style="{!IF(ISBLANK(news.Image_Path__c),'display:none;','')}">
-									<apex:image id="preview_image" url="{!news.Image_Path__c}" width="200px"/>
+									<apex:image id="preview_image" url="{!news.Image_Path__c}" styleClass="width-200"/>
 								</div>
 								<div style="display:none;">
 									<apex:inputField value="{!news.Image_Path__c}" id="image_path_field"/>

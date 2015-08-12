@@ -18,10 +18,16 @@ public with sharing class CommunityGroupCreateController {
 	public CommunityGroupCreateController(ApexPages.StandardController stdController) {
 		currentGroup = (Community_Group_Control__c)stdController.getRecord();
 	}
-
+	
+	private Map<String, String> pageParams { 
+		get {
+			return  ApexPages.currentPage().getParameters();
+		}
+		set;
+	}
 	public void initFromCreate() {
 		Set<String> availableSteps = new Set<String> {'2','3','4'};
-		Map<String, String> pageParams = ApexPages.currentPage().getParameters();
+		//Map<String, String> pageParams = ApexPages.currentPage().getParameters();
 		String stepStr = (String.isNotBlank(pageParams.get('step')) && availableSteps.contains(pageParams.get('step'))) ? pageParams.get('step') : '1';
 		step = Integer.valueOf(stepStr);
 		// prepare field layout

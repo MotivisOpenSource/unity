@@ -744,13 +744,7 @@ global with sharing class CommunityFeedController {
 		public Integer total { get { return (capabilities.comments != NULL) ? capabilities.comments.page.total : 0; }}
 		public Boolean showCommentsCount { get {return total > 0;}}
 		public Boolean showComments { get { return (capabilities.comments != NULL) ? capabilities.comments.page.items.size() > 0 : false; } }
-		public Boolean isDeleteRestricted { 
-			get {
-				Profile prof = [SELECT PermissionsModerateChatter, PermissionsModerateNetworkFeeds FROM Profile WHERE Id = :UserInfo.getProfileId() Limit 1];
-				Boolean moderateChatter = prof.PermissionsModerateChatter;
-				Boolean moderateFeeds = prof.PermissionsModerateNetworkFeeds;
-				return moderateChatter || moderateFeeds;
-			} set;  }
+		public Boolean isDeleteRestricted { get { return CommunityUtils.isModerateChatterAndModerateNetworkFeeds(); } set;  }
 		public String countLikes { get { return (capabilities.chatterLikes != NULL) ? String.valueOf(capabilities.chatterLikes.page.total) : '0'; } }
 		public String likeStyle { get { return (capabilities.chatterLikes != NULL && capabilities.chatterLikes.isLikedByCurrentUser) ? ' active' : ''; } }
 		public String bookmarkStyle { get { return (capabilities.bookmarks != NULL && capabilities.bookmarks.isBookmarkedByCurrentUser) ? ' active' : ''; } }
@@ -880,13 +874,7 @@ global with sharing class CommunityFeedController {
 		public Actor user { get; set; }
 		public Datetime createdDate { get; set; }
 		public String dateStr { get { return convertTimeDiff(createdDate);} }
-		public Boolean isDeleteRestricted { 
-			get {
-				Profile prof = [SELECT PermissionsModerateChatter, PermissionsModerateNetworkFeeds FROM Profile WHERE Id = :UserInfo.getProfileId() Limit 1];
-				Boolean moderateChatter = prof.PermissionsModerateChatter;
-				Boolean moderateFeeds = prof.PermissionsModerateNetworkFeeds;
-				return moderateChatter || moderateFeeds;
-			} set;  }
+		public Boolean isDeleteRestricted { get { return CommunityUtils.isModerateChatterAndModerateNetworkFeeds(); } set;  }
 		public Page3 likes { get; set; }
 		public Link myLike { get; set; }
 		public ModerationFlags moderationFlags { get; set; }
@@ -1151,18 +1139,14 @@ global with sharing class CommunityFeedController {
 		showFileUpload = showFileUpload == true && Community_Settings__c.getInstance().Chatter_Action_Disable_Group_Files__c != true;
 		
 		for (List<String> caa : CHATTER_ACTIONS) {
-			if (actionAvailable.containsKey(caa[3]) && (caa[3] != 'File' || showFileUpload)) {
-				if(caa[3] == 'Create Event'){
-					String objName = CommunityUtils.getPackagePrefix()+'Community_Events__c';
-					if(CommunityUtils.checkAPIEnable()){
-						if(CommunityUtils.checkCRUDforObject(objName).get('isCreateable')){
-							resultList.add(new ChatterActionItem(caa[0],caa[1],caa[2]));
-						}
-					}
-
-				}else{
-					resultList.add(new ChatterActionItem(caa[0],caa[1],caa[2]));
-				}
+			if (
+				actionAvailable.containsKey(caa[3])
+				&& ( (caa[3] != 'File' && caa[3] != 'Create Event')
+					|| (caa[3] == 'File' && showFileUpload && CommunityUtils.checkAPIEnable())
+					|| (caa[3] == 'Create Event' && CommunityUtils.checkCRUDforObject(CommunityUtils.getPackagePrefix()+'Community_Events__c').get('isCreateable') && CommunityUtils.checkAPIEnable())
+				)
+			) {
+				resultList.add(new ChatterActionItem(caa[0],caa[1],caa[2]));
 			}
 		}
 		return resultList;

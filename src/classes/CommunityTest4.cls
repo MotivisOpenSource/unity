@@ -178,6 +178,7 @@ private class CommunityTest4 {
 	}
 
 	static testMethod void test_AboutGroupComponentController() {
+		System.assert(true);
 		//deprecated
 	}
 
@@ -201,12 +202,14 @@ private class CommunityTest4 {
 			coc3.saveAction();
 		}
 		Community_Profile__c cp = [SELECT Id FROM Community_Profile__c WHERE Contact__c = :con.Id LIMIT 1];
-		ApexPages.currentPage().getParameters().put('fieldSetName','Student_About_Me_1');
+		System.Debug(cp);
+		ApexPages.currentPage().getParameters().put('fieldSetName',CommunityUtils.getPackagePrefix()+'Student_About_Me_1');
 		ApexPages.currentPage().getParameters().put('objectId',cp.Id);
-		ApexPages.currentPage().getParameters().put('objectName','Community_Profile__c');
+		ApexPages.currentPage().getParameters().put('objectName',CommunityUtils.getPackagePrefix()+'Community_Profile__c');
 		ApexPages.currentPage().getParameters().put('tn','wrong');
 		ApexPages.currentPage().getParameters().put('tfn','wrong');
 		CommunityObjectController coc = new CommunityObjectController();
+		System.Debug(coc.so);
 		System.runAs(u) {
 			CommunityObjectController coc2 = new CommunityObjectController();
 			System.assert(coc2.so != NULL);

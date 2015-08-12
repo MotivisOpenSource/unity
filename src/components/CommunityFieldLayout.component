@@ -87,16 +87,11 @@
 		</section>
 	</apex:repeat>
 	<script>
-		//datetime
-		
+	//datetime
 		if(jQuery('.cs-datetime')) {
 			var currentdate = new Date(); 
-			var datetime = (currentdate.getMonth()+1) + '/' + currentdate.getDate() + '/' + currentdate.getFullYear() + ' ' + currentdate.getHours() + ":"  + currentdate.getMinutes();
 			jQuery('.cs-datetime').datetimepicker({
-				//minDate:datetime,
-				format:'m/d/Y h:i A',
-				formatTime:'h:i A',
-				formatDate:'m/d/Y',
+				format: ucDateFormat() + ' ' + ucTimeFormat(),
 				step:30
 			});
 		}
@@ -104,11 +99,17 @@
 		if(jQuery('.cs-date')) {
 			jQuery('.cs-date').datetimepicker({
 				timepicker:false,
-				format:'m/d/Y',
-				formatDate:'m/d/Y',
+				format: ucDateFormat(),
 			});
 		}
-
+		function ucDateFormat() {
+			return !(UserContext && UserContext.dateTimeFormat) ? 'n/d/Y'
+					: UserContext.dateFormat.replace('yyyy','Y').replace('yy','y').replace('MM','m').replace('M','n').replace('dd','d').replace('d','j');
+		}
+		function ucTimeFormat() {
+			return !(UserContext && UserContext.timeFormat) ? 'h:m a'
+					: UserContext.timeFormat.replace('mm','i').replace('a','A').replace('hh','g').replace('h','g').replace('HH','G').replace('H','G');
+		}
 		//multipicklist
 		jQuery('select[id$=msfld]').show();
 		jQuery('.multiSelectPicklistTable').hide();
