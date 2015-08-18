@@ -7,7 +7,7 @@
 			<apex:form id="cnsp1" style="display:none;" styleClass="sky-form">
 				<div class="row margin-bottom-10">
 					<div class="col-md-6 text-left title-container">
-						<h2>{!$Label.BTN_Create_News}</h2>
+						<h2>{!IF(ISNULL(news.Id),$Label.BTN_Create_News,$Label.BTN_Edit_News)}</h2>
 					</div>
 					<div class="col-md-6 text-right buttons-container">
 						<apex:commandButton action="{!submitFirstStep}" value="{!$Label.LBL_Next}" styleClass="btn-u"/>
