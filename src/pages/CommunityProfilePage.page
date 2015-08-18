@@ -50,10 +50,11 @@
 									<li><a data-toggle="tab" href="#feed">{!$Label.LBL_Feed}</a></li>
 								</ul>
 							</apex:outputPanel>
-							<div class="calert">
-								<apex:pageMessages id="pageMessages"/>
-							</div>
+							
 							<div class="tab-content">
+								<div class="calert">
+									<apex:pageMessages id="pageMessages"/>
+								</div>
 								<div id="profile" class="profile-edit tab-pane fade in active">
 									<div class="row margin-bottom-20">
 										<div class="col-md-6 text-left">
@@ -185,10 +186,22 @@
 												</section>
 											</dd>
 										</dl>
-										<apex:commandButton action="{!cancelChangePassword}" value="{!$Label.BTN_Cancel}" rerender="passwordform,pageMessages" styleClass="btn-u btn-u-sm btn-u-default margin-right-5"/>
-										<apex:commandButton id="psch" action="{!changePassword}" value="{!$Label.BTN_Save_Changes}" rerender="passwordform,pageMessages" styleClass="btn-u"/>
+										<apex:commandButton action="{!cancelChangePassword}" value="{!$Label.BTN_Cancel}" rerender="passwordform,pageMessages" styleClass="btn-u btn-u-sm btn-u-default margin-right-5" />
+										<apex:commandButton id="psch" action="{!changePassword}" value="{!$Label.BTN_Save_Changes}" rerender="passwordform,pageMessages" styleClass="btn-u" oncomplete="removeError();" />
 										<script>
 											$('[id$=psch]').attr('disabled','disabled').css('opacity','0.65');
+											function removeError () {
+												jQuery('.calert').ready( function () {
+													var calert = jQuery('.calert');
+													calert.find('h4').remove();
+													calert.find('br').remove();
+													calert.find('img').remove();
+													if(!calert.find('.messageText').text().trim()) {
+														calert.find('.messageText').remove();
+													}
+													calert.css("display","block");
+												}); 
+											}
 										</script>
 									</apex:form>
 								</div>
@@ -466,6 +479,7 @@
 				return lm;
 			}
 		}
+		
 	</script>
 </apex:define>
 </apex:composition>

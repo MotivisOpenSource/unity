@@ -151,7 +151,7 @@ public with sharing class CommunityUtils {
 			ga.btnIcon = 'fa-star';
 			ga.title = '';
 			ga.action = '0';
-			ga.btnStyle = '';
+			ga.btnStyle = ' btn-u-owner';
 			ga.lnkStyle = 'gr-plus';
 			ga.lnkIcon = 'fa-star';
 		}
@@ -160,7 +160,7 @@ public with sharing class CommunityUtils {
 			ga.btnIcon = 'fa-star-half-o';
 			ga.title = Label.LBL_Leave_Group;
 			ga.action = '2';
-			ga.btnStyle = '';
+			ga.btnStyle = ' btn-u-manager';
 			ga.lnkStyle = 'gr-plus';
 			ga.lnkIcon = 'fa-star-half-o';
 		}
@@ -169,7 +169,7 @@ public with sharing class CommunityUtils {
 			ga.btnIcon = 'fa-check';
 			ga.title = Label.LBL_Leave_Group;
 			ga.action = '2';
-			ga.btnStyle = '';
+			ga.btnStyle = ' btn-u-member';
 			ga.lnkIcon = 'fa-check-circle';
 			ga.lnkStyle = 'gr-plus';
 		}

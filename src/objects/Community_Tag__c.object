@@ -104,9 +104,8 @@
         <fullName>Tag_Theme_UniqueID__c</fullName>
         <caseSensitive>false</caseSensitive>
         <deprecated>false</deprecated>
-        <description>Coming Soon.</description>
+        <description>This field concatenates the Tag and Theme value to prevent duplicate values.</description>
         <externalId>false</externalId>
-        <inlineHelpText>Coming Soon.</inlineHelpText>
         <label>Tag-Theme UniqueID</label>
         <length>255</length>
         <required>false</required>
