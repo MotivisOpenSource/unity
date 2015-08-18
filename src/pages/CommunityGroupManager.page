@@ -396,7 +396,7 @@
 													</apex:outputPanel>
 												</apex:outputPanel>
 												<apex:outputPanel layout="none" rendered="{!requestMode}">
-													<button class="btn-u" onclick="msproc(7,'{!us.id}');return false;" type="button">
+													<button class="btn-u btn-u-accept" onclick="msproc(7,'{!us.id}');return false;" type="button">
 														<i class="fa fa-plus-circle" ></i>&nbsp;{!$Label.BTN_Accept}
 													</button>
 													<button class="btn-u btn-u-red" onclick="msproc(8,'{!us.id}');return false;" type="button">

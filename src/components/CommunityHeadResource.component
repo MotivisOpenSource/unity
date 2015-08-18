@@ -44,5 +44,14 @@
     <!-- Removed Inline Styles -->
     <link rel="stylesheet" href="{!$Resource.assets}/css/app/app.styles.css"/>
     <!-- Themes Styles -->
-    <link rel="stylesheet" href="{!$Resource.assets}/css/app/app.themes.css"/>
+    <link rel="stylesheet" href="{!$Resource.assets}/css/theme-colors/{!$Setup.Community_Template_Settings__c.Color_Scheme__c}.theme.css" rendered="{!$Setup.Community_Template_Settings__c.Color_Scheme__c}" />
+    
+    <apex:outputText value="{!$Setup.Community_Template_Settings__c.Color_Scheme__c}" style="display:none;"/>
+    
+    <script>
+    	 //var df = '{!$Setup.Community_Template_Settings__c.Color_Scheme__c}';
+    	 /*if(df == '') jQuery('head').append('<link rel="stylesheet" href="{!$Resource.assets}/css/theme-colors/' + (df == '' ? 'Green' : df) + '.theme.css"/>');*/ 
+    </script>
+    
+    
 </apex:component>

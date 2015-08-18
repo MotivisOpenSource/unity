@@ -6,8 +6,7 @@
 		<ul class="list-group sidebar-nav-v1 margin-bottom-40" id="sidebar-nav-1">
 			<li class="list-group-item{!IF(pn=='1',' active',' menu-item-link')}">
 				<a href="{!$Page.CommunityFeed_MyFeed}">
-					<i class="fa fa-comment"></i>
-					{!$Label.LBL_Feed}
+					<i class="fa fa-comment"></i>{!$Label.LBL_Feed}
 				</a>
 			</li>
 			<apex:outputPanel layout="none" rendered="{!showMessages}">
@@ -16,42 +15,36 @@
 						<span class="badge rounded badge-red">{!MessageUnreadCount}</span>
 					</apex:outputPanel>
 					<a href="{!$Page.CommunityFeed_MyMessages}">
-						<i class="fa fa-envelope"></i> 
-						{!$Label.LBL_Messages}
+						<i class="fa fa-envelope"></i>{!$Label.LBL_Messages}
 					</a>
 				</li>
 			</apex:outputPanel>
 			<li class="list-group-item{!IF(pn=='3',' active',' menu-item-link')}">
 				<a href="{!$Page.CommunityProfilePage}">
-					<i class="fa fa-gear"></i> 
-					Profile
+					<i class="fa fa-gear"></i>{!$Label.LBL_Profile}
 				</a>
 			</li>
 			<li class="list-group-item{!IF(pn=='4',' active',' menu-item-link')}">
 				<a href="{!$Page.CommunityFeed_People}">
-					<i class="fa fa-user"></i>
-					People
+					<i class="fa fa-user"></i>People
 				</a>
 			</li>
 			<li class="list-group-item{!IF(pn=='5',' active',' menu-item-link')}">
 				<a href="{!$Page.CommunityGroups}?f=all_groups">
-					<i class="fa fa-users"></i>
-					{!$Label.LBL_Groups}
+					<i class="fa fa-users"></i>{!$Label.LBL_Groups}
 				</a>
 			</li>
 			<apex:outputPanel layout="none" rendered="{!showGroupManager && returnToGroup}">
 				<li class="list-group-item{!IF(pn=='6',' active',' menu-item-link')}">
 					<a href="{!$Page.CommunityGroupDetailPage}?gr={!currentGroupId}">
-						<i class="fa fa-comments"></i>
-						{!$Label.LBL_ReturnToGroup}
+						<i class="fa fa-comments"></i>{!$Label.LBL_ReturnToGroup}
 					</a>
 				</li>
 			</apex:outputPanel>
 			<apex:outputPanel layout="none" rendered="{!showGroupManager && !returnToGroup}">
 				<li class="list-group-item{!IF(pn=='6',' active',' menu-item-link')}">
 					<a href="{!$Page.CommunityGroupManager}?gr={!currentGroupId}">
-						<i class="fa fa-comments"></i>
-						{!$Label.LBL_GroupManager}
+						<i class="fa fa-comments"></i>{!$Label.LBL_GroupManager}
 					</a>
 				</li>
 			</apex:outputPanel>

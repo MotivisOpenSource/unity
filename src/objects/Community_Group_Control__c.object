@@ -73,11 +73,6 @@
             <isRequired>false</isRequired>
         </availableFields>
         <availableFields>
-            <field>Status__c</field>
-            <isFieldManaged>false</isFieldManaged>
-            <isRequired>false</isRequired>
-        </availableFields>
-        <availableFields>
             <field>T_C_Accepted_Date__c</field>
             <isFieldManaged>false</isFieldManaged>
             <isRequired>false</isRequired>
@@ -118,6 +113,11 @@
             <isFieldManaged>false</isFieldManaged>
             <isRequired>true</isRequired>
         </displayedFields>
+        <displayedFields>
+            <field>Status__c</field>
+            <isFieldManaged>false</isFieldManaged>
+            <isRequired>false</isRequired>
+        </displayedFields>
         <label>CreateGroup</label>
     </fieldSets>
     <fieldSets>
@@ -137,16 +137,11 @@
             <isFieldManaged>false</isFieldManaged>
             <isRequired>false</isRequired>
         </availableFields>
-        <availableFields>
-            <field>Status__c</field>
-            <isFieldManaged>false</isFieldManaged>
-            <isRequired>false</isRequired>
-        </availableFields>
         <description>Used for the Edit Group menu on the Group Control record for Group Managers</description>
         <displayedFields>
             <field>Name</field>
             <isFieldManaged>false</isFieldManaged>
-            <isRequired>false</isRequired>
+            <isRequired>true</isRequired>
         </displayedFields>
         <displayedFields>
             <field>Type__c</field>
@@ -165,6 +160,11 @@
         </displayedFields>
         <displayedFields>
             <field>Description__c</field>
+            <isFieldManaged>false</isFieldManaged>
+            <isRequired>true</isRequired>
+        </displayedFields>
+        <displayedFields>
+            <field>Status__c</field>
             <isFieldManaged>false</isFieldManaged>
             <isRequired>false</isRequired>
         </displayedFields>
@@ -188,11 +188,6 @@
             <isRequired>false</isRequired>
         </availableFields>
         <availableFields>
-            <field>OwnerId</field>
-            <isFieldManaged>false</isFieldManaged>
-            <isRequired>false</isRequired>
-        </availableFields>
-        <availableFields>
             <field>Status__c</field>
             <isFieldManaged>false</isFieldManaged>
             <isRequired>false</isRequired>
@@ -212,16 +207,16 @@
             <isFieldManaged>false</isFieldManaged>
             <isRequired>false</isRequired>
         </availableFields>
-        <description>it uset on group page to display group description</description>
+        <description>it used on group page to display group description</description>
         <displayedFields>
             <field>Name</field>
             <isFieldManaged>false</isFieldManaged>
-            <isRequired>false</isRequired>
+            <isRequired>true</isRequired>
         </displayedFields>
         <displayedFields>
             <field>Description__c</field>
             <isFieldManaged>false</isFieldManaged>
-            <isRequired>false</isRequired>
+            <isRequired>true</isRequired>
         </displayedFields>
         <displayedFields>
             <field>Purpose__c</field>
@@ -262,7 +257,7 @@
         <externalId>false</externalId>
         <inlineHelpText>Write a brief description of your group.</inlineHelpText>
         <label>Description</label>
-        <length>5000</length>
+        <length>1000</length>
         <trackFeedHistory>false</trackFeedHistory>
         <trackHistory>false</trackHistory>
         <trackTrending>false</trackTrending>
@@ -475,7 +470,8 @@
         <columns>Network__c</columns>
         <columns>Status__c</columns>
         <columns>Chatter_Group_ID__c</columns>
-        <columns>CREATEDBY_USER</columns>
+        <columns>CREATED_DATE</columns>
+        <columns>OWNER.ALIAS</columns>
         <filterScope>Everything</filterScope>
         <label>All Groups</label>
         <language>en_US</language>

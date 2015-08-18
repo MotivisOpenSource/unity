@@ -31,7 +31,7 @@
 			<apex:outputPanel layout="none" rendered="{!previewMode}">
 				<div class="row">
 					<div class="col-md-6 text-left">
-						<h2>{!$Label.BTN_Create_News}</h2>
+						<h2>{!IF(ISNULL(news.Id),$Label.BTN_Create_News,$Label.BTN_Edit_News)}</h2>
 					</div>
 					<div class="col-md-6 text-right">
 						<apex:form >

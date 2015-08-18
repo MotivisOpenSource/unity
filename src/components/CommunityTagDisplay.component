@@ -11,7 +11,7 @@
 		<apex:repeat value="{!tags}" var="tag">
 			<li>
 				<apex:outputLink value="{!$Page.CommunityNews}?t={!tag.Url}" target="_blank" rendered="{!mode == 1}"><i class="fa fa-tags"></i>&nbsp;{!tag.Name}</apex:outputLink>
-				<apex:outputLink value="{!$Page.CommunityGroupManager}?t={!tag.Url}" target="_blank" rendered="{!mode == 2}"><i class="fa fa-tags"></i>&nbsp;{!tag.Name}</apex:outputLink>
+				<apex:outputLink value="{!$Page.CommunitySearch}?t={!tag.Url}" target="_blank" rendered="{!mode == 2}"><i class="fa fa-tags"></i>&nbsp;{!tag.Name}</apex:outputLink>
 				<apex:outputLink value="{!$Page.CommunityEventsList}?t={!tag.Url}" target="_blank" rendered="{!mode == 3}"><i class="fa fa-tags"></i>&nbsp;{!tag.Name}</apex:outputLink>
 			</li>
 		</apex:repeat>
