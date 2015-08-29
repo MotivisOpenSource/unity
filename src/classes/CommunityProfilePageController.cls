@@ -13,14 +13,27 @@ global with sharing class CommunityProfilePageController {
 
 	private Id contactId;
 	private static Map<String, Schema.SObjectField> CP_FIELDS = SObjectType.Community_Profile__c.fields.getMap();
-
+	
+	public Boolean getIsCommunityUser() {
+		if (currentUserId == UserInfo.getUserId()) return true;
+		List<User> currentUserList = CommunityHelperWithoutSharing.getCommunityUsers(currentProfile.Contact__r.Name,100,new List<String>{'ContactId','FullPhotoUrl'},'Name',true);
+		for(User item:currentUserList) {
+			if(item.Id == currentUserId) return true;
+		}
+		return false;
+	}
+		
 	public CommunityProfilePageController() {
 		try {
 			String tempContactId = ApexPages.currentPage().getParameters().get('cid');
 			String tempUserId = ApexPages.currentPage().getParameters().get('id');
+			System.Debug('CommunityProfilePageController');
+			System.Debug(tempContactId);
+			System.Debug(tempUserId);
 			if (String.isBlank(tempUserId) && String.isNotBlank(tempContactId)) {
 				contactId = Id.valueOf(tempContactId);
-				List<User> currentUserList2 = [SELECT Id, ContactId, FullPhotoUrl FROM User WHERE ContactId = :contactId OR Community_Contact_ID__c = :contactId];
+				List<User> currentUserList2 = CommunityHelperWithoutSharing.getCommunityUsers(null,100,new List<String>{'ContactId','FullPhotoUrl'},'Name',true);
+				//List<User> currentUserList2 = [SELECT Id, ContactId, FullPhotoUrl FROM User WHERE ContactId = :contactId OR Community_Contact_ID__c = :contactId];
 				Boolean userFound = currentUserList2.size() > 0;
 				currentUserId = userFound ? currentUserList2[0].Id : NULL;
 				FullPhotoUrl = userFound ? currentUserList2[0].FullPhotoUrl : '/profilephoto/005/F';
@@ -222,6 +235,7 @@ global with sharing class CommunityProfilePageController {
 		return result;
 	}
 
+
 	public NotificationPage getEmailNotifications() {
 		List<NotificationSection> resultSections = new List<NotificationSection> {
 			new NotificationSection(
@@ -287,17 +301,14 @@ global with sharing class CommunityProfilePageController {
 					FROM CollaborationGroupMember
 					WHERE MemberId = :UserInfo.getUserId()
 					AND CollaborationGroupId IN :colGroupsIds
-					ORDER BY CollaborationGroup.Name
-						]) {
+					ORDER BY CollaborationGroup.Name ]) {
 			resultList.add(new DigestItem(cgmItem));
 		}
 		return resultList;
 	}
 
 	public DigestItem getDefaultDigest() {
-		NetworkMember nm = (Test.isRunningTest() || Network.getNetworkId() == NULL)
-				? new NetworkMember()
-				: [SELECT DefaultGroupNotificationFrequency FROM NetworkMember WHERE MemberId = :UserInfo.getUserId() AND NetworkId = :Network.getNetworkId()];
+		NetworkMember nm = (Test.isRunningTest() || Network.getNetworkId() == NULL)	? new NetworkMember(): [SELECT DefaultGroupNotificationFrequency FROM NetworkMember WHERE MemberId = :UserInfo.getUserId() AND NetworkId = :Network.getNetworkId()];
 		return new DigestItem(nm);
 	}
 
@@ -327,7 +338,8 @@ global with sharing class CommunityProfilePageController {
 		update nm;
 		return '';
 	}
-
+	
+	//not used code
 	@RemoteAction
 	global static String toggleUserDigest(String groupId, String freq) {
 		if (String.isBlank(groupId)) {
@@ -342,6 +354,7 @@ global with sharing class CommunityProfilePageController {
 		}
 		return '';
 	}
+	
 
 	public class ProfileTab {
 		public String name { get;set; }
@@ -391,9 +404,7 @@ global with sharing class CommunityProfilePageController {
 					userFields.add(iItem.fieldName);
 				}
 			}
-			nm = (Test.isRunningTest() || Network.getNetworkId() == NULL)
-				? new NetworkMember()
-				: Database.query('SELECT ' + String.join(userFields, ', ') + ' FROM NetworkMember WHERE MemberId =\'' + UserInfo.getUserId() + '\' AND NetworkId =\'' + Network.getNetworkId() + '\'');
+			nm = (Test.isRunningTest() || Network.getNetworkId() == NULL) ? new NetworkMember(): Database.query('SELECT ' + String.join(userFields, ', ') + ' FROM NetworkMember WHERE MemberId =\'' + UserInfo.getUserId() + '\' AND NetworkId =\'' + Network.getNetworkId() + '\'');
 			Boolean initialDisabled = nm.PreferencesDisableAllFeedsEmail == true;
 			for (NotificationSection sItem2 : sections) {
 				for (NotificationItem iItem2 : sItem2.items) {
@@ -451,7 +462,7 @@ global with sharing class CommunityProfilePageController {
 			wdStyle = cgm.NotificationFrequency == 'W' ? ' fa fa-dot-circle-o' : '';
 			nStyle = cgm.NotificationFrequency == 'N' ? ' fa fa-dot-circle-o' : '';
 		}
-
+		
 		public DigestItem(NetworkMember inu) {
 			gname = '';
 			gid = '';
@@ -460,6 +471,7 @@ global with sharing class CommunityProfilePageController {
 			wdStyle = inu.DefaultGroupNotificationFrequency == 'W' ? ' fa fa-dot-circle-o' : '';
 			nStyle = inu.DefaultGroupNotificationFrequency == 'N' ? ' fa fa-dot-circle-o' : '';
 		}
+		
 	}
 	
 	public Boolean getIsSubscribe() { 
@@ -473,9 +485,11 @@ global with sharing class CommunityProfilePageController {
 		return (followings.isEmpty())?false:true;
 	}
 
+	
 	public void subscribeUser(){ 
 		CommunityUtils.subscriberUser(currentUserId,!getIsSubscribe());
 	}
+	
 
 	private without sharing class SecurityWrapper {
 		public List<SObject> databaseQuery(String inQueryStr) {

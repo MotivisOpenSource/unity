@@ -279,10 +279,10 @@ private class CommunityTest {
 		List<User> us = new List<User> {
 			new User(alias='alias', email='email@email.com', emailencodingkey='UTF-8', lastname='lopez', firstname = 'guillermo', languagelocalekey='en_US',
 				localesidkey='en_US', profileid=profile.Id, timezonesidkey='America/Los_Angeles', username='ttsde.tedf2@testmail.com',
-				FederationIdentifier='TestContactName.TestContactLastname2', Community_Contact_ID__c=cons[0].Id),
+				FederationIdentifier='TestContactName.TestContactLastname2', Community_Contact_ID__c=cons[0].Id, isActive = true),
 			new User(alias='alias2', email='email2@email.com', emailencodingkey='UTF-8', lastname='hu', firstname = 'yovo', languagelocalekey='en_US',
 				localesidkey='en_US', profileid=profile.Id, timezonesidkey='America/Los_Angeles', username='ttsde.tedf3@testmail.com',
-				FederationIdentifier='TestContactName.TestContactLastname6', Community_Contact_ID__c=cons[1].Id)
+				FederationIdentifier='TestContactName.TestContactLastname6', Community_Contact_ID__c=cons[1].Id, isActive = true)
 		};
 		insert us;
 		System.runAs(us[0]) {
@@ -292,7 +292,7 @@ private class CommunityTest {
 			cfhdgcb.markConversationRead(cm.ConversationId, true);
 		}
 		System.runAs(us[1]) {
-			List<CommunityFeed_MyMessagesController.ChatterGroupMember> sl = CommunityFeed_MyMessagesController.searchUsers('guillermo');
+			List<CommunityFeed_MyMessagesController.ChatterGroupMember> sl = CommunityFeed_MyMessagesController.searchUsers('gu');
 			System.assert(sl.size() > 0);
 			String cid = CommunityFeed_MyMessagesController.sendMessage('matreshka',sl[0].MemberId);
 			ApexPages.currentPage().getParameters().put('c',cid);
@@ -436,7 +436,7 @@ private class CommunityTest {
 		cgmc.allusers.previousPage();
 		cgmc.allusers.firstPage();
 		cgmc.allusers.newOwner(u.Id);
-		cgmc.msDone();
+		//cgmc.msDone();
 	}
 
 	static testMethod void test_CommunityGroupsController() {
@@ -533,7 +533,11 @@ private class CommunityTest {
 		CommunitySearchController csc4 = new CommunitySearchController();
 		csc1.getNews();
 		csc1.getEvents();
-		Community_Group_Control__c cgcr = new Community_Group_Control__c(Name='1212t', Discoverable__c=true, Type__c='Public', Network__c='Internal');
+		CollaborationGroup cg = new CollaborationGroup();
+		cg.Name = 'newgroup';
+		cg.CollaborationType = 'Public' ;
+		insert cg;
+		Community_Group_Control__c cgcr = new Community_Group_Control__c(Name='1212t', Discoverable__c=true, Type__c='Public', Network__c='Internal',Chatter_Group_ID__c=cg.Id);
 		insert cgcr;
 		csc1.getGroups();
 		System.Debug(csc1.getGroups());
@@ -555,7 +559,8 @@ private class CommunityTest {
 		CommunitySearchController.SearchItem si1 = new CommunitySearchController.SearchItem([SELECT ID, NAME__c, Teaser__c, Start__c FROM Community_Events__c],1);
 		CommunitySearchController.SearchItem si2 = new CommunitySearchController.SearchItem([SELECT ID, Title__c, Teaser__c, Entry_Date__c,Image_Path__c FROM Community_News__c],1);
 		CommunitySearchController.SearchItem si3 = new CommunitySearchController.SearchItem([SELECT ID, Name, Description__c, Link__c FROM Community_Resource__c],1);		
-		CommunitySearchController.SearchItem si4 = new CommunitySearchController.SearchItem(new List<CommunityGroupsController.ChatterGroupDetail>(),0);		
+		CommunitySearchController.SearchItem si4 = new CommunitySearchController.SearchItem(new List<CommunityGroupsController.ChatterGroupDetail>(),0);
+		CommunitySearchController.membershipGroup('1',cgcr.Chatter_Group_ID__c,'4');
 	}
 
 	@IsTest(SeeAllData=true)

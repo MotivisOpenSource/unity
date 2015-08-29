@@ -31,7 +31,7 @@ public with sharing class CommunityResourceController {
 
 	// -- variables --
 	public Community_Resource__c resource { get;set; }
-	public Blob imgBody { get;set; }
+	public transient Blob imgBody { get;set; }
 	public String imgFileName { get;set; }
 	public String imgContentType { get;set; }
 	public String linkText { get;set; }
@@ -61,7 +61,7 @@ public with sharing class CommunityResourceController {
 
 	public String getPrimaryTagHtml() {
 		String result = '';
-		if (mode == 'edit' && resource.Primary_Tag__c != NULL && resource.Id != NULL) {
+		if (mode == 'edit' && resource.Primary_Tag__c != NULL) {
 			result = '<span id="' + resource.Primary_Tag__c + '" class="item guestItem"><span>';
 			result += resource.Primary_Tag__r.Community_Theme__r.Name + ' > ' + resource.Primary_Tag__r.Name;
 			result += '</span><a href="javascript:;" onclick="removePrimaryTag(\'' + resource.Primary_Tag__c;
