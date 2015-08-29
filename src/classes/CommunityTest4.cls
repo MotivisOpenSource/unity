@@ -47,6 +47,8 @@ private class CommunityTest4 {
 			CommunityUtils.isViewAllData();
 			CommunityUtils.canCreateGroup();
 			CommunityUtils.getPackagePrefix();
+			CommunityUtils.isModerateChatterAndModerateNetworkFeeds();
+			CommunityUtils.isModerateChatter();
 		}
 		System.runAs(u1) {
 			CommunityUtils.isModifyAllData();

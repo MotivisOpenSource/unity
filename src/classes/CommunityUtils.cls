@@ -64,8 +64,7 @@ public with sharing class CommunityUtils {
 		pp = (pp != NULL) ? pp.replace('__','') : '';
 		for (PermissionSetAssignment psa2 : [
 					SELECT PermissionSet.Name FROM PermissionSetAssignment
-					WHERE AssigneeId = :UserInfo.getUserId() AND PermissionSet.NamespacePrefix = :pp AND PermissionSet.Name IN :psSet
-						]) {
+					WHERE AssigneeId = :UserInfo.getUserId() AND PermissionSet.NamespacePrefix = :pp AND PermissionSet.Name IN :psSet ]) {
 			resultLevel = (psa2.PermissionSet.Name == viewPS && resultLevel < 2) ? 1 : 2;
 		}
 		return resultLevel;

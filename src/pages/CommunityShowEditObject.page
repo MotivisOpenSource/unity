@@ -56,7 +56,7 @@
 					calert.find('.messageText').remove();
 				}
 				calert.css("display","block");
-			}); 
+			});
 			
 		}
 		function finishSubmitAction() {

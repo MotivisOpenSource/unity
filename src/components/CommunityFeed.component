@@ -1,17 +1,20 @@
 <apex:component controller="CommunityFeedController">
 	<apex:attribute name="pid" type="String" assignTo="{!parentId}" required="false" description="Parent Id" />
 	<apex:attribute name="ft" type="String" assignTo="{!feedType}" required="false" description="Feed Type" />
+	<apex:attribute name="ti" type="String" assignTo="{!topicId}" required="false" description="Topic Id" />
 	<apex:attribute name="fm" type="Boolean" assignTo="{!fullMode}" required="false" default="true" description="Feed Type" />
 	<apex:attribute name="fu" type="Boolean" assignTo="{!showFileUpload}" required="false" default="false" description="Show File Upload" />
 	<apex:attribute name="sjcb" type="Boolean" required="false" default="false" description="show Join the Conversation button" />
 	<apex:attribute name="tf" type="Boolean" required="false" default="false" description="show feeds from" />
 	<apex:attribute name="gID" type="Boolean" assignTo="{!grID}" required="false" default="false" description="ID for Group" />
 	<script src="{!$Resource.CommunityResources}/js/underscore/underscore-min.js"></script>
-	<script type="text/javascript" src="{!$Resource.assets}/plugins/mentions/jquery.mentionsInput.js" ></script>
+	<!--<script type="text/javascript" src="{!$Resource.assets}/plugins/mentions/jquery.mentionsInput.js" ></script>-->
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/mentions/jquery.events.input.js" ></script>
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/sky-forms/version-2.0.1/js/jquery-ui.min.js"></script>
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/sky-forms/version-2.0.1/js/jquery.validate.min.js"></script> <!--  path contains old version -->
-	<script type="text/javascript" src="/soap/ajax/33.0/connection.js"></script>	
+	<script type="text/javascript" src="/soap/ajax/33.0/connection.js"></script>
+	
+<script type="text/javascript" src="{!$Resource.jquery_hashtagsinput}" ></script>
 
 	<apex:stylesheet value="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.css" />
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.js"></script>
@@ -114,12 +117,12 @@
 							</strong></p>
 						<% } %>	
 						<% if (!p2.showLink && !p2.showContent && !p2.capabilities.poll) { %>
-							<p>	<% var p2p = parseFeedBody(p2.body);
+							<p>	<% var p2p = parseFeedBody(p2.body,p2.topics);
 								print(wrapnl(p2p)); %>
-							</p> 
-						<% } %>
+							</p>
+						<%}%>
 						<% if (p2.showLink) { %>
-							<p>	<% var p2p = parseFeedBody(p2.body);
+							<p>	<% var p2p = parseFeedBody(p2.body,p2.topics);
 								print(wrapnl(p2p)); %>
 							</p> 
 						<div class="d-link">
@@ -131,9 +134,9 @@
 						</div>
 						<% } %>
 						<% if (p2.showContent) { %>
-							<p>	<% var p2p = parseFeedBody(p2.body);
+							<p>	<% var p2p = parseFeedBody(p2.body,p2.topics);
 								print(wrapnl(p2p)); %>
-							</p> 
+							</p>
 							<div class="file-section">
 								<% if (p2.capabilities.content.fileExtension) { %>
 									<span>
@@ -164,10 +167,10 @@
 
 							</div>
 						<% } %>
-						<% if (p2.capabilities.poll && p2.capabilities.poll.choices) { %>
-							<p>	<% var p2p = parseFeedBody(p2.body);
+						<% if (p2.capabilities.poll && p2.capabilities.poll.choices) { %>					
+							<p>	<% var p2p = parseFeedBody(p2.body,p2.topics);
 								print(wrapnl(p2p)); %>
-							</p> 
+							</p>
 							<fieldset class="pollfieldset">
 								<ul class="pollchoices">
 									<% _.each(p2.capabilities.poll.choices, function(choice) { %>
@@ -201,13 +204,20 @@
 								
 							</fieldset>
 						<%} %>
+						<% 
+						if (!_.isEmpty(p2.topics)) {%>
+							<br /><p><a href="{!$Page.CommunityTopic}">{!$Label.LBL_Topic}</a> :
+							 	<% var p2t = wraptop(p2.topics);
+							 	print(wrapnl(p2t)); %>
+							 </p>
+						<% } %>  
 						<ul class="list-inline results-list pull-left">
 							<li><a href="javascript:void(0);"><span><%= p2.countLikes %></span> Likes</a></li>
 						</ul>
 						<ul class="list-inline pull-right margin-top-5" id="ul<%= p2.id %>">
 							<li><a href="javascript:void(0);"><i onclick="focusComment('<%= p2.id %>');" class="expand-list rounded-x fa fa-reply"></i></a></li>
 							<li><a href="javascript:void(0);"><i onclick="inlAct('<%= p2.id %>','fa-thumbs-up','<%= p2.likeId %>');" class="expand-list rounded-x fa fa-thumbs-up<%= p2.likeStyle %>"></i></a></li>
-							<% if (p2.showFlag) { %>
+							<% if ( (p2.showFlag)&&('{!$CurrentPage.Name}'!='CommunityNewsDetail')&&('{!$CurrentPage.Name}'!='CommunityEventDetail')&&('{!$CurrentPage.Name}'!='CommunityGroupManager') ) { %>
 							<li><a href="javascript:void(0);"><i onclick="inlAct('<%= p2.id %>','fa-flag','<%= p2.flagStatus %>');" class="expand-list rounded-x fa fa-flag<%= p2.flagStyle %>"></i></a></li>
 							<% } %>
 							<li><a href="javascript:void(0);"><i onclick="inlAct('<%= p2.id %>','fa-bookmark','<%= p2.bookmarkStatus %>');" class="expand-list rounded-x fa fa-bookmark<%= p2.bookmarkStyle %>"></i></a></li>
@@ -236,7 +246,7 @@
 										<strong><a href="{!$Page.CommunityProfilePage}?id=<%= c2.user.id %>"><%= c2.user.displayName %> <%= c2.user.role !== null ?  '(' + c2.user.role + ')': '' %></a></strong>
 										<small><%= c2.dateStr %></small>
 									</h4>
-									<p>	<% var p2p = parseFeedBody(c2.body);
+									<p>	<% var p2p = parseFeedBody(c2.body,p2.topics);
 										print(wrapnl(p2p)); %>
 									</p> 
 									<ul class="list-inline results-list pull-left">
@@ -244,7 +254,7 @@
 									</ul>
 									<ul class="list-inline pull-right" id="ul<%= c2.id %>">
 										<li><a href="javascript:void(0);"><i onclick="inlAct('<%= c2.id %>','fa-thumbs-up','<%= c2.likeId %>');" class="expand-list rounded-x fa fa-thumbs-up<%= c2.likeStyle %>"></i></a></li>
-										<% if (c2.showFlag) { %>
+										<% if ( (c2.showFlag)&&('{!$CurrentPage.Name}'!='CommunityNewsDetail')&&('{!$CurrentPage.Name}'!='CommunityEventDetail')&&('{!$CurrentPage.Name}'!='CommunityGroupManager')  ) { %>
 										<li><a href="javascript:void(0);"><i onclick="inlAct('<%= c2.id %>','fa-flag','<%= c2.flagStatus %>');" class="expand-list rounded-x fa fa-flag<%= c2.flagStyle %>"></i></a></li>
 										<% } %>
 										<% if (c2.isDeleteRestricted) { %>
@@ -296,7 +306,7 @@
 						<% if (rc.beforeFields) { %>
 					</div>
 						<% } %>
-						<textarea id="<%= ii.fieldName %>" name="<%= ii.fieldName %>" class="form-control share <%= ii.validationClass %>" onFocus="checkmi(this);"  onclick="checkmi(this);" placeholder="<%= ii.placeholder %>"></textarea>
+						<textarea id="<%= ii.fieldName %>" name="<%= ii.fieldName %>" class="form-control tagged_text share <%= ii.validationClass %>" onFocus="checkmi(this);"  onclick="checkmi(this);" placeholder="<%= ii.placeholder %>"></textarea>
 						<% if (rc.afterFields) { %>
 					<div class="sky-div-margin">
 						<% } %>
@@ -351,7 +361,13 @@
 				var changeVoteId = null;
 				
 				$(document).ready(function() {
-					loadFeeds(null);
+					var top = '{!topicId}';
+					if(!top){
+						loadFeeds(null);
+					}else{
+						loadFeedsForTopic(null);
+					}
+					
 					/*TEMPORARY/
 					$('#date').datepicker({
 						dateFormat: 'dd.mm.yy',
@@ -401,6 +417,29 @@
 					);
 					initValidator();
 				}
+
+				function loadFeedsForTopic(inpt) {
+					disableBtn('shmbtn',true);
+					Visualforce.remoting.Manager.invokeAction(
+						'{!$RemoteAction.CommunityFeedController.feedsForTopics}',
+						'{!parentId}',
+						'{!feedType}',
+						inpt,
+						'{!topicId}',
+						function(result, event) {
+							var div = document.createElement('div');
+							div.innerHTML = result;
+							_.templateSettings.variable = 'rc';
+							var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
+							var tt = JSON.parse(div.firstChild.nodeValue);
+							$('#cfcmp').append(template(tt));
+							enableBtn('shmbtn');
+							$('#shmbtn').css('display',tt.showMore?'block':'none').attr('onclick','loadFeedsForTopic(\'' + tt.nextPageToken + '\');return false;');
+						}
+					);
+					initValidator();
+				}
+
 				function postFeed(text) {
 					disableBtn('mesbtn');
 
@@ -759,18 +798,31 @@
 						elastic: false
 					}).focus();
 				}
-				function initTextarea(element) {
-					$(element).mentionsInput({
-						onDataRequest:function (mode, query, callback) {
-							Visualforce.remoting.Manager.invokeAction(
-								'{!$RemoteAction.CommunityFeedController.getUsers}',
-								query,
-								function(result, event) {
-									var div = document.createElement('div');
-									div.innerHTML = result;
-									callback(JSON.parse(div.firstChild.nodeValue));
-								}
-							);
+				function initTextarea(element) {					
+					$(element).mentionsInput({					
+						onDataRequest:function (mode, charValue, query, callback) {
+							if(charValue == '@'){					
+								Visualforce.remoting.Manager.invokeAction(
+									'{!$RemoteAction.CommunityFeedController.getUsers}',
+									query,
+									function(result, event) {
+										var div = document.createElement('div');
+										div.innerHTML = result;
+										callback(JSON.parse(div.firstChild.nodeValue));
+									}
+								);
+							}else if(charValue == '#' && {!isTopicCreateable} && {!isTopicAssignmentCreateable}){
+								Visualforce.remoting.Manager.invokeAction(
+									'{!$RemoteAction.CommunityFeedController.getTopics}',
+									query,
+									function(result, event) {
+										var div = document.createElement('div');
+										div.innerHTML = result;
+										callback(JSON.parse(div.firstChild.nodeValue));
+									}
+								);
+							}
+
 						},
 						elastic: false
 					}).css('height','78px').focus();
@@ -1007,7 +1059,7 @@
 	</div>
 
 	<script>
-		function parseFeedBody(o){
+		function parseFeedBody(o,t){
 			var outString = "";
 			_.each(o.messageSegments,function(item){
 				if(item.record != null){
@@ -1020,12 +1072,32 @@
 				if(item.text != null && (item.type == "Text" || item.type == "Link")){
 					outString += item.text;
 				}
+				if(item.type == 'Hashtag'){
+					var topicObj = {}; _.each(_.values(t), function(val){topicObj[val.id] = val.name.toLowerCase()});
+					var itemText = item.text.substring(1).toLowerCase();
+					var equalsTopicsAndItem = _.contains(_.values(topicObj), itemText);
+					outString += equalsTopicsAndItem ? '<a href="{!$Page.CommunityTopic}?id='+_.invert(topicObj)[itemText]+'&pid={!parentId}">'+item.text+'</a>' : item.text;
+					
+				}
 			});
 			return outString;
 		}
 
 		function wrapnl(intext) {
 			return intext ? intext.replace(/\r\n/g, '<br />').replace(/[\r\n]/g, '<br />') : '';
+		}
+		function wraptop(inObj){
+			var outString = "";
+			var count = 1;
+			_.each(inObj, function(top){ 
+				outString += '<a href="{!$Page.CommunityTopic}?id='+top.id+'&pid={!parentId}">'+top.name+'</a>';
+				if(count < inObj.length){
+					outString += ', ';
+					count++;
+				}
+			});
+			return outString;
+							 
 		}
 		/*sforce.connection.sessionId = '{!$Api.Session_ID}';*/
 		$(document).ready(function() {

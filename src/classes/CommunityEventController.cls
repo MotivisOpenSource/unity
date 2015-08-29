@@ -305,7 +305,13 @@ public with sharing class CommunityEventController {
 			if (String.isBlank(event.Teaser__c) && String.isNotBlank(event.Description__c)) {
 				event.Teaser__c = event.Description__c.stripHtmlTags().abbreviate(140);
 			}
-
+			/*
+			if(event.Start__c >= event.End__c){
+				ApexPages.Message myMsg = new ApexPages.Message(ApexPages.Severity.ERROR, Label.ERR_Create_Event_Dates);
+				ApexPages.addMessage(myMsg);
+				return NULL;
+			}
+*/
 			if((!String.isBlank(connectedGroupStr) && !validateGroupStr(connectedGroupStr))
 				|| (event.Public__c == false && string.isBlank(connectedGroupStr))
 			){

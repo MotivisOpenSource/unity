@@ -1,0 +1,83 @@
+<apex:page controller="UnityAdminController" tabStyle="Community_Admins__c">
+
+<apex:form id="mainform">
+	<apex:sectionHeader title="Unity Admin"/>
+	<apex:pageBlock >
+		<apex:pageMessages id="pageMessages"/>
+		<apex:pageBlockSection id="crsection" title="{!$ObjectType.Community_Registration__c.Label}" columns="1">
+			<apex:pageBlockSectionItem >
+				<apex:outputPanel layout="none"/>
+				<apex:outputPanel layout="none">
+					<apex:commandButton action="{!saveCR}" value="{!$Label.BTN_Save}" rerender="crsection,pageMessages" rendered="{!crEdit}" status="pleasewait"/>
+					<apex:commandButton action="{!cancelCR}" value="{!$Label.BTN_Cancel}" rerender="crsection,pageMessages" rendered="{!crEdit}" status="pleasewait" immediate="true"/>
+					<apex:commandButton action="{!editCR}" value="{!$Label.BTN_Edit}" rerender="crsection,pageMessages" rendered="{!!crEdit}" status="pleasewait"/>
+				</apex:outputPanel>
+			</apex:pageBlockSectionItem>
+			<apex:repeat value="{!FieldsCR}" var="fs">
+				<apex:inputField value="{!cr[fs]}" rendered="{!crEdit}"/>
+				<apex:outputField value="{!cr[fs]}" rendered="{!!crEdit}"/>
+			</apex:repeat>
+		</apex:pageBlockSection>
+
+		<apex:pageBlockSection id="cssection" title="{!$ObjectType.Community_Settings__c.Label}" columns="1">
+			<apex:pageBlockSectionItem >
+				<apex:outputPanel layout="none"/>
+				<apex:outputPanel layout="none">
+					<apex:commandButton action="{!saveCS}" value="{!$Label.BTN_Save}" rerender="cssection,pageMessages" rendered="{!csEdit}" status="pleasewait"/>
+					<apex:commandButton action="{!cancelCS}" value="{!$Label.BTN_Cancel}" rerender="cssection,pageMessages" rendered="{!csEdit}" status="pleasewait" immediate="true"/>
+					<apex:commandButton action="{!editCS}" value="{!$Label.BTN_Edit}" rerender="cssection,pageMessages" rendered="{!!csEdit}" status="pleasewait"/>
+				</apex:outputPanel>
+			</apex:pageBlockSectionItem>
+			<apex:repeat value="{!FieldsCS}" var="fs">
+				<apex:inputField value="{!cs[fs]}" rendered="{!csEdit}"/>
+				<apex:outputField value="{!cs[fs]}" rendered="{!!csEdit}"/>
+			</apex:repeat>
+		</apex:pageBlockSection>
+
+		<apex:pageBlockSection id="ctssection" title="{!$ObjectType.Community_Template_Settings__c.Label}" columns="1">
+			<apex:pageBlockSectionItem >
+				<apex:outputPanel layout="none"/>
+				<apex:outputPanel layout="none">
+					<apex:commandButton action="{!saveCTS}" value="{!$Label.BTN_Save}" rerender="ctssection,pageMessages" rendered="{!ctsEdit}" status="pleasewait"/>
+					<apex:commandButton action="{!cancelCTS}" value="{!$Label.BTN_Cancel}" rerender="ctssection,pageMessages" rendered="{!ctsEdit}" status="pleasewait" immediate="true"/>
+					<apex:commandButton action="{!editCTS}" value="{!$Label.BTN_Edit}" rerender="ctssection,pageMessages" rendered="{!!ctsEdit}" status="pleasewait"/>
+				</apex:outputPanel>
+			</apex:pageBlockSectionItem>
+			<apex:repeat value="{!FieldsCTS}" var="fs">
+				<apex:inputField value="{!cts[fs]}" rendered="{!IF(ctsEdit && fs != colorSchemeName, true, false)}"/>
+				<apex:selectList value="{!cts[fs]}" size="1" rendered="{!IF(ctsEdit && fs == colorSchemeName, true, false)}">
+            		<apex:selectOptions value="{!colorSchemeItems}"/>
+       			</apex:selectList>
+				<apex:outputField value="{!cts[fs]}" rendered="{!!ctsEdit}"/>
+			</apex:repeat>
+		</apex:pageBlockSection>
+	</apex:pageBlock>
+</apex:form>
+<style>
+	.b-status {
+		position: fixed;
+		bottom: 20px;
+		right: 20px;
+		background: #ECF0F8;
+		padding: 15px 20px;
+		font-size: 1.4em;
+		font-weight: bold;
+		color: #333;
+		-moz-border-radius: 15px;
+		-webkit-border-radius: 15px;
+		border-radius: 15px;
+		border: solid 1px; opacity:0.8;
+	}
+	.b-status img {
+		vertical-align:middle;
+	}
+</style>
+<apex:actionStatus id="pleasewait">
+	<apex:facet name="start">
+		<apex:outputPanel layout="block" styleClass="b-status">
+			Proccessing...&nbsp;&nbsp;
+			<apex:image value="/img/loading32.gif" width="32px" height="32px"/>
+		</apex:outputPanel>
+	</apex:facet>
+</apex:actionStatus>
+</apex:page>

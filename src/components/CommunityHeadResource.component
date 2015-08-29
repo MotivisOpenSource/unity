@@ -37,16 +37,17 @@
     <link rel="stylesheet" href="{!$Resource.assets}/css/app.css"/>
 
     <!-- CSS Theme -->
-    <link rel="stylesheet" href="{!$Resource.assets}/css/theme-colors/default.css"/>
+    <!-- <link rel="stylesheet" href="{!$Resource.assets}/css/theme-colors/default.css"/> -->
 
     <!-- CSS Customization -->
     <link rel="stylesheet" href="{!$Resource.assets}/css/custom.css"/>
     <!-- Removed Inline Styles -->
     <link rel="stylesheet" href="{!$Resource.assets}/css/app/app.styles.css"/>
     <!-- Themes Styles -->
-    <link rel="stylesheet" href="{!$Resource.assets}/css/theme-colors/{!$Setup.Community_Template_Settings__c.Color_Scheme__c}.theme.css" rendered="{!$Setup.Community_Template_Settings__c.Color_Scheme__c}" />
-    
-    <apex:outputText value="{!$Setup.Community_Template_Settings__c.Color_Scheme__c}" style="display:none;"/>
+    <!-- <apex:outputPanel rendered="{!IF($Setup.Community_Template_Settings__c.Color_Scheme__c!='Green',true,false)}"> -->
+    	<link rel="stylesheet" href="{!$Resource.assets}/css/theme-colors/{!$Setup.Community_Template_Settings__c.Color_Scheme__c}.theme.css"/>
+    <!-- </apex:outputPanel> -->
+    <apex:outputText value="{!$Setup.Community_Template_Settings__c.Color_Scheme__c}" style="display:none;" />
     
     <script>
     	 //var df = '{!$Setup.Community_Template_Settings__c.Color_Scheme__c}';
