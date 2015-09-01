@@ -8,8 +8,9 @@ public with sharing class CommunityGroupDetailPageController {
 
 	public String groupRoleString {
 		get {
-			System.Debug(String.valueOf(groupRole).removeStart('Group'));
-			return String.valueOf(groupRole).removeStart('Group');
+			String groupRoleString = (groupRole != NULL) ? String.valueOf(groupRole).removeStart('Group') : '';
+			System.Debug(groupRoleString);
+			return groupRoleString;
 		}
 		set;
 	}
