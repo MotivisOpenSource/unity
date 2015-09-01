@@ -308,6 +308,7 @@
         <members>LBL_Add</members>
         <members>LBL_Add_Photo</members>
         <members>LBL_Add_Remove_Members</members>
+        <members>LBL_Admin_Page_Group_Tag_Setting_Error</members>
         <members>LBL_AgreeToTerms</members>
         <members>LBL_AllGroups</members>
         <members>LBL_Assign_New_Owner</members>
@@ -331,6 +332,7 @@
         <members>LBL_CreateGroup_NoTagsMessage</members>
         <members>LBL_CreateGroup_PictureUpload</members>
         <members>LBL_CreateGroup_Tags</members>
+        <members>LBL_Create_Max_Tag_Reached_Error</members>
         <members>LBL_Current_Events_Title</members>
         <members>LBL_Current_News_Title</members>
         <members>LBL_Current_Owner</members>
