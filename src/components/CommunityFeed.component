@@ -1,7 +1,7 @@
 <apex:component controller="CommunityFeedController">
 	<apex:attribute name="pid" type="String" assignTo="{!parentId}" required="false" description="Parent Id" />
 	<apex:attribute name="ft" type="String" assignTo="{!feedType}" required="false" description="Feed Type" />
-	<apex:attribute name="fm" type="Boolean" assignTo="{!fullMode}" required="false" default="true" description="Feed Type" />
+	<apex:attribute name="fm" type="Boolean" assignTo="{!fullMode}" required="false" default="true" description="Full Mode" />
 	<apex:attribute name="fu" type="Boolean" assignTo="{!showFileUpload}" required="false" default="false" description="Show File Upload" />
 	<apex:attribute name="sjcb" type="Boolean" required="false" default="false" description="show Join the Conversation button" />
 	<apex:attribute name="tf" type="Boolean" required="false" default="false" description="show feeds from" />
@@ -47,9 +47,9 @@
 			</script>
 			<script id="tto" type="text/template">
 				<% _.each(rc.elements, function(p){ %>
-				<div class="comment">
+				<div class="comment media-body">
 					<img src="<%= p.actor.photo.smallPhotoUrl %>" alt=""/>
-					<div class="overflow-h">
+					<div class="overflow-h" onclick="window.location.href = '<%= p.parentLink %>';">
 						<strong><%= p.actor.displayName %> <%= p.actor.role !== null ?  '(' + p.actor.role + ')': '' %> <small class="pull-right"><%= p.dateStr %></small></strong>
 						<% if(p.parentType != null && {!tf}){ %>
 							<p><strong><a class="<%= p.parentIcon %> font-weight-bold" href="<%= p.parentLink %>"> <%= p.parentType %> - <%= p.parentName %> <% if(p.parentAcssesType != null){ %> (<%= p.parentAcssesType %>) <% } %></a>
@@ -58,6 +58,17 @@
 						<p><% 	var pp = parseFeedBody(p.body);
 								print(wrapnl(pp)); %>
 						</p>
+
+						<% if (p.showLink) { %>
+						<div class="d-link">
+						<a href="<%= p.linkHref %>" target="_blank" >
+							<i class="fa fa-link"></i>
+							<%= p.linkName %><br>
+						</a>
+						<% print(wrapnl(p.linkHref)); %>
+						</div>
+						<% } %>
+
 						<ul class="list-inline comment-list">
 							<li><i class="fa fa-comments"></i> <a href="#"><%= p.total %></a></li>
 						</ul>
@@ -117,18 +128,6 @@
 							<p>	<% var p2p = parseFeedBody(p2.body);
 								print(wrapnl(p2p)); %>
 							</p> 
-						<% } %>
-						<% if (p2.showLink) { %>
-							<p>	<% var p2p = parseFeedBody(p2.body);
-								print(wrapnl(p2p)); %>
-							</p> 
-						<div class="d-link">
-						<a href="<%= p2.linkHref %>" target="_blank" >
-							<i class="fa fa-link"></i>
-							<%= p2.linkName %><br>
-						</a>
-						<% print(wrapnl(p2.linkHref)); %>
-						</div>
 						<% } %>
 						<% if (p2.showContent) { %>
 							<p>	<% var p2p = parseFeedBody(p2.body);
