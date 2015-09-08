@@ -1,11 +1,12 @@
 <apex:component controller="CommunityFeedController">
 	<apex:attribute name="pid" type="String" assignTo="{!parentId}" required="false" description="Parent Id" />
 	<apex:attribute name="ft" type="String" assignTo="{!feedType}" required="false" description="Feed Type" />
-	<apex:attribute name="fm" type="Boolean" assignTo="{!fullMode}" required="false" default="true" description="Feed Type" />
+	<apex:attribute name="fm" type="Boolean" assignTo="{!fullMode}" required="false" default="true" description="Full Mode" />
 	<apex:attribute name="fu" type="Boolean" assignTo="{!showFileUpload}" required="false" default="false" description="Show File Upload" />
 	<apex:attribute name="sjcb" type="Boolean" required="false" default="false" description="show Join the Conversation button" />
 	<apex:attribute name="tf" type="Boolean" required="false" default="false" description="show feeds from" />
 	<apex:attribute name="gID" type="Boolean" assignTo="{!grID}" required="false" default="false" description="ID for Group" />
+	<apex:attribute name="he" type="Boolean" assignTo="{!hideEventBtn}" required="false" default="false" description="hide create event button" />
 	<script src="{!$Resource.CommunityResources}/js/underscore/underscore-min.js"></script>
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/mentions/jquery.mentionsInput.js" ></script>
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/mentions/jquery.events.input.js" ></script>

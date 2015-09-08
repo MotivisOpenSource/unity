@@ -6,6 +6,7 @@ global with sharing class CommunityFeedController {
 	public static String testResult;
 	public static String feedElIdForTest;
 	public Boolean grID { get; set; }
+	public Boolean hideEventBtn { get { return hideEventBtn == true; } set; }
 	public String parentId { get { return parentId == NULL ? UserInfo.getUserId() : parentId; } set; }
 	public String feedType { get;set; }
 	public Boolean fullMode { get;set; }
@@ -1143,7 +1144,7 @@ global with sharing class CommunityFeedController {
 				actionAvailable.containsKey(caa[3])
 				&& ( (caa[3] != 'File' && caa[3] != 'Create Event')
 					|| (caa[3] == 'File' && showFileUpload && CommunityUtils.checkAPIEnable())
-					|| (caa[3] == 'Create Event' && CommunityUtils.checkCRUDforObject(CommunityUtils.getPackagePrefix()+'Community_Events__c').get('isCreateable') && CommunityUtils.checkAPIEnable())
+					|| (caa[3] == 'Create Event' && hideEventBtn != true && CommunityUtils.checkCRUDforObject(CommunityUtils.getPackagePrefix()+'Community_Events__c').get('isCreateable') && CommunityUtils.checkAPIEnable())
 				)
 			) {
 				resultList.add(new ChatterActionItem(caa[0],caa[1],caa[2]));
@@ -1328,18 +1329,20 @@ global with sharing class CommunityFeedController {
 
 			for(String fieldName : fieldNames){
 				Schema.DescribeFieldResult dfr = mfields.get(fieldName).getDescribe();
-				LayoutComponent lc = new LayoutComponent();
-				lc.details = new LayoutComponentDetail();
-				lc.details.type = String.valueOf(dfr.getType()).toLowerCase();
-				chatActionLI.add(new ChatterActionLayoutItem(
-					dfr.getLabel(),
-					dfr.getName(),
-					lc.getFieldType(),
-					lc.getInputType(),
-					String.valueOf(dfr.getDefaultValue()),
-					'false',
-					nameReq.get(fieldName),
-					lc.getValidationClass()));
+				if (dfr.isCreateable()) {
+					LayoutComponent lc = new LayoutComponent();
+					lc.details = new LayoutComponentDetail();
+					lc.details.type = String.valueOf(dfr.getType()).toLowerCase();
+					chatActionLI.add(new ChatterActionLayoutItem(
+						dfr.getLabel(),
+						dfr.getName(),
+						lc.getFieldType(),
+						lc.getInputType(),
+						String.valueOf(dfr.getDefaultValue()),
+						'false',
+						nameReq.get(fieldName),
+						lc.getValidationClass()));
+				}
 			}
 			result = new ChatterActionLayout(fName, objName, null, chatActionLI, null, false, 'Save'); 
 		}

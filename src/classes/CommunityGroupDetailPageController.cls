@@ -72,7 +72,7 @@ public with sharing class CommunityGroupDetailPageController {
 		ConnectApi.GroupMembershipType oldGroupRole = groupRole;
 		groupRole = CommunityUtils.membership(UserInfo.getUserId(), control.Id, groupMode);
 		initMembers();
-		if (groupRole == ConnectApi.GroupMembershipType.NotAMember) {
+		if (groupRole != ConnectApi.GroupMembershipType.NotAMemberPrivateRequested) {
 			pr = Page.CommunityGroupDetailPage;
 			pr.getParameters().put('gr', chatterGroup.Id);
 			pr.setRedirect(true);
@@ -134,9 +134,10 @@ public with sharing class CommunityGroupDetailPageController {
 	public Boolean showCreateEvent {
 		get {
 			return chatterGroup != NULL
-					&& SObjectType.Community_Events__c.isCreateable()
-					&& SObjectType.Community_Event_Tag__c.isCreateable()
-					&& (groupRole == ConnectApi.GroupMembershipType.GroupOwner || groupRole == ConnectApi.GroupMembershipType.GroupManager || groupRole == ConnectApi.GroupMembershipType.StandardMember);
+					&& (CommunityUtils.isModifyAllData()
+						|| SObjectType.Community_Events__c.isCreateable()
+						&& SObjectType.Community_Event_Tag__c.isCreateable()
+						&& (groupRole == ConnectApi.GroupMembershipType.GroupOwner || groupRole == ConnectApi.GroupMembershipType.GroupManager || groupRole == ConnectApi.GroupMembershipType.StandardMember));
 		}
 	}
 
