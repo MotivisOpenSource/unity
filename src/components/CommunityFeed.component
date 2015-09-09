@@ -960,7 +960,9 @@
 										format:'m/d/Y h:i A',
 										formatTime:'h:i A',
 										formatDate:'m/d/Y',
-										step:30
+										step:30,
+										closeOnTimeSelect: true,
+										lang: 'en'
 									});
 								}
 								//date
@@ -972,6 +974,8 @@
 										minDate:datetime,
 										format:'m/d/Y',
 										formatDate:'m/d/Y',
+										closeOnDateSelect: true,
+										lang: 'en'
 									});
 								}
 							}
