@@ -92,7 +92,9 @@
 			var currentdate = new Date(); 
 			jQuery('.cs-datetime').datetimepicker({
 				format: ucDateFormat() + ' ' + ucTimeFormat(),
-				step:30
+				step:30,
+				closeOnTimeSelect: true,
+				lang: 'en'
 			});
 		}
 		//date
@@ -100,6 +102,8 @@
 			jQuery('.cs-date').datetimepicker({
 				timepicker:false,
 				format: ucDateFormat(),
+				closeOnDateSelect: true,
+				lang: 'en'
 			});
 		}
 		function ucDateFormat() {
