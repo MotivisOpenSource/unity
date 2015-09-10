@@ -20,7 +20,7 @@
 								<h2 class="heading-md"><strong>{!StudentName}</strong></h2>
 							</div>
 							<div class="col-md-6">
-								<apex:form id="btnaction" > 
+								<apex:form id="btnaction" rendered="{!isAvailableUser}">
 								<!-- <apex:commandLink id="btnactionLink" action="{!subscribeUser}" styleClass="btn-u {!IF(isSubscribe,'btn-u-blue','')} pull-right margin-right-5" rerender="btnaction" onclick="$(this).find('i').attr('class','fa fa-spinner fa-pulse'); $('[id$=btnactionLink]').addClass('disabled');'" onComplete="$('[id$=btnactionLink]').removeClass('disabled');"> -->
 									<apex:commandLink id="btnactionLink"  
 										action="{!subscribeUser}" 
@@ -31,6 +31,9 @@
 									</apex:commandLink>
 								</apex:form>
 							</div>
+						</apex:outputPanel>
+						<apex:outputPanel styleClass="calert" rendered="{!!isAvailableUser}">
+							<apex:pageMessage summary="{!$Label.ERR_Profile_Not_Available}" severity="error" strength="1" rendered="{!!isAvailableUser}"/>
 						</apex:outputPanel>
 						<div class="tab-v1">
 							<apex:outputPanel layout="none" rendered="{!current}">
@@ -47,7 +50,9 @@
 							<apex:outputPanel layout="none" rendered="{!!current}">
 								<ul class="nav nav-justified nav-tabs">
 									<li class="active"><a data-toggle="tab" href="#profile">{!$Label.LBL_Profile}</a></li>
-									<li><a data-toggle="tab" href="#feed">{!$Label.LBL_Feed}</a></li>
+									<apex:outputPanel layout="none" rendered="{!isAvailableUser}">
+										<li><a data-toggle="tab" href="#feed">{!$Label.LBL_Feed}</a></li>
+									</apex:outputPanel>
 								</ul>
 							</apex:outputPanel>
 							
@@ -366,7 +371,7 @@
 									</script>
 								</div>
 								</apex:outputPanel>
-								<apex:outputPanel layout="none" rendered="{!!current}">
+								<apex:outputPanel layout="none" rendered="{!!current && isAvailableUser}">
 									<div id="feed" class="profile-edit tab-pane fade">
 										<c:CommunityFeed pid="{!currentUserId}" tf="true"/>
 									</div>

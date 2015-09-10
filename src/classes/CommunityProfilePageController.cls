@@ -2,6 +2,7 @@ global with sharing class CommunityProfilePageController {
 
 	public Boolean allOk { get;set; }
 	public Boolean current { get;set; }
+	public Boolean isAvailableUser { get;set; }
 	public String currentProfileId { get;set; }
 	public Community_Profile__c currentProfile { get;set; }
 	public List<CommunityFieldLayout> overviewTab { get;set; }
@@ -33,16 +34,22 @@ global with sharing class CommunityProfilePageController {
 				List<User> currentUserList2 = CommunityHelperWithoutSharing.getCommunityUsers(null,100,new List<String>{'ContactId','FullPhotoUrl'},'Name',true);
 				Boolean userFound = currentUserList2.size() > 0;
 				currentUserId = userFound ? currentUserList2[0].Id : NULL;
+				isAvailableUser = currentUserList2[0].IsActive == true;
 				FullPhotoUrl = userFound ? currentUserList2[0].FullPhotoUrl : '/profilephoto/005/F';
 			}
 			else {
 				currentUserId = String.isNotBlank(tempUserId) ? Id.valueOf(tempUserId) : UserInfo.getUserId();
-				User currentUserLocal2 = [SELECT ContactId, Community_Contact_ID__c, FullPhotoUrl FROM User WHERE Id = :currentUserId];
+				User currentUserLocal2 = [SELECT ContactId, Community_Contact_ID__c, FullPhotoUrl, IsActive FROM User WHERE Id = :currentUserId];
+				isAvailableUser = currentUserLocal2.IsActive == true;
 				contactId = currentUserLocal2.ContactId != NULL ? currentUserLocal2.ContactId : currentUserLocal2.Community_Contact_ID__c;
 				FullPhotoUrl = currentUserLocal2.FullPhotoUrl;
 			}
 			allOk = contactId != NULL;
 			current = (String.isNotBlank(currentUserId) && currentUserId == UserInfo.getUserId());
+			if (isAvailableUser) {
+				List<NetworkMember> userNetworkMember = [SELECT Id, MemberId FROM NetworkMember WHERE MemberId = :currentUserId AND NetworkId = :Network.getNetworkId()];
+				isAvailableUser = !userNetworkMember.isEmpty();
+			}
 		}
 		catch(Exception e) {
 			allOk = false;
