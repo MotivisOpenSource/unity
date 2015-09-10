@@ -404,7 +404,18 @@ public with sharing class CommunityUtils {
 
 
 		return result;
-	} 
+	}
+
+	public static Boolean checkGroupOwnerIsActive(Id chatterGroupId) {
+		Boolean result = true;
+		List<CollaborationGroup> cgList = [SELECT Id, OwnerId, Owner.IsActive FROM CollaborationGroup WHERE Owner.IsActive = true AND Id = :chatterGroupId];
+		result = !cgList.isEmpty();
+		if (result) {
+			List<NetworkMember> nmList =  [SELECT Id, MemberId FROM NetworkMember WHERE MemberId =: cgList[0].OwnerId AND NetworkId = :Network.getNetworkId()];
+			result = !nmList.isEmpty();
+		}
+		return result;
+	}
 
 	public static Boolean isFeedTrakingEnabled (String objName, Map<String, String> reqFields){
 		
