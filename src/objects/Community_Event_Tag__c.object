@@ -44,9 +44,9 @@
         <actionName>View</actionName>
         <type>Default</type>
     </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
     <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
     <deploymentStatus>Deployed</deploymentStatus>
-    <deprecated>false</deprecated>
     <description>This object allows Tags and a Group to be associated to an Event record.</description>
     <enableActivities>false</enableActivities>
     <enableBulkApi>true</enableBulkApi>
@@ -58,7 +58,6 @@
     <fields>
         <fullName>Community_Event__c</fullName>
         <deleteConstraint>SetNull</deleteConstraint>
-        <deprecated>false</deprecated>
         <description>Allows tags to be associated with this Event record.</description>
         <externalId>false</externalId>
         <label>Community Event</label>
@@ -72,7 +71,6 @@
     <fields>
         <fullName>Community_Group_Control__c</fullName>
         <deleteConstraint>SetNull</deleteConstraint>
-        <deprecated>false</deprecated>
         <description>Allows a Community Group to be associated with a Community Event.  Not mandatory.  Only used when joining a Community Event to a Chatter Group.</description>
         <externalId>false</externalId>
         <label>Community Group Control</label>
@@ -86,7 +84,6 @@
     <fields>
         <fullName>Community_Tag__c</fullName>
         <deleteConstraint>SetNull</deleteConstraint>
-        <deprecated>false</deprecated>
         <description>Allows tags to be associated with this Event record.</description>
         <externalId>false</externalId>
         <label>Community Tag</label>
@@ -99,7 +96,6 @@
     </fields>
     <fields>
         <fullName>Event_Name__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents the Name of the related Event.</description>
         <externalId>false</externalId>
         <formula>Community_Event__r.Name__c</formula>
@@ -113,7 +109,6 @@
     </fields>
     <fields>
         <fullName>Event_Public__c</fullName>
-        <deprecated>false</deprecated>
         <description>Indicates if the related Event is flagged as Public.</description>
         <externalId>false</externalId>
         <formula>Community_Event__r.Public__c</formula>
@@ -125,7 +120,6 @@
     </fields>
     <fields>
         <fullName>Event_Tag_SF_ID__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents the 18 digit unique Salesforce ID.</description>
         <externalId>false</externalId>
         <formula>CASESAFEID(Id)</formula>
@@ -139,7 +133,6 @@
     </fields>
     <fields>
         <fullName>Event_Teaser__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents the Teaser of the related Event.</description>
         <externalId>false</externalId>
         <formula>Community_Event__r.Teaser__c</formula>
@@ -153,7 +146,6 @@
     </fields>
     <fields>
         <fullName>Event_Time__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents the Start and End time of the related Event.</description>
         <externalId>false</externalId>
         <formula>TEXT(MONTH(DATEVALUE(Community_Event__r.Start__c)))
@@ -179,7 +171,6 @@ TEXT(YEAR(DATEVALUE(Community_Event__r.End__c)))</formula>
     </fields>
     <fields>
         <fullName>Group_Discoverable__c</fullName>
-        <deprecated>false</deprecated>
         <description>Indicates if the Group related to the Community Event is Discoverable by everyone in the Community.</description>
         <externalId>false</externalId>
         <formula>Community_Group_Control__r.Discoverable__c</formula>
@@ -191,7 +182,6 @@ TEXT(YEAR(DATEVALUE(Community_Event__r.End__c)))</formula>
     </fields>
     <fields>
         <fullName>Group_Purpose__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents the Purpose of the related Group.</description>
         <externalId>false</externalId>
         <formula>TEXT( Community_Group_Control__r.Purpose__c )</formula>
@@ -205,7 +195,6 @@ TEXT(YEAR(DATEVALUE(Community_Event__r.End__c)))</formula>
     </fields>
     <fields>
         <fullName>Group_Status__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents the Status of the related Group.</description>
         <externalId>false</externalId>
         <formula>TEXT( Community_Group_Control__r.Status__c )</formula>
@@ -219,7 +208,6 @@ TEXT(YEAR(DATEVALUE(Community_Event__r.End__c)))</formula>
     </fields>
     <fields>
         <fullName>Group_Type__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents the Type of Group that is related to the Community Event record.</description>
         <externalId>false</externalId>
         <formula>TEXT( Community_Group_Control__r.Type__c )</formula>
@@ -233,7 +221,6 @@ TEXT(YEAR(DATEVALUE(Community_Event__r.End__c)))</formula>
     </fields>
     <fields>
         <fullName>Theme__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents the Theme the related Tag is associated with.</description>
         <externalId>false</externalId>
         <formula>HYPERLINK(&quot;/&quot;&amp; Community_Tag__r.Community_Theme__r.Id, Community_Tag__r.Theme_Name__c ,&quot;_self&quot;)</formula>
@@ -272,8 +259,8 @@ TEXT(YEAR(DATEVALUE(Community_Event__r.End__c)))</formula>
         <customTabListAdditionalFields>Community_Group_Control__c</customTabListAdditionalFields>
         <customTabListAdditionalFields>CREATED_DATE</customTabListAdditionalFields>
         <excludedStandardButtons>New</excludedStandardButtons>
-        <excludedStandardButtons>ChangeOwner</excludedStandardButtons>
         <excludedStandardButtons>Accept</excludedStandardButtons>
+        <excludedStandardButtons>ChangeOwner</excludedStandardButtons>
         <lookupDialogsAdditionalFields>Community_Tag__c</lookupDialogsAdditionalFields>
         <lookupDialogsAdditionalFields>Theme__c</lookupDialogsAdditionalFields>
         <lookupDialogsAdditionalFields>Community_Event__c</lookupDialogsAdditionalFields>

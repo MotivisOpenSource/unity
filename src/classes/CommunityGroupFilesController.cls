@@ -239,12 +239,6 @@ public with sharing class CommunityGroupFilesController {
 		List<BlockWrapper> result = new List<BlockWrapper>();
 		String escapedQuery = String.escapeSingleQuotes(query) + '%';
 		List<User> uList = CommunityHelperWithoutSharing.getCommunityUsers(escapedQuery, 100, null,'Name',true);
-		/*List<User> uList = [
-			SELECT Id, Name FROM User 
-			WHERE (ContactId != NULL OR Community_Contact_ID__c != NULL) AND isActive = true AND Id != :UserInfo.getUserId()
-			AND (FirstName LIKE :escapedQuery OR LastName LIKE :escapedQuery OR Name LIKE :escapedQuery)
-			ORDER BY Name ASC
-				];*/
 		for (User uItem : uList) {
 			result.add(new BlockWrapper(uItem.Id, uItem.Name));
 		}

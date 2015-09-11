@@ -2,6 +2,14 @@ public without sharing class CommunityHelperWithoutSharing {
 	public CommunityHelperWithoutSharing() {
 		
 	}
+	public static String getCommunityGroupControl(ID chatterGroupId) {
+		if(chatterGroupId != null) {
+			List<Community_Group_Control__c> lgc = [SELECT ID,Name FROM Community_Group_Control__c Where Chatter_Group_ID__c = :chatterGroupId LIMIT 1];
+			if(lgc.size()>0) return lgc[0].Id;
+			else return null;
+		}
+		return null;
+	}
 	
 	
 	public static List<User> getCommunityUsers(String querySearchName, Integer queryLimit, List<String> listRequestedFields, String sortColumn, Boolean SortDitecrion) {

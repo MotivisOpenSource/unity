@@ -141,7 +141,7 @@ public with sharing class CommunityEventController {
 				(e.End__c != NULL ? datetimeToUTC(e.End__c) : ''),
 				(e.Street_Address__c != NULL ? e.Street_Address__c : ''),
 				datetimeToUTC(DateTime.now()),
-				(e.Description__c != NULL ? e.Description__c : '')
+				(e.Description__c != NULL ? e.Description__c.stripHtmlTags().replace('\n','\\n').replace('\r','\\r') : '')
 			}
 		);
 		Blob icsFile = Blob.valueOf(icsBody);
@@ -305,16 +305,8 @@ public with sharing class CommunityEventController {
 			if (String.isBlank(event.Teaser__c) && String.isNotBlank(event.Description__c)) {
 				event.Teaser__c = event.Description__c.stripHtmlTags().abbreviate(140);
 			}
-			/*
-			if(event.Start__c >= event.End__c){
-				ApexPages.Message myMsg = new ApexPages.Message(ApexPages.Severity.ERROR, Label.ERR_Create_Event_Dates);
-				ApexPages.addMessage(myMsg);
-				return NULL;
-			}
-*/
-			if((!String.isBlank(connectedGroupStr) && !validateGroupStr(connectedGroupStr))
-				|| (event.Public__c == false && string.isBlank(connectedGroupStr))
-			){
+	
+			if(!validateGroupStr(connectedGroupStr) || (event.Public__c == false && string.isBlank(connectedGroupStr))){
 				throw new CommunityEventException(Label.ERR_Please_Select_Group);
 			}
 
@@ -349,11 +341,11 @@ public with sharing class CommunityEventController {
 						ORDER BY CreatedDate DESC
 					];	
 				// check if the group exist
-				if (communityGroupControll.isEmpty()) {
-					//ApexPages.Message myMsg = new ApexPages.Message(ApexPages.Severity.ERROR,Label.ERR_Cant_Found_Group + connectedGroupStr );
-					//ApexPages.addMessage(myMsg);
-					throw new CommunityEventException(Label.ERR_Cant_Found_Group + connectedGroupStr);
-				}
+				//if (communityGroupControll.isEmpty()) {
+				//	//ApexPages.Message myMsg = new ApexPages.Message(ApexPages.Severity.ERROR,Label.ERR_Cant_Found_Group + connectedGroupStr );
+				//	//ApexPages.addMessage(myMsg);
+				//	throw new CommunityEventException(Label.ERR_Cant_Found_Group + connectedGroupStr);
+				//}
 				// delete all events if there was more than one record	
 				if(!(communityEventTagList.Size() == 1 && communityEventTagList[0].Community_Group_Control__c == communityGroupControll[0].Id )) {
 					
@@ -375,6 +367,8 @@ public with sharing class CommunityEventController {
 	}
 
 	public Boolean validateGroupStr(String groupStr){
+		if(String.isBlank(groupStr)) 
+			return true;		
 		String[] groupsInStringArray = getAllGroupsInStringArray();
 		for(String groupNameStr : groupsInStringArray){
 			if (groupStr.equalsIgnoreCase(groupNameStr)){

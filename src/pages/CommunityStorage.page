@@ -1,3 +1,0 @@
-<apex:page standardController="Community_Attachment__c" extensions="CommunityStorage" action="{!redirectLink}" showHeader="false" sideBar="false" standardStylesheets="false">
-{!errorMessage}
-</apex:page>

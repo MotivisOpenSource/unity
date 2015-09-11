@@ -61,7 +61,7 @@ public with sharing class CommunityResourceController {
 
 	public String getPrimaryTagHtml() {
 		String result = '';
-		if (mode == 'edit' && resource.Primary_Tag__c != NULL) {
+		if (mode == 'edit' && resource.Primary_Tag__c != NULL && resource.Id != NULL) {
 			result = '<span id="' + resource.Primary_Tag__c + '" class="item guestItem"><span>';
 			result += resource.Primary_Tag__r.Community_Theme__r.Name + ' > ' + resource.Primary_Tag__r.Name;
 			result += '</span><a href="javascript:;" onclick="removePrimaryTag(\'' + resource.Primary_Tag__c;

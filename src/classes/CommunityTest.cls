@@ -1,7 +1,7 @@
 @isTest
 private class CommunityTest {
 /*Page Controllers Tests*/
-// test commit
+
 	static testMethod void test_CommunityNews() {
 		Community_Theme__c cth = new Community_Theme__c(Name='t',Theme_Type__c='Interest');
 		insert cth;
@@ -37,9 +37,9 @@ private class CommunityTest {
 		cnc2c.initFromEdit();
 
 		insert new Community_News__c(Title__c='t',Teaser__c='t',Entry_Date__c=Datetime.now(),Expiration_Date__c=Datetime.now().addDays(1));
-
+				
 		CommunityNewsController cnc3 = new CommunityNewsController(new ApexPages.StandardController(cnc.news));
-		cnc3.initFromView();
+		cnc3.initFromView();		
 		cnc3.mode = 'view';
 		cnc3.init();
 		cnc3.cancel();
@@ -48,11 +48,11 @@ private class CommunityTest {
 		String tst = cnc3.urlForEditNews;
 		tst = cnc3.urlForNewNews;
 		tst = cnc3.urlForCloneNews;
-
+		
 		CommunityNewsController cnc4 = new CommunityNewsController();
 		cnc4.initFromList();
 		ApexPages.currentPage().getParameters().put('t',ct.Id);
-
+		
 		cnc4.newsPageNumber = 0;
 		cnc4.newsNextPage();
 		cnc4.newsLastPage();
@@ -61,7 +61,7 @@ private class CommunityTest {
 		cnc4.newsPageNumber = 2;
 		cnc4.newsPreviousPage();
 		cnc4.newsFirstPage();
-
+		
 	}
 
 	static testMethod void test_CommunityResources() {
@@ -83,7 +83,7 @@ private class CommunityTest {
 		crc.imgBody = Blob.valueOf('blob');
 		crc.imgFileName = 'ifn';
 		crc.saveResource();
-
+		
 		System.assertEquals([SELECT Name,Id From Community_Resource__c Where Name='r' ][0].Name,'r');
 
 		CommunityResourceController crc2 = new CommunityResourceController(new ApexPages.StandardController(crc.resource));
@@ -98,7 +98,7 @@ private class CommunityTest {
 		crc2.getTags();
 		crc2.getAvailablePriTags();
 	}
-
+	
 	static testMethod void test_CommunityGroupCreate() {
 		Community_Theme__c cth = new Community_Theme__c(Name='t',Theme_Type__c='Interest');
 		insert cth;
@@ -115,7 +115,7 @@ private class CommunityTest {
 		cgcc.currentGroup.Discoverable__c = true;
 		CommunityGroupCreateController.checkAvailability(cgcc.currentGroup.Name);
 		cgcc.doSubmit();
-
+		
 		System.AssertEquals([SELECT Name, Type__c, Description__c FROM Community_Group_Control__c WHERE Name = 'cc' AND Type__c = 'Public'][0].Name,'cc');
 		String txt = cgcc.headerText;
 
@@ -143,8 +143,8 @@ private class CommunityTest {
 		cgcc.initFromCreate();
 		cgcc.currentGroup.Status__c = 'Pending';
 		update cgcc.currentGroup;
-
-
+		
+		
 		cgcc.initFromCreate();
 		cgcc.getTermsAndConditions();
 		txt = cgcc.headerText;
@@ -152,7 +152,7 @@ private class CommunityTest {
 
 		cgcc.cancel();
 	}
-
+	
 
     @IsTest(SeeAllData=true)
 	static void test_CommunityProfile() {
@@ -182,9 +182,9 @@ private class CommunityTest {
 		insert cg;
 		CollaborationGroupMember cgm = new CollaborationGroupMember(CollaborationGroupId=cg.id,MemberId = u.Id,NotificationFrequency='P');
 		insert cgm;
-
+		
 		System.debug('net -'+ Network.getNetworkId());
-
+		
 		CommunityProfilePageController.DigestItem di = new CommunityProfilePageController.DigestItem(cgm);
 		cppc.getDigestSettings();
 		cppc.getDefaultDigest();
@@ -230,7 +230,7 @@ private class CommunityTest {
 		Boolean ed = cec.permissionsEdit;
 		Boolean cl = cec.permissionsClone;
 		Boolean sb = cec.permissionShareBanned;
-
+		
 		PageReference pr1 = cec.initFromView();
 		System.assertEquals(true, pr1 != null);
 		cec.initFromEdit();
@@ -320,7 +320,7 @@ private class CommunityTest {
 		User u1 = new User(alias='alias1', email='email1@email.com', emailencodingkey='UTF-8', lastname='lastname1', firstname = 'firstName1', languagelocalekey='en_US',
 			localesidkey='en_US', profileid = profile.Id, timezonesidkey='America/Los_Angeles', username='ttsde.tedf21@testmail.com',
 			FederationIdentifier='TestContactName.TestContactLastname21', Community_Contact_ID__c=con.Id);
-		insert u1;
+		insert u1;	
 
 		EntitySubscription es = new EntitySubscription(ParentId = u1.Id, SubscriberId = u.Id);
 		insert es;
@@ -356,7 +356,7 @@ private class CommunityTest {
 			Type__c = 'Private'
 		);
 		insert c1;
-		Test.setCurrentPage(Page.CommunityGroupDetailPage);
+		Test.setCurrentPage(Page.CommunityGroupDetailPage);	
 		ApexPages.currentPage().getParameters().put('gr',group1.Chatter_Group_ID__c);
 		ApexPages.currentPage().getParameters().put('u',u.Id);
 		CommunityGroupDetailPageController.toggleSubscriber(u.Id);
@@ -370,8 +370,8 @@ private class CommunityTest {
 		cgc.getEvents();
 		Boolean b = cgc.showCreateEvent;
 		cgc.groupMode = '1';
-		cgc.performGroupMembershipAction();
-		cgc.getRequestCount();
+		cgc.performGroupMembershipAction();	
+		cgc.getRequestCount();		
 		Community_Events__c event = new Community_Events__c();
 		event.Name__c = 'Event Test';
 		event.Start__c = system.now();
@@ -383,7 +383,7 @@ private class CommunityTest {
 		CommunityGroupDetailPageController.GroupEvent ge = new CommunityGroupDetailPageController.GroupEvent(event);
 		cgc.control = group1;
 		cgc.accepted = false;
-		cgc.requesterId = u.Id;
+		cgc.requesterId = u.Id;	
 	}
 
 	static testMethod void test_CommunityGroupManageController() {
@@ -475,7 +475,7 @@ private class CommunityTest {
 		insert cth;
 		Community_Tag__c ct = new Community_Tag__c(Name='t',Community_Theme__c=cth.Id);
 		insert ct;
-
+		
 		//add user and account
 		Account acc = new Account(Name='testAccount');
 		insert acc;
@@ -511,16 +511,16 @@ private class CommunityTest {
 			crtc.checkAndPrepareMenu();
 			crtc.getDisabledNext();
 			System.AssertEquals(String.valueOf(Page.CommunityHome),String.valueOf(crtc.init()));
-			CommunityRegTermsController.Menu leftSideBar = new CommunityRegTermsController.Menu();
+			CommunityRegTermsController.Menu leftSideBar = new CommunityRegTermsController.Menu();	
 				leftSideBar.getLastStep();
-				leftSideBar.getCurrentStepName();
+				leftSideBar.getCurrentStepName();	
 			CommunityRegTermsController.MenuItem mi = new CommunityRegTermsController.MenuItem( 'n', true, true, 1);
-			mi.getStepParam();
+			mi.getStepParam();			
 		}
 	}
 
 	@IsTest(SeeAllData=true)
-	static void test_CommunitySearchController() {
+	static void test_CommunitySearchController() {		
 		Test.setCurrentPage(Page.CommunitySearch);
 		CommunitySearchController csc1 = new CommunitySearchController();
 		ApexPages.currentPage().getParameters().put('s','cat');
@@ -542,30 +542,30 @@ private class CommunityTest {
 		csc1.getGroups();
 		System.Debug(csc1.getGroups());
 		System.AssertEquals(csc1.getGroups().totalRecords>0,false); ///////////////?
-		csc1.getResources();
+		csc1.getResources();		
 		CommunitySearchController.SearchItem s21 = csc2.getNews();
 		CommunitySearchController.SearchItem s22 = csc2.getEvents();
 		CommunitySearchController.SearchItem s23 = csc2.getGroups();
 		CommunitySearchController.SearchItem s24 = csc2.getResources();
-		csc2.getFilterName();
+		csc2.getFilterName();		
 		CommunitySearchController.SearchItem s3 = csc3.getNews();
 		csc3.getEvents();
-		csc3.getGroups();
+		csc3.getGroups();		
 		csc4.getNews();
 		csc4.getEvents();
 		csc4.getGroups();
 		csc4.getResources();
-		csc4.getFilterName();
+		csc4.getFilterName();		
 		CommunitySearchController.SearchItem si1 = new CommunitySearchController.SearchItem([SELECT ID, NAME__c, Teaser__c, Start__c FROM Community_Events__c],1);
 		CommunitySearchController.SearchItem si2 = new CommunitySearchController.SearchItem([SELECT ID, Title__c, Teaser__c, Entry_Date__c,Image_Path__c FROM Community_News__c],1);
-		CommunitySearchController.SearchItem si3 = new CommunitySearchController.SearchItem([SELECT ID, Name, Description__c, Link__c FROM Community_Resource__c],1);
+		CommunitySearchController.SearchItem si3 = new CommunitySearchController.SearchItem([SELECT ID, Name, Description__c, Link__c FROM Community_Resource__c],1);		
 		CommunitySearchController.SearchItem si4 = new CommunitySearchController.SearchItem(new List<CommunityGroupsController.ChatterGroupDetail>(),0);
 		CommunitySearchController.membershipGroup('1',cgcr.Chatter_Group_ID__c,'4');
 	}
 
 	@IsTest(SeeAllData=true)
 	static void test_CommunityGroupFilesController() {
-
+		
 		Community_Group_Control__c cgc = new Community_Group_Control__c(Name='tstgrp', Type__c='Public', Discoverable__c=true);
 		insert cgc;
 		ApexPages.currentPage().getParameters().put('gc',cgc.Id);
@@ -613,6 +613,6 @@ private class CommunityTest {
 		cgfc.initFromPage();
 		cgfc.stack = vId;
 		cgfc.deleteAction();
-
+		
 	}
 }
