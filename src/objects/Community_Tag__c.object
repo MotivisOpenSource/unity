@@ -44,9 +44,9 @@
         <actionName>View</actionName>
         <type>Default</type>
     </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
     <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
     <deploymentStatus>Deployed</deploymentStatus>
-    <deprecated>false</deprecated>
     <description>Define a library of Tags that will help categorize interests for the Community.  Tags can be associated to Community News, Events, Groups, and Contacts via separate junction objects.  This will allow the starter pack to recommend items to a Community user.</description>
     <enableActivities>false</enableActivities>
     <enableBulkApi>true</enableBulkApi>
@@ -58,7 +58,6 @@
     <fields>
         <fullName>Community_Theme__c</fullName>
         <deleteConstraint>SetNull</deleteConstraint>
-        <deprecated>false</deprecated>
         <description>Represents the Theme of the Community Tag.</description>
         <externalId>false</externalId>
         <inlineHelpText>Represents the Theme of the Community Tag.</inlineHelpText>
@@ -73,7 +72,6 @@
     </fields>
     <fields>
         <fullName>Icon_Style__c</fullName>
-        <deprecated>false</deprecated>
         <description>Describes the Icon style to be applied to these records in search results</description>
         <externalId>false</externalId>
         <inlineHelpText>Describes the Icon style to be applied to these records in search results</inlineHelpText>
@@ -87,7 +85,6 @@
     </fields>
     <fields>
         <fullName>Tag_SF_ID__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents the 18 digit unique Salesforce ID.</description>
         <externalId>false</externalId>
         <formula>CASESAFEID(Id)</formula>
@@ -103,7 +100,6 @@
     <fields>
         <fullName>Tag_Theme_UniqueID__c</fullName>
         <caseSensitive>false</caseSensitive>
-        <deprecated>false</deprecated>
         <description>This field concatenates the Tag and Theme value to prevent duplicate values.</description>
         <externalId>false</externalId>
         <label>Tag-Theme UniqueID</label>
@@ -116,7 +112,6 @@
     </fields>
     <fields>
         <fullName>Theme_Name__c</fullName>
-        <deprecated>false</deprecated>
         <description>the name of the theme the tag is associated with</description>
         <externalId>false</externalId>
         <formula>Community_Theme__r.Name</formula>
@@ -129,7 +124,6 @@
     </fields>
     <fields>
         <fullName>Theme_Type__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents the Theme Type of the Theme related to the Tag.</description>
         <externalId>false</externalId>
         <formula>TEXT(Community_Theme__r.Theme_Type__c)</formula>
@@ -223,8 +217,8 @@
         <customTabListAdditionalFields>Community_Theme__c</customTabListAdditionalFields>
         <customTabListAdditionalFields>Icon_Style__c</customTabListAdditionalFields>
         <customTabListAdditionalFields>CREATED_DATE</customTabListAdditionalFields>
-        <excludedStandardButtons>ChangeOwner</excludedStandardButtons>
         <excludedStandardButtons>Accept</excludedStandardButtons>
+        <excludedStandardButtons>ChangeOwner</excludedStandardButtons>
         <lookupDialogsAdditionalFields>Community_Theme__c</lookupDialogsAdditionalFields>
         <lookupDialogsAdditionalFields>Theme_Type__c</lookupDialogsAdditionalFields>
         <lookupDialogsAdditionalFields>CREATED_DATE</lookupDialogsAdditionalFields>

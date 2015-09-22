@@ -37,7 +37,7 @@
 	</script>
 </apex:outputPanel>
 
-<div class="header-v1 header-sticky CommunityMenu {!IF(isRegTermsPage, 'without-menu', '')}">
+<div class="header-v1 {!IF(showHideMenu, ' header-sticky', ' ')} CommunityMenu {!IF(isRegTermsPage, 'without-menu', '')}">
 <!-- <div class="header-v1 header-sticky" > -->
 <!-- Topbar -->
 	<apex:outputPanel layout="block" styleClass="topbar-v1" rendered="{!isRegTermsPage}">
@@ -87,7 +87,7 @@
 	<!-- End Topbar -->
 
 	<!-- Navbar -->
-	<div class="navbar navbar-default mega-menu" role="navigation">
+	<div id="navbarID" class="navbar navbar-default mega-menu" role="navigation">
 		<div class="container">
 			<!-- Brand and toggle get grouped for better mobile display -->
 			<div class="navbar-header">
@@ -95,8 +95,11 @@
 					<span class="sr-only">Toggle navigation</span>
 					<span class="fa fa-bars"></span>
 				</button>
-				<apex:outputLink value="{!$Page.CommunityHome}" styleClass="navbar-brand" rendered="{!!ISBLANK($Setup.Community_Template_Settings__c.Header_Logo_ImageID__c)}">
-					<img alt="Logo" src="{!$Site.Prefix}/servlet/servlet.ImageServer?oid={!$Organization.Id}&id={!$Setup.Community_Template_Settings__c.Header_Logo_ImageID__c}"/>
+				<apex:outputLink value=""  styleClass="navbar-brand" rendered="{!!ISBLANK($Setup.Community_Template_Settings__c.Header_Logo_ImageID__c)&&isRegTermsPage}" >
+					<img id="imgLOGOID" class="img-responsive" alt="Logo" src="{!$Site.Prefix}/servlet/servlet.ImageServer?oid={!$Organization.Id}&id={!$Setup.Community_Template_Settings__c.Header_Logo_ImageID__c}"/>
+				</apex:outputLink>
+				<apex:outputLink value="{!$Page.CommunityHome}" styleClass="navbar-brand" rendered="{!!ISBLANK($Setup.Community_Template_Settings__c.Header_Logo_ImageID__c)&&(!isRegTermsPage)}" >
+					<img id="imgLOGOID" class="img-responsive" alt="Logo" src="{!$Site.Prefix}/servlet/servlet.ImageServer?oid={!$Organization.Id}&id={!$Setup.Community_Template_Settings__c.Header_Logo_ImageID__c}"/>
 				</apex:outputLink>
 			</div>
 
@@ -176,6 +179,7 @@
 											jQuery("li").first().hide();
 										}
 									});
+									
 									jQuery(document).on('keyup', '#menusearch', function(event) {
 										event.preventDefault();
 										if (event.keyCode == 13) {

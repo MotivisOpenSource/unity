@@ -91,25 +91,31 @@
 		if(jQuery('.cs-datetime')) {
 			var currentdate = new Date(); 
 			jQuery('.cs-datetime').datetimepicker({
-				format: ucDateFormat() + ' ' + ucTimeFormat(),
-				step:30
+				format:'m/d/Y h:i A',//format: ucDateFormat() + ' ' + ucTimeFormat(),
+				formatTime:'h:i A',
+				formatDate:'m/d/Y',
+				step:30,
+				lang: 'en'
 			});
 		}
 		//date
 		if(jQuery('.cs-date')) {
 			jQuery('.cs-date').datetimepicker({
 				timepicker:false,
-				format: ucDateFormat(),
+				format: 'm/d/Y',
+				lang: 'en'
 			});
 		}
+		/*
 		function ucDateFormat() {
-			return !(UserContext && UserContext.dateTimeFormat) ? 'n/d/Y'
+	 		return !(UserContext && UserContext.dateTimeFormat) ? 'n/d/Y'
 					: UserContext.dateFormat.replace('yyyy','Y').replace('yy','y').replace('MM','m').replace('M','n').replace('dd','d').replace('d','j');
 		}
 		function ucTimeFormat() {
 			return !(UserContext && UserContext.timeFormat) ? 'h:m a'
 					: UserContext.timeFormat.replace('mm','i').replace('a','A').replace('hh','g').replace('h','g').replace('HH','G').replace('H','G');
-		}
+		} 
+		*/
 		//multipicklist
 		jQuery('select[id$=msfld]').show();
 		jQuery('.multiSelectPicklistTable').hide();
