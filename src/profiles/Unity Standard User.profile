@@ -1108,8 +1108,4 @@
         <enabled>true</enabled>
         <name>ViewGlobalHeader</name>
     </userPermissions>
-    <userPermissions>
-        <enabled>true</enabled>
-        <name>WorkDotComUserPerm</name>
-    </userPermissions>
 </Profile>
