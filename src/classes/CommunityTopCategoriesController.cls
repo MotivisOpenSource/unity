@@ -17,7 +17,7 @@ public with sharing class CommunityTopCategoriesController {
 			(SELECT Id, Name FROM Community_NewItems_Tagged__r WHERE Community_News__r.Entry_Date__c <= TODAY AND Community_News__r.Alert__c = false),
 			(SELECT Id, Resource__c FROM Community_ResourceItems_Tagged__r WHERE Resource__r.Status__c = 'active'),
 			(SELECT Id, Name FROM Resource_Tagged_w_Primary__r WHERE Status__c = 'active')
-			FROM Community_Tag__c
+			FROM Community_Tag__c ORDER BY Name ASC
 				];
 		Map<Id,List<Community_Tag__c>> themeTagsMap = new Map<Id,List<Community_Tag__c>>();
 		for (Community_Tag__c tag : allTags) {
@@ -72,9 +72,7 @@ public with sharing class CommunityTopCategoriesController {
 					for (Community_Resource__c cr : tag.Resource_Tagged_w_Primary__r) {
 						calculateResources.add(cr.Id);
 					}
-					Integer accumulateTags = inRO
-											? calculateResources.size()
-											: (tag.Community_EventItems_Tagged__r.size() + tag.Community_GroupItems_Tagged__r.size() + tag.Community_NewItems_Tagged__r.size());
+					Integer accumulateTags = inRO ? calculateResources.size(): (tag.Community_EventItems_Tagged__r.size() + tag.Community_GroupItems_Tagged__r.size() + tag.Community_NewItems_Tagged__r.size());
 					tagColumns[currentColumn].add(new themeTagItem(tag, accumulateTags, inRO));
 					if(tagCount == breakpoint) {
 						currentColumn++;

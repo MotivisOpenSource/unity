@@ -46,9 +46,9 @@
         <skipRecordTypeSelect>false</skipRecordTypeSelect>
         <type>Visualforce</type>
     </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
     <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
     <deploymentStatus>Deployed</deploymentStatus>
-    <deprecated>false</deprecated>
     <description>This object is used to store links to external systems and resource documents.  Resources will be organized by Themes and Tags where Theme.Type = Resource</description>
     <enableActivities>false</enableActivities>
     <enableBulkApi>true</enableBulkApi>
@@ -224,7 +224,6 @@
     </fieldSets>
     <fields>
         <fullName>Description__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents a description of the Resource that is presented in the Community.</description>
         <externalId>false</externalId>
         <inlineHelpText>Represents a description of the Resource that is presented in the Community.</inlineHelpText>
@@ -238,7 +237,6 @@
     <fields>
         <fullName>Help_Link__c</fullName>
         <defaultValue>false</defaultValue>
-        <deprecated>false</deprecated>
         <description>if checked, link will be the Help link</description>
         <externalId>false</externalId>
         <label>Help Link</label>
@@ -248,7 +246,6 @@
     </fields>
     <fields>
         <fullName>Link__c</fullName>
-        <deprecated>false</deprecated>
         <description>Used to store a hyperlink for a resource that is either a website or a file hosted elsewhere that can be accessed with a direct link.</description>
         <externalId>false</externalId>
         <label>Link</label>
@@ -260,7 +257,6 @@
     <fields>
         <fullName>Primary_Tag__c</fullName>
         <deleteConstraint>SetNull</deleteConstraint>
-        <deprecated>false</deprecated>
         <description>Define the primary tag used to categorize and organize this resource in the Resource Library list view.  Additional tags may also be associated separately.</description>
         <externalId>false</externalId>
         <label>Primary Tag</label>
@@ -286,7 +282,6 @@
     <fields>
         <fullName>Quick_Link__c</fullName>
         <defaultValue>false</defaultValue>
-        <deprecated>false</deprecated>
         <description>if checked, link will be displayed in the &quot;Links&quot; menu</description>
         <externalId>false</externalId>
         <inlineHelpText>f checked, link will be displayed in the &quot;Links&quot; menu</inlineHelpText>
@@ -297,7 +292,6 @@
     </fields>
     <fields>
         <fullName>Resource_Name__c</fullName>
-        <deprecated>false</deprecated>
         <description>Identifies the name of the Resource that will be displayed in the Community.</description>
         <externalId>false</externalId>
         <inlineHelpText>Identifies the name of the Resource that will be displayed in the Community.</inlineHelpText>
@@ -311,7 +305,6 @@
     </fields>
     <fields>
         <fullName>Resource_SF_ID__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents the 18 digit Salesforce Unique ID of the Resource record.</description>
         <externalId>false</externalId>
         <formula>CASESAFEID(Id)</formula>
@@ -326,7 +319,6 @@
     </fields>
     <fields>
         <fullName>Sort__c</fullName>
-        <deprecated>false</deprecated>
         <description>To use to define sort order of Resources when viewing records on the CommunityResourceList page</description>
         <externalId>false</externalId>
         <label>Sort</label>
@@ -340,7 +332,6 @@
     </fields>
     <fields>
         <fullName>Status__c</fullName>
-        <deprecated>false</deprecated>
         <description>The status of a resource will determine whether it is visible in the Community.</description>
         <externalId>false</externalId>
         <label>Status</label>
