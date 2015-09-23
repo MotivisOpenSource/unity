@@ -44,6 +44,7 @@
         <actionName>View</actionName>
         <type>Default</type>
     </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
     <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
     <compactLayouts>
         <fullName>Standard</fullName>
@@ -56,7 +57,6 @@
         <label>Standard</label>
     </compactLayouts>
     <deploymentStatus>Deployed</deploymentStatus>
-    <deprecated>false</deprecated>
     <description>This object allows contacts to select Tags to define their interests in the Community.</description>
     <enableActivities>false</enableActivities>
     <enableBulkApi>true</enableBulkApi>
@@ -68,7 +68,6 @@
     <fields>
         <fullName>Active__c</fullName>
         <defaultValue>true</defaultValue>
-        <deprecated>false</deprecated>
         <description>determines if profile tag is active</description>
         <externalId>false</externalId>
         <label>Active</label>
@@ -77,7 +76,6 @@
     </fields>
     <fields>
         <fullName>Community_Tag__c</fullName>
-        <deprecated>false</deprecated>
         <description>Defines the tags that will be associated to the Contact record.</description>
         <externalId>false</externalId>
         <label>Community Tag</label>
@@ -92,7 +90,6 @@
     </fields>
     <fields>
         <fullName>Contact__c</fullName>
-        <deprecated>false</deprecated>
         <description>Allows tags to be associated to this Contact record.</description>
         <externalId>false</externalId>
         <label>Contact</label>
@@ -107,7 +104,6 @@
     </fields>
     <fields>
         <fullName>Profile_Tag_SF_ID__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents the 18 digit unique Salesforce ID.</description>
         <externalId>false</externalId>
         <formula>CASESAFEID(Id)</formula>
@@ -121,7 +117,6 @@
     </fields>
     <fields>
         <fullName>Theme__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents the Name of the Theme that the Tag is related to.</description>
         <externalId>false</externalId>
         <formula>HYPERLINK(&quot;/&quot;&amp; Community_Tag__r.Community_Theme__r.Id , Community_Tag__r.Community_Theme__r.Name, &quot;_Self&quot;)</formula>
@@ -142,8 +137,8 @@
     <pluralLabel>Community Profile Tags</pluralLabel>
     <searchLayouts>
         <excludedStandardButtons>New</excludedStandardButtons>
-        <excludedStandardButtons>ChangeOwner</excludedStandardButtons>
         <excludedStandardButtons>Accept</excludedStandardButtons>
+        <excludedStandardButtons>ChangeOwner</excludedStandardButtons>
         <lookupDialogsAdditionalFields>Contact__c</lookupDialogsAdditionalFields>
         <lookupDialogsAdditionalFields>Community_Tag__c</lookupDialogsAdditionalFields>
         <lookupDialogsAdditionalFields>Theme__c</lookupDialogsAdditionalFields>

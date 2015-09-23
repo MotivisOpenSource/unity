@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
     <customSettingsType>Hierarchy</customSettingsType>
-    <customSettingsVisibility>Protected</customSettingsVisibility>
     <description>All settings related to the Registration Process for the Community.</description>
     <enableFeeds>false</enableFeeds>
     <fields>
         <fullName>Community_Standard_ProfileID__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents the ID of the Profile assigned to User&apos;s that have indicated they would like to be part of the Community during the Registration Process.</description>
         <externalId>false</externalId>
         <inlineHelpText>Represents the ID of the Profile assigned to User&apos;s that have indicated they would like to be part of the Community during the Registration Process.</inlineHelpText>
@@ -20,7 +18,6 @@
     <fields>
         <fullName>Disable_Interest__c</fullName>
         <defaultValue>true</defaultValue>
-        <deprecated>false</deprecated>
         <description>When selected, the Registration process will NOT include the Interests registration page.</description>
         <externalId>false</externalId>
         <inlineHelpText>When selected, the Registration process will NOT include the Interests registration page.</inlineHelpText>
@@ -31,7 +28,6 @@
     <fields>
         <fullName>Disable_Picture_Upload__c</fullName>
         <defaultValue>false</defaultValue>
-        <deprecated>false</deprecated>
         <description>When selected, the Registration process will NOT include the Profile Picture page.</description>
         <externalId>false</externalId>
         <inlineHelpText>When selected, the Registration process will NOT include the Profile Picture page.</inlineHelpText>
@@ -42,7 +38,6 @@
     <fields>
         <fullName>Disable_Registration__c</fullName>
         <defaultValue>false</defaultValue>
-        <deprecated>false</deprecated>
         <description>When selected, the Registration process will be completely disabled and the User will land on the Default Home page upon Login.</description>
         <externalId>false</externalId>
         <inlineHelpText>When selected, the Registration process will be completely disabled and the User will land on the Default Home page upon Login.</inlineHelpText>
@@ -53,7 +48,6 @@
     <fields>
         <fullName>Disable_T_C__c</fullName>
         <defaultValue>false</defaultValue>
-        <deprecated>false</deprecated>
         <description>When selected, the Registration process will NOT include the Terms &amp; Conditions page.</description>
         <externalId>false</externalId>
         <inlineHelpText>When selected, the Registration process will NOT include the Terms &amp; Conditions page.</inlineHelpText>
@@ -63,7 +57,6 @@
     </fields>
     <fields>
         <fullName>T_C_Published_Current_Date__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents when the last approved Terms &amp; Conditions document was published in the Community.  If a User accepted their T&amp;C before this date, they will be required to review and accept the Terms and Conditions again.</description>
         <externalId>false</externalId>
         <inlineHelpText>Represents when the last approved Terms &amp; Conditions document was published in the Community.  If a User accepted their T&amp;C before this date, they will be required to review and accept the Terms and Conditions again.</inlineHelpText>
@@ -73,4 +66,5 @@
         <type>DateTime</type>
     </fields>
     <label>Community Registration</label>
+    <visibility>Protected</visibility>
 </CustomObject>
