@@ -44,9 +44,9 @@
         <actionName>View</actionName>
         <type>Default</type>
     </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
     <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
     <deploymentStatus>Deployed</deploymentStatus>
-    <deprecated>false</deprecated>
     <description>This object describes the &quot;role&quot; or persona of the Contact when logged into the Community.  It allows the org to store varying data for different roles or types.</description>
     <enableActivities>true</enableActivities>
     <enableBulkApi>true</enableBulkApi>
@@ -133,7 +133,6 @@
     <fields>
         <fullName>Advisor__c</fullName>
         <deleteConstraint>SetNull</deleteConstraint>
-        <deprecated>false</deprecated>
         <description>Allows a Community Profile to have a designated Advisor user.  We recommend this field should be Read Only and only populated by a System Admin.</description>
         <externalId>false</externalId>
         <label>Advisor</label>
@@ -147,7 +146,6 @@
     <fields>
         <fullName>Contact__c</fullName>
         <deleteConstraint>SetNull</deleteConstraint>
-        <deprecated>false</deprecated>
         <description>The Contact that is associated with this Community Profile record.  A Contact may have multiple Community Profiles (one for each role)</description>
         <externalId>false</externalId>
         <label>Contact</label>
@@ -161,7 +159,6 @@
     </fields>
     <fields>
         <fullName>Email__c</fullName>
-        <deprecated>false</deprecated>
         <description>Email address for profile</description>
         <externalId>false</externalId>
         <label>Email</label>
@@ -174,7 +171,6 @@
     <fields>
         <fullName>Primary__c</fullName>
         <defaultValue>false</defaultValue>
-        <deprecated>false</deprecated>
         <description>indicates primary profile for user</description>
         <externalId>false</externalId>
         <label>Primary</label>
@@ -184,7 +180,6 @@
     </fields>
     <fields>
         <fullName>Profile_SF_ID__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents the 18 digit unique Salesforce ID.</description>
         <externalId>false</externalId>
         <formula>CASESAFEID(Id)</formula>

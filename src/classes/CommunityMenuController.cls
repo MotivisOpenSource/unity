@@ -19,6 +19,13 @@ public with sharing class CommunityMenuController {
 		}
 		return result;
 	}
+	
+	public static Boolean getShowHideMenu() {
+		Community_Template_Settings__c cts = Community_Template_Settings__c.getOrgDefaults();
+		If((String.isBlank(cts.Header_Logo_ImageID__c)) && getIsRegTermsPage()) return false;
+		else return true;
+	}
+	
 
 	public static Boolean getIsRegTermsPage() {
 		return currentPage(Page.CommunityRegTerms.getUrl());
