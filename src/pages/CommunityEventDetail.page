@@ -45,6 +45,13 @@
 								</apex:outputPanel>
 							</apex:repeat>
 							<br/>
+							<div id="gCalendar" class="clearfix">
+								<apex:form >
+									<span class="gCalendar__label">{!$Label.LBL_AddToCalendar}:</span>
+									<a href="{!GoogleCalendarCreateEventHref}" target="_blank" class="btn btn-xs rounded btn-default">{!$Label.BTN_GoogleCal}</a> &nbsp;&nbsp;
+									<apex:commandLink value="{!$Label.BTN_ICS}" action="{!downloadICS}" target="_blank" styleClass="btn btn-xs rounded btn-default"/>
+								</apex:form>
+							</div>
 							<apex:outputPanel rendered="{!!ISNULL(RelatedToEventGroup)}">
 								<hr/>
 								<span>

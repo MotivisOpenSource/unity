@@ -1,6 +1,0 @@
-Hi {!Receiving_User.FirstName},
-
-Welcome to {!Community_Name}! To get started, go to {!Community_Url}
-
-Thanks,
-{!Organization.Name}
