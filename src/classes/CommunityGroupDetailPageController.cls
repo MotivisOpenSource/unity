@@ -8,8 +8,9 @@ public with sharing class CommunityGroupDetailPageController {
 
 	public String groupRoleString {
 		get {
-			System.Debug(String.valueOf(groupRole).removeStart('Group'));
-			return String.valueOf(groupRole).removeStart('Group');
+			String groupRoleString = (groupRole != NULL) ? String.valueOf(groupRole).removeStart('Group') : '';
+			System.Debug(groupRoleString);
+			return groupRoleString;
 		}
 		set;
 	}
@@ -72,7 +73,7 @@ public with sharing class CommunityGroupDetailPageController {
 		ConnectApi.GroupMembershipType oldGroupRole = groupRole;
 		groupRole = CommunityUtils.membership(UserInfo.getUserId(), control.Id, groupMode);
 		initMembers();
-		if (groupRole == ConnectApi.GroupMembershipType.NotAMember) {
+		if (groupRole != ConnectApi.GroupMembershipType.NotAMemberPrivateRequested) {
 			pr = Page.CommunityGroupDetailPage;
 			pr.getParameters().put('gr', chatterGroup.Id);
 			pr.setRedirect(true);

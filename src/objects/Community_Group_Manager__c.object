@@ -44,9 +44,9 @@
         <actionName>View</actionName>
         <type>Default</type>
     </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
     <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
     <deploymentStatus>Deployed</deploymentStatus>
-    <deprecated>false</deprecated>
     <enableActivities>true</enableActivities>
     <enableBulkApi>true</enableBulkApi>
     <enableFeeds>false</enableFeeds>
@@ -56,7 +56,6 @@
     <enableStreamingApi>true</enableStreamingApi>
     <fields>
         <fullName>Group_Control_SF_ID__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents the 18 digit Salesforce Unique ID of the related Group Control record.</description>
         <externalId>false</externalId>
         <formula>Group_Control__r.Group_Control_SF_ID__c</formula>
@@ -71,7 +70,6 @@
     </fields>
     <fields>
         <fullName>Group_Control__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents the Group the Group Membership record is related to.</description>
         <externalId>false</externalId>
         <inlineHelpText>Represents the Group the Group Membership record is related to.</inlineHelpText>
@@ -88,7 +86,6 @@
     </fields>
     <fields>
         <fullName>Group_Manager_SF_ID__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents the 18 digit Salesforce Unique ID.</description>
         <externalId>false</externalId>
         <formula>CASESAFEID(Id)</formula>
@@ -104,7 +101,6 @@
     <fields>
         <fullName>Group_Manager_User__c</fullName>
         <deleteConstraint>SetNull</deleteConstraint>
-        <deprecated>false</deprecated>
         <description>This is the User that has access to the Group Control record in the Community.</description>
         <externalId>false</externalId>
         <inlineHelpText>This is the User that has access to the Group Control record in the Community.</inlineHelpText>
@@ -118,7 +114,6 @@
     </fields>
     <fields>
         <fullName>Manager_Role__c</fullName>
-        <deprecated>false</deprecated>
         <description>Defines the role of the group manager for a chatter group. There may only be one Owner. All other values are treated as a group Manager in Chatter.</description>
         <externalId>false</externalId>
         <inlineHelpText>Defines the role of the group manager for a chatter group. There may only be one Owner. All other values are treated as a group Manager in Chatter.</inlineHelpText>
