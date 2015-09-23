@@ -26,7 +26,7 @@
 			</li>
 			<li class="list-group-item{!IF(pn=='4',' active',' menu-item-link')}">
 				<a href="{!$Page.CommunityFeed_People}">
-					<i class="fa fa-user"></i>People
+					<i class="fa fa-user"></i>{!$Label.LBL_People}
 				</a>
 			</li>
 			<li class="list-group-item{!IF(pn=='5',' active',' menu-item-link')}">
@@ -45,6 +45,13 @@
 				<li class="list-group-item{!IF(pn=='6',' active',' menu-item-link')}">
 					<a href="{!$Page.CommunityGroupManager}?gr={!currentGroupId}">
 						<i class="fa fa-comments"></i>{!$Label.LBL_GroupManager}
+					</a>
+				</li>
+			</apex:outputPanel>
+			<apex:outputPanel layout="none" rendered="{!NOT($Setup.Community_Settings__c.Disable_Topic_Menu__c)}">
+				<li class="list-group-item{!IF(pn=='7',' active',' menu-item-link')}">
+					<a href="{!$Page.CommunityTopic}">
+						<i class="fa fa-star"></i>{!$Label.LBL_Topic}
 					</a>
 				</li>
 			</apex:outputPanel>
