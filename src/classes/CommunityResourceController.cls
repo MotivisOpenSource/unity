@@ -31,7 +31,7 @@ public with sharing class CommunityResourceController {
 
 	// -- variables --
 	public Community_Resource__c resource { get;set; }
-	public Blob imgBody { get;set; }
+	public transient Blob imgBody { get;set; }
 	public String imgFileName { get;set; }
 	public String imgContentType { get;set; }
 	public String linkText { get;set; }

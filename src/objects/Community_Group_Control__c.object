@@ -44,6 +44,7 @@
         <actionName>View</actionName>
         <type>Default</type>
     </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
     <compactLayoutAssignment>Standard</compactLayoutAssignment>
     <compactLayouts>
         <fullName>Standard</fullName>
@@ -56,7 +57,6 @@
         <label>Standard</label>
     </compactLayouts>
     <deploymentStatus>Deployed</deploymentStatus>
-    <deprecated>false</deprecated>
     <description>Represents the metadata associated with a Chatter Group that is created in the Community.  Is used to serve up the Group Manager feed separately from the Chatter Group Feed.</description>
     <enableActivities>true</enableActivities>
     <enableBulkApi>true</enableBulkApi>
@@ -114,6 +114,11 @@
             <isRequired>true</isRequired>
         </displayedFields>
         <displayedFields>
+            <field>Information__c</field>
+            <isFieldManaged>false</isFieldManaged>
+            <isRequired>false</isRequired>
+        </displayedFields>
+        <displayedFields>
             <field>Status__c</field>
             <isFieldManaged>false</isFieldManaged>
             <isRequired>false</isRequired>
@@ -134,6 +139,11 @@
         </availableFields>
         <availableFields>
             <field>OwnerId</field>
+            <isFieldManaged>false</isFieldManaged>
+            <isRequired>false</isRequired>
+        </availableFields>
+        <availableFields>
+            <field>Status__c</field>
             <isFieldManaged>false</isFieldManaged>
             <isRequired>false</isRequired>
         </availableFields>
@@ -164,7 +174,7 @@
             <isRequired>true</isRequired>
         </displayedFields>
         <displayedFields>
-            <field>Status__c</field>
+            <field>Information__c</field>
             <isFieldManaged>false</isFieldManaged>
             <isRequired>false</isRequired>
         </displayedFields>
@@ -219,6 +229,11 @@
             <isRequired>true</isRequired>
         </displayedFields>
         <displayedFields>
+            <field>Information__c</field>
+            <isFieldManaged>false</isFieldManaged>
+            <isRequired>false</isRequired>
+        </displayedFields>
+        <displayedFields>
             <field>Purpose__c</field>
             <isFieldManaged>false</isFieldManaged>
             <isRequired>false</isRequired>
@@ -236,9 +251,41 @@
         <label>ViewGroup</label>
     </fieldSets>
     <fields>
+        <fullName>Active__c</fullName>
+        <defaultValue>true</defaultValue>
+        <description>This field defines whether the related group is Active in the Community and visible to users.</description>
+        <externalId>false</externalId>
+        <label>Active</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Auto_Follow__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>If TRUE, Community Users who share the same Tags as Interests with the group will automatically follow the related group in chatter.</description>
+        <externalId>false</externalId>
+        <label>Auto Follow</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Automatic_Archive__c</fullName>
+        <defaultValue>true</defaultValue>
+        <description>This field defines whether automatic group archiving rules will apply to the related group.</description>
+        <externalId>false</externalId>
+        <label>Automatic Archive</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
         <fullName>Chatter_Group_ID__c</fullName>
         <caseSensitive>true</caseSensitive>
-        <deprecated>false</deprecated>
         <description>This defines the 18-digit SFID of the related Chatter Group for the Group Control record.</description>
         <externalId>false</externalId>
         <label>Chatter Group ID</label>
@@ -252,7 +299,6 @@
     </fields>
     <fields>
         <fullName>Description__c</fullName>
-        <deprecated>false</deprecated>
         <description>Defines a description for the Group Control which will also be related to the Chatter Group, if needed.</description>
         <externalId>false</externalId>
         <inlineHelpText>Write a brief description of your group.</inlineHelpText>
@@ -267,7 +313,6 @@
     <fields>
         <fullName>Discoverable__c</fullName>
         <defaultValue>false</defaultValue>
-        <deprecated>false</deprecated>
         <description>If Discoverable = TRUE, the related Group will be visible in the Community for non-members to view</description>
         <externalId>false</externalId>
         <inlineHelpText>If your group is discoverable, other users may find and view the group feed.  If your group is not discoverable, other users will not be able to find the group and members must be added by a group manager.</inlineHelpText>
@@ -279,7 +324,6 @@
     </fields>
     <fields>
         <fullName>Group_Control_SF_ID__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents the 18 digit Salesforce unique ID of the Group Control record.</description>
         <externalId>false</externalId>
         <formula>CASESAFEID(Id)</formula>
@@ -293,8 +337,56 @@
         <unique>false</unique>
     </fields>
     <fields>
+        <fullName>Image_Path__c</fullName>
+        <externalId>false</externalId>
+        <label>Image Path</label>
+        <length>255</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Information__c</fullName>
+        <externalId>false</externalId>
+        <label>Information</label>
+        <length>4000</length>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Html</type>
+        <visibleLines>25</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Manager_Group_Required__c</fullName>
+        <defaultValue>false</defaultValue>
+        <description>This field defines whether the Group has an administrative or management group for users to discuss group activities separately from the Group feed.</description>
+        <externalId>false</externalId>
+        <label>Manager Group Required</label>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Max_Users__c</fullName>
+        <description>Defines the maximum number of users expected to use this Group record, when Purpose = Project/Study Group.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>What is the maximum number of users that will participate in this group?</inlineHelpText>
+        <label>Max # Users</label>
+        <precision>2</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
         <fullName>Network__c</fullName>
-        <deprecated>false</deprecated>
         <description>This field defines which Community the Chatter Group will be created in.  If there is only one Community, use &quot;Community.&quot; If there are multiple Communities, use the Community Names as values for this field.</description>
         <externalId>false</externalId>
         <label>Network</label>
@@ -316,7 +408,6 @@
     </fields>
     <fields>
         <fullName>Purpose__c</fullName>
-        <deprecated>false</deprecated>
         <description>This field defines the purpose of the group that is being created for reporting purposes.</description>
         <externalId>false</externalId>
         <inlineHelpText>What is the primary purpose for this group?</inlineHelpText>
@@ -355,7 +446,6 @@
     </fields>
     <fields>
         <fullName>Status__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents the Status of the Group Control record.</description>
         <externalId>false</externalId>
         <inlineHelpText>Represents the Status of the Group Control record.</inlineHelpText>
@@ -386,7 +476,6 @@
     </fields>
     <fields>
         <fullName>T_C_Accepted_Date__c</fullName>
-        <deprecated>false</deprecated>
         <description>Indicates the Date/Time when the Terms &amp; Conditions page was accepted by the User.</description>
         <externalId>false</externalId>
         <inlineHelpText>Indicates the Date/Time when the Terms &amp; Conditions page was accepted by the User.</inlineHelpText>
@@ -400,7 +489,6 @@
     <fields>
         <fullName>T_C_Accepted__c</fullName>
         <defaultValue>false</defaultValue>
-        <deprecated>false</deprecated>
         <description>Indicates the Date/Time when the Terms &amp; Conditions page was accepted by the User.</description>
         <externalId>false</externalId>
         <inlineHelpText>Indicates the Date/Time when the Terms &amp; Conditions page was accepted by the User.</inlineHelpText>
@@ -413,7 +501,6 @@
     <fields>
         <fullName>Terms__c</fullName>
         <deleteConstraint>SetNull</deleteConstraint>
-        <deprecated>false</deprecated>
         <description>Represents the Group Terms &amp; Conditions record the User accepted.</description>
         <externalId>false</externalId>
         <inlineHelpText>Represents the Group Terms &amp; Conditions record the User accepted.</inlineHelpText>
@@ -439,7 +526,6 @@
     </fields>
     <fields>
         <fullName>Type__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents the Type of Group that will be created in the system.</description>
         <externalId>false</externalId>
         <inlineHelpText>If your group will be public, any user may join.  If your group will be private, members must be added by a group manager.</inlineHelpText>
@@ -462,6 +548,21 @@
     </fields>
     <label>Community Group Control</label>
     <listViews>
+        <fullName>All</fullName>
+        <columns>NAME</columns>
+        <columns>Discoverable__c</columns>
+        <columns>Type__c</columns>
+        <columns>Purpose__c</columns>
+        <columns>Chatter_Group_ID__c</columns>
+        <columns>Network__c</columns>
+        <columns>Status__c</columns>
+        <columns>OWNER.FIRST_NAME</columns>
+        <columns>OWNER.LAST_NAME</columns>
+        <columns>Group_Control_SF_ID__c</columns>
+        <filterScope>Everything</filterScope>
+        <label>All</label>
+    </listViews>
+    <listViews>
         <fullName>All_Groups</fullName>
         <columns>NAME</columns>
         <columns>Type__c</columns>
@@ -470,8 +571,7 @@
         <columns>Network__c</columns>
         <columns>Status__c</columns>
         <columns>Chatter_Group_ID__c</columns>
-        <columns>CREATED_DATE</columns>
-        <columns>OWNER.ALIAS</columns>
+        <columns>CREATEDBY_USER</columns>
         <filterScope>Everything</filterScope>
         <label>All Groups</label>
         <language>en_US</language>
@@ -491,8 +591,8 @@
         <customTabListAdditionalFields>Description__c</customTabListAdditionalFields>
         <customTabListAdditionalFields>CREATEDBY_USER</customTabListAdditionalFields>
         <customTabListAdditionalFields>CREATED_DATE</customTabListAdditionalFields>
-        <excludedStandardButtons>ChangeOwner</excludedStandardButtons>
         <excludedStandardButtons>New</excludedStandardButtons>
+        <excludedStandardButtons>ChangeOwner</excludedStandardButtons>
         <lookupDialogsAdditionalFields>Type__c</lookupDialogsAdditionalFields>
         <lookupDialogsAdditionalFields>Discoverable__c</lookupDialogsAdditionalFields>
         <lookupDialogsAdditionalFields>Purpose__c</lookupDialogsAdditionalFields>

@@ -64,8 +64,7 @@ public with sharing class CommunityUtils {
 		pp = (pp != NULL) ? pp.replace('__','') : '';
 		for (PermissionSetAssignment psa2 : [
 					SELECT PermissionSet.Name FROM PermissionSetAssignment
-					WHERE AssigneeId = :UserInfo.getUserId() AND PermissionSet.NamespacePrefix = :pp AND PermissionSet.Name IN :psSet
-						]) {
+					WHERE AssigneeId = :UserInfo.getUserId() AND PermissionSet.NamespacePrefix = :pp AND PermissionSet.Name IN :psSet ]) {
 			resultLevel = (psa2.PermissionSet.Name == viewPS && resultLevel < 2) ? 1 : 2;
 		}
 		return resultLevel;
@@ -282,7 +281,23 @@ public with sharing class CommunityUtils {
 		}
 
 		if (modifiedProfilesMap.size() > 0) {
-			upsert modifiedProfilesMap.values();
+			//upsert modifiedProfilesMap.values();
+			List<Community_Profile__c> nonPrimaryProfiles = new List<Community_Profile__c>();
+			List<Community_Profile__c> primaryProfiles = new List<Community_Profile__c>();
+			for (Community_Profile__c cpItem : modifiedProfilesMap.values()) {
+				if (cpItem.Primary__c) {
+					primaryProfiles.add(cpItem);
+				}
+				else {
+					nonPrimaryProfiles.add(cpItem);
+				}
+			}
+			if (nonPrimaryProfiles.size() > 0) {
+				upsert nonPrimaryProfiles;
+			}
+			if (primaryProfiles.size() > 0) {
+				upsert primaryProfiles;
+			}
 		}
 
 		List<Contact> modifiedContacts = new List<Contact>();
@@ -345,6 +360,34 @@ public with sharing class CommunityUtils {
 		return groupsNames;
 	}
 
+	/*
+	* metod for getting Available Groups to user (it means he is a owner or manager of group )
+	*/
+	public static List<String> getIdsOfAvailableGroups(List<String> groupIds){
+		List<String> groupsIds = new List<String>();
+		try {
+			List<ConnectApi.BatchResult> batchResults = ConnectApi.ChatterGroups.getGroupBatch(Network.getNetworkId(),groupIds);
+			for(ConnectApi.BatchResult batchResult : batchResults){
+				if (batchResult.isSuccess()) {
+					ConnectApi.ChatterGroup aGroup = (ConnectApi.ChatterGroup) batchResult.getResult();
+					if(String.valueOf(aGroup.myRole) != 'GroupOwner' 
+						&& String.valueOf(aGroup.myRole) != 'GroupManager'){
+						groupsIds.add(aGroup.Id);
+					}
+				}
+				else {
+					// Operation failed. Print errors.
+					System.debug('FAILURE');
+					System.debug(batchResult.getErrorMessage());
+				}
+			}
+		}
+		catch(Exception e){
+			System.debug('FAILURE: '+e.getMessage());
+		}
+		return groupsIds;
+	}
+
 	public static Boolean checkAPIEnable (){
 
 		return [SELECT ID, PermissionsApiEnabled FROM Profile WHERE ID = :Userinfo.getProfileId() LIMIT 1].PermissionsApiEnabled; 
@@ -360,6 +403,34 @@ public with sharing class CommunityUtils {
 		result.put('isDeletable',obj.isDeletable());
 
 
+		return result;
+	} 
+
+	public static Boolean isFeedTrakingEnabled (String objName, Map<String, String> reqFields){
+		
+		Schema.SObjectType objType = Schema.getGlobalDescribe().get(objName);
+		
+		Boolean result = true;
+		Savepoint sp = Database.setSavepoint();
+		
+		try{
+			SObject obj = objType.newSobject();
+			for(String fieldName : reqFields.keySet()){
+				if(reqFields.get(fieldName) == 'string'){
+					obj.put(fieldName, 'test');
+				}	
+			}
+			insert obj;
+			EntitySubscription es = new EntitySubscription();
+			es.NetworkId = Network.getNetworkId();
+			es.ParentId = obj.Id;
+			es.SubscriberId = UserInfo.getUserId();
+			insert es;
+		}catch(Exception ex){
+			result = false;
+		}
+		Database.rollback(sp);
+		
 		return result;
 	} 
 

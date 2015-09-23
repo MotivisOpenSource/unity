@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
     <customSettingsType>Hierarchy</customSettingsType>
-    <customSettingsVisibility>Protected</customSettingsVisibility>
     <description>All custom settings for the Community will be stored within this object.</description>
     <enableFeeds>false</enableFeeds>
     <fields>
         <fullName>Chatter_Action_Disable_Group_Files__c</fullName>
         <defaultValue>false</defaultValue>
-        <deprecated>false</deprecated>
         <description>When selected, the Files Chatter Action and related Group File items will be removed from the Community Portal preventing a User from uploading a file within Unity.</description>
         <externalId>false</externalId>
         <inlineHelpText>When selected, the Files Chatter Action and related Group File items will be removed from the Community Portal preventing a User from uploading a file within Unity.</inlineHelpText>
@@ -18,7 +16,6 @@
     <fields>
         <fullName>Create_Group_Disable_Terms__c</fullName>
         <defaultValue>false</defaultValue>
-        <deprecated>false</deprecated>
         <description>When selected, the Terms page will be disabled during the Create Group process.</description>
         <externalId>false</externalId>
         <inlineHelpText>When selected, the Terms page will be disabled during the Create Group process.</inlineHelpText>
@@ -28,7 +25,6 @@
     </fields>
     <fields>
         <fullName>Create_Group_Max_Tags__c</fullName>
-        <deprecated>false</deprecated>
         <description>The number provided in this box indicates the max number of Tags a User can apply to a Group.  When NULL, the User can apply as many tags allowed.</description>
         <externalId>false</externalId>
         <inlineHelpText>The number provided in this box indicates the max number of Tags a User can apply to a Group.  When NULL, the User can apply as many tags allowed.</inlineHelpText>
@@ -43,7 +39,6 @@
     <fields>
         <fullName>Create_Group_Require_Tags__c</fullName>
         <defaultValue>false</defaultValue>
-        <deprecated>false</deprecated>
         <description>When selected, the User will be required to select at least 1 Tag during the Create Group creation.</description>
         <externalId>false</externalId>
         <inlineHelpText>When selected, the User will be required to select at least 1 Tag during the Create Group creation.</inlineHelpText>
@@ -54,7 +49,6 @@
     <fields>
         <fullName>Disable_Change_Password__c</fullName>
         <defaultValue>false</defaultValue>
-        <deprecated>false</deprecated>
         <description>When selected, the Change Password page within the Profile will be omitted from the Community Portal.</description>
         <externalId>false</externalId>
         <inlineHelpText>When selected, the Change Password page within the Profile will be omitted from the Community Portal.</inlineHelpText>
@@ -65,7 +59,6 @@
     <fields>
         <fullName>Disable_Share__c</fullName>
         <defaultValue>false</defaultValue>
-        <deprecated>false</deprecated>
         <description>Disable Share Button</description>
         <externalId>false</externalId>
         <label>Disable Share</label>
@@ -73,9 +66,16 @@
         <type>Checkbox</type>
     </fields>
     <fields>
+        <fullName>Disable_Topic_Menu__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <label>Disable Topic Menu</label>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
         <fullName>Image_Library_Folder__c</fullName>
         <defaultValue>&quot;Image_Library&quot;</defaultValue>
-        <deprecated>false</deprecated>
         <description>field contains name of image library folder for create news.</description>
         <externalId>false</externalId>
         <label>Image Library Folder</label>
@@ -88,7 +88,6 @@
     <fields>
         <fullName>News_Accepted_Image_Types__c</fullName>
         <defaultValue>&quot;PNG,GIF,BMP,JPG&quot;</defaultValue>
-        <deprecated>false</deprecated>
         <description>Represents the list of acceptable file types when during the News Creation process.</description>
         <externalId>false</externalId>
         <inlineHelpText>Represents the list of acceptable file types when during the News Creation process.</inlineHelpText>
@@ -101,7 +100,6 @@
     </fields>
     <fields>
         <fullName>News_Max_Sticky__c</fullName>
-        <deprecated>false</deprecated>
         <description>An organization can define a maximum number of &quot;sticky&quot; (featured) Community News records that are actively published the Community.</description>
         <externalId>false</externalId>
         <label>News Max Sticky</label>
@@ -115,7 +113,6 @@
     <fields>
         <fullName>News_Photo_Max_Size__c</fullName>
         <defaultValue>25</defaultValue>
-        <deprecated>false</deprecated>
         <description>Represents the max number of Megabytes (MB) as user can upload for the photo attached to the News item.  This number cannot exceed 25MB.</description>
         <externalId>false</externalId>
         <inlineHelpText>Represents the max number of Megabytes (MB) as user can upload for the photo attached to the News item.  This number cannot exceed 25MB.</inlineHelpText>
@@ -128,4 +125,5 @@
         <unique>false</unique>
     </fields>
     <label>Community Settings</label>
+    <visibility>Protected</visibility>
 </CustomObject>

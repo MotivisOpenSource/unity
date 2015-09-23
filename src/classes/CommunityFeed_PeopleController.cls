@@ -11,15 +11,11 @@ public with sharing class CommunityFeed_PeopleController {
 			LIMIT 1000
 		];
 		Set<Id> followingsIds = new Set<Id>();
-		for (EntitySubscription subscription : followings) {
-			followingsIds.add(subscription.ParentId);
+		for (EntitySubscription subscription : followings) { 
+			followingsIds.add(subscription.ParentId); 
 		}
-		List<User> uList = [
-			SELECT Id, Name, FirstName, LastName, SmallPhotoUrl, FullPhotoUrl, ContactId, Contact.Primary_Role__c, Community_Contact_ID__c
-			FROM User 
-			WHERE (ContactId != NULL OR Community_Contact_ID__c != NULL) AND isActive = true AND Id != :UserInfo.getUserId()
-			ORDER BY Name ASC
-				];
+		
+		List<User> uList = CommunityHelperWithoutSharing.getCommunityUsers(null,100,new List<String>{'FirstName', 'LastName', 'SmallPhotoUrl', 'FullPhotoUrl', 'ContactId', 'Contact.Primary_Role__c', 'Community_Contact_ID__c'},'Name',true);
 		securityWrapper sw = new securityWrapper();
 		Map<Id,String> contactRoles = sw.prepareRoles(uList);
 		for (User uItem2 : uList) {

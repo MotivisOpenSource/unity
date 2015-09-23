@@ -3,7 +3,6 @@
     <fields>
         <fullName>Primary_Community_Profile__c</fullName>
         <deleteConstraint>SetNull</deleteConstraint>
-        <deprecated>false</deprecated>
         <description>This lookup defines the primary Community Profile associated with the Contact record.</description>
         <externalId>false</externalId>
         <label>Primary Community Profile</label>
@@ -16,7 +15,6 @@
     </fields>
     <fields>
         <fullName>Primary_Role__c</fullName>
-        <deprecated>false</deprecated>
         <description>This field describes the primary role or user experience in the Community.  The values of this field should match those of Community_Profile__c.RecordType.Name</description>
         <externalId>false</externalId>
         <label>Primary Role</label>
@@ -40,7 +38,6 @@
     </fields>
     <fields>
         <fullName>Reg_Completed__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents when the User completed the Community Registration process.  If NULL, the user will be required to step through the Registration Wizard before accessing the Community.</description>
         <externalId>false</externalId>
         <inlineHelpText>Represents when the User completed the Community Registration process.  If NULL, the user will be required to step through the Registration Wizard before accessing the Community.</inlineHelpText>
@@ -51,7 +48,6 @@
     </fields>
     <fields>
         <fullName>Reg_General_Info_Completed__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents when the User completed the General Information details within the Community.</description>
         <externalId>false</externalId>
         <inlineHelpText>Represents when the User completed the General Information details within the Community.</inlineHelpText>
@@ -62,7 +58,6 @@
     </fields>
     <fields>
         <fullName>Reg_Interests_Completed__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents when the User completed the Interest details within the Community.</description>
         <externalId>false</externalId>
         <inlineHelpText>Represents when the User completed the Interest details within the Community.</inlineHelpText>
@@ -73,7 +68,6 @@
     </fields>
     <fields>
         <fullName>Reg_Picture_Completed__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents when the User completed the Profile Picture details within the Community.</description>
         <externalId>false</externalId>
         <inlineHelpText>Represents when the User completed the Profile Picture details within the Community.</inlineHelpText>
@@ -84,7 +78,6 @@
     </fields>
     <fields>
         <fullName>Reg_T_C_Completed__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents when the User accepted the Terms &amp; Conditions within the Community.</description>
         <externalId>false</externalId>
         <inlineHelpText>Represents when the User accepted the Terms &amp; Conditions within the Community.</inlineHelpText>
