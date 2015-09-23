@@ -2,6 +2,65 @@ public without sharing class CommunityHelperWithoutSharing {
 	public CommunityHelperWithoutSharing() {
 		
 	}
+	public static String getCommunityGroupControl(ID chatterGroupId) {
+		if(chatterGroupId != null) {
+			List<Community_Group_Control__c> lgc = [SELECT ID,Name FROM Community_Group_Control__c Where Chatter_Group_ID__c = :chatterGroupId LIMIT 1];
+			if(lgc.size()>0) return lgc[0].Id;
+			else return null;
+		}
+		return null;
+	}
+	
+	
+	public static List<User> getCommunityUsers(String querySearchName, Integer queryLimit, List<String> listRequestedFields, String sortColumn, Boolean SortDitecrion) {
+		String sortCol = sortColumn == null ? 'Name':sortColumn;
+		String sortDir = SortDitecrion ? 'ASC':'DESC';
+		List<User> uList = new List<User>();
+		try {
+			Set<Id> setNetworkMemberGroupId= new Set<Id>();
+			for(NetworkMemberGroup item : [SELECT ParentId From NetworkMemberGroup Where NetworkId = :Network.getNetworkId() ]) {
+				setNetworkMemberGroupId.add(item.ParentId);
+			}
+			Set<Id> setPermissionSetAssignmentID = new Set<Id>();
+			for(PermissionSetAssignment item : [SELECT AssigneeId From PermissionSetAssignment Where PermissionSetID in :setNetworkMemberGroupId]) {
+				setPermissionSetAssignmentID.add(item.AssigneeId);
+			}
+			querySearchName = querySearchName != null?querySearchName:'%%';
+			String UserId = (String) UserInfo.getUserId();
+			String requiedFields = 'Id, Name';
+			String requestedFields = ' ';
+			if(listRequestedFields!=null) {
+				for (String item:listRequestedFields){
+					requestedFields += ' , ';
+					requestedFields += item;
+				}
+			}
+			String checkIfThisIsCommunityUser;
+			if(Test.isRunningTest()){
+				checkIfThisIsCommunityUser = ' ';
+			}
+			else {
+				checkIfThisIsCommunityUser = +' AND (ProfileID in :setNetworkMemberGroupId OR Id in :setPermissionSetAssignmentID )';
+			}
+			String queryString	= 'SELECT '
+				+ requiedFields
+				+ requestedFields
+				+' FROM User'
+				+' WHERE (ContactId != NULL OR Community_Contact_ID__c != NULL) AND isActive = true'
+				+' AND Id != :UserId'
+				+' AND (FirstName LIKE :querySearchName OR LastName LIKE :querySearchName OR Name LIKE :querySearchName)'
+				+ checkIfThisIsCommunityUser
+				+' ORDER BY '+sortCol + ' ' + sortDir
+				+' LIMIT :queryLimit';
+				System.debug(queryString);
+			uList = Database.query(queryString);
+		}
+		catch (Exception e) {
+			System.debug(e);
+		}
+		return uList;
+	}
+	
 	
 	// used for CommunityNewsController
 	public static String ImageLibFolder() {

@@ -30,9 +30,7 @@
 				var calert = jQuery('.calert');
 				calert.find('h4').remove();
 				calert.find('br').remove();
-				calert.find('img').remove();
-				//console.log('1');
-				//console.log(jQuery('.calert .messageText').text().trim() );
+				calert.find('img').remove();				
 				if(!calert.find('.messageText').text().trim()) {
 					calert.find('.messageText').remove();
 				}

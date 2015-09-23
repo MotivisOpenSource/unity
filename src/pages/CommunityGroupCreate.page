@@ -2,7 +2,7 @@
 <apex:composition template="{!$Site.Template}">
 <apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
 <apex:define name="body">
-	
+	<div class="profile">
 	<div class="container content CommunityGroupCreate">
 	<div class="row">
 	<!--LEFT-->
@@ -13,6 +13,7 @@
 	<!--LEFT-->
 	<!--MIDDLE-->
 	<div class="col-md-9 create-group">
+		<div class="profile-body">
 	<apex:form styleClass="sky-form">
 		<div class="row margin-bottom-10">
 			<div class="col-sm-8 text-left title__container">
@@ -262,7 +263,8 @@
 			</div>
 		</apex:outputPanel>
 	</apex:form>
-	</div></div></div>
+		</div>
+	</div></div></div></div>
 </apex:define>
 </apex:composition>
 </apex:page>
