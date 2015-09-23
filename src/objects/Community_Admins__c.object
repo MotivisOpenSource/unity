@@ -44,9 +44,9 @@
         <actionName>View</actionName>
         <type>Default</type>
     </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
     <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
     <deploymentStatus>Deployed</deploymentStatus>
-    <deprecated>false</deprecated>
     <description>Used to store data values that are necessary for some Community features such as Terms and Conditions</description>
     <enableActivities>false</enableActivities>
     <enableBulkApi>true</enableBulkApi>
@@ -57,7 +57,6 @@
     <enableStreamingApi>true</enableStreamingApi>
     <fields>
         <fullName>Terms_Archived_Date__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents the Date/Time when the Terms records become Archived.</description>
         <externalId>false</externalId>
         <inlineHelpText>Represents the Date/Time when the Terms records become Archived.</inlineHelpText>
@@ -69,7 +68,6 @@
     </fields>
     <fields>
         <fullName>Terms_Body__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents the Body of the Terms that will be displayed in the Community Portal when published.</description>
         <externalId>false</externalId>
         <inlineHelpText>Represents the Body of the Terms that will be displayed in the Community Portal when published.</inlineHelpText>
@@ -82,7 +80,6 @@
     </fields>
     <fields>
         <fullName>Terms_Published_Date__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents the Date/Time when the Terms records was published.</description>
         <externalId>false</externalId>
         <inlineHelpText>Represents the Date/Time when the Terms records was published.</inlineHelpText>
@@ -95,7 +92,6 @@
     <fields>
         <fullName>Terms_Req_New_Signature__c</fullName>
         <defaultValue>false</defaultValue>
-        <deprecated>false</deprecated>
         <description>When selected, Users will need to Review and Sign the newly published Community Terms.</description>
         <externalId>false</externalId>
         <inlineHelpText>When selected, Users will need to Review and Sign the newly published Community Terms.</inlineHelpText>
@@ -106,7 +102,6 @@
     </fields>
     <fields>
         <fullName>Terms_Status__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents the Status of the Terms &amp; Conditions from Writing to Publishing.</description>
         <externalId>false</externalId>
         <inlineHelpText>Represents the Status of the Terms &amp; Conditions from Writing to Publishing.</inlineHelpText>

@@ -4,7 +4,7 @@
 <apex:define name="body">
 	<!--=== Profile ===-->	
 	<div class="profile CommunityProfilePage">
-		<div class="container content">
+		<apex:outputPanel styleClass="container content" rendered="{!isCommunityUser}">
 			<div class="row">
 				<!--Left Sidebar-->
 				<div class="col-md-3 md-margin-bottom-40">
@@ -20,9 +20,9 @@
 								<h2 class="heading-md"><strong>{!StudentName}</strong></h2>
 							</div>
 							<div class="col-md-6">
-								<apex:form id="btnaction">
+								<apex:form id="btnaction" > 
 								<!-- <apex:commandLink id="btnactionLink" action="{!subscribeUser}" styleClass="btn-u {!IF(isSubscribe,'btn-u-blue','')} pull-right margin-right-5" rerender="btnaction" onclick="$(this).find('i').attr('class','fa fa-spinner fa-pulse'); $('[id$=btnactionLink]').addClass('disabled');'" onComplete="$('[id$=btnactionLink]').removeClass('disabled');"> -->
-									<apex:commandLink id="btnactionLink" 
+									<apex:commandLink id="btnactionLink"  
 										action="{!subscribeUser}" 
 										styleClass="btn-u {!IF(isSubscribe,'btn-u-blue','')} pull-right margin-right-5" 
 										rerender="btnaction" onclick="$(this).find('i').attr('class','fa fa-spinner fa-pulse'); $('[id$=btnactionLink]').addClass('disabled'); $('[id$=btnactionLink]').attr('disabled','disabled');" 
@@ -378,7 +378,20 @@
 				</div>
 			</div>
 			<!--/end row-->
-		</div>
+		</apex:outputPanel>
+		<apex:outputpanel styleClass="container content" rendered="{!!isCommunityUser}">
+			<div class="profile-body">
+				<div class="calert">
+					<div class="message">
+						<div class="messageTable">
+							<div class="messageText">
+								{!$Label.ERR_You_do_not_have_access_to_this_user}
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</apex:outputpanel>
 		<!--/container-->
 	</div>
 	<!--script>
@@ -479,7 +492,6 @@
 				return lm;
 			}
 		}
-		
 	</script>
 </apex:define>
 </apex:composition>

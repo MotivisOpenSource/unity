@@ -46,6 +46,7 @@
         <skipRecordTypeSelect>false</skipRecordTypeSelect>
         <type>Visualforce</type>
     </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
     <compactLayoutAssignment>Standard</compactLayoutAssignment>
     <compactLayouts>
         <fullName>Standard</fullName>
@@ -62,7 +63,6 @@
         <label>Standard</label>
     </compactLayouts>
     <deploymentStatus>Deployed</deploymentStatus>
-    <deprecated>false</deprecated>
     <description>This object stores News stories (links or text content) that are published to the Community.</description>
     <enableActivities>true</enableActivities>
     <enableBulkApi>true</enableBulkApi>
@@ -209,7 +209,6 @@
     <fields>
         <fullName>Alert__c</fullName>
         <defaultValue>false</defaultValue>
-        <deprecated>false</deprecated>
         <description>determines if a news item will be an alert that appears at top of page</description>
         <externalId>false</externalId>
         <label>Alert</label>
@@ -221,7 +220,6 @@
     <fields>
         <fullName>Allow_Comments__c</fullName>
         <defaultValue>true</defaultValue>
-        <deprecated>false</deprecated>
         <description>When selected, Community Users will be allowed to post Comments on a news article as long as the Comment Expiration has not passed.</description>
         <externalId>false</externalId>
         <inlineHelpText>When selected, Community Users will be allowed to post Comments on a news article as long as the Comment Expiration has not passed.</inlineHelpText>
@@ -233,7 +231,6 @@
     </fields>
     <fields>
         <fullName>Comment_Expiration_Date__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents the Date/Time when the News Article prevents new comments from being added to the News Article.  The Time is based on the Organizations Time Zone listed in Salesforce.</description>
         <externalId>false</externalId>
         <inlineHelpText>Represents the Date/Time when the News Article prevents new comments from being added to the News Article.  The Time is based on the Organizations Time Zone listed in Salesforce.</inlineHelpText>
@@ -246,7 +243,6 @@
     </fields>
     <fields>
         <fullName>Content__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents the full text description of the news article that will be displayed in the Community Portal.</description>
         <externalId>false</externalId>
         <inlineHelpText>Represents the full text description of the news article that will be displayed in the Community Portal.</inlineHelpText>
@@ -260,7 +256,6 @@
     </fields>
     <fields>
         <fullName>Entry_Date__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents the Date/Time when the News Article will be posted in the Community Portal.  This will be based on the Organizations Time Zone in Salesforce.</description>
         <externalId>false</externalId>
         <inlineHelpText>Represents the Date/Time when the News Article will be posted in the Community Portal.  This will be based on the Organizations Time Zone in Salesforce.</inlineHelpText>
@@ -273,7 +268,6 @@
     </fields>
     <fields>
         <fullName>Expiration_Date__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents the Date/Time when the News Article will be removed from the Community Portal.  The time will be based on the Organizations Time Zone in Salesforce.</description>
         <externalId>false</externalId>
         <inlineHelpText>Represents the Date/Time when the News Article will be removed from the Community Portal.  The time will be based on the Organizations Time Zone in Salesforce.</inlineHelpText>
@@ -286,7 +280,6 @@
     </fields>
     <fields>
         <fullName>Feature_on_Home_Page_Slot__c</fullName>
-        <deprecated>false</deprecated>
         <description>Use this field if this record will be featured on the Home Page.  The selected value will determine the order of this item in the Campus Updates section.</description>
         <externalId>false</externalId>
         <label>Feature on Home Page - Slot #</label>
@@ -312,7 +305,6 @@
     </fields>
     <fields>
         <fullName>Image_Path__c</fullName>
-        <deprecated>false</deprecated>
         <description>Indicates the path where the image is stored and pulled from to display in the Community Portal.</description>
         <externalId>false</externalId>
         <inlineHelpText>Indicates the path where the image is stored and pulled from to display in the Community Portal.</inlineHelpText>
@@ -328,7 +320,6 @@
     <fields>
         <fullName>Make_Entry_Sticky__c</fullName>
         <defaultValue>false</defaultValue>
-        <deprecated>false</deprecated>
         <description>When selected, the News Article will always appear at the top of the News Article Listed.  If multiple active Sticky, articles will be listed in Descending Order by Entry Date field.</description>
         <externalId>false</externalId>
         <inlineHelpText>When selected, the News Article will always appear at the top of the News Article Listed.  If multiple active Sticky, articles will be listed in Descending Order by Entry Date field.</inlineHelpText>
@@ -340,7 +331,6 @@
     </fields>
     <fields>
         <fullName>News_SF_ID__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents the 18 digit Salesforce Unique ID of the News record.</description>
         <externalId>false</externalId>
         <formula>CASESAFEID(Id)</formula>
@@ -355,7 +345,6 @@
     </fields>
     <fields>
         <fullName>Status__c</fullName>
-        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Status</label>
         <picklist>
@@ -387,7 +376,6 @@
     </fields>
     <fields>
         <fullName>Teaser__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents a short description of the News article that will be posted in the Community Portal.</description>
         <externalId>false</externalId>
         <inlineHelpText>Represents a short description of the News article that will be posted in the Community Portal.</inlineHelpText>
@@ -400,7 +388,6 @@
     </fields>
     <fields>
         <fullName>Title__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents the title of the news that will be displayed in the Community Portal.</description>
         <externalId>false</externalId>
         <inlineHelpText>Represents the title of the news that will be displayed in the Community Portal.</inlineHelpText>
@@ -415,7 +402,6 @@
     </fields>
     <fields>
         <fullName>Type__c</fullName>
-        <deprecated>false</deprecated>
         <description>Indicates the type of news that is being added.  Internal represents a news article pasted into Salesforce and an External would be a link to an article posted somewhere on the internet.</description>
         <externalId>false</externalId>
         <inlineHelpText>Indicates the type of news that is being added.  Internal represents a news article pasted into Salesforce and an External would be a link to an article posted somewhere on the internet.</inlineHelpText>
@@ -438,7 +424,6 @@
     </fields>
     <fields>
         <fullName>URL__c</fullName>
-        <deprecated>false</deprecated>
         <description>Allows a hyperlink to be provided for an External news story.</description>
         <externalId>false</externalId>
         <label>URL</label>

@@ -44,9 +44,9 @@
         <actionName>View</actionName>
         <type>Default</type>
     </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
     <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
     <deploymentStatus>Deployed</deploymentStatus>
-    <deprecated>false</deprecated>
     <description>This object allows tags to be associated with a Group Control record.</description>
     <enableActivities>false</enableActivities>
     <enableBulkApi>true</enableBulkApi>
@@ -57,7 +57,6 @@
     <enableStreamingApi>true</enableStreamingApi>
     <fields>
         <fullName>Community_Tag__c</fullName>
-        <deprecated>false</deprecated>
         <description>This defines the Tag that is being associated to the Group Control</description>
         <externalId>false</externalId>
         <label>Community Tag</label>
@@ -72,7 +71,6 @@
     </fields>
     <fields>
         <fullName>Group_Control__c</fullName>
-        <deprecated>false</deprecated>
         <description>This field defines the Group that tags will be associated with</description>
         <externalId>false</externalId>
         <label>Group Control</label>
@@ -87,7 +85,6 @@
     </fields>
     <fields>
         <fullName>Group_Discoverable__c</fullName>
-        <deprecated>false</deprecated>
         <description>Indicates if the related Group item is discoverable to all Community User&apos;s.</description>
         <externalId>false</externalId>
         <formula>Group_Control__r.Discoverable__c</formula>
@@ -99,7 +96,6 @@
     </fields>
     <fields>
         <fullName>Group_Status__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents the Status of the related Group item.</description>
         <externalId>false</externalId>
         <formula>TEXT( Group_Control__r.Status__c )</formula>
@@ -113,7 +109,6 @@
     </fields>
     <fields>
         <fullName>Group_Tag_SF_ID__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents the 18 digit unique Salesforce ID.</description>
         <externalId>false</externalId>
         <formula>CASESAFEID(Id)</formula>
@@ -127,7 +122,6 @@
     </fields>
     <fields>
         <fullName>Group_Type__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents the Group Type of the related Group item.</description>
         <externalId>false</externalId>
         <formula>TEXT( Group_Control__r.Type__c )</formula>
@@ -141,7 +135,6 @@
     </fields>
     <fields>
         <fullName>Theme__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents the Name of the Theme related to the Tag.</description>
         <externalId>false</externalId>
         <formula>HYPERLINK(&quot;/&quot;&amp;&quot;Community_Tag__r.Community_Theme__r.Id&quot;,  Community_Tag__r.Community_Theme__r.Name  ,&apos;_self&apos;)</formula>
@@ -162,8 +155,8 @@
     <pluralLabel>Community Group Control Tags</pluralLabel>
     <searchLayouts>
         <excludedStandardButtons>New</excludedStandardButtons>
-        <excludedStandardButtons>ChangeOwner</excludedStandardButtons>
         <excludedStandardButtons>Accept</excludedStandardButtons>
+        <excludedStandardButtons>ChangeOwner</excludedStandardButtons>
         <lookupDialogsAdditionalFields>Community_Tag__c</lookupDialogsAdditionalFields>
         <lookupDialogsAdditionalFields>Theme__c</lookupDialogsAdditionalFields>
         <lookupDialogsAdditionalFields>Group_Control__c</lookupDialogsAdditionalFields>
