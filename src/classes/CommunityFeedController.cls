@@ -781,7 +781,9 @@ global with sharing class CommunityFeedController {
 			String namespacePrefix = layout.objectName.split('__').size() > 2 ? layout.objectName.split('__')[0]+'__' : '';
 
 			Map<String, Schema.DescribeFieldResult> sObjectFields = getSobjectFieldsDescribe(new List<String> { layout.objectName }).get(layout.objectName);
-
+			if(sObjectFields == null){
+				sObjectFields = getSobjectFieldsDescribe(new List<String> { layout.objectName }).get('motivisu__' + layout.objectName);
+			}
 			for (ChatterActionLayoutItem item : layout.items) {
 				if (sObjectFields.containsKey(item.fieldName)) {
 					Schema.DisplayType tpOfItem = sObjectFields.get(item.fieldName).getType();
