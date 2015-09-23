@@ -774,6 +774,9 @@ global with sharing class CommunityFeedController {
 
 			// Define a record for the quick action to create
 			Schema.SObjectType targetType = Schema.getGlobalDescribe().get(layout.objectName);
+			if(targetType == null){ 
+				targetType = Schema.getGlobalDescribe().get('motivisu__' + layout.objectName);
+			}
 			sObject sObj = targetType.newSObject();
 			String namespacePrefix = layout.objectName.split('__').size() > 2 ? layout.objectName.split('__')[0]+'__' : '';
 
