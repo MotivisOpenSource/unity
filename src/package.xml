@@ -86,6 +86,8 @@
         <members>CommunitySearch</members>
         <members>CommunityShowEditObject</members>
         <members>CommunityTopic</members>
+        <members>SiteTemplate</members>
+        <members>UnityAdmin</members>
         <name>ApexPage</name>
     </types>
     <types>
