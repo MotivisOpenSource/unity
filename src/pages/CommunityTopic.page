@@ -242,8 +242,10 @@
                         var deferred = $q.defer();
                         if ($rootScope.getDataStatus != 'InProgress') {
                             $rootScope.getDataStatus = 'InProgress';
+							var params = {'topicId' : '{!topicId}' };
                             Visualforce.remoting.Manager.invokeAction(
                                 '{!$RemoteAction.CommunityTopicController.getTopics}',
+								params,
                                 function(result, event) {
                                     $rootScope.$apply(function() {
                                         if (event.status) {

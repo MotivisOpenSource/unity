@@ -14,11 +14,16 @@ public with sharing class CommunityTopicController {
     
 
     @RemoteAction
-    public static List<TopicItem> getTopics(){
+	public static List<TopicItem> getTopics(Map<String, String> params){
         List<TopicItem> topicsItems = new List<TopicItem>();
         Set<String> topicsItemIds = new Set<String>();
         Set<String> parentFollowingIds = new Set<String>();
-        
+		String topId = params.get('topicId');
+		if(String.isNotEmpty(topId)){
+			Topic t = [SELECT Id, Name, NetworkId, TalkingAbout, CreatedById, Description FROM Topic WHERE Id =:topId AND NetworkId =: Network.getNetworkId() LIMIT 1];
+			topicsItemIds.add(t.Id);
+			topicsItems.add(new TopicItem(t));
+		}else{
         for(Topic t : [SELECT Id, Name, NetworkId, TalkingAbout, CreatedById, Description FROM Topic WHERE NetworkId =: Network.getNetworkId() LIMIT 1000]){
             topicsItemIds.add(t.Id);
             topicsItems.add(new TopicItem(t));
@@ -30,14 +35,21 @@ public with sharing class CommunityTopicController {
                 }
             }
         }
-        for(EntitySubscription es : [SELECT Id, ParentId, SubscriberId, NetworkId 
-                                    FROM EntitySubscription
-                                    WHERE NetworkId =: Network.getNetworkId()
-                                    AND SubscriberId =: UserInfo.getUserId()
-                                    AND ParentId IN :topicsItemIds
-                                    LIMIT 1000]){
-            parentFollowingIds.add(es.ParentId);
         }
+		Map<String, List<String>> topicsItemIdsMaps = new Map<String, List<String>>();
+		String key = '1';
+		for(String topicsItemId : topicsItemIds){
+			if(topicsItemIdsMaps.get(key) != null){
+				topicsItemIdsMaps.get(key).add(topicsItemId);
+			}else{
+				topicsItemIdsMaps.put(key, new List<String>{topicsItemId});
+			}
+			key = topicsItemIdsMaps.get(key).size() == 200 ? String.valueOf(Integer.valueOf(key)+1) : key;
+		}
+		for(String keyId : topicsItemIdsMaps.keySet()){
+			parentFollowingIds.addAll(selectSubscription(topicsItemIdsMaps.get(keyId)));
+		}
+	
         Set<String> favoritesTopics = getFavorites().keySet();
         for(TopicItem ti : topicsItems){
             ti.TopicIsFollowing = parentFollowingIds.contains(ti.Id) ? true : false;
@@ -48,8 +60,8 @@ public with sharing class CommunityTopicController {
     }
 
     @RemoteAction
-    public static String updateTopic(String descr, String topicId){
-        Topic top = [SELECT Id, Name, NetworkId, Description FROM Topic WHERE NetworkId =: Network.getNetworkId() AND Id =:topicId LIMIT 1];
+	public static String updateTopic(String descr, String topId){
+		Topic top = [SELECT Id, Name, NetworkId, Description FROM Topic WHERE NetworkId =: Network.getNetworkId() AND Id =:topId LIMIT 1];
         if(top == null) return Label.ERR_Can_not_found_Topic;
         if(top.Description != descr){
             top.Description = descr;
@@ -93,16 +105,31 @@ public with sharing class CommunityTopicController {
         return result;
     }
     @RemoteAction
-    public static String deleteTopic(String topicId){
+	public static String deleteTopic(String topId){
         String result = '';
         try{
-            ConnectApi.Topics.deleteTopic(Network.getNetworkId(), topicId);
+			ConnectApi.Topics.deleteTopic(Network.getNetworkId(), topId);
             return result;
         }catch(Exception ex){
             result = ex.getMessage();
         }        
         return result;
     }
+
+// use this method to prevent Visualforce Remoting Exception - "WHERE clause for EntitySubscription is too long"
+// List for ids must be less than 200
+	public static Set<String> selectSubscription(List<String> parentItemIds){
+		Set<String> parentFollowingIds = new Set<String>();
+		for(EntitySubscription es : [SELECT Id, ParentId, SubscriberId, NetworkId 
+									FROM EntitySubscription
+									WHERE NetworkId =: Network.getNetworkId()
+									AND SubscriberId =: UserInfo.getUserId()
+									AND ParentId IN :parentItemIds
+									LIMIT 1000]){
+			parentFollowingIds.add(es.ParentId);
+		}
+		return parentFollowingIds;
+	}
 
     public static Map<String, String> getFavorites(){
         Map<String, String> result = new Map<String, String>(); 

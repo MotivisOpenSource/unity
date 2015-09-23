@@ -56,10 +56,10 @@
 					<div class="overflow-h">
 						<strong><%= p.actor.displayName %> <%= p.actor.role !== null ?  '(' + p.actor.role + ')': '' %> <small class="pull-right"><%= p.dateStr %></small></strong>
 						<% if(p.parentType != null && {!tf}){ %>
-							<p><strong><%= p.parentName %> <a class="<%= p.parentIcon %> font-weight-bold" href="<%= p.parentLink %>"> <%= p.parentType %> - <%= p.parentName %> <% if(p.parentAcssesType != null){ %> (<%= p.parentAcssesType %>) <% } %></a>
+							<p><strong><a class="<%= p.parentIcon %> font-weight-bold" href="<%= p.parentLink %>"> <%= p.parentType %> - <%= p.parentName %> <% if(p.parentAcssesType != null){ %> (<%= p.parentAcssesType %>) <% } %></a>
 							</strong></p>
 						<% } %>	 
-						<p><% 	var pp = parseFeedBody(p.body,p.topics);
+						<p><% 	var pp = parseFeedBody(p.body,p.topicsUser);
 								print(wrapnl(pp)); %>
 						</p>
 						<ul class="list-inline comment-list">
@@ -118,12 +118,12 @@
 							</strong></p>
 						<% } %>	
 						<% if (!p2.showLink && !p2.showContent && !p2.capabilities.poll) { %>
-							<p>	<% var p2p = parseFeedBody(p2.body,p2.topics);
+							<p>	<% var p2p = parseFeedBody(p2.body,p2.topicsUser);
 								print(wrapnl(p2p)); %>
 							</p>
 						<%}%>
 						<% if (p2.showLink) { %>
-							<p>	<% var p2p = parseFeedBody(p2.body,p2.topics);
+							<p>	<% var p2p = parseFeedBody(p2.body,p2.topicsUser);
 								print(wrapnl(p2p)); %>
 							</p> 
 						<div class="d-link">
@@ -135,7 +135,7 @@
 						</div>
 						<% } %>
 						<% if (p2.showContent) { %>
-							<p>	<% var p2p = parseFeedBody(p2.body,p2.topics);
+							<p>	<% var p2p = parseFeedBody(p2.body,p2.topicsUser);
 								print(wrapnl(p2p)); %>
 							</p>
 							<div class="file-section">
@@ -169,7 +169,7 @@
 							</div>
 						<% } %>
 						<% if (p2.capabilities.poll && p2.capabilities.poll.choices) { %>					
-							<p>	<% var p2p = parseFeedBody(p2.body,p2.topics);
+							<p>	<% var p2p = parseFeedBody(p2.body,p2.topicsUser);
 								print(wrapnl(p2p)); %>
 							</p>
 							<fieldset class="pollfieldset">
@@ -206,9 +206,9 @@
 							</fieldset>
 						<%} %>
 						<% 
-						if (!_.isEmpty(p2.topics) && wraptop(p2.topics) != "") {%>
+						if (!_.isEmpty(p2.topicsUser) && wraptop(p2.topicsUser) != "") {%>
 							<br /><p id="topiclabel<%= p2.id %>"><a href="{!$Page.CommunityTopic}">{!$Label.LBL_Topic}</a> :
-							 	<% var p2t = wraptop(p2.topics);
+							 	<% var p2t = wraptop(p2.topicsUser);
 							 	print(wrapnl(p2t)); 
 							 	%>
 							 </p>
@@ -248,7 +248,7 @@
 										<strong><a href="{!$Page.CommunityProfilePage}?id=<%= c2.user.id %>"><%= c2.user.displayName %> <%= c2.user.role !== null ?  '(' + c2.user.role + ')': '' %></a></strong>
 										<small><%= c2.dateStr %></small>
 									</h4>
-									<p>	<% var p2p = parseFeedBody(c2.body,c2.topics);
+									<p>	<% var p2p = parseFeedBody(c2.body,c2.topicsUser);
 										print(wrapnl(p2p)); %>
 									</p> 
 									<ul class="list-inline results-list pull-left">
@@ -280,7 +280,7 @@
 								<div class="media-body">
 									<textarea id="a<%= p2.id %>" class="form-control margin-bottom-5" onclick="checkmi(this);" onkeyup="checkbtn(this,'#b<%= p2.id %>');"></textarea>
 									<ul class="list-inline pull-right">
-										<button type="button" class="btn-u opacity-75" id="b<%= p2.id %>" onclick="postComment($('#a<%= p2.id %>').val(),'<%= p2.id %>', '<%=p2.topics.length%>');" disabled="disabled">
+										<button type="button" class="btn-u opacity-75" id="b<%= p2.id %>" onclick="postComment($('#a<%= p2.id %>').val(),'<%= p2.id %>', '<%=p2.topicsUser.length%>');" disabled="disabled">
 											<i class="fa fa-spinner fa-pulse" style="display:none;"></i>
 											<span>Comment</span>
 										</button>
@@ -377,6 +377,10 @@
 						loadFeeds(null);
 					}else{
 						loadFeedsForTopic(null);
+						if({!!isTopicAssignmentCreateable}){
+							$('#palist').hide();
+							$('#postarea').hide();
+						}
 					}
 					
 					/*TEMPORARY/
@@ -417,6 +421,7 @@
 						'{!feedType}',
 						inpt,
 						function(result, event) {
+							if (event.status) {
 							var div = document.createElement('div');
 							div.innerHTML = result;
 							_.templateSettings.variable = 'rc';
@@ -425,6 +430,7 @@
 							$('#cfcmp').append(template(tt));
 							enableBtn('shmbtn');
 							$('#shmbtn').css('display',tt.showMore?'block':'none').attr('onclick','loadFeeds(\'' + tt.nextPageToken + '\');return false;');
+						}
 						}
 					);
 					initValidator();
@@ -720,7 +726,7 @@
 								if(!postFile) enableBtn('mesbtn');
 							}
 							else if(event.status == false){
-									alert(event.message);
+									//alert(event.message);
 									return false;
 								}	
 							else {
@@ -1034,6 +1040,7 @@
 						'{!feedType}',
 						'',
 						function(result, event) {
+							if (event.status) {
 							var div = document.createElement('div');
 							div.innerHTML = result;
 							_.templateSettings.variable = 'rc';
@@ -1041,6 +1048,7 @@
 							var tt = JSON.parse(div.firstChild.nodeValue);
 							$('#cfcmp').empty();
 							$('#cfcmp').prepend(template(tt));
+						}
 						}
 					);
 					
@@ -1138,6 +1146,7 @@
 					var itemText = item.text.substring(1).toLowerCase().toString();
 					itemText = _.unescape(itemText);
 					itemText = itemText.replace(/&#39;/g,"'");
+					itemText = itemText.replace(/&#92;/g,"\\");
 					outString += '<a href="{!$Page.CommunityTopic}?id='+_.invert(topicObj)[itemText]+'&pid={!parentId}">'+item.text+'</a>';
 				}
 			});

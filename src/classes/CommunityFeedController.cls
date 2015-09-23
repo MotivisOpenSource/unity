@@ -6,6 +6,7 @@ global with sharing class CommunityFeedController {
 	public static String testResult;
 	public static String feedElIdForTest;
 	public static String topicId { get;set; }
+	public static String parentManagerId { get; set;}
 	public Boolean grID { get; set; }
 	public Boolean hideEventBtn { get { return hideEventBtn == true; } set; }
 	public String parentId { get { return parentId == NULL ? UserInfo.getUserId() : parentId; } set; }
@@ -104,6 +105,7 @@ global with sharing class CommunityFeedController {
 		if(inParentId2 != UserInfo.getUserId()){
 			for(FeedItem fItem : [SELECT Id, ParentId FROM FeedItem WHERE Id IN :feedsIds AND ParentId =:inParentId2 Limit 1000]){
 				feedsParents.add(fItem.Id);
+				managersParent.put(fItem.Id, fItem.ParentId);
 			}
 		}else{
 			for(FeedItem fItem : [SELECT Id, ParentId FROM FeedItem WHERE Id IN :feedsIds Limit 1000]){
@@ -150,6 +152,8 @@ global with sharing class CommunityFeedController {
 	}
 
 	private static FeedElementPage pullFeedsConnectApi(String inParentId2, String inFeedType2, String inPageToken2) {
+		//Integer pageSize = PAGE_SIZE;
+		Integer pageSize = 1;
 		ConnectApi.FeedElementPage fep = ConnectApi.ChatterFeeds.getFeedElementsFromFeed(
 					Network.getNetworkId(),
 					determineFeedType(inParentId2, inFeedType2),
@@ -157,20 +161,43 @@ global with sharing class CommunityFeedController {
 					RECENT_COMMENT_COUNT,
 					ConnectApi.FeedDensity.FewerUpdates,
 					inPageToken2,
-					PAGE_SIZE,
+					pageSize,
 					ConnectApi.FeedSortOrder.LastModifiedDateDesc
 				);
+
+		parentManagerId = (!fep.elements.isEmpty() && fep.elements[0].parent != NULL) ? fep.elements[0].parent.id : NULL;
 		String result = json.serialize(fep);
 		FeedElementPage fepResult = (FeedElementPage)JSON.deserialize(result,FeedElementPage.class);
 
-		if(Test.isRunningTest()){
-			testResult = result;
-		}
 		return fepResult;
 	}
 	
 	private static FeedElementPage pullFeeds(String inParentId2, String inFeedType2, String inPageToken2) {
-		FeedElementPage fepResult = pullFeedsConnectApi(inParentId2, inFeedType2, inPageToken2);
+		
+		FeedElementPage fepResult = new FeedElementPage();
+		fepResult.elements = new List<FeedElement>();
+
+		//FeedElementPage fepResult = pullFeedsConnectApi(inParentId2, inFeedType2, inPageToken2);
+		
+		Map<String, String>	groupManagerMap = new Map<String, String>();
+		for(Community_Group_Manager__c cgm : [SELECT Id, Group_Control__c, Group_Manager_User__c, Manager_Role__c 
+												FROM Community_Group_Manager__c
+												WHERE Group_Manager_User__c =: UserInfo.getUserId()]){
+			groupManagerMap.put(cgm.Group_Control__c, cgm.Manager_Role__c);
+		}
+		Schema.DescribeSObjectResult r = Community_Group_Control__c.sObjectType.getDescribe();
+		String keyPrefix = r.getKeyPrefix();
+		do{
+			FeedElementPage fep = pullFeedsConnectApi(inParentId2, inFeedType2, inPageToken2);
+			if(parentManagerId == NULL 
+				|| parentManagerId.substring(0, 3) != keyPrefix 
+				|| (parentManagerId.substring(0, 3) == keyPrefix && groupManagerMap.get(parentManagerId) != NULL)){
+				fepResult.elements.add(fep.elements[0]);
+			}
+			fepResult.nextPageToken = fep.nextPageToken;
+			inPageToken2 = fep.nextPageToken;
+		}while(fepResult.showMore && fepResult.elements.size() < PAGE_SIZE);
+		
 		fepResult = initialRoles(fepResult);
 		fepResult = initialParentId(fepResult);
 		fepResult = initialTopics(fepResult);
@@ -187,7 +214,7 @@ global with sharing class CommunityFeedController {
 						UsersIds.add(fe.actor.id);
 					}
 				}
-				if(fe.capabilities != null && !fe.capabilities.comments.page.items.isEmpty()) {
+				if(!Test.isRunningTest() && fe.capabilities != null && !fe.capabilities.comments.page.items.isEmpty()) {
 					for(FeedElementComment com : fe.capabilities.comments.page.items) {
 						if(com.user != null && String.isNotBlank(com.user.id)) {
 							if(!UsersIds.contains(com.user.id)) {
@@ -248,6 +275,7 @@ global with sharing class CommunityFeedController {
 				fe.parentAcssesType = feedIdParentNameId.get(fe.Id)[2];
 				fe.parentLink = feedIdParentNameId.get(fe.Id)[3];
 				fe.parentIcon = feedIdParentNameId.get(fe.Id)[4];
+				fe.parentId = feedIdParentNameId.get(fe.Id)[5];
 			}
 		}
 
@@ -263,7 +291,7 @@ global with sharing class CommunityFeedController {
 				List<String> groupsIds = parentTypeParentId.get(typeParent);
 				List<Community_Group_Control__c> cGroups = [SELECT Id, Name, Type__c, Chatter_Group_ID__c FROM Community_Group_Control__c WHERE Chatter_Group_ID__c IN :groupsIds];
 				for(Community_Group_Control__c cGroup : cGroups){
-					parentIdNameGroupType.put(cGroup.Chatter_Group_ID__c, new List<String>{Label.LBL_Digest_Group, cGroup.Name, cGroup.Type__c, prepareUrl(Page.CommunityGroupDetailPage.getUrl())+'?gr='+cGroup.Chatter_Group_ID__c, 'fa fa-users'});
+					parentIdNameGroupType.put(cGroup.Chatter_Group_ID__c, new List<String>{Label.LBL_Digest_Group, cGroup.Name, cGroup.Type__c, prepareUrl(Page.CommunityGroupDetailPage.getUrl())+'?gr='+cGroup.Chatter_Group_ID__c, 'fa fa-users', cGroup.Chatter_Group_ID__c});
 				}
 				
 			}
@@ -271,7 +299,7 @@ global with sharing class CommunityFeedController {
 				List<String> groupsManagerIds = parentTypeParentId.get(typeParent);
 				List<Community_Group_Control__c> groupsM = [SELECT Id, Name, Type__c, Chatter_Group_ID__c FROM Community_Group_Control__c WHERE Id IN :groupsManagerIds];
 				for(Community_Group_Control__c groupM : groupsM){
-					parentIdNameGroupType.put(groupM.Id, new List<String>{label.LBL_Manager, groupM.Name, groupM.Type__c, prepareUrl(Page.CommunityGroupManager.getUrl())+'?gr='+groupM.Chatter_Group_ID__c, 'fa fa-comments'});
+					parentIdNameGroupType.put(groupM.Id, new List<String>{label.LBL_Manager, groupM.Name, groupM.Type__c, prepareUrl(Page.CommunityGroupManager.getUrl())+'?gr='+groupM.Chatter_Group_ID__c, 'fa fa-comments', groupM.Chatter_Group_ID__c});
 				}
 				
 			}
@@ -279,7 +307,7 @@ global with sharing class CommunityFeedController {
 				List<String> newsIds = parentTypeParentId.get(typeParent);
 				List<Community_News__c> cNews = [SELECT Id, Title__c FROM Community_News__c WHERE Id IN :newsIds];
 				for(Community_News__c cNew : cNews){
-					parentIdNameGroupType.put(cNew.Id, new List<String>{label.LBL_News, cNew.Title__c, null, prepareUrl(Page.CommunityNewsDetail.getUrl())+'?id='+cNew.Id, 'fa fa-newspaper-o'});
+					parentIdNameGroupType.put(cNew.Id, new List<String>{label.LBL_News, cNew.Title__c, null, prepareUrl(Page.CommunityNewsDetail.getUrl())+'?id='+cNew.Id, 'fa fa-newspaper-o', cNew.Id});
 				}
 				
 			}
@@ -287,7 +315,7 @@ global with sharing class CommunityFeedController {
 				List<String> eventsIds = parentTypeParentId.get(typeParent);
 				List<Community_Events__c> cEvents = [SELECT Id, Name__c FROM Community_Events__c WHERE Id IN :eventsIds];
 				for(Community_Events__c cEvent : cEvents){
-					parentIdNameGroupType.put(cEvent.Id, new List<String>{Label.LBL_Events, cEvent.Name__c, null, prepareUrl(Page.CommunityEventDetail.getUrl())+'?id='+cEvent.Id, 'fa fa-calendar'});
+					parentIdNameGroupType.put(cEvent.Id, new List<String>{Label.LBL_Events, cEvent.Name__c, null, prepareUrl(Page.CommunityEventDetail.getUrl())+'?id='+cEvent.Id, 'fa fa-calendar', cEvent.Id});
 				}
 				
 			}
@@ -297,10 +325,6 @@ global with sharing class CommunityFeedController {
 
 	public static FeedElementPage initialTopics(FeedElementPage currentFeedPage) {
 
-		FeedElementPage fep = new FeedElementPage();
-		fep.elements = new List<FeedElement>();
-		fep.nextPageToken = currentFeedPage.nextPageToken;
-		
 		List<String> feedsItemsIds = new List<String>();
 		List<String> topicsIds = new List<String>();
 		List<String> topicsNames = new List<String>();
@@ -325,6 +349,7 @@ global with sharing class CommunityFeedController {
 				}
 			}
 
+			if(!Test.isRunningTest()){
 			for(FeedElementComment fec : fe.capabilities.comments.page.items){
 				for(MessageSegments msc : fec.body.messageSegments){
 					if(msc.type.equalsIgnoreCase('HashTag')){
@@ -340,6 +365,7 @@ global with sharing class CommunityFeedController {
 						}
 					}
 				}
+			}
 			}
 			feedsItemsIds.add(fe.Id);
 		}
@@ -370,16 +396,18 @@ global with sharing class CommunityFeedController {
 		}
 		topicCLList.sort();
 		for(FeedElement fe : currentFeedPage.elements){
-			fe.topics = new List<TopicCL>();
+			fe.topicsUser = new List<TopicCL>();
 			Set<String> existingTopicNames = new Set<String>();
 
 			for(TopicCL tcl : topicCLList){
 				if(tcl.entityId == fe.Id) {
-					fe.topics.add(tcl);
+					fe.topicsUser.add(tcl);
 					existingTopicNames.add(tcl.name.toLowerCase());
+					if(!Test.isRunningTest()){
 					for(FeedElementComment fec : fe.capabilities.comments.page.items){
-						fec.topics = fec.topics == null ? new List<TopicCL>() : fec.topics;
-						fec.topics.add(tcl);
+							fec.topicsUser = fec.topicsUser == null ? new List<TopicCL>() : fec.topicsUser;
+							fec.topicsUser.add(tcl);
+						}
 					}
 				}
 			}
@@ -389,7 +417,7 @@ global with sharing class CommunityFeedController {
 					if(!existingTopicNames.contains(topName.toLowerCase())){
 						TopicCL tcl1 = new TopicCL(topicNamesAndIds.get(topName), null);
 						tcl1.name = topName;
-						fe.topics.add(tcl1);
+						fe.topicsUser.add(tcl1);
 					}
 				}
 			}
@@ -397,16 +425,91 @@ global with sharing class CommunityFeedController {
 				for(String topName : topicsNamesInComments.get(fe.id)){
 					if(!existingTopicNames.contains(topName.toLowerCase())){
 						for(FeedElementComment fec : fe.capabilities.comments.page.items){
-							fec.topics = fec.topics == null ? new List<TopicCL>() : fec.topics;
+							fec.topicsUser = fec.topicsUser == null ? new List<TopicCL>() : fec.topicsUser;
 							TopicCL tcl1 = new TopicCL(topicNamesAndIds.get(topName), null);
 							tcl1.name = topName;
-							fec.topics.add(tcl1);					
+							fec.topicsUser.add(tcl1);					
 						}
 					}
 				}
 			}
 		}
 		return currentFeedPage;
+	}
+
+	public static Page2 initialTopicsForComment(Page2 currentPage2) {
+
+		List<String> topicsIds = new List<String>();
+		List<String> topicsNames = new List<String>();
+		Map<String, String> topicNamesAndIds = new Map<String, String>();
+		Map<String, Set<String>> topicsNamesInComments = new Map<String, Set<String>>();
+		List<TopicCL> topicCLList = new List<TopicCL>();
+		
+		for(FeedElementComment fec : currentPage2.items){
+			for(MessageSegments msc : fec.body.messageSegments){
+				if(msc.type.equalsIgnoreCase('HashTag')){
+					String hashText = msc.text.substring(1).unescapeHtml4();
+					if(topicsNamesInComments.get(currentPage2.feedId) != null){
+						Set<String> namesFE = topicsNamesInComments.get(currentPage2.feedId);
+						namesFE.add(hashText);
+						topicsNamesInComments.put(currentPage2.feedId, namesFE);
+						topicsNames.add(hashText);
+					}else{
+						topicsNamesInComments.put(currentPage2.feedId, new Set<String>{hashText});
+						topicsNames.add(hashText);
+					}
+				}
+			}
+		}
+		
+		for(TopicAssignment topicA : [SELECT Id, NetworkId, TopicId, EntityType, EntityId FROM TopicAssignment
+										WHERE NetworkId =: Network.getNetworkId()
+										AND EntityId =:currentPage2.feedId LIMIT 10000]){
+		
+			topicCLList.add(new TopicCL(topicA.TopicId, topicA.EntityId));
+		}
+		
+		for(TopicCL tcl : topicCLList){
+			topicsIds.add(tcl.id);
+		}
+		for(Topic top : [SELECT Id, Name FROM Topic WHERE Id IN :topicsIds OR Name IN :topicsNames LIMIT 20000]){
+			Boolean match = false;
+			topicNamesAndIds.put(top.Name, top.id);
+			for(TopicCL tcl : topicCLList){
+				if(tcl.id == top.id){
+					tcl.Name = top.Name;
+					match = true;
+				}
+			}
+			if(!match){
+				TopicCL tcl1 = new TopicCL(top.Id, null);
+				tcl1.Name = top.Name;
+				topicCLList.add(tcl1);
+			}
+		}
+		topicCLList.sort();
+		for(FeedElementComment fec : currentPage2.items){
+			fec.topicsUser = new List<TopicCL>();
+			Set<String> existingTopicNames = new Set<String>();
+
+			for(TopicCL tcl : topicCLList){
+				if(tcl.entityId == currentPage2.feedId) {
+					fec.topicsUser.add(tcl);
+					existingTopicNames.add(tcl.name.toLowerCase());
+				}
+			}
+		
+			if(topicsNamesInComments.get(currentPage2.feedId) != null){
+				for(String topName : topicsNamesInComments.get(currentPage2.feedId)){
+					if(!existingTopicNames.contains(topName.toLowerCase())){
+						TopicCL tcl1 = new TopicCL(topicNamesAndIds.get(topName), null);
+						tcl1.name = topName;
+						fec.topicsUser.add(tcl1);					
+					}
+				}
+			}
+		}
+		return currentPage2;
 	}
 
 	public static void postFeedIntoTopics(FeedElementPage currentFeedPage, String topId) {
@@ -444,7 +547,7 @@ global with sharing class CommunityFeedController {
 					fe.actor.role = userRoleMap.get(fe.actor.id);
 				}
 			}
-			if(fe.capabilities != null && !fe.capabilities.comments.page.items.isEmpty()) {
+			if(!Test.isRunningTest() && fe.capabilities != null && !fe.capabilities.comments.page.items.isEmpty()) {
 				for(FeedElementComment com : fe.capabilities.comments.page.items) {
 					if(com.user != null && String.isNotBlank(com.user.id)) {
 						if(userRoleMap.containsKey(com.user.id)) {
@@ -720,6 +823,7 @@ global with sharing class CommunityFeedController {
 							fei.body = werewolfText(item.value);
 						}
 					}
+					if (fei.body == NULL) fei.body = werewolfText('');
 					// insert group link for event
 					//Community_Group_Control__c groupControl = [SELECT ID FROM Community_Group_Control__c WHERE Chatter_Group_ID__c = :inParentId4 LIMIT 1];
 					if(![SELECT ID FROM Community_Group_Control__c WHERE Chatter_Group_ID__c = :inParentId4 LIMIT 1].isEmpty()){
@@ -776,9 +880,7 @@ global with sharing class CommunityFeedController {
 
 	@RemoteAction
 	global static String postComment(String inFeedId, String inCommentText) {
-		if(Test.isRunningTest()){
-			inFeedId = feedElIdForTest;
-		}
+		
 		ConnectApi.CommentInput ci = new ConnectApi.CommentInput();
 		ci.body = werewolfText(inCommentText);
 		String newComment = json.serialize(ConnectApi.ChatterFeeds.postCommentToFeedElement(Network.getNetworkId(), inFeedId, ci, NULL));
@@ -786,12 +888,12 @@ global with sharing class CommunityFeedController {
 		commentPage.feedId = inFeedId;
 		commentPage.items = new List<FeedElementComment> { (FeedElementComment)JSON.deserialize(newComment,FeedElementComment.class) };
 		commentPage = initialRoles(commentPage);
+		commentPage = initialTopicsForComment(commentPage);
 		return json.serialize(commentPage);
 	}
 
 	@RemoteAction
 	global static String getComments(String inFeedId, String inPageToken) {
-		if(Test.isRunningTest()) inFeedId = feedElIdForTest;
 		String commentsString = json.serialize(ConnectApi.ChatterFeeds.getCommentsForFeedElement(Network.getNetworkId(), inFeedId, inPageToken, RECENT_COMMENT_COUNT));
 		Page2 commentPage2 = (Page2)JSON.deserialize(commentsString,Page2.class);
 		commentPage2.feedId = inFeedId;
@@ -802,8 +904,10 @@ global with sharing class CommunityFeedController {
 	@RemoteAction
 	global static String getTopics(String query){
 		List<HashTagTopic> result = new List<HashTagTopic>();
+		query = query.replace('\\','\\\\');
 		query = '%' + query + '%';
-		for(Topic t : [SELECT Id, Name, NetworkId, TalkingAbout FROM Topic WHERE NetworkId =: Network.getNetworkId() AND Name LIKE :query LIMIT 1000]){
+		List<Topic> listTopics = [SELECT Id, Name, NetworkId, TalkingAbout FROM Topic WHERE NetworkId =: Network.getNetworkId() AND Name LIKE :query LIMIT 1000];
+		for(Topic t : listTopics){
 			result.add(new HashTagTopic(t));
 		}
 		result.sort();
@@ -855,7 +959,6 @@ global with sharing class CommunityFeedController {
 
 	@RemoteAction
 	global static String inlineAction(String inPid, String inCname, String inOid) {
-		if(Test.isRunningTest()) inPid = feedElIdForTest;
 		InlineActionResult result;
 		// liker
 		if (inCname == 'fa-thumbs-up') {
@@ -1050,8 +1153,9 @@ global with sharing class CommunityFeedController {
 		public String parentLink { get; set; }
 		public String parentAcssesType { get; set; }
 		public String parentIcon { get; set; }
+		public String parentId { get; set; }
 
-		public List<TopicCL> topics { get; set; }
+		public List<TopicCL> topicsUser { get; set; }
 				
 	}
 
@@ -1192,7 +1296,7 @@ global with sharing class CommunityFeedController {
 		public String likeStyle { get { return myLike != NULL ? ' active' : ''; } }
 		public String likeId { get { return myLike != NULL ? myLike.id : ''; } }
 
-		public List<TopicCL> topics { get; set; }
+		public List<TopicCL> topicsUser { get; set; }
 	}
 
 	private static String[] dLbl = String.isNotBlank(Label.LBL_FeedsTime) ? Label.LBL_FeedsTime.split(';') : (new String[]{});
@@ -1263,7 +1367,7 @@ global with sharing class CommunityFeedController {
 		public HashTagTopic(Topic top) {
 			id = top.Id;
 			name = top.Name;
-			text = 'person talking';
+			text = top.talkingAbout == 1 ? Label.LBL_Person_Talking : Label.LBL_People_Talking;
 			talkingAbout = top.talkingAbout;
 			type = 'topic';
 		}

@@ -560,7 +560,7 @@ private class CommunityTest {
 		CommunitySearchController.SearchItem si2 = new CommunitySearchController.SearchItem([SELECT ID, Title__c, Teaser__c, Entry_Date__c,Image_Path__c FROM Community_News__c],1);
 		CommunitySearchController.SearchItem si3 = new CommunitySearchController.SearchItem([SELECT ID, Name, Description__c, Link__c FROM Community_Resource__c],1);		
 		CommunitySearchController.SearchItem si4 = new CommunitySearchController.SearchItem(new List<CommunityGroupsController.ChatterGroupDetail>(),0);
-		CommunitySearchController.membershipGroup('1',cgcr.Chatter_Group_ID__c,'4');
+		//CommunitySearchController.membershipGroup('1',cgcr.Chatter_Group_ID__c,'4');
 	}
 
 	@IsTest(SeeAllData=true)
@@ -614,5 +614,83 @@ private class CommunityTest {
 		cgfc.stack = vId;
 		cgfc.deleteAction();
 		
+	}
+
+	@IsTest(SeeAllData=true)
+	static void test_CommunityTopicController() {
+		Account acc = new Account(Name='testAccount');
+		insert acc;
+		Contact con = new Contact(LastName='TCLN', MailingPostalCode='99013', email='testc@testdomain.com', AccountId=acc.Id, Primary_Role__c='Student');
+		insert con;
+		Profile profile = [SELECT Id FROM Profile WHERE Name = 'System Administrator'];
+		User u = new User(alias='alias', email='email@email.com', emailencodingkey='UTF-8', lastname='lastname', firstname = 'firstName', languagelocalekey='en_US',
+			localesidkey='en_US', profileid = profile.Id, timezonesidkey='America/Los_Angeles', username='ttsde.tedf2@testmail.com',
+			FederationIdentifier='TestContactName.TestContactLastname2', Community_Contact_ID__c=con.Id);
+		insert u;
+		/*Community_Theme__c cth = new Community_Theme__c(Name='t',Theme_Type__c='Interest');
+		insert cth;
+		Community_Tag__c ct = new Community_Tag__c(Name='t',Community_Theme__c=cth.Id);
+		insert ct;*/
+		FeedItem fi = new FeedItem();
+		fi.ParentId = u.Id;
+		fi.Body = 'test feed';
+		insert fi;
+		Topic top = new Topic(Name = 'test');
+		insert top;
+		Topic top2 = new Topic(Name = 'testing');
+		insert top2;
+		TopicAssignment ta = new TopicAssignment();
+		ta.TopicId = top.Id;
+		ta.entityId = fi.Id;
+		insert ta;
+		TopicAssignment ta2 = new TopicAssignment();
+		ta2.TopicId = top2.Id;
+		ta2.entityId = fi.Id;
+		insert ta2;
+
+		
+
+		System.runAs(u) {
+			Test.setCurrentPage(Page.CommunityTopic);
+			ApexPages.currentPage().getParameters().put('id',top.Id);
+			ApexPages.currentPage().getParameters().put('pid',u.Id);
+			Map<String, String> params = new Map<String, String>();
+			params.put('topicId', null);
+			
+			TopicAssignment ta1 = new TopicAssignment();
+			ta1.TopicId = top.Id;
+			ta1.entityId = fi.Id;
+			insert ta1;
+			
+			List<CommunityTopicController.topicItem> items = CommunityTopicController.getTopics(params); 
+
+			params.put('topicId', top.Id);
+			List<CommunityTopicController.topicItem> items1 = CommunityTopicController.getTopics(params); 
+
+			CommunityTopicController ctc = new CommunityTopicController();
+			String topicId = ctc.topicId;
+			String parentId = ctc.parentId;
+			Boolean show = ctc.showTopics;
+
+			String sortField = CommunityTopicController.sortField;
+			Boolean isTopicUpdateable = ctc.isTopicUpdateable;
+			Boolean isTopicDeleteable = ctc.isTopicDeleteable;
+			Boolean isTopicCreateable = ctc.isTopicCreateable;
+			Boolean isTopicAssignmentCreateable = ctc.isTopicAssignmentCreateable;
+			Boolean isFeedTraking = ctc.isFeedTraking;
+			Boolean topicExists = ctc.topicExists;
+
+			Topic top1 = new Topic(Name = 'test1');
+			insert top1;
+
+			String result = CommunityTopicController.updateTopic('descr', top1.Id);
+			Boolean bool = CommunityTopicController.subscriberAction(u.Id, false);
+
+			String result1 = CommunityTopicController.addToFavorites(top1.Id);
+			Set<String> setRes = CommunityTopicController.selectSubscription(new List<String>{top1.Id});
+			String result2 = CommunityTopicController.removeFromFavorites(top1.Id);
+			String result3 = CommunityTopicController.deleteTopic(top1.Id);
+		}
+
 	}
 }

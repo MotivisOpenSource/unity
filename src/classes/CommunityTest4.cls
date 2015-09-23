@@ -143,6 +143,16 @@ private class CommunityTest4 {
 			CommunityUtils.membership(UserInfo.getUserId(), control.Id, '3');
 			CommunityUtils.membership(UserInfo.getUserId(), control.Id, '5');
 			CommunityUtils.getRequestJoinGroupCount(cg.Id) ;
+
+			String inURL = CommunityUtils.checkURLforPref('motivisSKL/profilephoto/0F9/F');
+			List<String> availGroupIds = CommunityUtils.getIdsOfAvailableGroups(new List<String>{cg.Id});
+			Boolean bool = CommunityUtils.checkAPIEnable();
+
+			Map<String, Boolean> crud = CommunityUtils.checkCRUDforObject('Topic');
+			System.assertEquals(false, crud.isEmpty());
+
+			Boolean bool1 = CommunityUtils.isFeedTrakingEnabled('Topic', new Map<String, String>{'Name' => 'string'});
+			System.assertEquals(true, bool1);
 		}	
 	}
 	
