@@ -1758,6 +1758,9 @@ global with sharing class CommunityFeedController {
 			}
 			
 			SObjectType objectType = Schema.getGlobalDescribe().get(objName);
+			if(objectType == null){ 
+				objectType = Schema.getGlobalDescribe().get('motivisu__' + objName);
+			}
 			Map<String,Schema.SObjectField> mfields = objectType.getDescribe().fields.getMap();
 			List<ChatterActionLayoutItem> chatActionLI = new List<ChatterActionLayoutItem>();
 
