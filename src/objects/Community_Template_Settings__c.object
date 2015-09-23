@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
     <customSettingsType>Hierarchy</customSettingsType>
-    <customSettingsVisibility>Protected</customSettingsVisibility>
     <description>These settings are used to control some aspects of the Portal Design Template.</description>
     <enableFeeds>false</enableFeeds>
     <fields>
         <fullName>Background_ImageID__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents the Document ID that will be displayed on the Background of the Community Portal. The Document must follow the size restrictions outlined and must be marked as &apos;Externally Available Image = TRUE&quot; to be viewable.</description>
         <externalId>false</externalId>
         <inlineHelpText>Represents the Document ID that will be displayed on the Background of the Community Portal. The Document must follow the size restrictions outlined and must be marked as &apos;Externally Available Image = TRUE&quot; to be viewable.</inlineHelpText>
@@ -30,7 +28,6 @@
     </fields>
     <fields>
         <fullName>Footer_Logo_ImageID__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents the Document ID that will be displayed as the Logo in the Footer of the Community Portal. The Document must follow the size restrictions outlined and must be marked as &apos;Externally Available Image = TRUE&quot; to be viewable.</description>
         <externalId>false</externalId>
         <inlineHelpText>Represents the Document ID that will be displayed as the Logo in the Footer of the Community Portal. The Document must follow the size restrictions outlined and must be marked as &apos;Externally Available Image = TRUE&quot; to be viewable.</inlineHelpText>
@@ -43,7 +40,6 @@
     </fields>
     <fields>
         <fullName>Header_Logo_ImageID__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents the Document ID that will be displayed in the header of the Community Portal.  The Document must follow the size restrictions outlined and must be marked as &apos;Externally Available Image = TRUE&quot; to be viewable.</description>
         <externalId>false</externalId>
         <inlineHelpText>Represents the Document ID that will be displayed in the header of the Community Portal.  The Document must follow the size restrictions outlined and must be marked as &apos;Externally Available Image = TRUE&quot; to be viewable.</inlineHelpText>
@@ -56,7 +52,6 @@
     </fields>
     <fields>
         <fullName>Home_Page_ImageID__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents the Document ID that will be displayed on the Home Page of the Community Portal. The Document must follow the size restrictions outlined and must be marked as &apos;Externally Available Image = TRUE&quot; to be viewable.</description>
         <externalId>false</externalId>
         <inlineHelpText>Represents the Document ID that will be displayed on the Home Page of the Community Portal. The Document must follow the size restrictions outlined and must be marked as &apos;Externally Available Image = TRUE&quot; to be viewable.</inlineHelpText>
@@ -68,4 +63,5 @@
         <unique>false</unique>
     </fields>
     <label>Community Template Settings</label>
+    <visibility>Protected</visibility>
 </CustomObject>

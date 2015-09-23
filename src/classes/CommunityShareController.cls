@@ -69,8 +69,13 @@ global with sharing class CommunityShareController {
 				gcSet2.add(cgc2.Chatter_Group_ID__c);
 			}
 			String networkId = Network.getNetworkId();
-			Network nRec = [SELECT UrlPathPrefix FROM Network WHERE Id = :networkId];
-			String cprefix = nRec.UrlPathPrefix != null ? '/' + nRec.UrlPathPrefix + '/' : '/';
+			String cprefix = '';
+			Network nRec;
+			if(networkId!=null) {
+				nRec = [SELECT UrlPathPrefix FROM Network WHERE Id = :networkId];
+				cprefix = nRec.UrlPathPrefix != null ? '/' + nRec.UrlPathPrefix + '/' : '/';
+			}
+			
 	
 			List<CollaborationGroup> cgrec = new List<CollaborationGroup>();
 

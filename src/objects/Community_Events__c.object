@@ -46,6 +46,7 @@
         <skipRecordTypeSelect>false</skipRecordTypeSelect>
         <type>Visualforce</type>
     </actionOverrides>
+    <allowInChatterGroups>false</allowInChatterGroups>
     <compactLayoutAssignment>Standard</compactLayoutAssignment>
     <compactLayouts>
         <fullName>Standard</fullName>
@@ -59,7 +60,6 @@
         <label>Standard</label>
     </compactLayouts>
     <deploymentStatus>Deployed</deploymentStatus>
-    <deprecated>false</deprecated>
     <description>Used to store Events in the Community.  Events may or may not be associated with a Group.</description>
     <enableActivities>true</enableActivities>
     <enableBulkApi>true</enableBulkApi>
@@ -230,7 +230,6 @@
     </fieldSets>
     <fields>
         <fullName>Building__c</fullName>
-        <deprecated>false</deprecated>
         <description>Used to store the building name where the Event is taking place, if any.</description>
         <externalId>false</externalId>
         <label>Building</label>
@@ -244,7 +243,6 @@
     </fields>
     <fields>
         <fullName>City__c</fullName>
-        <deprecated>false</deprecated>
         <description>Provide a City for the Community Event Location</description>
         <externalId>false</externalId>
         <label>City</label>
@@ -258,7 +256,6 @@
     </fields>
     <fields>
         <fullName>Contact_Email__c</fullName>
-        <deprecated>false</deprecated>
         <description>Provide an email address to contact for more information about the Community Event.</description>
         <externalId>false</externalId>
         <label>Contact Email</label>
@@ -271,7 +268,6 @@
     </fields>
     <fields>
         <fullName>Contact_Phone__c</fullName>
-        <deprecated>false</deprecated>
         <description>Provide a contact phone number for details about the Community Event</description>
         <externalId>false</externalId>
         <label>Contact Phone</label>
@@ -283,7 +279,6 @@
     </fields>
     <fields>
         <fullName>Description__c</fullName>
-        <deprecated>false</deprecated>
         <description>Provide a description of the Community Event details and RSVP instructions (if any)</description>
         <externalId>false</externalId>
         <label>Description</label>
@@ -296,7 +291,6 @@
     </fields>
     <fields>
         <fullName>End__c</fullName>
-        <deprecated>false</deprecated>
         <description>End Date/Time of the Community Event</description>
         <externalId>false</externalId>
         <label>End</label>
@@ -308,7 +302,6 @@
     </fields>
     <fields>
         <fullName>Event_SF_ID__c</fullName>
-        <deprecated>false</deprecated>
         <description>Represents the Salesforce 18 Digit Unique ID for the Event record.</description>
         <externalId>false</externalId>
         <formula>CASESAFEID(Id)</formula>
@@ -323,7 +316,6 @@
     </fields>
     <fields>
         <fullName>Name__c</fullName>
-        <deprecated>false</deprecated>
         <description>Used to define a name for the event.  This field is mandatory.</description>
         <externalId>false</externalId>
         <label>Name</label>
@@ -338,7 +330,6 @@
     <fields>
         <fullName>Public__c</fullName>
         <defaultValue>true</defaultValue>
-        <deprecated>false</deprecated>
         <description>This field drives whether the Community Event record is discoverable by other users in the Community who are not part of the group who created it.</description>
         <externalId>false</externalId>
         <inlineHelpText>If you check this box, the Event will be discoverable to all users in the Community.</inlineHelpText>
@@ -350,7 +341,6 @@
     </fields>
     <fields>
         <fullName>Room__c</fullName>
-        <deprecated>false</deprecated>
         <description>Use this to provide a room number for your event, if known.</description>
         <externalId>false</externalId>
         <label>Room</label>
@@ -364,7 +354,6 @@
     </fields>
     <fields>
         <fullName>Start__c</fullName>
-        <deprecated>false</deprecated>
         <description>Start Date/Time of the Community Event Record</description>
         <externalId>false</externalId>
         <label>Start</label>
@@ -376,7 +365,6 @@
     </fields>
     <fields>
         <fullName>State__c</fullName>
-        <deprecated>false</deprecated>
         <description>Provide a State for the Community Event location</description>
         <externalId>false</externalId>
         <label>State</label>
@@ -390,7 +378,6 @@
     </fields>
     <fields>
         <fullName>Street_Address__c</fullName>
-        <deprecated>false</deprecated>
         <description>Provide a street address (number, street) for the Community Event location</description>
         <externalId>false</externalId>
         <label>Street Address</label>
@@ -404,7 +391,6 @@
     </fields>
     <fields>
         <fullName>Teaser__c</fullName>
-        <deprecated>false</deprecated>
         <description>Provide a teaser description for the Event, to be displayed on the Event Listing page within the Community.</description>
         <externalId>false</externalId>
         <inlineHelpText>The Teaser is shown on the Event Listing page for Events that are flagged as Public.</inlineHelpText>
@@ -419,7 +405,6 @@
     </fields>
     <fields>
         <fullName>Website__c</fullName>
-        <deprecated>false</deprecated>
         <description>Provide a URL to additional event details or an RSVP page hosted on another site.</description>
         <externalId>false</externalId>
         <label>Website</label>
@@ -431,7 +416,6 @@
     </fields>
     <fields>
         <fullName>Zip__c</fullName>
-        <deprecated>false</deprecated>
         <description>Provide a Zip Code/Postal Code of the Community Event location</description>
         <externalId>false</externalId>
         <label>Zip</label>
@@ -528,8 +512,8 @@
         <customTabListAdditionalFields>Contact_Email__c</customTabListAdditionalFields>
         <customTabListAdditionalFields>Website__c</customTabListAdditionalFields>
         <customTabListAdditionalFields>CREATED_DATE</customTabListAdditionalFields>
-        <excludedStandardButtons>ChangeOwner</excludedStandardButtons>
         <excludedStandardButtons>New</excludedStandardButtons>
+        <excludedStandardButtons>ChangeOwner</excludedStandardButtons>
         <lookupDialogsAdditionalFields>Name__c</lookupDialogsAdditionalFields>
         <lookupDialogsAdditionalFields>Start__c</lookupDialogsAdditionalFields>
         <lookupDialogsAdditionalFields>End__c</lookupDialogsAdditionalFields>
@@ -548,4 +532,11 @@
         <searchResultsAdditionalFields>CREATED_DATE</searchResultsAdditionalFields>
     </searchLayouts>
     <sharingModel>ReadWrite</sharingModel>
+    <validationRules>
+        <fullName>Event_End_Less_Or_Equal_Than_Start</fullName>
+        <active>true</active>
+        <description>Event_End_Less_Or_Equal_Than_Start</description>
+        <errorConditionFormula>Start__c   &gt;=   End__c</errorConditionFormula>
+        <errorMessage>The end date must be greater than the start date.</errorMessage>
+    </validationRules>
 </CustomObject>
