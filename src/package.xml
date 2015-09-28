@@ -33,6 +33,7 @@
         <members>CommunityTest3</members>
         <members>CommunityTest4</members>
         <members>CommunityTopCategoriesController</members>
+        <members>CommunityTopicController</members>
         <members>CommunityUrlRewriter</members>
         <members>CommunityUtils</members>
         <members>UnityAdminController</members>
@@ -84,9 +85,13 @@
         <members>CommunityResources</members>
         <members>CommunitySearch</members>
         <members>CommunityShowEditObject</members>
+        <members>CommunityTopic</members>
+        <members>UnityAdmin</members>
+        <members>UnitySiteTemplate</members>
         <name>ApexPage</name>
     </types>
     <types>
+        <members>CollaborationGroup</members>
         <members>CommunityAdmin</members>
         <members>CommunityGroupControl</members>
         <members>CommunityNews</members>
@@ -149,10 +154,17 @@
         <members>Community_Group_Control_Tag__c.Group_Tag_SF_ID__c</members>
         <members>Community_Group_Control_Tag__c.Group_Type__c</members>
         <members>Community_Group_Control_Tag__c.Theme__c</members>
+        <members>Community_Group_Control__c.Active__c</members>
+        <members>Community_Group_Control__c.Auto_Follow__c</members>
+        <members>Community_Group_Control__c.Automatic_Archive__c</members>
         <members>Community_Group_Control__c.Chatter_Group_ID__c</members>
         <members>Community_Group_Control__c.Description__c</members>
         <members>Community_Group_Control__c.Discoverable__c</members>
         <members>Community_Group_Control__c.Group_Control_SF_ID__c</members>
+        <members>Community_Group_Control__c.Image_Path__c</members>
+        <members>Community_Group_Control__c.Information__c</members>
+        <members>Community_Group_Control__c.Manager_Group_Required__c</members>
+        <members>Community_Group_Control__c.Max_Users__c</members>
         <members>Community_Group_Control__c.Network__c</members>
         <members>Community_Group_Control__c.Purpose__c</members>
         <members>Community_Group_Control__c.Status__c</members>
@@ -225,6 +237,7 @@
         <members>Community_Settings__c.Create_Group_Require_Tags__c</members>
         <members>Community_Settings__c.Disable_Change_Password__c</members>
         <members>Community_Settings__c.Disable_Share__c</members>
+        <members>Community_Settings__c.Disable_Topic_Menu__c</members>
         <members>Community_Settings__c.Image_Library_Folder__c</members>
         <members>Community_Settings__c.News_Accepted_Image_Types__c</members>
         <members>Community_Settings__c.News_Max_Sticky__c</members>
@@ -274,6 +287,8 @@
         <members>BTN_Edit_News</members>
         <members>BTN_Edit_Resource</members>
         <members>BTN_Following</members>
+        <members>BTN_GoogleCal</members>
+        <members>BTN_ICS</members>
         <members>BTN_Join</members>
         <members>BTN_New_Message</members>
         <members>BTN_Preview</members>
@@ -289,26 +304,35 @@
         <members>BTN_Upload_Resource</members>
         <members>ERR_1_Breaking_News</members>
         <members>ERR_3_Alerts</members>
-        <members>ERR_Cant_Found_Group</members>
+        <members>ERR_Can_not_found_Topic</members>
         <members>ERR_Create_Event_Dates</members>
         <members>ERR_Dup_Group_Name</members>
         <members>ERR_Group_Picture_FileError</members>
+        <members>ERR_Maximum_number_topics</members>
         <members>ERR_MissingImageLibrary</members>
         <members>ERR_MissingPermission</members>
         <members>ERR_Name_is_too_long</members>
         <members>ERR_News_Too_Many_Sticky</members>
         <members>ERR_No_Records</members>
+        <members>ERR_No_Topics_To_Display</members>
         <members>ERR_NotGroupManager</members>
         <members>ERR_Please_Enter_Value</members>
         <members>ERR_Please_Select_Group</members>
         <members>ERR_Pole_SameValueWarning</members>
+        <members>ERR_Primary_Profile</members>
+        <members>ERR_Profile_RecordType</members>
+        <members>ERR_Topic_Not_Available</members>
+        <members>ERR_Topic_Not_Available_Message</members>
+        <members>ERR_You_do_not_have_access_to_this_user</members>
         <members>Feed_Nav_People</members>
         <members>LBL_About_Me</members>
         <members>LBL_About_this_group</members>
         <members>LBL_Add</members>
+        <members>LBL_AddToCalendar</members>
         <members>LBL_Add_Photo</members>
         <members>LBL_Add_Remove_Members</members>
         <members>LBL_Admin_Page_Group_Tag_Setting_Error</members>
+        <members>LBL_Add_To_Favorites</members>
         <members>LBL_AgreeToTerms</members>
         <members>LBL_AllGroups</members>
         <members>LBL_Assign_New_Owner</members>
@@ -350,6 +374,7 @@
         <members>LBL_ERR_Help_Link</members>
         <members>LBL_ERR_Quick_Link</members>
         <members>LBL_EditProfile</members>
+        <members>LBL_Edit_Details</members>
         <members>LBL_Edit_Group</members>
         <members>LBL_EmailNotifications</members>
         <members>LBL_Event_Group</members>
@@ -395,6 +420,7 @@
         <members>LBL_LikesPost</members>
         <members>LBL_Link</members>
         <members>LBL_Link_InputBox</members>
+        <members>LBL_Load_More</members>
         <members>LBL_Location</members>
         <members>LBL_Logout</members>
         <members>LBL_ManageDetails_Title</members>
@@ -418,6 +444,7 @@
         <members>LBL_My_Account</members>
         <members>LBL_My_Discussions</members>
         <members>LBL_My_News</members>
+        <members>LBL_Name</members>
         <members>LBL_Need_Search</members>
         <members>LBL_NewPassword</members>
         <members>LBL_News</members>
@@ -433,6 +460,7 @@
         <members>LBL_Notifications</members>
         <members>LBL_Notifications_Message</members>
         <members>LBL_Notifications_Post</members>
+        <members>LBL_Oh_Snap</members>
         <members>LBL_OldPassword</members>
         <members>LBL_Other</members>
         <members>LBL_Owner</members>
@@ -441,8 +469,10 @@
         <members>LBL_PasswordChange_Message</members>
         <members>LBL_Pending</members>
         <members>LBL_PendingRequestsManager_Title</members>
+        <members>LBL_People</members>
+        <members>LBL_People_Talking</members>
+        <members>LBL_Person_Talking</members>
         <members>LBL_PictureUploadModal_SizeWarning</members>
-        <members>LBL_PictureUploadModal_Title</members>
         <members>LBL_Poll</members>
         <members>LBL_Post</members>
         <members>LBL_Post_InputBox</members>
@@ -460,6 +490,7 @@
         <members>LBL_RegProfilePicture_Title</members>
         <members>LBL_RegTerms_Title</members>
         <members>LBL_Related_Tags</members>
+        <members>LBL_Remove_From_Favorites</members>
         <members>LBL_RequestToJoin</members>
         <members>LBL_Requested</members>
         <members>LBL_Required_Field</members>
@@ -479,15 +510,19 @@
         <members>LBL_Share_To_A_Group</members>
         <members>LBL_Share_on_Profile</members>
         <members>LBL_SharesPosts</members>
+        <members>LBL_Show</members>
         <members>LBL_ShowManagersOnly</members>
         <members>LBL_ShowMembersOnly</members>
         <members>LBL_ShowMore</members>
         <members>LBL_Show_All</members>
+        <members>LBL_Sorted_By</members>
         <members>LBL_TagHelper_Link</members>
         <members>LBL_TermsAndConditions</members>
         <members>LBL_Thumbnail</members>
         <members>LBL_Thumbnail_Use</members>
         <members>LBL_Today_is</members>
+        <members>LBL_Topic</members>
+        <members>LBL_Topics</members>
         <members>LBL_Upcoming_Events</members>
         <members>LBL_Update_Managers</members>
         <members>LBL_Upload_File</members>
@@ -586,6 +621,7 @@
         <members>Community_Events__c.Past_Events</members>
         <members>Community_Events__c.Todays_Events</members>
         <members>Community_Events__c.Upcoming_Events</members>
+        <members>Community_Group_Control__c.All</members>
         <members>Community_Group_Control__c.All_Groups</members>
         <members>Community_News_Tag__c.All</members>
         <members>Community_News__c.Alerts_Active</members>
@@ -630,6 +666,7 @@
         <name>StaticResource</name>
     </types>
     <types>
+        <members>Community_Events__c.Event_End_Less_Or_Equal_Than_Start</members>
         <members>Community_Group_Control__c.Public_group_should_be_discoverable</members>
         <members>Community_News__c.Alert_cannot_have_Home_Page_Slot</members>
         <members>Community_News__c.Teaser_required_for_Internal</members>
@@ -646,5 +683,5 @@
         <members>User.Update Community Contact ID on User</members>
         <name>WorkflowRule</name>
     </types>
-    <version>33.0</version>
+    <version>34.0</version>
 </Package>

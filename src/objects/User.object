@@ -2,7 +2,6 @@
 <CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
     <fields>
         <fullName>Community_Contact_ID__c</fullName>
-        <deprecated>false</deprecated>
         <description>Populate the 18 digit Salesforce ID of this User&apos;s Contact record.  This is used to define the Community Profile fields that are displayed for this user. Only use this field if the User is a full Salesforce licensed user and not a Community-only user.</description>
         <externalId>false</externalId>
         <label>Community Contact ID</label>
@@ -14,7 +13,6 @@
     </fields>
     <fields>
         <fullName>Completed_Registration_Date__c</fullName>
-        <deprecated>false</deprecated>
         <externalId>false</externalId>
         <label>Completed Registration Date</label>
         <required>false</required>
@@ -23,7 +21,6 @@
     </fields>
     <fields>
         <fullName>Terms_of_Use__c</fullName>
-        <deprecated>false</deprecated>
         <description>Captures the DateTime when the user agrees to the Terms of Use statement on the registration for the community.</description>
         <externalId>false</externalId>
         <label>Terms of Use</label>

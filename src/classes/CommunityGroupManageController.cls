@@ -263,14 +263,11 @@ public with sharing class CommunityGroupManageController {
 			Boolean managersMode = mode == 'managers';
 			Boolean requestsMode = mode == 'requests';
 			List<User> allUsers;
-			if (allMode) {
-				String mQuery = 'SELECT Id, Name, ContactId, City, Country, Community_Contact_ID__c, SmallPhotoUrl FROM User WHERE (ContactId != NULL OR Community_Contact_ID__c != NULL) AND isActive = true';
-				mQuery = checkQuery(mQuery, '');
-				if (columnSort > 0) {
-					List<String> orderList = new List<String> {'','Name'};
-					mQuery += ' ORDER BY ' + orderList[columnSort] + (ascSort ? ' ASC' : ' DESC');
-				}
-				allUsers = Database.query(mQuery);
+			
+			if (allMode) { 
+				List<String> orderList = new List<String> {'','Name'};
+				String columnSortStr = (columnSort > 0)?orderList[columnSort]:'';
+				allUsers = CommunityHelperWithoutSharing.getCommunityUsers(null, 100, new List<String>{'ContactId', 'City', 'Country', 'Community_Contact_ID__c', 'SmallPhotoUrl'}, columnSortStr , ascSort);
 			}
 			else if (membersMode) {
 				String mQuery2 = 'SELECT MemberId, Member.Name, Member.Id, Member.ContactId, Member.City, Member.Country, Member.Community_Contact_ID__c, Member.SmallPhotoUrl FROM CollaborationGroupMember';
