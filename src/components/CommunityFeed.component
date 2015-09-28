@@ -2,7 +2,8 @@
 	<apex:attribute name="pid" type="String" assignTo="{!parentId}" required="false" description="Parent Id" />
 	<apex:attribute name="ft" type="String" assignTo="{!feedType}" required="false" description="Feed Type" />
 	<apex:attribute name="ti" type="String" assignTo="{!topicId}" required="false" description="Topic Id" />
-	<apex:attribute name="fm" type="Boolean" assignTo="{!fullMode}" required="false" default="true" description="Full Mode" /><apex:attribute name="fu" type="Boolean" assignTo="{!showFileUpload}" required="false" default="false" description="Show File Upload" />
+	<apex:attribute name="fm" type="Boolean" assignTo="{!fullMode}" required="false" default="true" description="Full Mode" />
+	<apex:attribute name="fu" type="Boolean" assignTo="{!showFileUpload}" required="false" default="false" description="Show File Upload" />
 	<apex:attribute name="sjcb" type="Boolean" required="false" default="false" description="show Join the Conversation button" />
 	<apex:attribute name="tf" type="Boolean" required="false" default="false" description="show feeds from" />
 	<apex:attribute name="gID" type="Boolean" assignTo="{!grID}" required="false" default="false" description="ID for Group" />
@@ -128,6 +129,7 @@
 						<% if (!p2.showLink && !p2.showContent && !p2.capabilities.poll) { %>
 							<p>	<% var p2p = parseFeedBody(p2.body,p2.topicsUser);
 								print(wrapnl(p2p)); %>
+<<<<<<< HEAD
 							</p>
 						<%}%>
 						<% if (p2.showLink) { %>
@@ -141,6 +143,7 @@
 						</a>
 						<% print(wrapnl(p2.linkHref)); %>
 						</div>
+							</p>
 						<% } %>
 						<% if (p2.showContent) { %>
 							<p>	<% var p2p = parseFeedBody(p2.body,p2.topicsUser);
