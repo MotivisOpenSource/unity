@@ -384,6 +384,7 @@
         <protected>true</protected>
         <shortDescription>ERR Profile Not Available</shortDescription>
         <value>This profile is no longer available</value>
+    </labels>
     <labels>
         <fullName>Feed_Nav_People</fullName>
         <language>en_US</language>
