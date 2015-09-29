@@ -435,6 +435,13 @@
         <value>Add to favorites</value>
     </labels>
     <labels>
+        <fullName>LBL_Admin_Page_Group_Tag_Setting_Error</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Admin Page Group Tag Setting Error</shortDescription>
+        <value>If Max Group Tags = 0, then Create Group Require Tags must be FALSE</value>
+    </labels>
+    <labels>
         <fullName>LBL_AgreeToTerms</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -594,6 +601,13 @@
         <protected>true</protected>
         <shortDescription>LBL CreateGroup Tags</shortDescription>
         <value>Tags</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Create_Max_Tag_Reached_Error</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Create Max Tag Reached Error</shortDescription>
+        <value>You are reached maximum of {0} Tag(s) for this group. You must remove a tag in order to add a tag.</value>
     </labels>
     <labels>
         <fullName>LBL_Current_Events_Title</fullName>
