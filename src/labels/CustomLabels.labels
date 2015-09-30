@@ -1203,7 +1203,7 @@
         <protected>true</protected>
         <shortDescription>LBL My Discussions</shortDescription>
         <value>My Discussions</value>
-    </labels>  
+    </labels>
  	  <labels>
         <fullName>LBL_My_Favorites</fullName>
         <language>en_US</language>
@@ -1211,6 +1211,7 @@
         <shortDescription>LBL My Favorites</shortDescription>
         <value>My Favorites</value>
     </labels>
+    <labels>
         <fullName>LBL_My_News</fullName>
         <language>en_US</language>
         <protected>true</protected>
