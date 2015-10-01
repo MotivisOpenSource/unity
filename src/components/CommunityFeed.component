@@ -15,7 +15,7 @@
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/sky-forms/version-2.0.1/js/jquery.validate.min.js"></script> <!--  path contains old version -->
 	<script type="text/javascript" src="/soap/ajax/33.0/connection.js"></script>
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/ImageLoad/load-image.all.min.js"></script>
-	<script type="text/javascript" src="{!$Resource.jquery_hashtagsinput}" ></script>
+	<script type="text/javascript" src="{!$Resource.assets}/plugins/hashtagsinput/jquery_hashtagsinput.js" ></script>
 	
 
 	<apex:stylesheet value="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.css" />
