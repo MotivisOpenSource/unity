@@ -239,7 +239,7 @@ private class CommunityTest {
 		System.assertEquals(true, googleCalendar.length() > 0);
 		ApexPages.currentPage().getParameters().put('tags',ct.Id);
 
-		cec.downloadICS();
+		cec.generateDownloadIcsLink();
 		cec.getStartDate();
 		cec.getEndDate();
 
