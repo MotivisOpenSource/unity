@@ -17,17 +17,24 @@ private class CommunityTest {
 		cnc.imgBody = Blob.valueOf('blob');
 		cnc.imgFileName = 'ifn';
 		cnc.news.Type__c = 'External';
-		cnc.news.Teaser__c='';
-		cnc.news.Content__c='<div>test</div>';
+		cnc.news.Teaser__c = '';
+		cnc.news.Content__c = '<div>test</div>';
 		System.assertEquals(cnc.news.Content__c,'<div>test</div>');
 		cnc.submitFirstStep();
 		cnc.news.Type__c = 'Internal';
-		cnc.news.Title__c='t';
-		cnc.news.Teaser__c='t';
+		cnc.news.Title__c = 't';
+		cnc.news.Teaser__c = 't';
 		cnc.news.Make_Entry_Sticky__c = true;
-		cnc.news.Entry_Date__c=Datetime.now();
-		cnc.news.Expiration_Date__c=Datetime.now().addDays(1);
+		cnc.news.Entry_Date__c = Datetime.now();
+		cnc.news.Expiration_Date__c = Datetime.now().addDays(1);
+		System.assert(cnc.getNewsImage() == NULL);
+		cnc.getUpdateableCurrentNews();
 		cnc.submitFirstStep();
+		cnc.submitSecondStep();
+		System.debug(cnc.urlForBackToNewsEdit);
+		System.debug(cnc.folderId);
+		
+		//cnc.edit();
 
 		CommunityNewsController cnc2 = new CommunityNewsController(new ApexPages.StandardController(cnc.news));
 		cnc2.initFromEdit();
@@ -35,6 +42,7 @@ private class CommunityTest {
 		ApexPages.currentPage().getParameters().put('cloneId',cnc.news.Id);
 		CommunityNewsController cnc2c = new CommunityNewsController(new ApexPages.StandardController(new Community_News__c()));
 		cnc2c.initFromEdit();
+		cnc.getPostedStr();
 
 		insert new Community_News__c(Title__c='t',Teaser__c='t',Entry_Date__c=Datetime.now(),Expiration_Date__c=Datetime.now().addDays(1));
 
@@ -43,7 +51,7 @@ private class CommunityTest {
 		cnc3.mode = 'view';
 		cnc3.init();
 		cnc3.cancel();
-		//cnc3.edit();
+		cnc3.edit();
 		Boolean b = cnc3.allowComments;
 		String tst = cnc3.urlForEditNews;
 		tst = cnc3.urlForNewNews;
@@ -189,6 +197,11 @@ private class CommunityTest {
 		cppc.getDigestSettings();
 		cppc.getDefaultDigest();
 		cppc.getIsSubscribe();
+		cppc.getIsCommunityUser();
+		cppc.getShowChangePassword();
+
+		System.assert(cppc.getfsMap() != null);
+
 		System.AssertEquals(cppc.getIsSubscribe(),false);
 		System.RunAs(u) {
 		    CommunityProfilePageController.toggleUserDigest(cg.id,'P');
@@ -361,12 +374,14 @@ private class CommunityTest {
 		ApexPages.currentPage().getParameters().put('u',u.Id);
 		CommunityGroupDetailPageController.toggleSubscriber(u.Id);
 		CommunityGroupDetailPageController cgc = new CommunityGroupDetailPageController();
+		cgc.getGroupEditable();
 		cgc.getUrlForCreateEvent();
 		cgc.switchToMemberMode();
 		cgc.switchToRequestMode();
 		cgc.getHideFeedComponent();
 		cgc.getShowPendingMembers();
 		cgc.getActionButton();
+		cgc.getFieldset();
 		cgc.getEvents();
 		Boolean b = cgc.showCreateEvent;
 		cgc.groupMode = '1';
@@ -384,6 +399,9 @@ private class CommunityTest {
 		cgc.control = group1;
 		cgc.accepted = false;
 		cgc.requesterId = u.Id;
+		System.debug(cgc.groupRoleString);
+		System.assert(cgc.showFilesSection != null);
+
 	}
 
 	static testMethod void test_CommunityGroupManageController() {
@@ -572,9 +590,9 @@ private class CommunityTest {
 		CommunityGroupFilesController cgfc = new CommunityGroupFilesController();
 		cgfc.initFromPage();
 		cgfc.getCommunityId();
-		System.assert(cgfc.chatterGroup != NULL, true);
+		System.assert(cgfc.parentId != NULL, true);
 		insert new FeedItem(
-			ParentId = cgfc.chatterGroup.Id,
+			ParentId = cgfc.parentId,
 			ContentFileName = 'tst',
 			ContentData = EncodingUtil.base64Decode('/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////2wBDAf//////////////////////////////////////////////////////////////////////////////////////wAARCAAMABADASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAQAC/8QAGRAAAwADAAAAAAAAAAAAAAAAAAERElFx/8QAFAEBAAAAAAAAAAAAAAAAAAAAAP/EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDEQA/ADF6KOGp0IB//9k='),
 			Body = 'tst'
@@ -586,7 +604,7 @@ private class CommunityTest {
 		String vId = cgfc.getFileDetail().versionId;
 		String dId = cgfc.getFileDetail().documentId;
 		cgfc.mode = 'list';
-		cgfc.shareChoice = cgfc.chatterGroup.Id;
+		cgfc.shareChoice = cgfc.parentId;
 		cgfc.shareComment = 'cmnt';
 		cgfc.stack = vId;
 		cgfc.shareAction();
@@ -618,13 +636,6 @@ private class CommunityTest {
 
 	@IsTest(SeeAllData=true)
 	static void test_CommunityTopicController() {
-		String sLabels;
-		sLabels = Label.LBL_Shue_To_Delete_Topic;
-		sLabels = Label.LBL_People_Talking_About_This;
-		sLabels = Label.LBL_Topics_I_Use;
-		sLabels = Label.LBL_My_Favorites;
-		sLabels = Label.LBL_TalkingAbout;
-		sLabels = Label.LBL_All;	
 		Account acc = new Account(Name='testAccount');
 		insert acc;
 		Contact con = new Contact(LastName='TCLN', MailingPostalCode='99013', email='testc@testdomain.com', AccountId=acc.Id, Primary_Role__c='Student');

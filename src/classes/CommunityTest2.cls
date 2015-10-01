@@ -156,9 +156,6 @@ private class CommunityTest2 {
 		
 		ConnectApi.Comment commentRep = ConnectApi.ChatterFeeds.postComment(Network.getNetworkId(), feedItemRep.Id, cInput, null);
 
-
-			//
-
 		System.runAs(u) {
 			ConnectApi.FeedElementPage testPage = new ConnectApi.FeedElementPage();
 			List<ConnectApi.FeedItem> testItemList = new List<ConnectApi.FeedItem>();
@@ -210,22 +207,22 @@ private class CommunityTest2 {
 			System.debug('Exception = '+e.getMessage());
 		}
 		
-		try{
-			CommunityFeedController.inlineAction(feedItemRep.Id, 'fa-flag','');
-		} catch (Exception e){
-			System.debug('Exception = '+e.getMessage());
-		}
+		//try{
+		//	CommunityFeedController.inlineAction(feedItemRep.Id, 'fa-flag','');
+		//} catch (Exception e){
+		//	System.debug('Exception = '+e.getMessage());
+		//}
 		
 		try{
 			CommunityFeedController.inlineAction(feedItemRep.Id, 'fa-thumbs-up','test');
 		} catch (Exception e){
 			System.debug('Exception = '+e.getMessage());
 		}
-		try{
-			CommunityFeedController.inlineAction(feedItemRep.Id, 'fa-thumbs-up','');
-		} catch (Exception e){
-			System.debug('Exception = '+e.getMessage());
-		}
+		//try{
+		//	CommunityFeedController.inlineAction(feedItemRep.Id, 'fa-thumbs-up','');
+		//} catch (Exception e){
+		//	System.debug('Exception = '+e.getMessage());
+		//}
 		try{
 			CommunityFeedController.inlineAction(feedItemRep.Id, 'fa-bookmark','test');
 		} catch (Exception e){
@@ -236,11 +233,11 @@ private class CommunityTest2 {
 		} catch (Exception e){
 			System.debug('Exception = '+e.getMessage());
 		}
-		try{
-			CommunityFeedController.inlineAction(feedItemRep.Id, 'fa-times','');
-		} catch (Exception e){
-			System.debug('Exception = '+e.getMessage());
-		}
+		//try{
+		//	CommunityFeedController.inlineAction(feedItemRep.Id, 'fa-times','');
+		//} catch (Exception e){
+		//	System.debug('Exception = '+e.getMessage());
+		//}
 
 		Map<String, List<String>> parentTypeParentId = new Map<String, List<String>>();
 		Community_Group_Control__c cgc1 = new Community_Group_Control__c();
