@@ -33,17 +33,17 @@ public with sharing class CommunityFeedNavigationController {
 	
 	
 	public String controllerPhotoUrl { 
-	    get {
-	        if(groupRole!=null){
-	            return controllerPhotoUrl;
-	        }
-	        else {
-        	    if (controllerPhotoUrl == null) return [SELECT FullPhotoUrl FROM User WHERE Id = :UserInfo.getUserId()].FullPhotoUrl;
-        	    else return controllerPhotoUrl;
-            }
-	    }
-	    set; 
-	    
+		get {
+			if(groupRole!=null){
+				return controllerPhotoUrl;
+			}
+			else {
+				if (controllerPhotoUrl == null) return [SELECT FullPhotoUrl FROM User WHERE Id = :UserInfo.getUserId()].FullPhotoUrl;
+				else return controllerPhotoUrl;
+			}
+		}
+		set; 
+		
 	}
 	// photo vars
 	public Blob photoBody { get; set; }
@@ -87,14 +87,14 @@ public with sharing class CommunityFeedNavigationController {
 	
 	public String actionPhotoLabel { 
 		get {
-		        if (getGroupId != null) {
-				    ConnectApi.Photo photoGroup = ConnectApi.ChatterGroups.getPhoto(Network.getNetworkId(), getGroupId);
-				    return (String.valueOf(photoGroup).contains('default')||(photoGroup==null))?Label.LBL_Add_Photo:Label.BTN_Update;						
-		        }
-		        else {
-				    ConnectApi.Photo photoUser = ConnectApi.ChatterUsers.getPhoto(Network.getNetworkId(), UserInfo.getUserId());
-				    return (String.valueOf(photoUser).contains('default')||(photoUser==null))?Label.LBL_Add_Photo:Label.BTN_Update;						
-		        }
+				if (getGroupId != null) {
+					ConnectApi.Photo photoGroup = ConnectApi.ChatterGroups.getPhoto(Network.getNetworkId(), getGroupId);
+					return (String.valueOf(photoGroup).contains('default')||(photoGroup==null))?Label.LBL_Add_Photo:Label.BTN_Update;						
+				}
+				else {
+					ConnectApi.Photo photoUser = ConnectApi.ChatterUsers.getPhoto(Network.getNetworkId(), UserInfo.getUserId());
+					return (String.valueOf(photoUser).contains('default')||(photoUser==null))?Label.LBL_Add_Photo:Label.BTN_Update;						
+				}
 		}
 		set; 
 	}
@@ -104,12 +104,12 @@ public with sharing class CommunityFeedNavigationController {
 	
 	public String permitions {	 
 		get { 
-	        if (getGroupId != null) {
-	            return (CommunityUtils.isModerateChatter() == true || CommunityUtils.isModifyAllData() == true || (groupRole == 'Owner' || groupRole == 'Manager'))?'true':'false';	/////////////////////////					
-	        }
-	        else {
-	            return (currentUser==true)?'true':'false';		
-	        }
+			if (getGroupId != null) {
+				return (CommunityUtils.isModerateChatter() == true || CommunityUtils.isModifyAllData() == true || (groupRole == 'Owner' || groupRole == 'Manager'))?'true':'false';	/////////////////////////					
+			}
+			else {
+				return (currentUser==true)?'true':'false';		
+			}
 		}
 		set; 
 	}
@@ -119,8 +119,6 @@ public with sharing class CommunityFeedNavigationController {
 	public PageReference photoaction() {
 		try {		
 			if (photoBody != NULL) {
-				System.debug(photoBody);
-				System.debug(photoContentType);
 				ConnectApi.PhotoInput pi = new ConnectApi.PhotoInput();
 				pi.cropX = Integer.valueOf(cropX);
 				pi.cropY = Integer.valueOf(cropY);
@@ -128,21 +126,21 @@ public with sharing class CommunityFeedNavigationController {
 				System.debug(pi);
 				if (getGroupId != null) {
 					ConnectApi.ChatterGroups.setPhotoWithAttributes(
-    					Network.getNetworkId(),
-    					getGroupId,
-    					pi,
-    					new ConnectApi.BinaryInput(photoBody, photoContentType, photoName)
+						Network.getNetworkId(),
+						getGroupId,
+						pi,
+						new ConnectApi.BinaryInput(photoBody, photoContentType, photoName)
 					); 
 				}
 				else {
-				    ConnectApi.ChatterUsers.setPhotoWithAttributes(
-        				Network.getNetworkId(),
-        				UserInfo.getUserId(), // it could be that another id
-        				pi,
-        				new ConnectApi.BinaryInput(photoBody, photoContentType, photoName)
-        			);
+					ConnectApi.ChatterUsers.setPhotoWithAttributes(
+						Network.getNetworkId(),
+						UserInfo.getUserId(), // it could be that another id
+						pi,
+						new ConnectApi.BinaryInput(photoBody, photoContentType, photoName)
+					);
 				}
-				    
+					
 				
 			}
 			PageReference pr = new PageReference(ApexPages.currentPage().getUrl());
@@ -150,7 +148,6 @@ public with sharing class CommunityFeedNavigationController {
 			return pr;
 		}
 		catch(Exception e) {
-			System.Debug('error');
 			ApexPages.addMessages(e);
 			return null;
 		}
