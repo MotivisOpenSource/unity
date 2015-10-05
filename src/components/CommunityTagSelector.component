@@ -157,7 +157,7 @@
 						var txt = "{!$Label.LBL_Create_Max_Tag_Reached_Error}".format(tagMax);
 						//'You are reached maximum of '+tagMax+' Tag(s) for this group. You must remove a tag in order to add a tag.';
 						jQuery('.div-like-input').after('<div id="sectionnote" class="alert alert-danger fade in">'+txt+'</div>');
-						jQuery('[id$=sbtbtn]').css('opacity','0.65').attr('disabled','disabled');
+						// jQuery('[id$=sbtbtn]').css('opacity','0.65').attr('disabled','disabled');
 					}
 				}
 				else {
