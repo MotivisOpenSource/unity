@@ -160,7 +160,7 @@ public with sharing class CommunityGroupCreateController {
 
 	public Integer getTagsCount() {
 		Community_Settings__c cs = Community_Settings__c.getInstance();
-		return (step == 3 && cs != NULL && cs.Create_Group_Max_Tags__c != NULL)
+		return (step == 3 && cs != NULL && cs.Create_Group_Require_Tags__c == true && cs.Create_Group_Max_Tags__c != NULL)
 				? Integer.valueOf(cs.Create_Group_Max_Tags__c)
 				: -1;
 	}

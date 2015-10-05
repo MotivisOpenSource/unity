@@ -74,16 +74,11 @@ public with sharing class UnityAdminController {
 
     public void saveCS() {
         try {
-			if (cs.Create_Group_Require_Tags__c == true && cs.Create_Group_Max_Tags__c == 0) {
-				ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR, Label.LBL_Admin_Page_Group_Tag_Setting_Error));
-			}
-			else {
-                List<Community_Settings__c> lcs  = new List<Community_Settings__c>();
-                lcs.add(cs);
-                upsert lcs;
-                csEdit = false;
-            }
-		}
+            List<Community_Settings__c> lcs  = new List<Community_Settings__c>();
+            lcs.add(cs);
+            upsert lcs;
+            csEdit = false;
+        }
         catch (Exception e) {
             ApexPages.addMessages(e);
         }
@@ -242,5 +237,5 @@ public with sharing class UnityAdminController {
         return listSincs[0];
     }
     */
-
+    
 }
