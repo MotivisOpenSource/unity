@@ -86,6 +86,7 @@ private class CommunityTest2 {
 
 	@IsTest(SeeAllData=true)
 	static void test_CommunityFeedController() {
+        String strlabel = Label.ERR_Set_Up_Community_Profile;
 		CommunityFeedController cfc1 = new CommunityFeedController();
 		String communityPrefix1 = cfc1.communityPrefix;
 		Account acc = new Account(Name='testAccount');

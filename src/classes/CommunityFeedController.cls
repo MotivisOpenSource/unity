@@ -16,17 +16,18 @@ global with sharing class CommunityFeedController {
 	public String packagePrefix { get{ return CommunityUtils.getPackagePrefix();} }
 	public Boolean isTopicCreateable { get{ return CommunityUtils.checkCRUDforObject('Topic').get('isCreateable');} }
 	public Boolean isTopicAssignmentCreateable { get{ return CommunityUtils.checkCRUDforObject('TopicAssignment').get('isCreateable');} }
+	public class appException extends Exception { }
 	public String parentIdForAtt {get {
 			try {
 				User us = [SELECT Id, ContactId, Community_Contact_ID__c FROM User WHERE Id = :UserInfo.getUserId() LIMIT 1];
+				if(us.ContactId != null) {
 				List<Community_Profile__c>  cpl = [SELECT Id FROM Community_Profile__c WHERE Contact__c = :us.ContactId LIMIT 1]; 
 				if(cpl.size()>0) return cpl[0].Id;
-				if(us.ContactId != null) return us.ContactId;
+				}
 				if(us.Community_Contact_ID__c != null) return us.Community_Contact_ID__c;
 				return null;
 			}
 			catch(Exception ex) {
-				ApexPages.addmessages(ex);
 				return null;
 			}
 		} set;}

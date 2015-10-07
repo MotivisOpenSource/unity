@@ -532,80 +532,13 @@
 						enableBtn('mesbtn');
 					}
 				}
-				/*function postAction(text) {
-					disableBtn('mesbtn');
-					$('#message').mentionsInput('val', function(text) {
-						
-						if (chataction.layout.name == 'FeedItem.LinkPost') {
-							chataction.layout.items[0].value = 'http://www.tut.by/';
-							chataction.layout.items[2].value = text;
-						} else if (chataction.layout.name == 'FeedItem.PollPost') {
-							
-							chataction.layout.items[0].value = $('#message').val();//QUESTION
-							var choices = $('#message').parent().parent().find('input[type=text]');
-							for (var i = 0; i <choices.length; i++ ) {
-								if (!chataction.layout.items[i+1]) {
-									chataction.layout.items[i+1] = {
-										fieldName: "",
-										ftype: "input",
-										label: "Choice "+ (i+1),
-										placeholder: "",
-										required: true,
-										value: ""
-									};
-								}
-								chataction.layout.items[i+1].value = choices[i].value;
-							}
-						}
-						Visualforce.remoting.Manager.invokeAction(
-							'{!$RemoteAction.CommunityFeedController.postAction}',
-							'{!parentId}',
-							JSON.stringify(chataction.layout),
-							null,
-							null,
-							null,
-							function(result, event) {
-								var div = document.createElement('div');
-								div.innerHTML = result;
-								var rm = div.firstChild.nodeValue;
-								if (rm.substring(0, 3) == "ERR") {
-									console.log(rm.substring(3, rm.length));
-								}
-								else {
-									_.templateSettings.variable = 'rc';
-									var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
-									var tt = JSON.parse(rm);
-									$('#cfcmp').prepend(template(tt));
-									$('#message').val('');
-								}
-								enableBtn('mesbtn');
-							}
-						);
-					});
-				}*/
-				// var openFile = function() {				
-				// 	var inputfile = $('#file-input-selector')[0].files[0];
-				// 	console.log('inputfile', inputfile);
-					
-				// 	var reader = new FileReader();
-				// 	reader.onloadstart = function(){
-				// 		console.log('start load');
-				// 	};
-				// 	reader.onloadend = function(){
-				// 		var arrayBuffer = reader.result;
-				// 		console.log(arrayBuffer);
-				// 		console.log(arrayBuffer.byteLength);
-				// 		console.log('end load');
-				// 	};
-				// 	reader.readAsArrayBuffer(inputfile);
-				// };
 					
 				uploadAttachment = function(binary,fName,fType) {
 					// send attacment
 										var __sfdcSessionId = '{!GETSESSIONID()}';
-										if('{!JSENCODE(parentIdForAtt)}' == null){
+					if(!'{!JSENCODE(parentIdForAtt)}'.length>0) {
 											enableBtn('mesbtn');
-											$('#postform-error').html('<strong>Error!</strong> You have no permissions for upload');
+						$('#postform-error').html('{!$Label.ERR_Set_Up_Community_Profile}');
 											$('#postform-error').show();
 											return null;
 										}
@@ -617,17 +550,19 @@
 										Attachment.Body  = binary;
 										Attachment.ParentId = '{!JSENCODE(parentIdForAtt)}';
 										sforce.connection.create([Attachment],
-										{ 	onSuccess : function(result, source)
+					{ 	
+						onSuccess : function(result, source)
 										    {
 										        if (result[0].getBoolean("success"))
 										        {
+								
 										            if($("[name='message']").val()) {
 														$('#message').mentionsInput('val', function(text) {
 															chataction.layout.items[messageItemIndex].value = text;
 															insertAttIntoFeed(result[0].id, JSON.stringify(chataction.layout));
 														});
 													}else{
-															insertAttIntoFeed(result[0].id, "");
+										insertAttIntoFeed(result[0].id, null);
 													}
 													postFile = false;
 											    }
@@ -650,16 +585,14 @@
 					// end sending
 										        
 				}
+
 				var postFile = false;
 				var postEvent = false;
 
 				function postAction(text) {
 					if( checkTopicsCount(text) == -1 ) return ;
-
 					$('#postform-error').hide();	
 					disableBtn('mesbtn');
-
-
 					var messageItemIndex = -1;
 					var fBaseStr = null;
 					var fType = null;
@@ -678,6 +611,11 @@
 								if(inputfile != undefined) {
 									fType = inputfile.type;
 									fName = inputfile.name;
+									if(inputfile.size>26214400) {
+										enableBtn('mesbtn');
+								 		return null;
+									}
+									// my code
 									if(fType.indexOf("image/")>-1) {
 										var options = {
 											maxWidth: 1000,
@@ -698,7 +636,6 @@
 										});
 									}
 									else {
-									
 										// end my code
 										var reader = new FileReader();
 										reader.onloadend = function(){
@@ -709,55 +646,7 @@
 											{
 											    binary += String.fromCharCode(bytes[i]);
 											}
-
 											uploadAttachment(new sforce.Base64Binary(binary).toString(),fName,fType);
-
-											// var __sfdcSessionId = '{!GETSESSIONID()}';
-											// if('{!JSENCODE(parentIdForAtt)}' == null){
-											// 	enableBtn('mesbtn');
-											// 	$('#postform-error').html('<strong>Error!</strong> You have no permissions for upload');
-											// 	$('#postform-error').show();
-											// 	return null;
-											// }
-											// sforce.connection.serverUrl = '{!$Site.Prefix}/services/Soap/u/33.0';
-											// sforce.connection.sessionId = __sfdcSessionId;
-		
-											// var Attachment = new sforce.SObject('Attachment');
-											// Attachment.Name = fName;
-											// Attachment.ContentType = fType;
-											// Attachment.Body  =  new sforce.Base64Binary(binary).toString();
-											// Attachment.ParentId = '{!JSENCODE(parentIdForAtt)}';
-											// sforce.connection.create([Attachment],
-											// { 	onSuccess : function(result, source)
-											//     {
-											//         if (result[0].getBoolean("success"))
-											//         {
-											//             if($("[name='message']").val()) {
-											// 				$('#message').mentionsInput('val', function(text) {
-											// 					chataction.layout.items[messageItemIndex].value = text;
-											// 					insertAttIntoFeed(result[0].id, JSON.stringify(chataction.layout));
-											// 				});
-											// 			}else{
-											// 					insertAttIntoFeed(result[0].id, "");
-											// 			}
-											// 			postFile = false;
-											// 	    }
-											//         else
-											//         {
-											//         	postFile = false;
-											// 			enableBtn('mesbtn');
-											//             $('#postform-error').html('<strong>Error!</strong> ' + result[0].errors.message);
-											// 			$('#postform-error').show();	
-											//         }
-											//     },
-											//     onFailure : function(error, source)
-											//     {
-											//     	postFile = false;
-											// 		enableBtn('mesbtn');
-											// 		$('#postform-error').html('<strong>Error!</strong> ' + result[0].errors.message);
-											// 		$('#postform-error').show();
-											//     }
-											// });
 									};
 									reader.readAsArrayBuffer(inputfile);
 								}
