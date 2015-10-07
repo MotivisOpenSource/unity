@@ -325,6 +325,7 @@
         <members>ERR_Topic_Not_Available</members>
         <members>ERR_Topic_Not_Available_Message</members>
         <members>ERR_You_do_not_have_access_to_this_user</members>
+		<members>ERR_Set_Up_Community_Profile</members>
         <members>Feed_Nav_People</members>
         <members>LBL_About_Me</members>
         <members>LBL_About_this_group</members>
