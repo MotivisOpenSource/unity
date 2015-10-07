@@ -34,12 +34,13 @@ private class CommunityTest2 {
 		System.assert(cfnc.actionPhotoLabel != null);
 		System.assert(cfnc.permitions != null);
 		
-		cfnc.photoBody = Blob.valueOf('body');
-		cfnc.cropSize = '4';
-		cfnc.cropX = '2';
-		cfnc.cropY = '2';
-		cfnc.photoName = 'test Name';
-		cfnc.photoContentType = 'image/jpg';
+		System.Debug('11111111111111');
+		//cfnc.photoBody = Blob.valueOf('body');
+		//cfnc.cropSize = '4';
+		//cfnc.cropX = '2';
+		//cfnc.cropY = '2';
+		//cfnc.photoName = 'test Name';
+		//cfnc.photoContentType = 'image/jpg';
 		//Boolean uploadM = cfnc.uploadMode;
 		//System.assertEquals(false, uploadM);
 
