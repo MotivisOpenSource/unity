@@ -142,7 +142,7 @@
 								<% if (p2.capabilities.content.fileExtension) { %>
 									<span>
 									<a href="javascript: void(0);" target="_self">
-										<img src="<%= p2.capabilities.content.renditionUrl %>" alt="" onerror="this.style.visibility = 'hidden'"/>
+										<img src="<%= p2.capabilities.content.renditionUrl %>" class="max-height-500" alt="" onerror="this.style.visibility = 'hidden'"/>
 									</a>
 									</span>
 									<span class="file-info">
