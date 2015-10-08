@@ -1002,6 +1002,13 @@
         <value>Last</value>
     </labels>
     <labels>
+        <fullName>LBL_Latest_Tweets</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Latest Tweets</shortDescription>
+        <value>Latest Tweets</value>
+    </labels>
+    <labels>
         <fullName>LBL_LeaveGroup_Message</fullName>
         <language>en_US</language>
         <protected>true</protected>

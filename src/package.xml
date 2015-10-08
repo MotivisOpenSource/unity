@@ -242,6 +242,8 @@
         <members>Community_Settings__c.News_Accepted_Image_Types__c</members>
         <members>Community_Settings__c.News_Max_Sticky__c</members>
         <members>Community_Settings__c.News_Photo_Max_Size__c</members>
+        <members>Community_Settings__c.Twitter_Data_Widget_ID__c</members>
+        <members>Community_Settings__c.Twitter_Handle__c</members>
         <members>Community_Tag__c.Community_Theme__c</members>
         <members>Community_Tag__c.Icon_Style__c</members>
         <members>Community_Tag__c.Tag_SF_ID__c</members>
@@ -418,6 +420,7 @@
         <members>LBL_Home</members>
         <members>LBL_Interests</members>
         <members>LBL_Last</members>
+        <members>LBL_Latest_Tweets</members>
         <members>LBL_LeaveGroup_Message</members>
         <members>LBL_LeavePage_Message</members>
         <members>LBL_Leave_Group</members>
