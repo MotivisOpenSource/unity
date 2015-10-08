@@ -293,8 +293,8 @@
 									mdl="false"
 									edt="true"
 									son="Community_Group_Control__c"
-								/><!-- tlim="{!tagsCount}"
-									treq="{!requiredTags}" -->
+									tlim="{!tagsCount}"
+									treq="{!requiredTags}"/>
 							</div>
 							<!-- END EDIT GROUP-->
 

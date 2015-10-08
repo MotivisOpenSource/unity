@@ -61,7 +61,6 @@
 			};
 		}
 		var tagMax = parseInt("{!tagLimit}");
-		console.log('tagMax: ' + tagMax);
 		var selectedTag = 0;
  		//var $jc = jQuery.noConflict();
  		//var $ = jQuery.noConflict();
@@ -96,14 +95,7 @@
 					var mdata = JSON.parse(div.firstChild.nodeValue);
 					selectedTag += mdata.length;
 					//first check for submit button
-					if ({!tagRequired} == true) {
-						if (selectedTag < 1) {
-							jQuery('[id$=sbtbtn]').css('opacity','0.65').attr('disabled','disabled');
-						}
-						else {
-							jQuery('[id$=sbtbtn]').css('opacity','1').removeAttr('disabled');
-						}
-					}
+					checkTagsCount();
 					_.each(mdata, function (tag, ix, list) {
 						var span = '<span id="'+tag.id+'" class="item guestItem"><span>'+tag.fullname+'</span><a href="javascript:void(0);" onclick="removeTag(\''+tag.id+'\')" class="remove"><img src="/s.gif"></a></span>';
 						jQuery('#tagsInput').before(span);
@@ -129,13 +121,7 @@
 			jQuery('#tagsContainer #'+inp).remove();
 			jQuery('#tags').val(jQuery('#tags').val().replace(inp+',' ,''));
 			selectedTag -= 1;
-			if ({!tagRequired} == true && selectedTag < 1) {
-				jQuery('[id$=sbtbtn]').css('opacity','0.65').attr('disabled','disabled');
-			}
-			if (jQuery('#sectionnote').length > 0 && selectedTag < tagMax && tagMax > 0) {
-				jQuery('#sectionnote').remove();
-				jQuery('[id$=sbtbtn]').css('opacity','1').removeAttr('disabled');
-			}
+			checkTagsCount();
 		}
 		function toggleTagSection(el) {
 			var par = jQuery(el).parent();
@@ -153,22 +139,44 @@
 		function addtti(tid,fn) {
 			if (jQuery('span[id='+tid+']').length == 0) {
 				if (selectedTag > tagMax - 1 && tagMax > 0) {
-					if (jQuery('#sectionnote').length == 0) {
-						var txt = "{!$Label.LBL_Create_Max_Tag_Reached_Error}".format(tagMax);
-						//'You are reached maximum of '+tagMax+' Tag(s) for this group. You must remove a tag in order to add a tag.';
-						jQuery('.div-like-input').after('<div id="sectionnote" class="alert alert-danger fade in">'+txt+'</div>');
-						// jQuery('[id$=sbtbtn]').css('opacity','0.65').attr('disabled','disabled');
-					}
+					showTagError(true);
 				}
 				else {
 					var span = '<span id="'+tid+'" class="item guestItem"><span>'+fn+'</span><a href="javascript:void(0);" onclick="removeTag(\''+tid+'\')" class="remove"><img src="/s.gif"></a></span>';
 					jQuery('#tagsInput').before(span);
 					jQuery('#tags').val(jQuery('#tags').val() + tid + ',');
-					if ({!tagRequired} == true) {
-						jQuery('[id$=sbtbtn]').css('opacity','1').removeAttr('disabled');
-					}
 					selectedTag += 1;
+					checkTagsCount();
 				}
+			}
+		}
+		function checkTagsCount() {
+			var maxReached = tagMax > 0 && selectedTag > tagMax;
+			var needTag = {!tagRequired} && selectedTag < 1;
+			showTagError(maxReached, needTag);
+			enableSbmBtn(!maxReached && !needTag);
+		}
+		function enableSbmBtn(enbl) {
+			if (enbl) {
+				jQuery('[id$=sbtbtn]').css('opacity','1').removeAttr('disabled');
+				if (self!=top) {
+					jQuery('button[id$=svbtn]').css('opacity','1').removeAttr('disabled');
+				}
+			}
+			else {
+				jQuery('[id$=sbtbtn]').css('opacity','0.65').attr('disabled','disabled');
+				if (self!=top) {
+					jQuery('button[id$=svbtn]').css('opacity','0.65').attr('disabled','disabled');
+				}
+			}
+		}
+		function showTagError(lim, req) {
+			if (jQuery('#sectionnote').length > 0) {
+				jQuery('#sectionnote').remove();
+			}
+			if (lim || req && jQuery('#sectionnote').length == 0) {
+				var txt = lim ? "{!$Label.ERR_Group_Tags_Limit}".format(tagMax) : "{!$Label.ERR_Group_Tags_Required}";
+				jQuery('.div-like-input').after('<div id="sectionnote" class="alert alert-danger fade in">'+txt+'</div>');
 			}
 		}
 	</script>

@@ -267,6 +267,20 @@
         <value>You have exceeded the file size of 8mb or used incorrect file type.</value>
     </labels>
     <labels>
+        <fullName>ERR_Group_Tags_Limit</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>ERR Group Tags Limit</shortDescription>
+        <value>You have reached maximum of {0} Tag(s) for this group.</value>
+    </labels>
+    <labels>
+        <fullName>ERR_Group_Tags_Required</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>ERR Group Tags Required</shortDescription>
+        <value>At least one tag should be added to the group.</value>
+    </labels>
+    <labels>
         <fullName>ERR_Maximum_number_topics</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -608,13 +622,6 @@
         <protected>true</protected>
         <shortDescription>LBL CreateGroup Tags</shortDescription>
         <value>Tags</value>
-    </labels>
-    <labels>
-        <fullName>LBL_Create_Max_Tag_Reached_Error</fullName>
-        <language>en_US</language>
-        <protected>true</protected>
-        <shortDescription>LBL Create Max Tag Reached Error</shortDescription>
-        <value>You are reached maximum of {0} Tag(s) for this group. You must remove a tag in order to add a tag.</value>
     </labels>
     <labels>
         <fullName>LBL_Current_Events_Title</fullName>
