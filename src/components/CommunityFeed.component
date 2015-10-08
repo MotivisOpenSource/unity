@@ -365,7 +365,7 @@
 							</label>
 							<% } else if (ii.ftype == "inputfile"){%>
 							<label for="file" class="input input-file">
-								<div class="button"><input type="file" id="<%= ii.fieldName %>" name="<%= ii.fieldName %>" onchange="this.parentNode.nextSibling.value = this.files[0].name" <%= ii.requiredAttr %>>Browse</div><input type="text" readonly="">
+								<div class="button"><input type="file" id="<%= ii.fieldName %>" name="<%= ii.fieldName %>" onchange="inputFileOnchange(this);" <%= ii.requiredAttr %>>Browse</div><input type="text" readonly="">
 							</label>
 							<% } else {%>
 							<label class="input">
@@ -404,6 +404,13 @@
 			</script>
 
 			<script>
+			
+    			function inputFileOnchange(elm) {
+    			    console.log(elm);
+    			    if (elm.files.length>0) elm.parentNode.nextSibling.value = elm.files[0].name;
+    			    else elm.parentNode.nextSibling.value = '';
+    			}
+			
 				var chekFlagOnPage = function(type){
 
 					if(!(_.contains(['News','Events','Manager'], type)) ) {
@@ -538,7 +545,7 @@
 										var __sfdcSessionId = '{!GETSESSIONID()}';
 					if(!'{!JSENCODE(parentIdForAtt)}'.length>0) {
 											enableBtn('mesbtn');
-						$('#postform-error').html('{!$Label.ERR_Set_Up_Community_Profile}');
+						$('#postform-error').html("<strong>Error!</strong> {!$Label.ERR_Set_Up_Community_Profile}");
 											$('#postform-error').show();
 											return null;
 										}
@@ -711,8 +718,14 @@
 									div.innerHTML = result;
 									var rm = div.firstChild.nodeValue;
 									if (rm.substring(0, 3) == "ERR") {
+									    if( (rm.substring(3, rm.length)).indexOf('{!$Label.LBL_File_Upload_Size_Limit}') > -1) {
+								        	$('#postform-error').html('<strong>Error!</strong> ' + '{!$Label.LBL_File_Upload_Size_Limit}');
+										    $('#postform-error').show();
+									    }
+									    else {
 										$('#postform-error').html('<strong>Error!</strong> ' + rm.substring(3, rm.length));
 										$('#postform-error').show();
+									    }
 										err = true;	
 									}
 									else {
