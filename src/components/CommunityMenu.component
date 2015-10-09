@@ -43,11 +43,11 @@
 	<apex:outputPanel layout="block" styleClass="topbar-v1" rendered="{!isRegTermsPage}">
 		<div class="container">
 			<div class="row">
-				<div class="col-md-6">
+				<div class="col-xs-12 col-sm-6">
 					
 				</div>
-				<div class="col-md-6">
-					<ul class="list-inline top-v1-data">						
+				<div class="col-xs-12 col-sm-6">
+					<ul class="list-inline top-v1-data">
 						<apex:outputPanel layout="none" rendered="{!!ISBLANK(HelpLink)}">
 							<li><a href="{!HelpLink}"><i class="fa fa-question"></i>&nbsp;{!$Label.LBL_Help}</a></li>
 						</apex:outputPanel>
@@ -63,14 +63,16 @@
 	<apex:outputPanel layout="block" styleClass="topbar-v1" rendered="{!!isRegTermsPage}">
 		<div class="container">
 			<div class="row">
-				<div class="col-md-6">
-					<ul class="list-inline top-v1-contacts">
-						<li>
-							<i class="fa fa-thumb-tack"></i> {!$Label.LBL_News_Alert}: {!Alert}
-						</li>
-					</ul>
+				<div class="col-xs-12 col-sm-6">
+					<apex:outputPanel layout="none" rendered="{!URLENCODE(Alert)}">
+						<ul class="list-inline top-v1-contacts">
+							<li>
+								<i class="fa fa-thumb-tack"></i> {!$Label.LBL_News_Alert}: {!Alert}
+							</li>
+						</ul>
+					</apex:outputPanel>
 				</div>
-				<div class="col-md-6">
+				<div class="col-xs-12 col-sm-6">
 					<ul class="list-inline top-v1-data">
 						<li><a href="{!$Page.CommunityHome}"><i class="fa fa-home"></i></a></li>
 						<!--i><a href="#" data-placement="bottom" data-toggle="tooltip" class="hp tooltips" data-original-title="Set Home Page"><i class="fa fa-bookmark"></i></a></li-->
@@ -96,7 +98,7 @@
 					<span class="fa fa-bars"></span>
 				</button>
 				<apex:outputText id="ldcid" value="{!$Setup.Community_Template_Settings__c.Header_Logo_ImageID__c}" style="display:none;"/>
-				<apex:outputLink value="{!IF(isRegTermsPage != true, $Page.CommunityHome, '')}" rendered="{!!ISBLANK($Setup.Community_Template_Settings__c.Header_Logo_ImageID__c)}" styleClass="navbar-brand">
+				<apex:outputLink value="{!IF(isRegTermsPage == true, $Page.CommunityHome, '')}" rendered="{!!ISBLANK($Setup.Community_Template_Settings__c.Header_Logo_ImageID__c)}" styleClass="navbar-brand">
 					<img id="imgLOGOID" class="img-responsive" alt="Logo" src="{!$Site.Prefix}/servlet/servlet.ImageServer?oid={!$Organization.Id}&id={!$Setup.Community_Template_Settings__c.Header_Logo_ImageID__c}"/>
 				</apex:outputLink>
 			</div>
@@ -171,12 +173,12 @@
 									<button class="btn-u" type="button" onclick="menuSearch();">Go</button>
 								</span>
 								<script>
-									jQuery(document).ready(function(){
-										var alertNews = '{!URLENCODE(Alert)}';
-										if(!alertNews){
-											jQuery("li").first().hide();
-										}
-									});
+									// jQuery(document).ready(function(){
+									// 	var alertNews = '{!URLENCODE(Alert)}';
+									// 	if(!alertNews){
+									// 		jQuery("li").first().hide();
+									// 	}
+									// });
 									
 									jQuery(document).on('keyup', '#menusearch', function(event) {
 										event.preventDefault();
