@@ -216,7 +216,7 @@ public with sharing class CommunityGroupManageController {
 	}
 
 	public Boolean getShowChangeOwnerLink() {
-		return managerMode && !changeOwnerMode && control.UserRecordAccess.HasEditAccess == true;
+		return (managerMode && !changeOwnerMode && control.OwnerId == UserInfo.getUserId() && control.UserRecordAccess.HasEditAccess == true) || CommunityUtils.isModifyAllData();
 	}
 
 	// MEMBER HANDLER CLASS
