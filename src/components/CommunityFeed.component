@@ -155,7 +155,7 @@
 									<div class="pull-left">
 										<div class="download-links__container">
 											<div class="download-links__file__container--pdf">
-												<a href="{!$Page.CommunityGroupFiles}?f=<%= p2.capabilities.content.id %>&fi=<%= p2.id %>" target="_blank">
+												<a href="{!$Page.CommunityGroupFiles}?f=<%= p2.capabilities.content.id %>&fi=<%= p2.id %>" target="_self">
 												<i class="fa fa-file"></i>
 													<%= p2.capabilities.content.title %>
 												</a>
@@ -185,7 +185,7 @@
 									</div>
 									<div class="download-links__container">
 										<div class="pull-left download-links__file__container">
-											<a href="{!$Page.CommunityGroupFiles}?f=<%= p2.capabilities.content.id %>&fi=<%= p2.id %>" target="_blank">
+											<a href="{!$Page.CommunityGroupFiles}?f=<%= p2.capabilities.content.id %>&fi=<%= p2.id %>" target="_self">
 											<i class="fa fa-file"></i>
 												<%= p2.capabilities.content.title %>
 											</a>
