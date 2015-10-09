@@ -50,9 +50,9 @@
 			<script id="tto" type="text/template">
 				<% _.each(rc.elements, function(p){ %>
 				<div class="comment media-body">
-					<img src="<%= p.actor.photo.smallPhotoUrl %>" alt=""/>
-					<div class="overflow-h" onclick="window.location.href = '<%= p.parentLink %>';">
-						<strong><%= p.actor.displayName %> <%= p.actor.role !== null ?  '(' + p.actor.role + ')': '' %> <small class="pull-right"><%= p.dateStr %></small></strong>
+					<img src="<%= p.actor.photo.smallPhotoUrl %>" alt="<%= p.actor.displayName %>"/>
+					<div class="overflow-h" onclick="window.location.href = '<%= p.parentLink !== null ? ''+p.parentLink : (p.parentId == '{!$User.Id}' ? '{!$Page.CommunityFeed_MyFeed}' : '{!$Page.CommunityProfilePage}?id='+p.parentId+'&f=2') %>';">
+						<div class="profilename"><strong><a href="<%= p.actor.id == '{!$User.Id}' ? '{!$Page.CommunityFeed_MyFeed}' : '{!$Page.CommunityProfilePage}?id='+p.actor.id+'&f=2' %>" alt="<%= p.actor.displayName %>"><%= p.actor.displayName %> <%= p.actor.role !== null ?  '(' + p.actor.role + ')': '' %> <small class="pull-right"><%= p.dateStr %></small></a></strong></div>
 						<% if(p.parentType != null && {!tf}){ %>
 							<p><strong><a class="<%= p.parentIcon %> font-weight-bold" href="<%= p.parentLink %>"> <%= p.parentType %> - <%= p.parentName %> <% if(p.parentAcssesType != null){ %> (<%= p.parentAcssesType %>) <% } %></a>
 							</strong></p>
@@ -129,7 +129,6 @@
 						<% if (!p2.showLink && !p2.showContent && !p2.capabilities.poll) { %>
 							<p>	<% var p2p = parseFeedBody(p2.body,p2.topicsUser);
 								print(wrapnl(p2p)); %>
-<<<<<<< HEAD
 							</p>
 						<%}%>
 						<% if (p2.showLink) { %>
