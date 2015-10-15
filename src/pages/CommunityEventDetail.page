@@ -49,7 +49,7 @@
 								<apex:form >
 									<span class="gCalendar__label">{!$Label.LBL_AddToCalendar}:</span>
 									<a href="{!GoogleCalendarCreateEventHref}" target="_blank" class="btn btn-xs rounded btn-default">{!$Label.BTN_GoogleCal}</a> &nbsp;&nbsp;
-									<apex:commandLink value="{!$Label.BTN_ICS}" action="{!downloadICS}" target="_blank" styleClass="btn btn-xs rounded btn-default"/>
+									<a href="{!URLFOR($Action.Document.Download, DocId)}" class="btn btn-xs rounded btn-default" target="_self">{!$Label.BTN_ICS}</a>
 								</apex:form>
 							</div>
 							<apex:outputPanel rendered="{!!ISNULL(RelatedToEventGroup)}">

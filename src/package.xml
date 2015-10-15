@@ -312,6 +312,7 @@
         <members>ERR_Group_Picture_FileError</members>
         <members>ERR_Maximum_number_topics</members>
         <members>ERR_MissingImageLibrary</members>
+		<members>ERR_Set_Up_Community_Profile</members>
         <members>ERR_MissingPermission</members>
         <members>ERR_Name_is_too_long</members>
         <members>ERR_News_Too_Many_Sticky</members>
@@ -326,6 +327,7 @@
         <members>ERR_Topic_Not_Available</members>
         <members>ERR_Topic_Not_Available_Message</members>
         <members>ERR_You_do_not_have_access_to_this_user</members>
+		<members>ERR_Set_Up_Community_Profile</members>
         <members>Feed_Nav_People</members>
         <members>LBL_About_Me</members>
         <members>LBL_About_this_group</members>
