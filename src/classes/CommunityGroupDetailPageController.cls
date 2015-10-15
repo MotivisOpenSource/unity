@@ -169,7 +169,7 @@ public with sharing class CommunityGroupDetailPageController {
 	public CommunityGroupFilesController getFilesController() {
 		CommunityGroupFilesController cgfc = new CommunityGroupFilesController();
 		if (showFilesSection) {
-			cgfc.chatterGroupId = chatterGroup.Id;
+			cgfc.parentId = chatterGroup.Id;
 			cgfc.init();
 		}
 		return cgfc;
