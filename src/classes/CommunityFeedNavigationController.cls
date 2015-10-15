@@ -119,8 +119,6 @@ public with sharing class CommunityFeedNavigationController {
 	public PageReference photoaction() {
 		try {		
 			if (photoBody != NULL) {
-				System.debug(photoBody);
-				System.debug(photoContentType);
 				ConnectApi.PhotoInput pi = new ConnectApi.PhotoInput();
 				pi.cropX = Integer.valueOf(cropX);
 				pi.cropY = Integer.valueOf(cropY);
@@ -150,7 +148,6 @@ public with sharing class CommunityFeedNavigationController {
 			return pr;
 		}
 		catch(Exception e) {
-			System.Debug('error');
 			ApexPages.addMessages(e);
 			return null;
 		}
