@@ -4,7 +4,7 @@
 <apex:define name="body">
 	<!--=== Profile ===-->	
 	<div class="profile CommunityProfilePage">
-		<apex:outputPanel styleClass="container content" rendered="{!isCommunityUser}">
+		<apex:outputPanel styleClass="container content" rendered="{!isCommunityUser}" layout="block">
 			<div class="row">
 				<!--Left Sidebar-->
 				<div class="col-md-3 md-margin-bottom-40">
@@ -379,7 +379,7 @@
 			</div>
 			<!--/end row-->
 		</apex:outputPanel>
-		<apex:outputpanel styleClass="container content" rendered="{!!isCommunityUser}">
+		<apex:outputpanel styleClass="container content" rendered="{!!isCommunityUser}" layout="block">
 			<div class="profile-body">
 				<div class="calert">
 					<div class="message">
