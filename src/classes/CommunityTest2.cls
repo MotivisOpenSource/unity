@@ -34,12 +34,13 @@ private class CommunityTest2 {
 		System.assert(cfnc.actionPhotoLabel != null);
 		System.assert(cfnc.permitions != null);
 		
-		cfnc.photoBody = Blob.valueOf('body');
-		cfnc.cropSize = '4';
-		cfnc.cropX = '2';
-		cfnc.cropY = '2';
-		cfnc.photoName = 'test Name';
-		cfnc.photoContentType = 'image/jpg';
+		System.Debug('11111111111111');
+		//cfnc.photoBody = Blob.valueOf('body');
+		//cfnc.cropSize = '4';
+		//cfnc.cropX = '2';
+		//cfnc.cropY = '2';
+		//cfnc.photoName = 'test Name';
+		//cfnc.photoContentType = 'image/jpg';
 		//Boolean uploadM = cfnc.uploadMode;
 		//System.assertEquals(false, uploadM);
 
@@ -86,6 +87,7 @@ private class CommunityTest2 {
 
 	@IsTest(SeeAllData=true)
 	static void test_CommunityFeedController() {
+        String strlabel = Label.ERR_Set_Up_Community_Profile;
 		CommunityFeedController cfc1 = new CommunityFeedController();
 		String communityPrefix1 = cfc1.communityPrefix;
 		Account acc = new Account(Name='testAccount');
@@ -156,9 +158,6 @@ private class CommunityTest2 {
 		
 		ConnectApi.Comment commentRep = ConnectApi.ChatterFeeds.postComment(Network.getNetworkId(), feedItemRep.Id, cInput, null);
 
-
-			//
-
 		System.runAs(u) {
 			ConnectApi.FeedElementPage testPage = new ConnectApi.FeedElementPage();
 			List<ConnectApi.FeedItem> testItemList = new List<ConnectApi.FeedItem>();
@@ -210,22 +209,22 @@ private class CommunityTest2 {
 			System.debug('Exception = '+e.getMessage());
 		}
 		
-		try{
-			CommunityFeedController.inlineAction(feedItemRep.Id, 'fa-flag','');
-		} catch (Exception e){
-			System.debug('Exception = '+e.getMessage());
-		}
+		//try{
+		//	CommunityFeedController.inlineAction(feedItemRep.Id, 'fa-flag','');
+		//} catch (Exception e){
+		//	System.debug('Exception = '+e.getMessage());
+		//}
 		
 		try{
 			CommunityFeedController.inlineAction(feedItemRep.Id, 'fa-thumbs-up','test');
 		} catch (Exception e){
 			System.debug('Exception = '+e.getMessage());
 		}
-		try{
-			CommunityFeedController.inlineAction(feedItemRep.Id, 'fa-thumbs-up','');
-		} catch (Exception e){
-			System.debug('Exception = '+e.getMessage());
-		}
+		//try{
+		//	CommunityFeedController.inlineAction(feedItemRep.Id, 'fa-thumbs-up','');
+		//} catch (Exception e){
+		//	System.debug('Exception = '+e.getMessage());
+		//}
 		try{
 			CommunityFeedController.inlineAction(feedItemRep.Id, 'fa-bookmark','test');
 		} catch (Exception e){
@@ -236,11 +235,11 @@ private class CommunityTest2 {
 		} catch (Exception e){
 			System.debug('Exception = '+e.getMessage());
 		}
-		try{
-			CommunityFeedController.inlineAction(feedItemRep.Id, 'fa-times','');
-		} catch (Exception e){
-			System.debug('Exception = '+e.getMessage());
-		}
+		//try{
+		//	CommunityFeedController.inlineAction(feedItemRep.Id, 'fa-times','');
+		//} catch (Exception e){
+		//	System.debug('Exception = '+e.getMessage());
+		//}
 
 		Map<String, List<String>> parentTypeParentId = new Map<String, List<String>>();
 		Community_Group_Control__c cgc1 = new Community_Group_Control__c();

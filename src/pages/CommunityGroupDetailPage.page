@@ -40,7 +40,7 @@
                 <!-- Center -->
                 <div class="col-md-7 md-margin-bottom-20">
                     <div id="feed" class="profile-edit">
-                        <c:CommunityFeed pid="{!chatterGroup.Id}" rendered="{!!HideFeedComponent}" fu="true" he="{!!showCreateEvent}"/>
+                        <c:CommunityFeed pid="{!chatterGroup.Id}" rendered="{!!HideFeedComponent}" he="{!!showCreateEvent}"/>
                         <apex:outputPanel layout="block" styleClass="alert alert-danger fade in" rendered="{!HideFeedComponent}">
                             <i class="fa fa-exclamation-triangle"></i>&nbsp;&nbsp;{!$Label.LBL_PrivateGroup}
                         </apex:outputPanel>

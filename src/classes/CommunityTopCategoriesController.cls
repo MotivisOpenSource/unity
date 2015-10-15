@@ -1,13 +1,22 @@
 public with sharing class CommunityTopCategoriesController {
 	// COMMON VARIABLES
 	public Boolean resourceOnly { get; set; }
+	public static Integer countCol { get; set; }
+	public Boolean compRendered { get; set; }
 
 	//CONTROLLER
 	public CommunityTopCategoriesController() {
 	}
 
+	public void setColumns(){
+		compRendered = true;
+	}
+
+
 	//GET DATA LIST
 	public List<themeTagWapper> getWrappedThemes() {
+		countCol = countCol != null ? countCol : 3;
+		compRendered = compRendered != null ? compRendered : false;
 		List<themeTagWapper> resultList = new List<themeTagWapper>();
 
 		List<Community_Tag__c> allTags = [
@@ -58,8 +67,8 @@ public with sharing class CommunityTopCategoriesController {
 			themeIconColor = t.Icon_Color__c;
 			tagColumns = new List<List<themeTagItem>>();
 			if (tags != NULL && tags.size() > 0) {
-				Integer breakpoint = tags.isEmpty() ? 0 : tags.size()/3;
-				for(Integer colCount = 0; colCount < 3; colCount++) {
+				Integer breakpoint = tags.isEmpty() ? 0 : tags.size()/countCol;
+				for(Integer colCount = 0; colCount < countCol; colCount++) {
 					tagColumns.add(new List<themeTagItem>());
 				}
 				Integer tagCount = 0;
