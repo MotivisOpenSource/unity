@@ -16,15 +16,20 @@ global with sharing class CommunityFeedController {
 	public String packagePrefix { get{ return CommunityUtils.getPackagePrefix();} }
 	public Boolean isTopicCreateable { get{ return CommunityUtils.checkCRUDforObject('Topic').get('isCreateable');} }
 	public Boolean isTopicAssignmentCreateable { get{ return CommunityUtils.checkCRUDforObject('TopicAssignment').get('isCreateable');} }
+	public class appException extends Exception { }
 	public String parentIdForAtt {get {
-			String gc = ApexPages.currentPage().getParameters().get('gc');
-			String gr = ApexPages.currentPage().getParameters().get('gr');
-			return gc != null ? gc : CommunityHelperWithoutSharing.getCommunityGroupControl(gr);
-			
-			//User us = [SELECT Id, ContactId, Community_Contact_ID__c FROM User WHERE Id = :UserInfo.getUserId()];
-			//if(us.ContactId != null) return us.ContactId;
-			//if(us.Community_Contact_ID__c != null) return us.Community_Contact_ID__c;
-			//return null;
+			try {
+				User us = [SELECT Id, ContactId, Community_Contact_ID__c FROM User WHERE Id = :UserInfo.getUserId() LIMIT 1];
+				String ContId = (us.ContactId != null) ? us.ContactId : us.Community_Contact_ID__c;
+				if(ContId != null) {
+				    List<Community_Profile__c> cpl = [SELECT Id FROM Community_Profile__c WHERE Contact__c = :ContId LIMIT 1]; 
+					if(cpl.size()>0) return cpl[0].Id;
+				}
+				return null;
+			}
+			catch(Exception ex) {
+				return null;
+			}
 		} set;}
 	public String NetworkId {get { 
 		if(!parentId.startsWith('0F9') && (String.isBlank(feedType) || feedType == '4' || feedType == '5')){
@@ -144,7 +149,6 @@ global with sharing class CommunityFeedController {
 			fepResult.nextPageToken = fep.nextPageToken;
 			inPageToken2 = fep.nextPageToken;
 		}while(fepResult.showMore && fepResult.elements.size() < PAGE_SIZE);
-
 		fepResult = initialRoles(fepResult);
 		fepResult = initialParentId(fepResult);
 		fepResult = initialTopics(fepResult);
@@ -275,7 +279,6 @@ global with sharing class CommunityFeedController {
 				fe.parentAcssesType = feedIdParentNameId.get(fe.Id)[2];
 				fe.parentLink = feedIdParentNameId.get(fe.Id)[3];
 				fe.parentIcon = feedIdParentNameId.get(fe.Id)[4];
-				fe.parentId = feedIdParentNameId.get(fe.Id)[5];
 			}
 		}
 
@@ -291,7 +294,7 @@ global with sharing class CommunityFeedController {
 				List<String> groupsIds = parentTypeParentId.get(typeParent);
 				List<Community_Group_Control__c> cGroups = [SELECT Id, Name, Type__c, Chatter_Group_ID__c FROM Community_Group_Control__c WHERE Chatter_Group_ID__c IN :groupsIds];
 				for(Community_Group_Control__c cGroup : cGroups){
-					parentIdNameGroupType.put(cGroup.Chatter_Group_ID__c, new List<String>{Label.LBL_Digest_Group, cGroup.Name, cGroup.Type__c, prepareUrl(Page.CommunityGroupDetailPage.getUrl())+'?gr='+cGroup.Chatter_Group_ID__c, 'fa fa-users', cGroup.Chatter_Group_ID__c});
+					parentIdNameGroupType.put(cGroup.Chatter_Group_ID__c, new List<String>{Label.LBL_Digest_Group, cGroup.Name, cGroup.Type__c, prepareUrl(Page.CommunityGroupDetailPage.getUrl())+'?gr='+cGroup.Chatter_Group_ID__c, 'fa fa-users'});
 				}
 				
 			}
@@ -299,7 +302,7 @@ global with sharing class CommunityFeedController {
 				List<String> groupsManagerIds = parentTypeParentId.get(typeParent);
 				List<Community_Group_Control__c> groupsM = [SELECT Id, Name, Type__c, Chatter_Group_ID__c FROM Community_Group_Control__c WHERE Id IN :groupsManagerIds];
 				for(Community_Group_Control__c groupM : groupsM){
-					parentIdNameGroupType.put(groupM.Id, new List<String>{label.LBL_Manager, groupM.Name, groupM.Type__c, prepareUrl(Page.CommunityGroupManager.getUrl())+'?gr='+groupM.Chatter_Group_ID__c, 'fa fa-comments', groupM.Chatter_Group_ID__c});
+					parentIdNameGroupType.put(groupM.Id, new List<String>{label.LBL_Manager, groupM.Name, groupM.Type__c, prepareUrl(Page.CommunityGroupManager.getUrl())+'?gr='+groupM.Chatter_Group_ID__c, 'fa fa-comments'});
 				}
 				
 			}
@@ -307,7 +310,7 @@ global with sharing class CommunityFeedController {
 				List<String> newsIds = parentTypeParentId.get(typeParent);
 				List<Community_News__c> cNews = [SELECT Id, Title__c FROM Community_News__c WHERE Id IN :newsIds];
 				for(Community_News__c cNew : cNews){
-					parentIdNameGroupType.put(cNew.Id, new List<String>{label.LBL_News, cNew.Title__c, null, prepareUrl(Page.CommunityNewsDetail.getUrl())+'?id='+cNew.Id, 'fa fa-newspaper-o', cNew.Id});
+					parentIdNameGroupType.put(cNew.Id, new List<String>{label.LBL_News, cNew.Title__c, null, prepareUrl(Page.CommunityNewsDetail.getUrl())+'?id='+cNew.Id, 'fa fa-newspaper-o'});
 				}
 				
 			}
@@ -315,7 +318,7 @@ global with sharing class CommunityFeedController {
 				List<String> eventsIds = parentTypeParentId.get(typeParent);
 				List<Community_Events__c> cEvents = [SELECT Id, Name__c FROM Community_Events__c WHERE Id IN :eventsIds];
 				for(Community_Events__c cEvent : cEvents){
-					parentIdNameGroupType.put(cEvent.Id, new List<String>{Label.LBL_Events, cEvent.Name__c, null, prepareUrl(Page.CommunityEventDetail.getUrl())+'?id='+cEvent.Id, 'fa fa-calendar', cEvent.Id});
+					parentIdNameGroupType.put(cEvent.Id, new List<String>{Label.LBL_Events, cEvent.Name__c, null, prepareUrl(Page.CommunityEventDetail.getUrl())+'?id='+cEvent.Id, 'fa fa-calendar'});
 				}
 				
 			}
@@ -926,7 +929,7 @@ global with sharing class CommunityFeedController {
 		Map<String, Community_Group_Control__c> groupsMap = new Map<String, Community_Group_Control__c>();
 		Map<String, String> groupsMapPhoto = new Map<String, String>();
 		query = '%' + query + '%';
-		for (User u : CommunityHelperWithoutSharing.getCommunityUsers(query,100,new List<String>{'FirstName', 'LastName', 'SmallPhotoUrl', 'Contact.Primary_Role__c'},'Name',true))
+		for (User u : CommunityHelperWithoutSharing.getCommunityUsers(query,10,new List<String>{'FirstName', 'LastName', 'SmallPhotoUrl', 'Contact.Primary_Role__c'},'Name',true))
 				
 				 {
 			result.add(new MentionUser(u));
