@@ -16,7 +16,6 @@
 	<script type="text/javascript" src="/soap/ajax/33.0/connection.js"></script>
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/ImageLoad/load-image.all.min.js"></script>
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/hashtagsinput/jquery_hashtagsinput.js" ></script>
-	
 
 	<apex:stylesheet value="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.css" />
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.js"></script>
@@ -54,10 +53,10 @@
 			</script>
 			<script id="tto" type="text/template">
 				<% _.each(rc.elements, function(p){ %>
-				<div class="comment">
-					<img src="<%= p.actor.photo.smallPhotoUrl %>" alt=""/>
-					<div class="overflow-h">
-						<strong><%= p.actor.displayName %> <%= p.actor.role !== null ?  '(' + p.actor.role + ')': '' %> <small class="pull-right"><%= p.dateStr %></small></strong>
+				<div class="comment media-body">
+					<img src="<%= p.actor.photo.smallPhotoUrl %>" alt="<%= p.actor.displayName %>"/>
+					<div class="overflow-h" onclick="window.location.href = '<%= p.parentLink !== null ? ''+p.parentLink : (p.parentId == '{!$User.Id}' ? '{!$Page.CommunityFeed_MyFeed}' : '{!$Page.CommunityProfilePage}?id='+p.parentId+'&f=2') %>';">
+						<div class="profilename"><strong><a href="<%= p.actor.id == '{!$User.Id}' ? '{!$Page.CommunityFeed_MyFeed}' : '{!$Page.CommunityProfilePage}?id='+p.actor.id+'&f=2' %>" alt="<%= p.actor.displayName %>"><%= p.actor.displayName %> <%= p.actor.role !== null ?  '(' + p.actor.role + ')': '' %> <small class="pull-right"><%= p.dateStr %></small></a></strong></div>
 						<% if(p.parentType != null && {!tf}){ %>
 							<p><strong><a class="<%= p.parentIcon %> font-weight-bold" href="<%= p.parentLink %>"> <%= p.parentType %> - <%= p.parentName %> <% if(p.parentAcssesType != null){ %> (<%= p.parentAcssesType %>) <% } %></a>
 							</strong></p>
@@ -65,6 +64,17 @@
 						<p><% 	var pp = parseFeedBody(p.body,p.topicsUser);
 								print(wrapnl(pp)); %>
 						</p>
+
+						<% if (p.showLink) { %>
+						<div class="d-link">
+						<a href="<%= p.linkHref %>" target="_blank" >
+							<i class="fa fa-link"></i>
+							<%= p.linkName %><br>
+						</a>
+						<% print(wrapnl(p.linkHref)); %>
+						</div>
+						<% } %>
+
 						<ul class="list-inline comment-list">
 							<li><i class="fa fa-comments"></i> <a href="#"><%= p.total %></a></li>
 						</ul>
@@ -136,6 +146,7 @@
 						</a>
 						<% print(wrapnl(p2.linkHref)); %>
 						</div>
+							</p>
 						<% } %>
 						<% if (p2.showContent) { %>
 							<p>	<% var p2p = parseFeedBody(p2.body,p2.topicsUser);

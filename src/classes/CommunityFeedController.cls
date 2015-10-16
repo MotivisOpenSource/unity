@@ -273,6 +273,9 @@ global with sharing class CommunityFeedController {
 		}
 		
 		for(FeedElement fe : currentFeedPage.elements){
+			if(feedIdParentId.containsKey(fe.Id)){
+				fe.parentId = feedIdParentId.get(fe.Id);
+			}
 			if(feedIdParentNameId.get(fe.Id) != null ){
 				fe.parentType = feedIdParentNameId.get(fe.Id)[0];
 				fe.parentName = feedIdParentNameId.get(fe.Id)[1];
