@@ -124,6 +124,26 @@
         <type>Number</type>
         <unique>false</unique>
     </fields>
+    <fields>
+        <fullName>Twitter_Data_Widget_ID__c</fullName>
+        <externalId>false</externalId>
+        <label>Twitter Data Widget ID</label>
+        <length>250</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Twitter_Handle__c</fullName>
+        <externalId>false</externalId>
+        <label>Twitter Handle</label>
+        <length>50</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
     <label>Community Settings</label>
     <visibility>Protected</visibility>
 </CustomObject>
