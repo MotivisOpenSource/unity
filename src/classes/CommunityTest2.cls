@@ -34,7 +34,6 @@ private class CommunityTest2 {
 		System.assert(cfnc.actionPhotoLabel != null);
 		System.assert(cfnc.permitions != null);
 		
-		System.Debug('11111111111111');
 		//cfnc.photoBody = Blob.valueOf('body');
 		//cfnc.cropSize = '4';
 		//cfnc.cropX = '2';
@@ -47,10 +46,10 @@ private class CommunityTest2 {
 		//cfnc.uploadmode();
 		//System.assertEquals(true, cfnc.uploadMode);
 
-		String photoURL = cfnc.getPhotoUrl();
+		//String photoURL = cfnc.getPhotoUrl();
 
-		PageReference ref = new PageReference('/apex/CommunityFeedNavigation'); 
-		Test.setCurrentPage(ref);
+		//PageReference ref = new PageReference('/apex/CommunityFeedNavigation');
+		//Test.setCurrentPage(ref);
 		//cfnc.photoaction();
 		//PageReference pr = cfnc.photoaction();
 		//System.assertEquals(true, pr != null);
