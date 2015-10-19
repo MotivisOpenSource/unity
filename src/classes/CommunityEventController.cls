@@ -56,7 +56,9 @@ public with sharing class CommunityEventController {
 		return event.End__c != NULL ? event.End__c.format('MM/dd/yyyy @ h:mm a').replace(' AM', ' am').replace(' PM',' pm') : NULL;
 	}
 
-	public PageReference downloadICS() {
+	public ID DocId {get; set;}
+
+	public void generateDownloadIcsLink() {
 		String docName = String.format('{0}.ics', new List<String> { this.event.Name__c });
 		Document att = deleteICSDocument(docName);
 		if (att == NULL) {
@@ -85,10 +87,7 @@ public with sharing class CommunityEventController {
 			);
 			insert att;
 		}
-		PageReference pr = new PageReference('/servlet/servlet.FileDownload');
-		pr.setRedirect(true);
-		pr.getParameters().put('file', att.Id);
-		return pr;
+		DocId = att.Id;
 	}
 
 	private Document deleteICSDocument(String name){
@@ -177,6 +176,7 @@ public with sharing class CommunityEventController {
 			mode = 'view';
 			init();
 		}
+		generateDownloadIcsLink();
 		return pr;
 	}
 
