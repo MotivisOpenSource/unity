@@ -310,6 +310,8 @@
         <members>ERR_Create_Event_Dates</members>
         <members>ERR_Dup_Group_Name</members>
         <members>ERR_Group_Picture_FileError</members>
+        <members>ERR_Group_Tags_Limit</members>
+        <members>ERR_Group_Tags_Required</members>
         <members>ERR_Maximum_number_topics</members>
         <members>ERR_MissingImageLibrary</members>
 		<members>ERR_Set_Up_Community_Profile</members>
@@ -335,6 +337,7 @@
         <members>LBL_AddToCalendar</members>
         <members>LBL_Add_Photo</members>
         <members>LBL_Add_Remove_Members</members>
+        <members>LBL_Admin_Page_Group_Tag_Setting_Error</members>
         <members>LBL_Add_To_Favorites</members>
         <members>LBL_AgreeToTerms</members>
         <members>LBL_AllGroups</members>

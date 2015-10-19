@@ -426,10 +426,18 @@ public with sharing class CommunityGroupManageController {
 			manager = inManager;
 		}
 	}
-	
+
+	//getTagsCount
+	public Boolean getRequiredTags() {
+		Community_Settings__c cs = Community_Settings__c.getInstance();
+		return cs != NULL && cs.Create_Group_Require_Tags__c == true;
+	}
+
 	public Integer getTagsCount() {
 		Community_Settings__c cs = Community_Settings__c.getInstance();
-		return Integer.valueOf(cs.Create_Group_Max_Tags__c);
+		return (cs != NULL && cs.Create_Group_Max_Tags__c != NULL)
+				? Integer.valueOf(cs.Create_Group_Max_Tags__c)
+				: -1;
 	}
 	
 	private final String TAGS_INPUT_NAME = 'tags';

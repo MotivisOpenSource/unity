@@ -177,7 +177,7 @@
 					<div class="col-sm-12 sky-form">
 						<section>
 							<label class="input">
-								<c:CommunityTagSelector oId="{!CurrentGroup.Id}" oType="{!$ObjectType.Community_Group_Control_Tag__c.Name}" fName="{!$ObjectType.Community_Group_Control_Tag__c.Fields.Group_Control__c.Name}" mt="{!tagsCount}"/>
+								<c:CommunityTagSelector oId="{!CurrentGroup.Id}" oType="{!$ObjectType.Community_Group_Control_Tag__c.Name}" fName="{!$ObjectType.Community_Group_Control_Tag__c.Fields.Group_Control__c.Name}" tlim="{!tagsCount}" treq="{!disabledNext}"/>
 							</label>
 						</section>
 					</div>

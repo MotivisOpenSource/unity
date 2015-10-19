@@ -383,6 +383,8 @@ private class CommunityTest {
 		cgc.getActionButton();
 		cgc.getFieldset();
 		cgc.getEvents();
+		cgc.getRequiredTags();
+		cgc.getTagsCount();
 		Boolean b = cgc.showCreateEvent;
 		cgc.groupMode = '1';
 		cgc.performGroupMembershipAction();
