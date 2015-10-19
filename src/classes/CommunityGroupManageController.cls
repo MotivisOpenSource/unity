@@ -30,6 +30,10 @@ public with sharing class CommunityGroupManageController {
 	public static Community_Group_Control__c pullGroupControlRecord(Boolean useFieldSet) {
 		String chatterGroupId = ApexPages.currentPage().getParameters().get('gr');
 		String groupControlId = ApexPages.currentPage().getParameters().get('gc');
+		return pullGroupControlRecord(useFieldSet, chatterGroupId, groupControlId);
+	}
+
+	public static Community_Group_Control__c pullGroupControlRecord(Boolean useFieldSet, String chatterGroupId, String groupControlId) {
 		if (String.isNotBlank(chatterGroupId) || String.isNotBlank(groupControlId)) {
 			Set<String> collectedFields = new Set<String> {'Id', 'Name', 'Chatter_Group_ID__c', 'Type__c', 'OwnerId', 'UserRecordAccess.HasEditAccess'};
 			if (useFieldSet) {
@@ -216,7 +220,7 @@ public with sharing class CommunityGroupManageController {
 	}
 
 	public Boolean getShowChangeOwnerLink() {
-		return managerMode && !changeOwnerMode && control.UserRecordAccess.HasEditAccess == true;
+		return (managerMode && !changeOwnerMode && control.OwnerId == UserInfo.getUserId() && control.UserRecordAccess.HasEditAccess == true) || CommunityUtils.isModifyAllData();
 	}
 
 	// MEMBER HANDLER CLASS
@@ -267,7 +271,7 @@ public with sharing class CommunityGroupManageController {
 			if (allMode) { 
 				List<String> orderList = new List<String> {'','Name'};
 				String columnSortStr = (columnSort > 0)?orderList[columnSort]:'';
-				allUsers = CommunityHelperWithoutSharing.getCommunityUsers(null, 100, new List<String>{'ContactId', 'City', 'Country', 'Community_Contact_ID__c', 'SmallPhotoUrl'}, columnSortStr , ascSort);
+				allUsers = CommunityHelperWithoutSharing.getCommunityUsers(null, 50000, new List<String>{'ContactId', 'City', 'Country', 'Community_Contact_ID__c', 'SmallPhotoUrl'}, columnSortStr , ascSort);
 			}
 			else if (membersMode) {
 				String mQuery2 = 'SELECT MemberId, Member.Name, Member.Id, Member.ContactId, Member.City, Member.Country, Member.Community_Contact_ID__c, Member.SmallPhotoUrl FROM CollaborationGroupMember';
