@@ -9,15 +9,13 @@
 	<apex:attribute name="gID" type="Boolean" assignTo="{!grID}" required="false" default="false" description="ID for Group" />
 	<apex:attribute name="he" type="Boolean" assignTo="{!hideEventBtn}" required="false" default="false" description="hide create event button" />
 	<script src="{!$Resource.CommunityResources}/js/underscore/underscore-min.js"></script>
-	<!--<script type="text/javascript" src="{!$Resource.assets}/plugins/mentions/jquery.mentionsInput.js" ></script>-->
+	<script type="text/javascript" src="{!$Resource.assets}/plugins/mentions/jquery.mentionsInput.js" ></script>
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/mentions/jquery.events.input.js" ></script>
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/sky-forms/version-2.0.1/js/jquery-ui.min.js"></script>
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/sky-forms/version-2.0.1/js/jquery.validate.min.js"></script> <!--  path contains old version -->
 	<script type="text/javascript" src="/soap/ajax/33.0/connection.js"></script>
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/ImageLoad/load-image.all.min.js"></script>
-	<script type="text/javascript" src="{!$Resource.assets}/plugins/hashtagsinput/jquery_hashtagsinput.js" ></script>
 	
-
 	<apex:stylesheet value="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.css" />
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.js"></script>
 	<!-- script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.13.1/jquery.validate.min.js"></script-->
