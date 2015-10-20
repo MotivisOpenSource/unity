@@ -136,8 +136,9 @@ public with sharing class CommunityGroupDetailPageController {
 		get {
 			return chatterGroup != NULL
 					&& SObjectType.Community_Events__c.isCreateable()
-					&& SObjectType.Community_Event_Tag__c.isCreateable()
-					&& (groupRole == ConnectApi.GroupMembershipType.GroupOwner || groupRole == ConnectApi.GroupMembershipType.GroupManager || groupRole == ConnectApi.GroupMembershipType.StandardMember);
+						&& SObjectType.Community_Event_Tag__c.isCreateable()
+						&& ((groupRole == ConnectApi.GroupMembershipType.GroupOwner || groupRole == ConnectApi.GroupMembershipType.GroupManager || groupRole == ConnectApi.GroupMembershipType.StandardMember)
+							|| (control.Type__c != 'Private' && CommunityUtils.isModifyAllData()));
 		}
 	}
 

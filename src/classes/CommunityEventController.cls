@@ -573,13 +573,13 @@ public with sharing class CommunityEventController {
 			chatterGroups.add(gcItem.Chatter_Group_ID__c);
 		}
 		List<String> groupIds = new List<String>();
-		for (CollaborationGroup cgItem : [
-											SELECT Id, Name FROM CollaborationGroup Where NetworkId = :Network.getNetworkId() AND ID in :chatterGroups AND
-												ID in (SELECT CollaborationGroupId FROM CollaborationGroupMember WHERE
-														 MemberId = :UserInfo.getUserId() ) ] ) {
+		String cgQuery = 'SELECT Id, Name FROM CollaborationGroup WHERE NetworkId = \'' + String.escapeSingleQuotes(Network.getNetworkId()) + '\' AND Id IN :chatterGroups';
+		cgQuery += CommunityUtils.isModifyAllData() ? '' : ' AND Id IN (SELECT CollaborationGroupId FROM CollaborationGroupMember WHERE MemberId = \'' + String.escapeSingleQuotes(UserInfo.getUserId()) + '\')';
+		List<CollaborationGroup> cgList = Database.query(cgQuery);
+		for (CollaborationGroup cgItem : cgList) {
 			groupIds.add(cgItem.Id);
 			groupsNames.Add(cgItem.Name);
-		}		
+		}
 		return groupsNames;
 	}
 }
