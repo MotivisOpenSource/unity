@@ -49,9 +49,10 @@ global with sharing class CommunityFeedController {
 	public String parentIdForAtt {get {
 			try {
 				User us = [SELECT Id, ContactId, Community_Contact_ID__c FROM User WHERE Id = :UserInfo.getUserId() LIMIT 1];
-				String ContId = (us.ContactId != null) ? us.ContactId : us.Community_Contact_ID__c;
-				if(ContId != null) {
-				    List<Community_Profile__c> cpl = [SELECT Id FROM Community_Profile__c WHERE Contact__c = :ContId LIMIT 1]; 
+				String contId = (us.ContactId != null) ? us.ContactId : us.Community_Contact_ID__c;
+				if(contId != null) {
+					String queryContId = String.escapeSingleQuotes(contId);
+					List<Community_Profile__c> cpl = [SELECT Id FROM Community_Profile__c WHERE Contact__c = :queryContId LIMIT 1]; 
 					if(cpl.size()>0) return cpl[0].Id;
 				}
 				return null;
@@ -131,18 +132,20 @@ global with sharing class CommunityFeedController {
 
 		String result = '';
 		
+		String queryTopicId = String.escapeSingleQuotes(topicId);
 		for(TopicAssignment topicA : [SELECT Id, NetworkId, TopicId, EntityId FROM TopicAssignment
 										WHERE NetworkId =: Network.getNetworkId()
-										AND TopicId =: topicId LIMIT 1000]){
+										AND TopicId =: queryTopicId LIMIT 1000]){
 			feedsIds.add(topicA.EntityId);
 		}
 		if(inParentId2 != UserInfo.getUserId()){
-			for(FeedItem fItem : [SELECT Id, ParentId FROM FeedItem WHERE Id IN :feedsIds AND ParentId =:inParentId2 Limit 1000]){
+			String queryInParentId2 = String.escapeSingleQuotes(inParentId2);
+			for(FeedItem fItem : [SELECT Id, ParentId FROM FeedItem WHERE Id IN :feedsIds AND ParentId =:queryInParentId2 LIMIT 1000]){
 				feedsParents.add(fItem.Id);
 				managersParent.put(fItem.Id, fItem.ParentId);
 			}
 		}else{
-			for(FeedItem fItem : [SELECT Id, ParentId FROM FeedItem WHERE Id IN :feedsIds Limit 1000]){
+			for(FeedItem fItem : [SELECT Id, ParentId FROM FeedItem WHERE Id IN :feedsIds LIMIT 1000]){
 				if(fItem.ParentId.getSObjectType().getDescribe().getName().containsIgnoreCase('Community_Group_Control')){
 					managersParent.put(fItem.Id, fItem.ParentId);
 				}
@@ -863,8 +866,9 @@ global with sharing class CommunityFeedController {
 					if (fei.body == NULL) fei.body = werewolfText('');
 					// insert group link for event
 					//Community_Group_Control__c groupControl = [SELECT ID FROM Community_Group_Control__c WHERE Chatter_Group_ID__c = :inParentId4 LIMIT 1];
-					if(![SELECT ID FROM Community_Group_Control__c WHERE Chatter_Group_ID__c = :inParentId4 LIMIT 1].isEmpty()){
-						Id grControllID = [SELECT ID FROM Community_Group_Control__c WHERE Chatter_Group_ID__c = :inParentId4 LIMIT 1].Id;
+					String queryInParentId4 = String.escapeSingleQuotes(inParentId4);
+					if(![SELECT ID FROM Community_Group_Control__c WHERE Chatter_Group_ID__c = :queryInParentId4 LIMIT 1].isEmpty()){
+						Id grControllID = [SELECT ID FROM Community_Group_Control__c WHERE Chatter_Group_ID__c = :queryInParentId4 LIMIT 1].Id;
 						Community_Event_Tag__c communityEventTag = new Community_Event_Tag__c();
 						communityEventTag.Community_Event__c = res.getId();
 						communityEventTag.Community_Group_Control__c = grControllID;
@@ -942,7 +946,7 @@ global with sharing class CommunityFeedController {
 	global static String getTopics(String query){
 		List<HashTagTopic> result = new List<HashTagTopic>();
 		query = query.replace('\\','\\\\');
-		query = '%' + query + '%';
+		query = '%' + String.escapeSingleQuotes(query) + '%';
 		List<Topic> listTopics = [SELECT Id, Name, NetworkId, TalkingAbout FROM Topic WHERE NetworkId =: Network.getNetworkId() AND Name LIKE :query LIMIT 1000];
 		for(Topic t : listTopics){
 			result.add(new HashTagTopic(t));
@@ -957,7 +961,7 @@ global with sharing class CommunityFeedController {
 		List<MentionUser> result = new List<MentionUser>();
 		Map<String, Community_Group_Control__c> groupsMap = new Map<String, Community_Group_Control__c>();
 		Map<String, String> groupsMapPhoto = new Map<String, String>();
-		query = '%' + query + '%';
+		query = '%' + String.escapeSingleQuotes(query) + '%';
 		for (User u : CommunityHelperWithoutSharing.getCommunityUsers(query,10,new List<String>{'FirstName', 'LastName', 'SmallPhotoUrl', 'Contact.Primary_Role__c'},'Name',true))
 				
 				 {

@@ -87,7 +87,6 @@ global with sharing class CommunityHomeNotificationsController {
 	// where user is owner or manager
 	private static List<NotificationWrapper> getGroupManagerFeeds(){
 		
-		String userId = UserInfo.getUserId();
 		String userType = UserInfo.getUserType();
 		
 		Set<Id> managersIds = new Set<Id>();
@@ -104,7 +103,7 @@ global with sharing class CommunityHomeNotificationsController {
 	// where user is owner or manager
 		List<Community_Group_Manager__c> cGManagers = [SELECT Manager_Role__c, Group_Manager_User__c, Group_Control__c 
 														FROM Community_Group_Manager__c 
-														WHERE Group_Manager_User__c = :userId];
+														WHERE Group_Manager_User__c = :UserInfo.getUserId()];
 
 		if(cGManagers.isEmpty()) return NULL;
 
@@ -116,7 +115,7 @@ global with sharing class CommunityHomeNotificationsController {
 		if(userType.equalsIgnoreCase('Standard')){
 			follows = [SELECT Id, ParentId, SubscriberId, NetworkId 
 						FROM EntitySubscription
-						WHERE SubscriberId = :userId
+						WHERE SubscriberId = :UserInfo.getUserId()
 						];
 		}
 		Schema.DescribeSObjectResult cg = Community_Group_Control__c.sObjectType.getDescribe();
@@ -143,12 +142,12 @@ global with sharing class CommunityHomeNotificationsController {
 		List<FeedItem> feeds = [SELECT Id, ParentId, Type, CommentCount, LinkUrl, LastModifiedDate, CreatedById, Visibility 
 								FROM FeedItem
 							   WHERE ParentId IN :controlsIds 
-							   AND CreatedById != :userId
+							   AND CreatedById != :UserInfo.getUserId()
 							   AND Visibility = 'AllUsers'
 							   LIMIT 10000];
 							   */
 							   
-		List<FeedItem> feeds = CommunityHelperWithoutSharing.getFeeds(controlsIds, userId);
+		List<FeedItem> feeds = CommunityHelperWithoutSharing.getFeeds(controlsIds, UserInfo.getUserId());
 
 	   if(feeds.isEmpty()) {
 	    	System.debug('feednul');

@@ -348,35 +348,35 @@
 			<script type="text/template" id="messageRowTemplate">
 				<li class="messageRow">
 					<div class="messagePhoto">
-						<span class="chatter-avatarRegular chatter-avatar" title="<%= message.Sender.MemberName}">
-							<img src="<%= message.Sender.MemberPhotoUrl %>" alt="<%= message.Sender.MemberName %>" width="45" height="45" class="chatter-photo" title="<%= message.Sender.MemberName %>" />
+						<span class="chatter-avatarRegular chatter-avatar" title="<%- message.Sender.MemberName}">
+							<img src="<%- message.Sender.MemberPhotoUrl %>" alt="<%- message.Sender.MemberName %>" width="45" height="45" class="chatter-photo" title="<%- message.Sender.MemberName %>" />
 							<img src="/s.gif" alt="" class="chatter-avatarStyle" title="" />
 						</span>
 					</div>
 					<div class="messageTimestamp">
 						<div class="streamTimestamp">
-							<%= message.SentDateFormatted %>
+							<%- message.SentDateFormatted %>
 						</div>
 					</div>
 					<div class="messageContent">
 						<div class="messageSender">
-							<a href="{!$Page.CommunityProfilePage}?id=<%= message.Sender.MemberId %>" title="<%= message.Sender.MemberName %>"><%= message.Sender.MemberName %></a>
+							<a href="{!$Page.CommunityProfilePage}?id=<%- message.Sender.MemberId %>" title="<%- message.Sender.MemberName %>"><%- message.Sender.MemberName %></a>
 						</div>
-						<div class="messageBody"><%= message.MessageBody.Text %></div>
+						<div class="messageBody"><%- message.MessageBody.Text %></div>
 					</div>
 					<div class="clearingBox" layout="block"></div>
 				</li>
 			</script>
 			<script type="text/template" id="suggestionTemplate">
-				<img class="rounded-x" src="<%= MemberPhotoUrl %>" alt="<%= MemberName %>">
+				<img class="rounded-x" src="<%- MemberPhotoUrl %>" alt="<%- MemberName %>">
 				<div class="overflow-h">
-					<span><strong><%= MemberName %></strong></span>
+					<span><strong><%- MemberName %></strong></span>
 				</div>	
 			</script>
 			<script type="text/template" id="suggestionSelectedTemplate">
-				<li class="search-choice item_<%= member.MemberId %>" data-member="<%= member.MemberId %>">
-					<span><%= member.MemberName %></span>
-					<button class="close tt-close" type="button" data-member="<%= member.MemberId %>">&times;</button>
+				<li class="search-choice item_<%- member.MemberId %>" data-member="<%- member.MemberId %>">
+					<span><%- member.MemberName %></span>
+					<button class="close tt-close" type="button" data-member="<%- member.MemberId %>">&times;</button>
 				</li>
 			</script>
 
@@ -548,9 +548,7 @@
 							function(result, event) {
 								window.suggestedRecipients = [];
 								$.each(result, function(key, value) {
-									var div = document.createElement('div');
-									div.innerHTML = value.MemberName;
-									value.MemberName = div.firstChild.nodeValue
+									value.MemberName = encode(value.MemberName)
 									suggestedRecipients.push(value);
 								});
 								process(suggestedRecipients);

@@ -86,7 +86,7 @@ public with sharing class CommunityEventController {
 	}
 
 	public ID DocId {get; set;}
-
+	
 	public void generateDownloadIcsLink() {
 		String docName = String.format('{0}.ics', new List<String> { this.event.Name__c });
 		Document att = deleteICSDocument(docName);
@@ -119,8 +119,9 @@ public with sharing class CommunityEventController {
 		DocId = att.Id;
 	}
 
-	private Document deleteICSDocument(String name){
-		List<Document> atts = [SELECT Id, Name FROM Document WHERE Name =: name AND IsPublic = true LIMIT 5];
+	private Document deleteICSDocument(String docName){
+		String queryDocName = String.escapeSingleQuotes(docName);
+		List<Document> atts = [SELECT Id, Name FROM Document WHERE Name = :queryDocName AND IsPublic = true LIMIT 5];
 		Document att = NULL;
 		if(atts.isEmpty()) return null;
 		try{
@@ -288,14 +289,14 @@ public with sharing class CommunityEventController {
 		}
 		else if (ApexPages.currentPage().getParameters().get('cloneId') != NULL) {
 			try {
-				Id cloneId = Id.valueOf(ApexPages.currentPage().getParameters().get('cloneId'));
+				String queryCloneId = String.escapeSingleQuotes(Id.valueOf(ApexPages.currentPage().getParameters().get('cloneId')));
 				String cquery = '';
 				String csep = 'SELECT ';
 				for (CommunityFieldLayout.Field cf : elayout.flds) {
 					cquery += csep + cf.name;
 					csep = ', ';
 				}
-				cquery += ' FROM Community_Events__c WHERE Id = \'' + cloneId + '\'';
+				cquery += ' FROM Community_Events__c WHERE Id = \'' + queryCloneId + '\'';
 				Community_Events__c cevent = Database.query(cquery);
 				for (CommunityFieldLayout.Field cf2 : elayout.flds) {
 					event.put(cf2.name, cevent.get(cf2.name));
@@ -312,7 +313,8 @@ public with sharing class CommunityEventController {
 		}
 		connectedGroupStr = '';
 		if(String.isNotBlank(groupId)) {
-			List<Community_Group_Control__c> cgc = [SELECT Id, Name FROM Community_Group_Control__c WHERE Chatter_Group_ID__c = :groupId];
+			String queryGroupId = String.escapeSingleQuotes(groupId);
+			List<Community_Group_Control__c> cgc = [SELECT Id, Name FROM Community_Group_Control__c WHERE Chatter_Group_ID__c = :queryGroupId];
 			connectedGroupStr = cgc.isEmpty() ? '' : cgc[0].Name;
 			relatedToEventGroup = cgc.isEmpty() ? NULL :cgc[0];
 		}
@@ -363,10 +365,11 @@ public with sharing class CommunityEventController {
 			}
 			else {
 				// create group
+				String queryConnectedGroupStr = String.escapeSingleQuotes(connectedGroupStr);
 				List<Community_Group_Control__c> communityGroupControll = [
 						SELECT Id, Chatter_Group_ID__c
 						FROM Community_Group_Control__c
-						WHERE Name like :connectedGroupStr
+						WHERE Name like :queryConnectedGroupStr
 						ORDER BY CreatedDate DESC
 					];	
 				// check if the group exist
@@ -432,11 +435,11 @@ public with sharing class CommunityEventController {
 	// -- methods --
 	private void initList() {
 		//Datetime eNow = Datetime.now();
-		Id userId = UserInfo.getUserId();
+		String queryUserId = String.escapeSingleQuotes(UserInfo.getUserId());
 		String eQuery = 'SELECT Id, Name__c, Teaser__c, Start__c FROM Community_Events__c';
 		//eQuery += ' WHERE Start__c != NULL';
-		eQuery += ' WHERE (Public__c = true OR OwnerId = :userId) AND ((End__c = NULL AND Start__c != NULL AND Start__c <= TODAY) OR (End__c != NULL AND End__c >= TODAY))';
-		//eQuery += ' WHERE Start__c != NULL AND Start__c <= :eNow AND (Public__c = true OR OwnerId = :userId) AND (End__c = NULL OR End__c >= :eNow)';
+		eQuery += ' WHERE (Public__c = true OR OwnerId = :queryUserId) AND ((End__c = NULL AND Start__c != NULL AND Start__c <= TODAY) OR (End__c != NULL AND End__c >= TODAY))';
+		//eQuery += ' WHERE Start__c != NULL AND Start__c <= :eNow AND (Public__c = true OR OwnerId = :queryUserId) AND (End__c = NULL OR End__c >= :eNow)';
 		Set<Id> cnIds = new Set<Id>();
 		try {
 			Map<String, String> pageParams = ApexPages.currentPage().getParameters();

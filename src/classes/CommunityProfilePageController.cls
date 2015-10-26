@@ -66,7 +66,8 @@ global with sharing class CommunityProfilePageController {
 			}
 			else {
 				currentUserId = String.isNotBlank(tempUserId) ? Id.valueOf(tempUserId) : UserInfo.getUserId();
-				User currentUserLocal2 = [SELECT ContactId, Community_Contact_ID__c, FullPhotoUrl FROM User WHERE Id = :currentUserId];
+				String queryCurrentUserId = String.escapeSingleQuotes(currentUserId);
+				User currentUserLocal2 = [SELECT ContactId, Community_Contact_ID__c, FullPhotoUrl FROM User WHERE Id = :queryCurrentUserId];
 				contactId = currentUserLocal2.ContactId != NULL ? currentUserLocal2.ContactId : currentUserLocal2.Community_Contact_ID__c;
 				FullPhotoUrl = currentUserLocal2.FullPhotoUrl;
 			}
@@ -85,7 +86,8 @@ global with sharing class CommunityProfilePageController {
 	public void init() {
 		try {
 			// select available profiles for current user
-			List<Community_Profile__c> localProfiles = [SELECT Id, Name, Primary__c, RecordType.Name FROM Community_Profile__c WHERE Contact__c = :contactId];
+			String queryContactId = String.escapeSingleQuotes(contactId);
+			List<Community_Profile__c> localProfiles = [SELECT Id, Name, Primary__c, RecordType.Name FROM Community_Profile__c WHERE Contact__c = :queryContactId];
 			Map<Id, Community_Profile__c> cpMap = new Map<Id, Community_Profile__c>();
 			Community_Profile__c primaryCp;
 			for (Community_Profile__c cpItem1 : localProfiles) {
@@ -100,12 +102,12 @@ global with sharing class CommunityProfilePageController {
 				currentProfile = primaryCp;
 			}
 			else {
-				Contact tmpContact = [SELECT Primary_Community_Profile__c FROM Contact WHERE Id = :contactId];
+				Contact tmpContact = [SELECT Primary_Community_Profile__c FROM Contact WHERE Id = :queryContactId];
 				if (tmpContact.Primary_Community_Profile__c != NULL && cpMap.containsKey(tmpContact.Primary_Community_Profile__c)) {
 					currentProfile = cpMap.get(tmpContact.Primary_Community_Profile__c);
 				}
 				else if (tmpContact.Primary_Community_Profile__c == NULL) {
-					currentProfile = [SELECT Id, Name, Primary__c, RecordType.Name FROM Community_Profile__c WHERE Contact__c = :contactId ORDER BY CreatedDate DESC LIMIT 1];
+					currentProfile = [SELECT Id, Name, Primary__c, RecordType.Name FROM Community_Profile__c WHERE Contact__c = :queryContactId ORDER BY CreatedDate DESC LIMIT 1];
 				}
 				else {
 					currentProfile = [SELECT Id, Name, Primary__c, RecordType.Name FROM Community_Profile__c WHERE Id = :tmpContact.Primary_Community_Profile__c];
@@ -166,7 +168,7 @@ global with sharing class CommunityProfilePageController {
 			List<String> fieldList = new List<String>();
 			fieldList.addAll(profileFields);
 			SecurityWrapper sw = new SecurityWrapper();
-			List<sObject> tempList = sw.databaseQuery('SELECT ' + String.join(fieldList, ', ') + ' FROM Community_Profile__c WHERE Id =\'' + currentProfile.Id + '\'');
+			List<sObject> tempList = sw.databaseQuery('SELECT ' + String.join(fieldList, ', ') + ' FROM Community_Profile__c WHERE Id =\'' + String.escapeSingleQuotes(currentProfile.Id) + '\'');
 			currentProfile = (Community_Profile__c)tempList[0];
 		}
 		catch (Exception e) {
@@ -184,7 +186,8 @@ global with sharing class CommunityProfilePageController {
 
 	public void initInterests() {
 		Set<Id> activeTags = new Set<Id>();
-		for (Community_Profile_Tag__c cptItem : [SELECT Community_Tag__c FROM Community_Profile_Tag__c WHERE Contact__c =:contactId AND Active__c = true]) {
+		String queryContactId = String.escapeSingleQuotes(contactId);
+		for (Community_Profile_Tag__c cptItem : [SELECT Community_Tag__c FROM Community_Profile_Tag__c WHERE Contact__c =:queryContactId AND Active__c = true]) {
 			activeTags.add(cptItem.Community_Tag__c);
 		}
 		Map<Id,InterestSection> isMap = new Map<Id,InterestSection>();
@@ -343,7 +346,9 @@ global with sharing class CommunityProfilePageController {
 		User currentUserLocal3 = [SELECT ContactId, Community_Contact_ID__c, FullPhotoUrl FROM User WHERE Id =:UserInfo.getUserId()];
 		Id ccId = currentUserLocal3.ContactId != NULL ? currentUserLocal3.ContactId : currentUserLocal3.Community_Contact_ID__c;
 		if (ccId != NULL) {
-			List<Community_Profile_Tag__c> cptList3 = [SELECT Id, Active__c FROM Community_Profile_Tag__c WHERE Contact__c = :ccId AND Community_Tag__c = :inid LIMIT 1];
+			String queryCcId = String.escapeSingleQuotes(ccId);
+			String queryInId = String.escapeSingleQuotes(inid);
+			List<Community_Profile_Tag__c> cptList3 = [SELECT Id, Active__c FROM Community_Profile_Tag__c WHERE Contact__c = :queryCcId AND Community_Tag__c = :queryInId LIMIT 1];
 			if (cptList3.size() > 0) {
 				cptList3[0].Active__c = sel;
 				update cptList3;
@@ -357,7 +362,8 @@ global with sharing class CommunityProfilePageController {
 
 	@RemoteAction
 	global static String toggleUserNotification(String fieldName) {
-		NetworkMember nm = Database.query('SELECT Id, ' + fieldName + ' FROM NetworkMember WHERE MemberId =\'' + UserInfo.getUserId() + '\' AND NetworkId =\'' + Network.getNetworkId() + '\'');
+		String queryString = 'SELECT Id, ' + fieldName + ' FROM NetworkMember WHERE MemberId =\'' + String.escapeSingleQuotes(UserInfo.getUserId()) + '\' AND NetworkId =\'' + String.escapeSingleQuotes(Network.getNetworkId()) + '\'';
+		NetworkMember nm = Database.query(queryString);
 		Boolean tb = (Boolean)nm.get(fieldName) == true;
 		nm.put(fieldName, !tb);
 		update nm;
@@ -373,7 +379,8 @@ global with sharing class CommunityProfilePageController {
 			update nm;
 		}
 		else {
-			CollaborationGroupMember cgm = [SELECT Id, NotificationFrequency FROM CollaborationGroupMember WHERE MemberId = :UserInfo.getUserId() AND CollaborationGroupId = :groupId];
+			String queryGroupId = String.escapeSingleQuotes(groupId);
+			CollaborationGroupMember cgm = [SELECT Id, NotificationFrequency FROM CollaborationGroupMember WHERE MemberId = :UserInfo.getUserId() AND CollaborationGroupId = :queryGroupId];
 			cgm.NotificationFrequency = freq;
 			update cgm;
 		}
@@ -429,7 +436,7 @@ global with sharing class CommunityProfilePageController {
 					userFields.add(iItem.fieldName);
 				}
 			}
-			nm = (Test.isRunningTest() || Network.getNetworkId() == NULL) ? new NetworkMember(): Database.query('SELECT ' + String.join(userFields, ', ') + ' FROM NetworkMember WHERE MemberId =\'' + UserInfo.getUserId() + '\' AND NetworkId =\'' + Network.getNetworkId() + '\'');
+			nm = (Test.isRunningTest() || Network.getNetworkId() == NULL) ? new NetworkMember() : Database.query('SELECT ' + String.join(userFields, ', ') + ' FROM NetworkMember WHERE MemberId =\'' + String.escapeSingleQuotes(UserInfo.getUserId()) + '\' AND NetworkId =\'' + String.escapeSingleQuotes(Network.getNetworkId()) + '\'');
 			Boolean initialDisabled = nm.PreferencesDisableAllFeedsEmail == true;
 			for (NotificationSection sItem2 : sections) {
 				for (NotificationItem iItem2 : sItem2.items) {
@@ -455,19 +462,12 @@ global with sharing class CommunityProfilePageController {
 	public class NotificationItem {
 		public String fieldName { get; set; }
 		public String fieldLabel { get; set; }
-		public Boolean disabled;
-		public Boolean checked;
+		public Boolean disabled { get; set; }
+		public Boolean checked { get; set; }
 
 		public NotificationItem(String n, String l) {
 			fieldName = n;
 			fieldLabel = l;
-		}
-
-		public String getInputHtml() {
-			return '<input type="checkbox" onchange="chnot(this);" name="' + fieldName + '"'
-					+ (disabled ? ' disabled="disabled"' : '')
-					+ (checked ? ' checked="true"' : '')
-					+ '/><i' + (disabled ? '' : (checked ? ' class="green-btn"' : ' class="red-btn"')) + '></i>';
 		}
 	}
 

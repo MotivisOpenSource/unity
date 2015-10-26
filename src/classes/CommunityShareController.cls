@@ -101,7 +101,7 @@ global with sharing class CommunityShareController {
 			String cprefix = '';
 			Network nRec;
 			if(networkId!=null) {
-				nRec = [SELECT UrlPathPrefix FROM Network WHERE Id = :networkId];
+				nRec = [SELECT UrlPathPrefix FROM Network WHERE Id = :Network.getNetworkId()];
 				cprefix = nRec.UrlPathPrefix != null ? '/' + nRec.UrlPathPrefix + '/' : '/';
 			}
 			

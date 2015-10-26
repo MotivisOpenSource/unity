@@ -51,36 +51,43 @@ public with sharing class CommunityGroupFilesController {
 
 	public ContentVersion cvRecord { get; set; }
 
-	public CommunityGroupFilesController() {}
+	private String f;
+	private String fi;
+	private String gc;
+	private String gr;
+	private String p;
+
+	public CommunityGroupFilesController() {
+		f = ApexPages.currentPage().getParameters().get('f');
+		fi = ApexPages.currentPage().getParameters().get('fi');
+		gc = ApexPages.currentPage().getParameters().get('gc');
+		gr = ApexPages.currentPage().getParameters().get('gr');
+		p = ApexPages.currentPage().getParameters().get('p');
+	}
 
 	public void initFromPage() {
 		allOk = true;
 		feedNavNumber = '1';
-		String detailParam = ApexPages.currentPage().getParameters().get('f');
-		mode = String.isBlank(detailParam) ? 'list' : 'detail';
-		contentDetailId = (mode == 'detail') ? Id.valueOf(detailParam) : contentDetailId;
-		parentId = String.isBlank(parentId) ? ApexPages.currentPage().getParameters().get('p') : parentId;
-
-		String gr = ApexPages.currentPage().getParameters().get('gr');
-		String gc = ApexPages.currentPage().getParameters().get('gc');
+		mode = String.isBlank(f) ? 'list' : 'detail';
+		contentDetailId = (mode == 'detail') ? Id.valueOf(f) : contentDetailId;
+		parentId = String.isBlank(parentId) ? p : parentId;
 		if (String.isBlank(parentId) && (String.isNotBlank(gr) || String.isNotBlank(gc))) {
 			parentId = String.isNotBlank(gr) ? gr : gc;
 		}
-		String fi = ApexPages.currentPage().getParameters().get('fi');
 		if (String.isBlank(parentId) && String.isNotBlank(fi)) {
-			List<FeedItem> fItems = [SELECT Id, ParentId FROM FeedItem WHERE Id = :fi];
+			String queryFeedId = String.escapeSingleQuotes(fi);
+			List<FeedItem> fItems = [SELECT Id, ParentId FROM FeedItem WHERE Id = :queryFeedId];
 			parentId = fItems[0].ParentId;
 		}
-
 		Map<String,String> keys = new Map<String,String>();
 		Map<String,Schema.SobjectType> describe = Schema.getGlobalDescribe();
-		for (String s:describe.keyset()) {
-			keys.put(describe.get(s).getDescribe().getKeyPrefix(),s);
+		for (String s : describe.keyset()) {
+			keys.put(describe.get(s).getDescribe().getKeyPrefix(), s);
 		}
-
 		String parentObjectType = String.isNotBlank(parentId) ? keys.get(String.valueOf(parentId).substring(0,3)) : '';
 		String pp = CommunityUtils.getPackagePrefix();
 		parentObjectType = String.isNotBlank(pp) ? parentObjectType.replace(pp,'') : parentObjectType;
+		String queryParentId = String.escapeSingleQuotes(parentId);
 		if (String.isNotBlank(parentObjectType)) {
 			if (parentObjectType.equalsIgnoreCase('CollaborationGroup') || parentObjectType.equalsIgnoreCase('Community_Group_Control__c')) {
 				gr = String.isBlank(gr) && parentObjectType.equalsIgnoreCase('CollaborationGroup') ? parentId : gr;
@@ -99,15 +106,15 @@ public with sharing class CommunityGroupFilesController {
 				feedNavNumber = '5';
 			}
 			else if (parentObjectType.equalsIgnoreCase('Community_News__c')) {
-				List<Community_News__c> cNews = [SELECT Id, Title__c, Image_Path__c FROM Community_News__c WHERE Id = :parentId];
+				List<Community_News__c> cNews = [SELECT Id, Title__c, Image_Path__c FROM Community_News__c WHERE Id = :queryParentId];
 				parent = new ParentWrapper(cNews[0].Id, cNews[0].Title__c, Label.LBL_News, prepareUrl(Page.CommunityNews.getUrl()), prepareUrl(Page.CommunityNewsDetail.getUrl())+'?id='+cNews[0].Id, CommunityUtils.checkUrl(cNews[0].Image_Path__c));
 			}
 			else if (parentObjectType.equalsIgnoreCase('Community_Events__c')) {
-				List<Community_Events__c> cEvents = [SELECT Id, Name__c FROM Community_Events__c WHERE Id = :parentId];
+				List<Community_Events__c> cEvents = [SELECT Id, Name__c FROM Community_Events__c WHERE Id = :queryParentId];
 				parent = new ParentWrapper(cEvents[0].Id, cEvents[0].Name__c, Label.LBL_Events, prepareUrl(Page.CommunityEventsList.getUrl()), prepareUrl(Page.CommunityEventDetail.getUrl())+'?id='+cEvents[0].Id, null);
 			}
 			else if (parentObjectType.equalsIgnoreCase('User') || parentObjectType.equalsIgnoreCase('Contact')) {
-				List<User> uList = [SELECT Id, Name, FullPhotoUrl FROM User WHERE Id = :parentId OR ContactId = :parentId];
+				List<User> uList = [SELECT Id, Name, FullPhotoUrl FROM User WHERE Id = :queryParentId OR ContactId = :queryParentId];
 				parent = new ParentWrapper(uList[0].Id, uList[0].Name, Label.LBL_People, prepareUrl(Page.CommunityFeed_People.getUrl()), prepareUrl(Page.CommunityProfilePage.getUrl())+'?id='+uList[0].Id, uList[0].FullPhotoUrl);
 			}
 		}
@@ -149,7 +156,7 @@ public with sharing class CommunityGroupFilesController {
 			String cvQuery = 'SELECT Id, ContentDocumentId, ContentDocument.Id, ContentDocument.OwnerId, ContentDocument.Owner.Name, ContentDocument.LastModifiedDate, ContentDocument.Description FROM ContentVersion';
 			String whQuery = !collectedVersionIds.isEmpty() ? ' Id IN :collectedVersionIds' : '';
 			if (mode == 'detail') {
-				whQuery += (String.isNotBlank(whQuery) ? ' AND' : '') + ' ContentDocumentId = \'' + contentDetailId + '\'';
+				whQuery += (String.isNotBlank(whQuery) ? ' AND' : '') + ' ContentDocumentId = \'' + String.escapeSingleQuotes(contentDetailId) + '\'';
 			}
 			if (mode == 'list' && String.isNotBlank(fileQuery)) {
 				whQuery += (String.isNotBlank(whQuery) ? ' AND' : '') + ' ContentDocument.Title LIKE \'%' + String.escapeSingleQuotes(fileQuery) + '%\'';
@@ -207,7 +214,8 @@ public with sharing class CommunityGroupFilesController {
 		shareComment = NULL;
 		cvRecord = NULL;
 		if (modal == 'update') {
-			cvRecord = [SELECT Id, Title, Description FROM ContentVersion WHERE Id = :stack];
+			String queryStack = String.escapeSingleQuotes(stack);
+			cvRecord = [SELECT Id, Title, Description FROM ContentVersion WHERE Id = :queryStack];
 		}
 	}
 
@@ -218,7 +226,8 @@ public with sharing class CommunityGroupFilesController {
 	public String getParentDocumentId() {
 		String result;
 		if (modal == 'newversion') {
-			result = [SELECT ContentDocumentId FROM ContentVersion WHERE Id = :stack].ContentDocumentId;
+			String queryStack = String.escapeSingleQuotes(stack);
+			result = [SELECT ContentDocumentId FROM ContentVersion WHERE Id = :queryStack].ContentDocumentId;
 		}
 		return result;
 	}
@@ -248,7 +257,8 @@ public with sharing class CommunityGroupFilesController {
 
 	public void shareAction() {
 		List<ConnectApi.BatchInput> feedElements = new List<ConnectApi.BatchInput>();
-		String documentIdToShare = [SELECT ContentDocumentId FROM ContentVersion WHERE Id = :stack].ContentDocumentId;
+		String queryStack = String.escapeSingleQuotes(stack);
+		String documentIdToShare = [SELECT ContentDocumentId FROM ContentVersion WHERE Id = :queryStack].ContentDocumentId;
 		for (String sId : shareChoice.split(',')) {
 			if (String.isNotBlank(sId)) {
 				ConnectApi.FeedElementCapabilitiesInput feci = new ConnectApi.FeedElementCapabilitiesInput();
@@ -283,14 +293,13 @@ public with sharing class CommunityGroupFilesController {
 	}
 
 	public PageReference deleteAction() {
-		ContentDocument cdDelete = [SELECT Id FROM ContentDocument WHERE Id IN (SELECT ContentDocumentId FROM ContentVersion WHERE Id = :stack)];
+		String queryStack = String.escapeSingleQuotes(stack);
+		ContentDocument cdDelete = [SELECT Id FROM ContentDocument WHERE Id IN (SELECT ContentDocumentId FROM ContentVersion WHERE Id = :queryStack)];
 		delete cdDelete;
 		PageReference pr;
 		if (mode == 'detail') {
 			pr = Page.CommunityGroupFiles;
-			String groupControlIdParam = ApexPages.currentPage().getParameters().get('gc');
-			String chatterGroupIdParam = ApexPages.currentPage().getParameters().get('gr');
-			String groupParam = String.escapeSingleQuotes(String.isBlank(chatterGroupIdParam) ? groupControlIdParam : chatterGroupIdParam);
+			String groupParam = String.escapeSingleQuotes(String.isBlank(gr) ? gc : gr);
 			pr.getParameters().put('gr', groupParam);
 			pr.setRedirect(true);
 		}
@@ -311,7 +320,7 @@ public with sharing class CommunityGroupFilesController {
 		List<BlockWrapper> result = new List<BlockWrapper>();
 		String escapedQuery = String.escapeSingleQuotes(query) + '%';
 		List<User> uList = [
-			SELECT Id, Name FROM User 
+			SELECT Id, Name FROM User
 			WHERE (ContactId != NULL OR Community_Contact_ID__c != NULL) AND isActive = true AND Id != :UserInfo.getUserId()
 			AND (FirstName LIKE :escapedQuery OR LastName LIKE :escapedQuery OR Name LIKE :escapedQuery)
 			ORDER BY Name ASC
@@ -324,7 +333,8 @@ public with sharing class CommunityGroupFilesController {
 
 	@RemoteAction
 	public static String subscriberAction(String versionId, Boolean inf) {
-		String cdId = [SELECT ContentDocumentId FROM ContentVersion WHERE Id = :versionId].ContentDocumentId;
+		String queryVersionId = String.escapeSingleQuotes(versionId);
+		String cdId = [SELECT ContentDocumentId FROM ContentVersion WHERE Id = :queryVersionId].ContentDocumentId;
 		CommunityUtils.subscriberUser(cdId, !inf);
 		return '';
 	}

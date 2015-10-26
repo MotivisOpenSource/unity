@@ -124,14 +124,14 @@ public with sharing class CommunityNewsController {
 		if (news.Id == NULL) {
 			if (ApexPages.currentPage().getParameters().get('cloneId') != NULL) {
 				try {
-					Id cloneId = Id.valueOf(ApexPages.currentPage().getParameters().get('cloneId'));
+					String queryCloneId = String.escapeSingleQuotes(Id.valueOf(ApexPages.currentPage().getParameters().get('cloneId')));
 					String cquery = '';
 					String csep = 'SELECT ';
 					for (Schema.FieldSetMember cf : fieldset) {
 						cquery += csep + cf.getFieldPath();
 						csep = ', ';
 					}
-					cquery += ' FROM Community_News__c WHERE Id = \'' + cloneId + '\'';
+					cquery += ' FROM Community_News__c WHERE Id = \'' + queryCloneId + '\'';
 					Community_News__c cnews = Database.query(cquery);
 					for (Schema.FieldSetMember cf2 : fieldset) {
 						String fName = cf2.getFieldPath();
@@ -183,10 +183,10 @@ public with sharing class CommunityNewsController {
 			if (news.Make_Entry_Sticky__c == true && cs != NULL && cs.News_Max_Sticky__c != NULL) {
 				Datetime startDate = news.Entry_Date__c;
 				Datetime endDate = news.Expiration_Date__c;
-				Id newsId = news.Id;
+				Id queryNewsId = String.escapeSingleQuotes(news.Id);
 				if (!SObjectType.Community_News__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_News__c);
 				String nmsQuery = 'SELECT Id FROM Community_News__c WHERE Entry_Date__c <= :endDate AND Expiration_Date__c >= :startDate';
-				nmsQuery += (newsId == NULL) ? ' AND Make_Entry_Sticky__c = true' : ' AND (Make_Entry_Sticky__c = true OR (Make_Entry_Sticky__c != true AND Id = :newsId))';
+				nmsQuery += (queryNewsId == NULL) ? ' AND Make_Entry_Sticky__c = true' : ' AND (Make_Entry_Sticky__c = true OR (Make_Entry_Sticky__c != true AND Id = :queryNewsId))';
 				List<Community_News__c> cnList = Database.query(nmsQuery);
 				if (cnList.size() > Integer.valueOf(cs.News_Max_Sticky__c)) {
 					throw new CommunityNewsException(Label.ERR_News_Too_Many_Sticky);
@@ -277,7 +277,7 @@ public with sharing class CommunityNewsController {
 		//update news;
 		CommunityAccess.UpdateWithoutSharing(
 			news,
-			'CommunityNewsController.cls [submitFirstStep]',
+			'CommunityNewsController.cls [submitSecondStep]',
 			new List<Schema.DescribeFieldResult> {
 				Community_News__c.Status__c.getDescribe()
 			}

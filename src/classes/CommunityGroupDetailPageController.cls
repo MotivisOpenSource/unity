@@ -56,7 +56,8 @@ public with sharing class CommunityGroupDetailPageController {
 		try {
 			String uids = ApexPages.currentPage().getParameters().get('u');
 			if (String.isNotBlank(uids)) {
-				initialRequestMember = [SELECT Name FROM User WHERE Id =:Id.valueOf(uids)].Name;
+				String queryUserId = String.escapeSingleQuotes(Id.valueOf(uids));
+				initialRequestMember = [SELECT Name FROM User WHERE Id = :queryUserId].Name;
 			}
 		}
 		catch (Exception e) {}
@@ -113,7 +114,8 @@ public with sharing class CommunityGroupDetailPageController {
 	@RemoteAction
 	public static String toggleSubscriber(String memberId) {
 		String resultIcon = 'fa-check:' + Label.BTN_Following;
-		List<EntitySubscription> followings = [SELECT Id FROM EntitySubscription WHERE SubscriberId =:Userinfo.getUserId() AND ParentId = :memberId LIMIT 1];
+		String queryMemberId = String.escapeSingleQuotes(memberId);
+		List<EntitySubscription> followings = [SELECT Id FROM EntitySubscription WHERE SubscriberId =:Userinfo.getUserId() AND ParentId = :queryMemberId LIMIT 1];
 		if (!followings.isEmpty()) {
 			ConnectApi.Chatter.deleteSubscription(Network.getNetworkId(), followings[0].Id);
 			resultIcon = 'fa-plus-circle:' + Label.LBL_Follow;

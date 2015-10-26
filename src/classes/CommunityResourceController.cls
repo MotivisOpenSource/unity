@@ -88,15 +88,8 @@ public with sharing class CommunityResourceController {
 		}
 	}
 
-	public String getPrimaryTagHtml() {
-		String result = '';
-		if (mode == 'edit' && resource.Primary_Tag__c != NULL && resource.Id != NULL) {
-			result = '<span id="' + resource.Primary_Tag__c + '" class="item guestItem"><span>';
-			result += resource.Primary_Tag__r.Community_Theme__r.Name + ' > ' + resource.Primary_Tag__r.Name;
-			result += '</span><a href="javascript:;" onclick="removePrimaryTag(\'' + resource.Primary_Tag__c;
-			result += '\')" class="remove"><img src="/s.gif"></a></span>';
-		}
-		return result;
+	public Boolean getIsShowPrimaryTag() {
+		return mode == 'edit' && resource.Primary_Tag__c != NULL && resource.Id != NULL;
 	}
 
 	public List<String> getResourceLink() {
@@ -130,7 +123,7 @@ public with sharing class CommunityResourceController {
 						});
 			}
 			String rQuery = 'SELECT Community_Tag__c, Community_Tag__r.Name, Community_Tag__r.Community_Theme__r.Name';
-			rQuery += ' FROM Community_Resource_Tag__c WHERE Resource__c = \'' + resource.Id + '\' AND Community_Tag__c != \'' + primaryTagId + '\'';
+			rQuery += ' FROM Community_Resource_Tag__c WHERE Resource__c = \'' + String.escapeSingleQuotes(resource.Id) + '\' AND Community_Tag__c != \'' + String.escapeSingleQuotes(primaryTagId) + '\'';
 			rQuery = CommunityUtils.systemTagFilter(' AND Community_Tag__r.Community_Theme__r.Theme_Type__c', rQuery);
 			for (Community_Resource_Tag__c crtItem : Database.query(rQuery)) {
 				result.add(new List<String> {

@@ -123,8 +123,8 @@ public with sharing class CommunitySearchController {
 		}
 		else if (mode == 'discover' || mode == 'resource') {
 			try {
-				Id tagId = Id.valueOf(mode == 'discover' ? pageParams.get('t') : pageParams.get('tr'));
-				resultStr = [SELECT Name FROM Community_Tag__c WHERE Id = :tagId LIMIT 1].Name;
+				String queryTagId = String.escapeSingleQuotes(Id.valueOf(mode == 'discover' ? pageParams.get('t') : pageParams.get('tr')));
+				resultStr = [SELECT Name FROM Community_Tag__c WHERE Id = :queryTagId LIMIT 1].Name;
 			}
 			catch (Exception e) {}
 		}
@@ -260,7 +260,8 @@ public with sharing class CommunitySearchController {
 	@RemoteAction
 	public static CommunityUtils.GroupAction membershipGroup(String mc, String grId, String action) {
 		CommunityUtils.GroupAction resultAction;
-		List<Community_Group_Control__c> cgcList = [SELECT Id, Type__c FROM Community_Group_Control__c WHERE Chatter_Group_ID__c = :grId];
+		String queryGrId = String.escapeSingleQuotes(grId);
+		List<Community_Group_Control__c> cgcList = [SELECT Id, Type__c FROM Community_Group_Control__c WHERE Chatter_Group_ID__c = :queryGrId];
 		if (action != '3' && cgcList.size() > 0) {
 			ConnectApi.GroupMembershipType ngr = CommunityUtils.membership(UserInfo.getUserId(), cgcList[0].Id, action);
 			resultAction = CommunityUtils.getActionButton(ngr, cgcList[0].Type__c == 'Public');
@@ -312,7 +313,7 @@ public with sharing class CommunitySearchController {
 				SearchResult sr = new SearchResult();
 				sr.imagePath = CommunityUtils.checkUrl(inNews[ii].Image_Path__c);
 				sr.title = inNews[ii].Title__c;
-				sr.teaser = inNews[ii].Teaser__c;
+				sr.teaser = CommunityUtils.getHtmlField(inNews[ii].Teaser__c);
 				sr.fdate = inNews[ii].Entry_Date__c != NULL ? inNews[ii].Entry_Date__c.format('MMMM dd, yyyy') : '';
 				sr.detailUrl = CommunityUtils.checkUrl('/' + inNews[ii].Id);
 				results.add(sr);
@@ -329,7 +330,7 @@ public with sharing class CommunitySearchController {
 			for (Integer ii = startCopyInterval; ii < endCopyInterval; ii++) {
 				SearchResult sr = new SearchResult();
 				sr.title = inEvents[ii].Name__c;
-				sr.teaser = inEvents[ii].Teaser__c;
+				sr.teaser = CommunityUtils.getHtmlField(inEvents[ii].Teaser__c);
 				sr.fdate = inEvents[ii].Start__c != NULL ? inEvents[ii].Start__c.format('MMMM dd, yyyy') : '';
 				sr.detailUrl = CommunityUtils.checkUrl('/' + inEvents[ii].Id);
 				results.add(sr);
@@ -346,7 +347,7 @@ public with sharing class CommunitySearchController {
 			for (Integer ii = startCopyInterval; ii < endCopyInterval; ii++) {
 				SearchResult sr = new SearchResult();
 				sr.title = inResources[ii].Name;
-				sr.teaser = inResources[ii].Description__c;
+				sr.teaser = CommunityUtils.getHtmlField(inResources[ii].Description__c);
 				if (String.isNotBlank(inResources[ii].Link__c)) {
 					sr.linkUrl = inResources[ii].Link__c;
 					sr.imagePath = 'fa-link';
@@ -378,13 +379,13 @@ public with sharing class CommunitySearchController {
 				Integer totalPages = totalRecords / pageSize + ((Math.mod(totalRecords, pageSize) == 0) ? 0 : 1);
 				// << section
 				if (currentPageNumber > 1) {
-					pagination.add(new List<String> {'&laquo;', String.valueOf(currentPageNumber - 1), ''});
+					pagination.add(new List<String> {'left', String.valueOf(currentPageNumber - 1), ''});
 				}
 				// 1 section
 				pagination.add(new List<String> {'1', '1', (currentPageNumber == 1 ? 'active' : '')});
 				// 2 section
 				if (totalPages > 7 && currentPageNumber > 4 && currentPageNumber <= (totalPages - 3)) {
-					pagination.add(new List<String> {'&hellip;', String.valueOf(currentPageNumber - 2), ''});
+					pagination.add(new List<String> {'middle', String.valueOf(currentPageNumber - 2), ''});
 				}
 				else {
 					pagination.add(new List<String> {'2', '2', (currentPageNumber == 2 ? 'active' : '')});
@@ -403,11 +404,11 @@ public with sharing class CommunitySearchController {
 						pagination.add(new List<String> {'4', '4', (currentPageNumber == 4 ? 'active' : '')});
 					}
 					else if (currentPageNumber <= 3) {
-						pagination.add(new List<String> {'&hellip;', '4', ''});
+						pagination.add(new List<String> {'middle', '4', ''});
 					}
 					else if (currentPageNumber > (totalPages - 3)) {
 						String pn = String.valueOf(totalPages - 3);
-						pagination.add(new List<String> {'&hellip;', pn, ''});
+						pagination.add(new List<String> {'middle', pn, ''});
 					}
 					else {
 						String pn = String.valueOf(currentPageNumber);
@@ -439,7 +440,7 @@ public with sharing class CommunitySearchController {
 					}
 					else {
 						String pn = String.valueOf(currentPageNumber + 2);
-						pagination.add(new List<String> {'&hellip;', pn, ''});
+						pagination.add(new List<String> {'middle', pn, ''});
 					}
 				}
 				// 7 section
@@ -449,7 +450,7 @@ public with sharing class CommunitySearchController {
 				}
 				// >> section
 				if (currentPageNumber < totalPages) {
-					pagination.add(new List<String> {'&raquo;', String.valueOf(currentPageNumber + 1), ''});
+					pagination.add(new List<String> {'right', String.valueOf(currentPageNumber + 1), ''});
 				}
 			}
 		}
@@ -458,7 +459,7 @@ public with sharing class CommunitySearchController {
 	public class SearchResult {
 		public String imagePath { get; set; }
 		public String title { get; set; }
-		public String teaser { get; set; }
+		public Community_Resource__c teaser { get; set; }
 		public String fdate { get; set; }
 		public String detailUrl { get; set; }
 		public String linkUrl { get; set; }

@@ -29,9 +29,9 @@
 
 public with sharing class CommunityTopicController {
     
-    public String topicId { get{ return ApexPages.CurrentPage().getParameters().get('id'); } }
-    public String parentId { get{ return ApexPages.CurrentPage().getParameters().get('pid'); } }
-    public Boolean showTopics {  get{ return topicId == null ? false : true ;} }
+    public String topicId { get; set; }
+    public String parentId { get { return ApexPages.CurrentPage().getParameters().get('pid'); } }
+    public Boolean showTopics { get{ return topicId == null ? false : true ;} }
     public static String sortField { get; set; }
     public Boolean isTopicUpdateable { get{ return CommunityUtils.checkCRUDforObject('Topic').get('isUpdateable');} }
     public Boolean isTopicDeleteable { get{ return CommunityUtils.checkCRUDforObject('Topic').get('isDeletable');} }
@@ -40,7 +40,12 @@ public with sharing class CommunityTopicController {
     
     public Boolean isFeedTraking { get{ return CommunityUtils.isFeedTrakingEnabled('Topic', new Map<String, String>{'Name' => 'string'}); } }
     public Boolean topicExists { get{ return [SELECT Count() FROM Topic WHERE Id =:topicId AND NetworkId =: Network.getNetworkId()] > 0 ? true : false;}}
-    
+
+    public CommunityTopicController() {
+        String queryTopicId = String.escapeSingleQuotes(ApexPages.CurrentPage().getParameters().get('id'));
+        List<Topic> t = [SELECT Id FROM Topic WHERE Id =: queryTopicId AND NetworkId =: Network.getNetworkId()];
+        topicId = t.isEmpty() ? null : t[0].Id;
+    }
 
     @RemoteAction
 	public static List<TopicItem> getTopics(Map<String, String> params){
@@ -49,7 +54,8 @@ public with sharing class CommunityTopicController {
         Set<String> parentFollowingIds = new Set<String>();
 		String topId = params.get('topicId');
 		if(String.isNotEmpty(topId)){
-			Topic t = [SELECT Id, Name, NetworkId, TalkingAbout, CreatedById, Description FROM Topic WHERE Id =:topId AND NetworkId =: Network.getNetworkId() LIMIT 1];
+            String queryTopId = String.escapeSingleQuotes(topId);
+			Topic t = [SELECT Id, Name, NetworkId, TalkingAbout, CreatedById, Description FROM Topic WHERE Id = :queryTopId AND NetworkId =: Network.getNetworkId() LIMIT 1];
 			topicsItemIds.add(t.Id);
 			topicsItems.add(new TopicItem(t));
 		}else{
@@ -89,12 +95,15 @@ public with sharing class CommunityTopicController {
     }
 
     @RemoteAction
-	public static String updateTopic(String descr, String topId){
-		Topic top = [SELECT Id, Name, NetworkId, Description FROM Topic WHERE NetworkId =: Network.getNetworkId() AND Id =:topId LIMIT 1];
-        if(top == null) return Label.ERR_Can_not_found_Topic;
-        if(top.Description != descr){
-            top.Description = descr;
-            update top;
+	public static String updateTopic(String descr, String topicId){
+        String queryTopicId = String.escapeSingleQuotes(topicId);
+		List<Topic> top = [SELECT Id, Name, NetworkId, Description FROM Topic WHERE NetworkId =: Network.getNetworkId() AND Id = :queryTopicId];
+        if (top.isEmpty()) {
+            return Label.ERR_Can_not_found_Topic;
+        }
+        if (top[0].Description != descr) {
+            top[0].Description = descr;
+            update top[0];
         }
         return '';
     }

@@ -194,7 +194,7 @@ public with sharing class CommunityGroupCreateController {
 				: -1;
 	}
 
-	public String getTermsAndConditions() {
+	public Community_Admins__c getTermsAndConditions() {
 		List<Community_Admins__c> caList;
 		if (step == 4) {
 			caList = [
@@ -203,7 +203,7 @@ public with sharing class CommunityGroupCreateController {
 				ORDER BY Terms_Published_Date__c DESC LIMIT 1
 					];
 		}
-		return caList != NULL && caList.size() > 0 ? caList[0].Terms_Body__c : '';
+		return caList != NULL && caList.size() > 0 ? caList[0] : new Community_Admins__c(Terms_Body__c = '');
 	}
 
 	public PageReference cancel() {
@@ -222,8 +222,9 @@ public with sharing class CommunityGroupCreateController {
 
 	@RemoteAction
 	public static Boolean checkAvailability(String nameToCheck) {
-		List<Community_Group_Control__c> matchedGroups = [SELECT Id FROM Community_Group_Control__c WHERE Name = :nameToCheck];
-		List<CollaborationGroup> matchedChatterGroups = [SELECT Id FROM CollaborationGroup WHERE Name = :nameToCheck];
+		String queryNameToCheck = String.escapeSingleQuotes(nameToCheck);
+		List<Community_Group_Control__c> matchedGroups = [SELECT Id FROM Community_Group_Control__c WHERE Name = :queryNameToCheck];
+		List<CollaborationGroup> matchedChatterGroups = [SELECT Id FROM CollaborationGroup WHERE Name = :queryNameToCheck];
 		return matchedGroups.isEmpty() && matchedChatterGroups.isEmpty();
 	}
 }
