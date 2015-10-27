@@ -101,6 +101,7 @@ global with sharing class CommunityHomeNotificationsController {
 		Set<Id> followsIds = new Set<Id>();
 	// get Group_Control 
 	// where user is owner or manager
+		if (!SObjectType.Community_Group_Manager__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Manager__c);
 		List<Community_Group_Manager__c> cGManagers = [SELECT Manager_Role__c, Group_Manager_User__c, Group_Control__c 
 														FROM Community_Group_Manager__c 
 														WHERE Group_Manager_User__c = :UserInfo.getUserId()];
@@ -113,6 +114,7 @@ global with sharing class CommunityHomeNotificationsController {
 
 		
 		if(userType.equalsIgnoreCase('Standard')){
+			if (!SObjectType.EntitySubscription.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.EntitySubscription);
 			follows = [SELECT Id, ParentId, SubscriberId, NetworkId 
 						FROM EntitySubscription
 						WHERE SubscriberId = :UserInfo.getUserId()
@@ -125,7 +127,7 @@ global with sharing class CommunityHomeNotificationsController {
 				followsIds.add(follow.ParentId);
 			}
 		}		 
-
+		if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
 		List<Community_Group_Control__c> gControls = [SELECT Id, Chatter_Group_ID__c, Name, Group_Control_SF_ID__c 
 										   				FROM Community_Group_Control__c
 														WHERE id IN :managersIds
@@ -160,6 +162,7 @@ global with sharing class CommunityHomeNotificationsController {
 		}
 
 	// get users Name and SmallPhoto
+		if (!SObjectType.User.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.User);
 		for(User us : [SELECT Id, SmallPhotoUrl, Name FROM User WHERE Id IN :userPostedIds]){
 			userPhotoAndName.put(us.id, new List<String>{us.SmallPhotoUrl, us.Name});	
 		}

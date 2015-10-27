@@ -91,10 +91,13 @@ public with sharing class CommunityEventController {
 		String docName = String.format('{0}.ics', new List<String> { this.event.Name__c });
 		Document att = deleteICSDocument(docName);
 		if (att == NULL) {
+			if (!SObjectType.Community_Events__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Events__c);
+			if (!SObjectType.User.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.User);
 			Community_Events__c e = [SELECT Id, Owner.Name, OwnerId FROM Community_Events__c WHERE Id =:event.Id];
 			User userForContact = [SELECT ID, ContactId, Email,Community_Contact_ID__c  FROM User WHERE ID =:e.OwnerId LIMIT 1] ;
 			String contactEmail;
 			if(userForContact.ContactId!=null) {
+				if (!SObjectType.Contact.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Contact);
 				List<Contact> listContact = [SELECT ID, Email FROM Contact WHERE ID =: userForContact.ContactId LIMIT 1];
 				Contact contactUser = listContact.size()>0?listContact[0]:null;
 				if(contactUser.Email != null) contactEmail = contactUser.Email;
@@ -102,6 +105,7 @@ public with sharing class CommunityEventController {
 			}
 			else {
 				if(userForContact.Community_Contact_ID__c!=null) {
+					if (!SObjectType.Contact.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Contact);
 					List<Contact> listContact = [SELECT ID, Email FROM Contact WHERE ID =: userForContact.Community_Contact_ID__c LIMIT 1];
 					contactEmail = listContact.size()>0?listContact[0].Email:'';
 				}
@@ -120,6 +124,7 @@ public with sharing class CommunityEventController {
 	}
 
 	private Document deleteICSDocument(String docName){
+		if (!SObjectType.Document.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Document);
 		String queryDocName = String.escapeSingleQuotes(docName);
 		List<Document> atts = [SELECT Id, Name FROM Document WHERE Name = :queryDocName AND IsPublic = true LIMIT 5];
 		Document att = NULL;
@@ -291,6 +296,7 @@ public with sharing class CommunityEventController {
 			try {
 				String queryCloneId = String.escapeSingleQuotes(Id.valueOf(ApexPages.currentPage().getParameters().get('cloneId')));
 				String cquery = '';
+				if (!SObjectType.Community_Events__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Events__c);
 				String csep = 'SELECT ';
 				for (CommunityFieldLayout.Field cf : elayout.flds) {
 					cquery += csep + cf.name;
@@ -308,11 +314,13 @@ public with sharing class CommunityEventController {
 		}
 		String groupId = ApexPages.currentPage().getParameters().get('gr');
 		if(String.isBlank(groupId)) {
+			if (!SObjectType.Community_Event_Tag__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Event_Tag__c);
 			List<Community_Event_Tag__c> cet = [SELECT Community_Group_Control__r.Chatter_Group_ID__c FROM Community_Event_Tag__c WHERE Community_Event__c = :event.Id AND Community_Group_Control__c != NULL];
 			groupId = cet.isEmpty() ? NULL : cet[0].Community_Group_Control__r.Chatter_Group_ID__c;
 		}
 		connectedGroupStr = '';
 		if(String.isNotBlank(groupId)) {
+			if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
 			String queryGroupId = String.escapeSingleQuotes(groupId);
 			List<Community_Group_Control__c> cgc = [SELECT Id, Name FROM Community_Group_Control__c WHERE Chatter_Group_ID__c = :queryGroupId];
 			connectedGroupStr = cgc.isEmpty() ? '' : cgc[0].Name;
@@ -341,7 +349,16 @@ public with sharing class CommunityEventController {
 				throw new CommunityEventException(Label.ERR_Please_Select_Group);
 			}
 
-			upsert event;
+			//upsert event;
+			CommunityAccess.UpsertWithoutSharing(
+				event,
+				'CommunityEventController.cls [submit]',
+				new List<Schema.DescribeFieldResult> {
+					Community_Events__c.Name__c.getDescribe(),
+					Community_Events__c.Description__c.getDescribe(),
+					Community_Events__c.Teaser__c.getDescribe()
+				}
+			);
 
 			String tagsIdsString = ApexPages.currentPage().getParameters().get(TAGS_INPUT_NAME);
 			CommunityTagSelectorController ctsc = new CommunityTagSelectorController();
@@ -352,6 +369,7 @@ public with sharing class CommunityEventController {
 			
 			// select all event tags records
 			
+			if (!SObjectType.Community_Event_Tag__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Event_Tag__c);
 			List<Community_Event_Tag__c> communityEventTagList = [
 					SELECT Id, Community_Tag__c, Community_Group_Control__c, Community_Event__c
 					FROM Community_Event_Tag__c
@@ -361,10 +379,15 @@ public with sharing class CommunityEventController {
 			
 			if(string.isBlank(connectedGroupStr)) {
 				// delete all records related for this Event where group is not null
-				delete communityEventTagList;
+				//delete communityEventTagList;
+				CommunityAccess.DeleteWithoutSharing(
+					communityEventTagList,
+					'CommunityEventController.cls [submit]'
+				);
 			}
 			else {
 				// create group
+				if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
 				String queryConnectedGroupStr = String.escapeSingleQuotes(connectedGroupStr);
 				List<Community_Group_Control__c> communityGroupControll = [
 						SELECT Id, Chatter_Group_ID__c
@@ -381,11 +404,23 @@ public with sharing class CommunityEventController {
 				// delete all events if there was more than one record	
 				if(!(communityEventTagList.Size() == 1 && communityEventTagList[0].Community_Group_Control__c == communityGroupControll[0].Id )) {
 					
-					delete communityEventTagList ;
+					//delete communityEventTagList ;
+					CommunityAccess.DeleteWithoutSharing(
+						communityEventTagList,
+						'CommunityEventController.cls [submit]'
+					);
 					Community_Event_Tag__c communityEventTag = new Community_Event_Tag__c();
 					communityEventTag.Community_Event__c = event.Id;
 					communityEventTag.Community_Group_Control__c = communityGroupControll[0].Id;
-					insert communityEventTag;
+					//insert communityEventTag;
+					CommunityAccess.InsertWithoutSharing(
+					communityEventTag,
+					'CommunityEventController.cls [submit]',
+					new List<Schema.DescribeFieldResult> {
+						Community_Event_Tag__c.Community_Event__c.getDescribe(),
+						Community_Event_Tag__c.Community_Group_Control__c.getDescribe()
+					}
+				);
 				}
 			}
 			pr = Page.CommunityEventDetail;
@@ -436,6 +471,7 @@ public with sharing class CommunityEventController {
 	private void initList() {
 		//Datetime eNow = Datetime.now();
 		String queryUserId = String.escapeSingleQuotes(UserInfo.getUserId());
+		if (!SObjectType.Community_Events__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Events__c);
 		String eQuery = 'SELECT Id, Name__c, Teaser__c, Start__c FROM Community_Events__c';
 		//eQuery += ' WHERE Start__c != NULL';
 		eQuery += ' WHERE (Public__c = true OR OwnerId = :queryUserId) AND ((End__c = NULL AND Start__c != NULL AND Start__c <= TODAY) OR (End__c != NULL AND End__c >= TODAY))';
@@ -472,6 +508,7 @@ public with sharing class CommunityEventController {
 		}
 
 		Map<Id,List<String>> referencedGroupsMap = new Map<Id,List<String>>();
+		if (!SObjectType.Community_Event_Tag__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Event_Tag__c);
 		for (Community_Event_Tag__c cetItem : [
 								SELECT Community_Event__c, Community_Group_Control__c, Community_Group_Control__r.Name
 								FROM Community_Event_Tag__c WHERE Community_Group_Control__c != NULL AND Community_Event__c IN :eventsPageIds
@@ -601,10 +638,13 @@ public with sharing class CommunityEventController {
 	public List<String> getAllGroupsInStringArray() {
 		Set<Id> chatterGroups = new Set<Id>();
 		List<String> groupsNames = new List<String>();
+		if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
 		for (Community_Group_Control__c gcItem : [SELECT Chatter_Group_ID__c FROM Community_Group_Control__c WHERE Status__c = 'Approved']) {
 			chatterGroups.add(gcItem.Chatter_Group_ID__c);
 		}
 		List<String> groupIds = new List<String>();
+		if (!SObjectType.CollaborationGroup.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.CollaborationGroup);
+		if (!SObjectType.CollaborationGroupMember.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.CollaborationGroupMember);
 		for (CollaborationGroup cgItem : [
 											SELECT Id, Name FROM CollaborationGroup Where NetworkId = :Network.getNetworkId() AND ID in :chatterGroups AND
 												ID in (SELECT CollaborationGroupId FROM CollaborationGroupMember WHERE

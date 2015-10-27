@@ -31,6 +31,9 @@ public without sharing class CommunityAccess {
 	}
 
 	public static Database.SaveResult[] InsertWithoutSharing(sObject[] objs, String err, Schema.DescribeFieldResult[] fields) {
+		if(objs.isEmpty()){
+			return null;
+		}
 		FLSAccessControllerWithSharing acws = new FLSAccessControllerWithSharing();
 		String notCreateableFLS = acws.hasNotCreateableFLS(fields);
 		if (notCreateableFLS != NULL) {
@@ -38,7 +41,7 @@ public without sharing class CommunityAccess {
 				AccessViolationException,
 				CommunityAccessException.ExceptionType.FIELD_ACCESS_VIOLATION,
 				CommunityAccessException.ExceptionReason.NO_CREATE,
-				objs.getSObjectType().getDescribe().getName(),
+				objs[0].getSObjectType().getDescribe().getName(),
 				notCreateableFLS
 			);
 		}
@@ -61,14 +64,17 @@ public without sharing class CommunityAccess {
 		return Database.update(obj);
 	}
 	public static Database.SaveResult[] UpdateWithoutSharing(sObject[] objs, String err, Schema.DescribeFieldResult[] fields) {
+		if(objs.isEmpty()){
+			return null;
+		}
 		FLSAccessControllerWithSharing acws = new FLSAccessControllerWithSharing();
-		String notUpdateableFLS = (IsGuestUser && !objs.getSObjectType().getDescribe().isCustom()) ? acws.hasNotCreateableFLS(fields) : acws.hasNotUpdateableFLS(fields);
+		String notUpdateableFLS = (IsGuestUser && !objs[0].getSObjectType().getDescribe().isCustom()) ? acws.hasNotCreateableFLS(fields) : acws.hasNotUpdateableFLS(fields);
 		if (notUpdateableFLS != NULL) {
 			throw new CommunityAccessException(
 				AccessViolationException,
 				CommunityAccessException.ExceptionType.FIELD_ACCESS_VIOLATION,
 				CommunityAccessException.ExceptionReason.NO_UPDATE,
-				objs.getSObjectType().getDescribe().getName(),
+				objs[0].getSObjectType().getDescribe().getName(),
 				notUpdateableFLS
 			);
 		}
@@ -78,8 +84,10 @@ public without sharing class CommunityAccess {
 	// Upsert
 	public static Database.UpsertResult UpsertWithoutSharing(sObject obj, String err, Schema.DescribeFieldResult[] fields) {
 		FLSAccessControllerWithSharing acws = new FLSAccessControllerWithSharing();
-		String notCreateableFLS = acws.hasNotCreateableFLS(fields);
-		String notUpdateableFLS = (IsGuestUser && !obj.getSObjectType().getDescribe().isCustom()) ? notCreateableFLS : acws.hasNotUpdateableFLS(fields);
+		String notCreateableFLS = obj.Id == NULL ? acws.hasNotCreateableFLS(fields) : NULL;
+		//String notUpdateableFLS = (IsGuestUser && !obj.getSObjectType().getDescribe().isCustom()) ? notCreateableFLS : acws.hasNotUpdateableFLS(fields);
+		String notUpdateableFLS = obj.Id == NULL ? NULL : acws.hasNotUpdateableFLS(fields);
+
 		if (notCreateableFLS != NULL || notUpdateableFLS != NULL) {
 			throw new CommunityAccessException(
 				AccessViolationException,
@@ -92,15 +100,18 @@ public without sharing class CommunityAccess {
 		return Database.upsert(obj);
 	}
 	public static Database.UpsertResult[] UpsertWithoutSharing(sObject[] objs, String err, Schema.DescribeFieldResult[] fields) {
+		if(objs.isEmpty()){
+			return null;
+		}
 		FLSAccessControllerWithSharing acws = new FLSAccessControllerWithSharing();
 		String notCreateableFLS = acws.hasNotCreateableFLS(fields);
-		String notUpdateableFLS = (IsGuestUser && !objs.getSObjectType().getDescribe().isCustom()) ? notCreateableFLS : acws.hasNotUpdateableFLS(fields);
+		String notUpdateableFLS = (IsGuestUser && !objs[0].getSObjectType().getDescribe().isCustom()) ? notCreateableFLS : acws.hasNotUpdateableFLS(fields);
 		if (notCreateableFLS != NULL || notUpdateableFLS != NULL) {
 			throw new CommunityAccessException(
 				AccessViolationException,
 				CommunityAccessException.ExceptionType.FIELD_ACCESS_VIOLATION,
 				(notCreateableFLS!=NULL) ? CommunityAccessException.ExceptionReason.NO_CREATE : CommunityAccessException.ExceptionReason.NO_UPDATE,
-				objs.getSObjectType().getDescribe().getName(),
+				objs[0].getSObjectType().getDescribe().getName(),
 				(notCreateableFLS!=NULL) ? notCreateableFLS : notUpdateableFLS
 			);
 		}
@@ -117,21 +128,24 @@ public without sharing class CommunityAccess {
 				CommunityAccessException.ExceptionType.OBJECT_ACCESS_VIOLATION,
 				CommunityAccessException.ExceptionReason.NO_DELETE,
 				obj.getSObjectType().getDescribe().getName(),
-				NULL
+				''
 			);
 		}
 		return Database.delete(obj);
 	}
 	public static Database.DeleteResult[] DeleteWithoutSharing(sObject[] objs, String err) {
+		if(objs.isEmpty()){
+			return null;
+		}
 		FLSAccessControllerWithSharing acws = new FLSAccessControllerWithSharing();
-		Boolean isObjectsDeletable = (!objs.getSObjectType().getDescribe().isCustom()) ? acws.isObjectsCreateable(objs) : acws.isObjectsDeletable(objs);
+		Boolean isObjectsDeletable = (!objs[0].getSObjectType().getDescribe().isCustom()) ? acws.isObjectsCreateable(objs) : acws.isObjectsDeletable(objs);
 		if (isObjectsDeletable == false) {
 			throw new CommunityAccessException(
 				AccessViolationException,
 				CommunityAccessException.ExceptionType.OBJECT_ACCESS_VIOLATION,
 				CommunityAccessException.ExceptionReason.NO_DELETE,
-				objs.getSObjectType().getDescribe().getName(),
-				NULL
+				objs[0].getSObjectType().getDescribe().getName(),
+				''
 			);
 		}
 		return Database.delete(objs);
@@ -165,13 +179,13 @@ public without sharing class CommunityAccess {
 			return obj.getSObjectType().getDescribe().isCreateable();
 		}
 		public Boolean isObjectsCreateable(sObject[] objs) {
-			return objs.getSObjectType().getDescribe().isCreateable();
+			return objs[0].getSObjectType().getDescribe().isCreateable();
 		}
 		public Boolean isObjectDeletable(sObject obj) {
 			return obj.getSObjectType().getDescribe().isDeletable();
 		}
 		public Boolean isObjectsDeletable(sObject[] objs) {
-			return objs.getSObjectType().getDescribe().isDeletable();
+			return objs[0].getSObjectType().getDescribe().isDeletable();
 		}
 	}
 }

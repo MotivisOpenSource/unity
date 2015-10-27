@@ -30,7 +30,7 @@
 public with sharing class CommunityTopicController {
     
     public String topicId { get; set; }
-    public String parentId { get { return ApexPages.CurrentPage().getParameters().get('pid'); } }
+    public String parentId { get; set; }
     public Boolean showTopics { get{ return topicId == null ? false : true ;} }
     public static String sortField { get; set; }
     public Boolean isTopicUpdateable { get{ return CommunityUtils.checkCRUDforObject('Topic').get('isUpdateable');} }
@@ -42,9 +42,10 @@ public with sharing class CommunityTopicController {
     public Boolean topicExists { get{ return [SELECT Count() FROM Topic WHERE Id =:topicId AND NetworkId =: Network.getNetworkId()] > 0 ? true : false;}}
 
     public CommunityTopicController() {
-        String queryTopicId = String.escapeSingleQuotes(ApexPages.CurrentPage().getParameters().get('id'));
-        List<Topic> t = [SELECT Id FROM Topic WHERE Id =: queryTopicId AND NetworkId =: Network.getNetworkId()];
-        topicId = t.isEmpty() ? null : t[0].Id;
+        String topId = ApexPages.CurrentPage().getParameters().get('id');
+        String parId = ApexPages.CurrentPage().getParameters().get('pid');
+        topicId = topId != NULL ? String.escapeSingleQuotes(topId) : NULL;
+        parentId = parId != NULL ? String.escapeSingleQuotes(parId) : NULL;
     }
 
     @RemoteAction

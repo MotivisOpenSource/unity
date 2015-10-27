@@ -90,6 +90,10 @@ public with sharing class CommunitySearchController {
 		catch(Exception e) {}
 		if (validated) {
 			List<String> parts = SOQL_FILTER.get(sobj).split(':;:');
+			if (!SObjectType.Community_Event_Tag__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Event_Tag__c);
+			if (!SObjectType.Community_Group_Control_Tag__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control_Tag__c);
+			if (!SObjectType.Community_News_Tag__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_News_Tag__c);
+			if (!SObjectType.Community_Resource_Tag__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Resource_Tag__c);
 			String soqlStr = 'SELECT ' + parts[0] + parts[1] + ' AND Community_Tag__c =\'' + String.escapeSingleQuotes(tagId) + '\'';
 			for (sObject soItem : Database.query(soqlStr)) {
 				results.add((Id)soItem.get(parts[0]));
@@ -124,6 +128,7 @@ public with sharing class CommunitySearchController {
 		else if (mode == 'discover' || mode == 'resource') {
 			try {
 				String queryTagId = String.escapeSingleQuotes(Id.valueOf(mode == 'discover' ? pageParams.get('t') : pageParams.get('tr')));
+				if (!SObjectType.Community_Tag__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Tag__c);
 				resultStr = [SELECT Name FROM Community_Tag__c WHERE Id = :queryTagId LIMIT 1].Name;
 			}
 			catch (Exception e) {}
@@ -149,6 +154,7 @@ public with sharing class CommunitySearchController {
 				result = new SearchItem();
 			}
 			else {
+				if (!SObjectType.Community_News__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_News__c);
 				List<Community_News__c> cnList = [SELECT Id, Title__c, Teaser__c, Entry_Date__c, Image_Path__c FROM Community_News__c WHERE Id IN :newsIds];
 				result = new SearchItem(cnList, newsPageNum);
 			}
@@ -174,6 +180,7 @@ public with sharing class CommunitySearchController {
 				result = new SearchItem();
 			}
 			else {
+				if (!SObjectType.Community_Events__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Events__c);
 				List<Community_Events__c> eList = [SELECT Id, Name__c, Teaser__c, Start__c FROM Community_Events__c WHERE Id IN :eventIds];
 				result = new SearchItem(eList, eventPageNum);
 			}
@@ -196,6 +203,7 @@ public with sharing class CommunitySearchController {
 		if (groupPageNum != 0) {
 			Set<Id> groupsIds = filterObjects('Community_Group_Control__c');
 			if (!groupsIds.isEmpty()) {
+				if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
 				List<Community_Group_Control__c> gList = [
 					SELECT Id, Name, Chatter_Group_ID__c, Discoverable__c, Description__c, Type__c
 					FROM Community_Group_Control__c
@@ -224,6 +232,7 @@ public with sharing class CommunitySearchController {
 		SearchItem result;
 		if (resourcePageNum != 0) {
 			Set<Id> resourcesIds = filterObjects('Community_Resource__c');
+			if (!SObjectType.Community_Resource__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Resource__c);
 			String rQuery = 'SELECT Id, Name, Resource_Name__c, Link__c, Description__c,';
 			rQuery += 		' (SELECT Id, IsNote, Title FROM NotesAndAttachments WHERE IsNote = false ORDER BY CreatedDate DESC LIMIT 1) ';
 			rQuery += 		'FROM Community_Resource__c WHERE';
@@ -261,6 +270,7 @@ public with sharing class CommunitySearchController {
 	public static CommunityUtils.GroupAction membershipGroup(String mc, String grId, String action) {
 		CommunityUtils.GroupAction resultAction;
 		String queryGrId = String.escapeSingleQuotes(grId);
+		if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
 		List<Community_Group_Control__c> cgcList = [SELECT Id, Type__c FROM Community_Group_Control__c WHERE Chatter_Group_ID__c = :queryGrId];
 		if (action != '3' && cgcList.size() > 0) {
 			ConnectApi.GroupMembershipType ngr = CommunityUtils.membership(UserInfo.getUserId(), cgcList[0].Id, action);

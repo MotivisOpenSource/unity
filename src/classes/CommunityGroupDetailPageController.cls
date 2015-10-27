@@ -48,6 +48,7 @@ public with sharing class CommunityGroupDetailPageController {
 	public CommunityGroupDetailPageController() {
 		control = CommunityGroupManageController.pullGroupControlRecord(true);
 		if (control != NULL && control.Chatter_Group_ID__c != NULL) {
+			if (!SObjectType.CollaborationGroup.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.CollaborationGroup);
 			chatterGroup = [SELECT Id, FullPhotoUrl, CollaborationType FROM CollaborationGroup WHERE Id = :control.Chatter_Group_ID__c];
 			groupRole = ConnectApi.ChatterGroups.getGroup(Network.getNetworkId(), chatterGroup.Id).MyRole;
 		}
@@ -56,6 +57,7 @@ public with sharing class CommunityGroupDetailPageController {
 		try {
 			String uids = ApexPages.currentPage().getParameters().get('u');
 			if (String.isNotBlank(uids)) {
+				if (!SObjectType.User.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.User);
 				String queryUserId = String.escapeSingleQuotes(Id.valueOf(uids));
 				initialRequestMember = [SELECT Name FROM User WHERE Id = :queryUserId].Name;
 			}
@@ -114,6 +116,7 @@ public with sharing class CommunityGroupDetailPageController {
 	@RemoteAction
 	public static String toggleSubscriber(String memberId) {
 		String resultIcon = 'fa-check:' + Label.BTN_Following;
+		if (!SObjectType.EntitySubscription.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.EntitySubscription);
 		String queryMemberId = String.escapeSingleQuotes(memberId);
 		List<EntitySubscription> followings = [SELECT Id FROM EntitySubscription WHERE SubscriberId =:Userinfo.getUserId() AND ParentId = :queryMemberId LIMIT 1];
 		if (!followings.isEmpty()) {
@@ -147,6 +150,7 @@ public with sharing class CommunityGroupDetailPageController {
 
 	public List<GroupEvent> getEvents() {
 		List<GroupEvent> resultList = new List<GroupEvent>();
+		if (!SObjectType.Community_Event_Tag__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Event_Tag__c);
 		for (Community_Event_Tag__c cet : [
 						SELECT Community_Event__r.Id, Community_Event__r.Name__c, Community_Event__r.Start__c
 						FROM Community_Event_Tag__c

@@ -93,6 +93,7 @@ global with sharing class CommunityTagSelectorController {
 	}
 
 	public static List<Community_Tag__c> getTagsLocal(String q, String themeType) {
+		if (!SObjectType.Community_Tag__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Tag__c);
 		String tagQuery = 'SELECT Id, Name, Community_Theme__c, Community_Theme__r.Name FROM Community_Tag__c WHERE Community_Theme__r.Theme_Type__c IN (\'';
 		tagQuery += themeType + ( (themeType == 'Interest' && CommunityUtils.accessSystemTagLevel() == 2) ? '\',\'System\')' : '\')');
 		if (q != NULL) {
@@ -152,6 +153,7 @@ global with sharing class CommunityTagSelectorController {
 		}
 		List<TagWrapper> existingTags = new List<TagWrapper>();
 		if (tagIds.size() > 0) {
+			if (!SObjectType.Community_Tag__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Tag__c);
 			for (Community_Tag__c ct : [SELECT Id, Name, Community_Theme__r.Name FROM Community_Tag__c WHERE Id IN :tagIds]) {
 				existingTags.add(new TagWrapper(ct.Id, ct.Name, ct.Community_Theme__r.Name));
 			}
@@ -162,7 +164,11 @@ global with sharing class CommunityTagSelectorController {
 	public without sharing class SecurityWrapper{
 
 		public void deleteTags(List<sObject> deleteList){
-			delete deleteList;
+			//delete deleteList;
+			CommunityAccess.DeleteWithoutSharing(
+				deleteList,
+				'CommunityTagSelectorController.cls [deleteTags]'
+			);
 		}
 	}
 }

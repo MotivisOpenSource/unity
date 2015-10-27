@@ -91,6 +91,7 @@ public with sharing class CommunityNewsController {
 		Boolean recordPulled = false;
 		// check and pull record in preview mode
 		if (news.Id != NULL && mode != 'view') {
+			if (!SObjectType.Attachment.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Attachment);
 			List<Attachment> attList = [SELECT Body, OwnerId, Owner.Name FROM Attachment WHERE ParentId = :news.Id AND Name = :TEMPORARY_UPDATE_NAME AND OwnerId = :UserInfo.getUserId()];
 			if (attList.size() > 0) {
 				mode = SObjectType.Community_News__c.isUpdateable() ? mode : 'view';
@@ -125,6 +126,7 @@ public with sharing class CommunityNewsController {
 			if (ApexPages.currentPage().getParameters().get('cloneId') != NULL) {
 				try {
 					String queryCloneId = String.escapeSingleQuotes(Id.valueOf(ApexPages.currentPage().getParameters().get('cloneId')));
+					if (!SObjectType.Community_News__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_News__c);
 					String cquery = '';
 					String csep = 'SELECT ';
 					for (Schema.FieldSetMember cf : fieldset) {
@@ -149,6 +151,7 @@ public with sharing class CommunityNewsController {
 	}
 
 	private Boolean clearUpdateTemporaryFiles() {
+		if (!SObjectType.Attachment.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Attachment);
 		List<Attachment> purgeList = [SELECT Id FROM Attachment WHERE ParentId = :news.Id AND Name = :TEMPORARY_UPDATE_NAME AND OwnerId = :UserInfo.getUserId()];
 		Boolean recordFound = purgeList.size() > 0;
 		if (recordFound) {

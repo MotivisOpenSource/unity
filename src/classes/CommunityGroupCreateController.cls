@@ -97,7 +97,16 @@ public with sharing class CommunityGroupCreateController {
 		try {
 			if (step == 1) {
 				currentGroup.Status__c = 'Pending';
-				upsert currentGroup;
+				//upsert currentGroup;
+				CommunityAccess.UpsertWithoutSharing(
+					currentGroup,
+					'CommunityGroupCreateController.cls [doSubmit]',
+					new List<Schema.DescribeFieldResult> {
+						Community_Group_Control__c.Name.getDescribe(),
+						Community_Group_Control__c.Status__c.getDescribe(),
+						Community_Group_Control__c.Chatter_Group_ID__c.getDescribe()
+					}
+				);
 				pr = Page.CommunityGroupCreate;
 				currentGroup = [SELECT Id, Chatter_Group_ID__c FROM Community_Group_Control__c WHERE Id =:currentGroup.Id];
 				pr.getParameters().put('step', String.isBlank(currentGroup.Chatter_Group_ID__c) ? '3' : '2');
@@ -114,7 +123,14 @@ public with sharing class CommunityGroupCreateController {
 					    pi,
 					    new ConnectApi.BinaryInput(imageBody, imageContentType, imageFileName)
 					    );
-					update currentGroup;
+					//update currentGroup;
+					CommunityAccess.UpdateWithoutSharing(
+						currentGroup,
+						'CommunityGroupCreateController.cls [doSubmit]',
+						new List<Schema.DescribeFieldResult> {
+							Community_Group_Control__c.Chatter_Group_ID__c.getDescribe()
+						}
+					);
 				}
 				pr = Page.CommunityGroupCreate;
 				pr.getParameters().put('step', '3');
@@ -132,7 +148,14 @@ public with sharing class CommunityGroupCreateController {
 					pr = Page.CommunityGroupManager;
 					pr.getParameters().put('gc', currentGroup.Id);
 					currentGroup.Status__c = 'Approved';
-					update currentGroup;
+					//update currentGroup;
+					CommunityAccess.UpdateWithoutSharing(
+						currentGroup,
+						'CommunityGroupCreateController.cls [doSubmit]',
+						new List<Schema.DescribeFieldResult> {
+							Community_Group_Control__c.Status__c.getDescribe()
+						}
+					);
 				}
 				else {
 					pr = Page.CommunityGroupCreate;
@@ -152,7 +175,14 @@ public with sharing class CommunityGroupCreateController {
 					currentGroup.Terms__c = caList[0].Id;
 				}
 				currentGroup.Status__c = 'Approved';
-				update currentGroup;
+				//update currentGroup;
+				CommunityAccess.UpdateWithoutSharing(
+					currentGroup,
+					'CommunityGroupCreateController.cls [doSubmit]',
+					new List<Schema.DescribeFieldResult> {
+						Community_Group_Control__c.Status__c.getDescribe()
+					}
+				);
 			}
 			pr.getParameters().put('id', currentGroup.Id);
 			pr.setRedirect(true);
@@ -210,10 +240,18 @@ public with sharing class CommunityGroupCreateController {
 		if (String.isNotBlank(currentGroup.Chatter_Group_ID__c)) {
 			List<CollaborationGroup> cgToDelete = [SELECT Id FROM CollaborationGroup WHERE Id = :currentGroup.Chatter_Group_ID__c];
 			if (cgToDelete.size() > 0) {
-				delete cgToDelete;
+				//delete cgToDelete;
+				CommunityAccess.DeleteWithoutSharing(
+					cgToDelete,
+					'CommunityGroupCreateController.cls [cancel]'
+				);
 			}
 		}
-		delete currentGroup;
+		//delete currentGroup;
+		CommunityAccess.DeleteWithoutSharing(
+			currentGroup,
+			'CommunityGroupCreateController.cls [cancel]'
+		);
 		PageReference pr = Page.CommunityGroups;
 		pr.getParameters().put('f', 'all_groups');
 		pr.setRedirect(true);

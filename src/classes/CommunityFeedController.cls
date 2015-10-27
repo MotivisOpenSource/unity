@@ -48,6 +48,7 @@ global with sharing class CommunityFeedController {
 	public class appException extends Exception { }
 	public String parentIdForAtt {get {
 			try {
+				if (!SObjectType.User.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.User);
 				User us = [SELECT Id, ContactId, Community_Contact_ID__c FROM User WHERE Id = :UserInfo.getUserId() LIMIT 1];
 				String contId = (us.ContactId != null) ? us.ContactId : us.Community_Contact_ID__c;
 				if(contId != null) {
@@ -151,6 +152,7 @@ global with sharing class CommunityFeedController {
 				}
 			}
 		}
+		if (!SObjectType.Community_Group_Manager__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Manager__c);
 		for(Community_Group_Manager__c cgm : [SELECT Id, Group_Control__c, Group_Control__r.Chatter_Group_ID__c,  
 												Group_Manager_User__c, Manager_Role__c 
 											FROM Community_Group_Manager__c
@@ -216,6 +218,7 @@ global with sharing class CommunityFeedController {
 		//FeedElementPage fepResult = pullFeedsConnectApi(inParentId2, inFeedType2, inPageToken2);
 		
 		Map<String, String>	groupManagerMap = new Map<String, String>();
+		if (!SObjectType.Community_Group_Manager__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Manager__c);
 		for(Community_Group_Manager__c cgm : [SELECT Id, Group_Control__c, Group_Manager_User__c, Manager_Role__c 
 												FROM Community_Group_Manager__c
 												WHERE Group_Manager_User__c =: UserInfo.getUserId()]){
@@ -324,6 +327,7 @@ global with sharing class CommunityFeedController {
 
 			if(typeParent.containsIgnoreCase('CollaborationGroup')){
 				List<String> groupsIds = parentTypeParentId.get(typeParent);
+				if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
 				List<Community_Group_Control__c> cGroups = [SELECT Id, Name, Type__c, Chatter_Group_ID__c FROM Community_Group_Control__c WHERE Chatter_Group_ID__c IN :groupsIds];
 				for(Community_Group_Control__c cGroup : cGroups){
 					parentIdNameGroupType.put(cGroup.Chatter_Group_ID__c, new List<String>{Label.LBL_Digest_Group, cGroup.Name, cGroup.Type__c, prepareUrl(Page.CommunityGroupDetailPage.getUrl())+'?gr='+cGroup.Chatter_Group_ID__c, 'fa fa-users'});
@@ -332,6 +336,7 @@ global with sharing class CommunityFeedController {
 			}
 			if(typeParent.containsIgnoreCase('Community_Group_Control')){
 				List<String> groupsManagerIds = parentTypeParentId.get(typeParent);
+				if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
 				List<Community_Group_Control__c> groupsM = [SELECT Id, Name, Type__c, Chatter_Group_ID__c FROM Community_Group_Control__c WHERE Id IN :groupsManagerIds];
 				for(Community_Group_Control__c groupM : groupsM){
 					parentIdNameGroupType.put(groupM.Id, new List<String>{label.LBL_Manager, groupM.Name, groupM.Type__c, prepareUrl(Page.CommunityGroupManager.getUrl())+'?gr='+groupM.Chatter_Group_ID__c, 'fa fa-comments'});
@@ -340,6 +345,7 @@ global with sharing class CommunityFeedController {
 			}
 			if(typeParent.containsIgnoreCase('Community_News')){
 				List<String> newsIds = parentTypeParentId.get(typeParent);
+				if (!SObjectType.Community_News__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_News__c);
 				List<Community_News__c> cNews = [SELECT Id, Title__c FROM Community_News__c WHERE Id IN :newsIds];
 				for(Community_News__c cNew : cNews){
 					parentIdNameGroupType.put(cNew.Id, new List<String>{label.LBL_News, cNew.Title__c, null, prepareUrl(Page.CommunityNewsDetail.getUrl())+'?id='+cNew.Id, 'fa fa-newspaper-o'});
@@ -348,6 +354,7 @@ global with sharing class CommunityFeedController {
 			}
 			if(typeParent.containsIgnoreCase('Community_Events')){
 				List<String> eventsIds = parentTypeParentId.get(typeParent);
+				if (!SObjectType.Community_Events__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Events__c);
 				List<Community_Events__c> cEvents = [SELECT Id, Name__c FROM Community_Events__c WHERE Id IN :eventsIds];
 				for(Community_Events__c cEvent : cEvents){
 					parentIdNameGroupType.put(cEvent.Id, new List<String>{Label.LBL_Events, cEvent.Name__c, null, prepareUrl(Page.CommunityEventDetail.getUrl())+'?id='+cEvent.Id, 'fa fa-calendar'});
@@ -612,6 +619,7 @@ global with sharing class CommunityFeedController {
 		Map<Id, String> UserIdAndRoleMap = new Map<Id, String>();
 		Map<Id, Id> UserIdAndContactId = new Map<Id, Id>();
 		if(!userIds.isEmpty()) {
+			if (!SObjectType.User.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.User);
 			for(User u : [SELECT Id, Contact.Primary_Role__c, Community_Contact_ID__c FROM User WHERE Id IN: userIds]) {
 				if(u.Contact != null && u.Contact.Primary_Role__c != null){
 					UserIdAndRoleMap.put(u.Id, (String)u.Contact.Primary_Role__c);
@@ -623,6 +631,7 @@ global with sharing class CommunityFeedController {
 		}
 		Map<Id, String> ContactIdAndRoleMap = new Map<Id, String>();
 		if(!UserIdAndContactId.values().isEmpty()) {
+			if (!SObjectType.Contact.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Contact);
 			for(Contact c : [SELECT Id, Primary_Role__c, Name FROM Contact WHERE Id IN: UserIdAndContactId.values() AND Primary_Role__c != null]) {
 				ContactIdAndRoleMap.put(c.Id, c.Primary_Role__c);
 			}
@@ -866,13 +875,23 @@ global with sharing class CommunityFeedController {
 					if (fei.body == NULL) fei.body = werewolfText('');
 					// insert group link for event
 					//Community_Group_Control__c groupControl = [SELECT ID FROM Community_Group_Control__c WHERE Chatter_Group_ID__c = :inParentId4 LIMIT 1];
+					if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
 					String queryInParentId4 = String.escapeSingleQuotes(inParentId4);
 					if(![SELECT ID FROM Community_Group_Control__c WHERE Chatter_Group_ID__c = :queryInParentId4 LIMIT 1].isEmpty()){
+						if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
 						Id grControllID = [SELECT ID FROM Community_Group_Control__c WHERE Chatter_Group_ID__c = :queryInParentId4 LIMIT 1].Id;
 						Community_Event_Tag__c communityEventTag = new Community_Event_Tag__c();
 						communityEventTag.Community_Event__c = res.getId();
 						communityEventTag.Community_Group_Control__c = grControllID;
-						insert communityEventTag;
+						//insert communityEventTag;
+						CommunityAccess.InsertWithoutSharing(
+							communityEventTag,
+							'CommunityFeedController.cls [postActions]',
+							new List<Schema.DescribeFieldResult> {
+								Community_Event_Tag__c.Community_Event__c.getDescribe(),
+								Community_Event_Tag__c.Community_Group_Control__c.getDescribe()
+							}
+						);
 					}
 					//fei.body = werewolfText('Description');
 				}
@@ -971,6 +990,7 @@ global with sharing class CommunityFeedController {
 				SELECT Id, Name, SmallPhotoUrl, Contact.Primary_Role__c
 				FROM User WHERE (ContactId != NULL OR Community_Contact_ID__c != NULL) AND isActive = true 
 				AND (FirstName LIKE :query OR LastName LIKE :query)])*/
+		if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
 		List<Community_Group_Control__c> cgcList = [
 													SELECT Chatter_Group_ID__c, Name
 													FROM Community_Group_Control__c
@@ -984,6 +1004,7 @@ global with sharing class CommunityFeedController {
 		List<String> groupsIds = new List<String>();
 		groupsIds.addAll(groupsMap.keySet());
 
+		if (!SObjectType.CollaborationGroup.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.CollaborationGroup);
 		for(CollaborationGroup cg : [SELECT Id, SmallPhotoUrl FROM CollaborationGroup WHERE Id IN :groupsIds]){
 			groupsMapPhoto.put(cg.Id, cg.SmallPhotoUrl);
 		}
@@ -1088,7 +1109,10 @@ global with sharing class CommunityFeedController {
 		fepResult = initialRoles(fepResult);
 		List<Attachment> lAttachment = new List<Attachment>();
 		lAttachment.add(att);
-		CommunityHelperWithoutSharing.deleteAttachment(lAttachment);
+		CommunityAccess.DeleteWithoutSharing(
+			lAttachment,
+			'CommunityFeedController.cls [insertAttacmentIntoFeed]'
+		);
 		return json.serialize(fepResult);
 
 	}

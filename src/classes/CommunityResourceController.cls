@@ -72,6 +72,7 @@ public with sharing class CommunityResourceController {
 	@TestVisible private void init() {
 		resource = (Community_Resource__c)stdctrl.getRecord();
 		// prepare field layout
+		if (!SObjectType.Community_Resource__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Resource__c);
 		List<String> fieldList = new List<String> {
 			'Id', 'Name', 'Resource_Name__c', 'Link__c', 'Primary_Tag__c', 'Primary_Tag__r.Community_Theme__r.Name', 'Primary_Tag__r.Name', 'Quick_Link__c', 'Help_Link__c',
 			'(SELECT Id, IsNote, Title FROM NotesAndAttachments WHERE IsNote = false ORDER BY CreatedDate DESC LIMIT 1)'
@@ -113,6 +114,7 @@ public with sharing class CommunityResourceController {
 	public List<List<String>> getTags() {
 		List<List<String>> result = new List<List<String>>();
 		if (mode == 'view') {
+			if (!SObjectType.Community_Tag__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Tag__c);
 			List<Community_Tag__c> ctList = [SELECT Id, Name, Community_Theme__r.Name FROM Community_Tag__c WHERE Id =:resource.Primary_Tag__c];
 			Id primaryTagId = resource.Id;
 			if (ctList.size() > 0) {
@@ -122,6 +124,7 @@ public with sharing class CommunityResourceController {
 					'?tr=' + ctList[0].Id
 						});
 			}
+			if (!SObjectType.Community_Resource_Tag__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Resource_Tag__c);
 			String rQuery = 'SELECT Community_Tag__c, Community_Tag__r.Name, Community_Tag__r.Community_Theme__r.Name';
 			rQuery += ' FROM Community_Resource_Tag__c WHERE Resource__c = \'' + String.escapeSingleQuotes(resource.Id) + '\' AND Community_Tag__c != \'' + String.escapeSingleQuotes(primaryTagId) + '\'';
 			rQuery = CommunityUtils.systemTagFilter(' AND Community_Tag__r.Community_Theme__r.Theme_Type__c', rQuery);
@@ -142,6 +145,7 @@ public with sharing class CommunityResourceController {
 	public List<String> getBreadcumbs() {
 		List<String> resultList = new List<String> {'',''};
 		if (resource.Primary_Tag__c != NULL) {
+			if (!SObjectType.Community_Tag__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Tag__c);
 			Community_Tag__c ptag = [SELECT Name, Community_Theme__r.Name FROM Community_Tag__c WHERE Id = :resource.Primary_Tag__c];
 			resultList = new List<String> {'?tr=' + resource.Primary_Tag__c, ptag.Community_Theme__r.Name + ' > ' + ptag.Name + ' > '};
 		}
@@ -220,16 +224,52 @@ public with sharing class CommunityResourceController {
 		try {
 			if (String.isNotBlank(linkText)) {
 				resource.Link__c = (!linkText.startsWith('http://') && !linkText.startsWith('https://')) ? ('http://' + linkText) : linkText;
-				upsert resource;
+				//upsert resource;
+				CommunityAccess.UpsertWithoutSharing(
+					resource,
+					'CommunityResourceController.cls [saveResource]',
+					new List<Schema.DescribeFieldResult> {
+						Community_Resource__c.OwnerId.getDescribe(),
+						Community_Resource__c.Resource_Name__c.getDescribe(),
+						Community_Resource__c.Link__c.getDescribe()
+					}
+				);
 			}
 			else if (imgBody != NULL && String.isNotBlank(imgFileName)) {
 				resource.Link__c = NULL;
-				upsert resource;
+				//upsert resource;
+				CommunityAccess.UpsertWithoutSharing(
+					resource,
+					'CommunityResourceController.cls [saveResource]',
+					new List<Schema.DescribeFieldResult> {
+						Community_Resource__c.OwnerId.getDescribe(),
+						Community_Resource__c.Resource_Name__c.getDescribe(),
+						Community_Resource__c.Link__c.getDescribe()
+					}
+				);
 				Attachment aTemp = new Attachment(Name=imgFileName, Body=imgBody, ParentId=resource.Id, ContentType=imgContentType);
-				insert aTemp;
+				//insert aTemp;
+				CommunityAccess.InsertWithoutSharing(
+					aTemp,
+					'CommunityResourceController.cls [saveResource]',
+					new List<Schema.DescribeFieldResult> {
+						Attachment.Name.getDescribe(),
+						Attachment.Body.getDescribe(),
+						Attachment.ContentType.getDescribe()
+					}
+				);
 			}
 			else {
-				upsert resource;
+				//upsert resource;
+				CommunityAccess.UpsertWithoutSharing(
+					resource,
+					'CommunityResourceController.cls [saveResource]',
+					new List<Schema.DescribeFieldResult> {
+						Community_Resource__c.OwnerId.getDescribe(),
+						Community_Resource__c.Resource_Name__c.getDescribe(),
+						Community_Resource__c.Link__c.getDescribe()
+					}
+				);
 			}
 			if (mode == 'edit') {
 				String tagsIdsString = ApexPages.currentPage().getParameters().get(TAGS_INPUT_NAME);
