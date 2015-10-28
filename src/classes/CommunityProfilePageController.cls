@@ -258,12 +258,11 @@ global with sharing class CommunityProfilePageController {
 
 	public Boolean getShowChangePassword() {
 		Set<String> noredirect = new Set<String> { 'Standard', 'Salesforce' };
-		//Map<Id, Profile> studentsProfiles = new Map<Id, Profile>([SELECT Id FROM Profile WHERE Name LIKE '%Community%']);
 		if (!SObjectType.User.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.User);
-		Boolean isCommunityUser = [SELECT Id, isPortalEnabled FROM User WHERE Id =: Userinfo.getUserId()].isPortalEnabled;
+		User userToCheckForPortal = [SELECT Id, ContactId FROM User WHERE Id =: Userinfo.getUserId()];
 		Community_Settings__c cs = Community_Settings__c.getInstance();
 		return !noredirect.contains(Userinfo.getUserType())
-				&& isCommunityUser
+				&& userToCheckForPortal.ContactId != null
 				&& (cs == NULL || cs.Disable_Change_Password__c != true);
 	}
 
