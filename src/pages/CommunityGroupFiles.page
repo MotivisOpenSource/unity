@@ -359,9 +359,7 @@
 										query,
 										function(result, event) {
 											if(result == null) return;
-											var div = document.createElement('div');
-											div.innerHTML = result;
-											var gdata = JSON.parse(div.firstChild.nodeValue);
+											var gdata = jsonObj(result)
 											groups = [];
 											groups_map = [];
 											_.each(gdata, function (group, ix, list) {
