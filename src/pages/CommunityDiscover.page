@@ -35,7 +35,7 @@
 			<div class="search-block parallaxBg content CommunityDiscover">
 				<div class="container">
 					<div class="col-md-6 col-md-offset-3">
-						<h1><apex:outputText value="{!$Label.LBL_DiscoverTitle}" escape="false"/></h1>
+						<h1>Discover <span class="color-green">new</span> things</h1>
 
 						<div class="input-group">
 							<input id="mainsearch" type="text" class="form-control" placeholder="{!$Label.LBL_Search_Placeholder}"/>

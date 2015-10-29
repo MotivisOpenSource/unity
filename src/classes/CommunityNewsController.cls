@@ -91,6 +91,7 @@ public with sharing class CommunityNewsController {
 		Boolean recordPulled = false;
 		// check and pull record in preview mode
 		if (news.Id != NULL && mode != 'view') {
+			if (!SObjectType.Attachment.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Attachment);
 			List<Attachment> attList = [SELECT Body, OwnerId, Owner.Name FROM Attachment WHERE ParentId = :news.Id AND Name = :TEMPORARY_UPDATE_NAME AND OwnerId = :UserInfo.getUserId()];
 			if (attList.size() > 0) {
 				mode = SObjectType.Community_News__c.isUpdateable() ? mode : 'view';
@@ -124,14 +125,15 @@ public with sharing class CommunityNewsController {
 		if (news.Id == NULL) {
 			if (ApexPages.currentPage().getParameters().get('cloneId') != NULL) {
 				try {
-					Id cloneId = Id.valueOf(ApexPages.currentPage().getParameters().get('cloneId'));
+					String queryCloneId = String.escapeSingleQuotes(Id.valueOf(ApexPages.currentPage().getParameters().get('cloneId')));
+					if (!SObjectType.Community_News__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_News__c);
 					String cquery = '';
 					String csep = 'SELECT ';
 					for (Schema.FieldSetMember cf : fieldset) {
 						cquery += csep + cf.getFieldPath();
 						csep = ', ';
 					}
-					cquery += ' FROM Community_News__c WHERE Id = \'' + cloneId + '\'';
+					cquery += ' FROM Community_News__c WHERE Id = \'' + queryCloneId + '\'';
 					Community_News__c cnews = Database.query(cquery);
 					for (Schema.FieldSetMember cf2 : fieldset) {
 						String fName = cf2.getFieldPath();
@@ -149,10 +151,15 @@ public with sharing class CommunityNewsController {
 	}
 
 	private Boolean clearUpdateTemporaryFiles() {
+		if (!SObjectType.Attachment.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Attachment);
 		List<Attachment> purgeList = [SELECT Id FROM Attachment WHERE ParentId = :news.Id AND Name = :TEMPORARY_UPDATE_NAME AND OwnerId = :UserInfo.getUserId()];
 		Boolean recordFound = purgeList.size() > 0;
 		if (recordFound) {
-			delete purgeList;
+			//delete purgeList;
+			CommunityAccess.DeleteWithoutSharing(
+				purgeList,
+				'CommunityNewsController.cls [clearUpdateTemporaryFiles]'
+			);
 		}
 		return recordFound;
 	}
@@ -179,9 +186,10 @@ public with sharing class CommunityNewsController {
 			if (news.Make_Entry_Sticky__c == true && cs != NULL && cs.News_Max_Sticky__c != NULL) {
 				Datetime startDate = news.Entry_Date__c;
 				Datetime endDate = news.Expiration_Date__c;
-				Id newsId = news.Id;
+				Id queryNewsId = news.Id != NULL ? String.escapeSingleQuotes(news.Id) : NULL;
+				if (!SObjectType.Community_News__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_News__c);
 				String nmsQuery = 'SELECT Id FROM Community_News__c WHERE Entry_Date__c <= :endDate AND Expiration_Date__c >= :startDate';
-				nmsQuery += (newsId == NULL) ? ' AND Make_Entry_Sticky__c = true' : ' AND (Make_Entry_Sticky__c = true OR (Make_Entry_Sticky__c != true AND Id = :newsId))';
+				nmsQuery += (queryNewsId == NULL) ? ' AND Make_Entry_Sticky__c = true' : ' AND (Make_Entry_Sticky__c = true OR (Make_Entry_Sticky__c != true AND Id = :queryNewsId))';
 				List<Community_News__c> cnList = Database.query(nmsQuery);
 				if (cnList.size() > Integer.valueOf(cs.News_Max_Sticky__c)) {
 					throw new CommunityNewsException(Label.ERR_News_Too_Many_Sticky);
@@ -194,23 +202,56 @@ public with sharing class CommunityNewsController {
 				news.Content__c = NULL;
 			}
 			news.Status__c = 'Pending';
-			upsert news;
+			//upsert news;
+			CommunityAccess.UpsertWithoutSharing(
+				news,
+				'CommunityNewsController.cls [submitFirstStep]',
+				new List<Schema.DescribeFieldResult> {
+					Community_News__c.Status__c.getDescribe(),
+					Community_News__c.Content__c.getDescribe(),
+					Community_News__c.Teaser__c.getDescribe()
+				}
+			);
 			if (noSaveMode) {
 				Database.rollback(sp);
 			}
 			if (imgBody != NULL && String.isNotBlank(imgFileName)) {
 				Attachment aTemp = new Attachment(Name='Thumbnail_' + imgFileName, Body=imgBody, ParentId=news.Id, ContentType=imgContentType);
-				insert aTemp;
+				//insert aTemp;
+				CommunityAccess.InsertWithoutSharing(
+					aTemp,
+					'CommunityNewsController.cls [submitFirstStep]',
+					new List<Schema.DescribeFieldResult> {
+						Attachment.Name.getDescribe(),
+						Attachment.Body.getDescribe(),
+						Attachment.ContentType.getDescribe()
+					}
+				);
 				news.Image_Path__c = '/servlet/servlet.FileDownload?file=' + aTemp.Id;
 				if (!noSaveMode) {
-					update news;
+					// update news;
+					CommunityAccess.UpdateWithoutSharing(
+						news,
+						'CommunityNewsController.cls [submitFirstStep]',
+						new List<Schema.DescribeFieldResult> {
+							Community_News__c.Image_Path__c.getDescribe()
+						}
+					);
 				}
 			}
 			if (noSaveMode) {
-				insert new Attachment(
+				Attachment aTemp2 = new Attachment(
 					Name = TEMPORARY_UPDATE_NAME,
 					Body = Blob.valueOf(JSON.serialize(news)),
 					ParentId = news.Id
+				);
+				CommunityAccess.InsertWithoutSharing(
+					aTemp2,
+					'CommunityNewsController.cls [submitFirstStep]',
+					new List<Schema.DescribeFieldResult> {
+						Attachment.Name.getDescribe(),
+						Attachment.Body.getDescribe()
+					}
 				);
 			}
 			String tagsIdsString = ApexPages.currentPage().getParameters().get(TAGS_INPUT_NAME);
@@ -236,7 +277,14 @@ public with sharing class CommunityNewsController {
 
 	public PageReference submitSecondStep() {
 		news.Status__c = 'Active';
-		update news;
+		//update news;
+		CommunityAccess.UpdateWithoutSharing(
+			news,
+			'CommunityNewsController.cls [submitSecondStep]',
+			new List<Schema.DescribeFieldResult> {
+				Community_News__c.Status__c.getDescribe()
+			}
+		);
 		clearUpdateTemporaryFiles();
 		PageReference pr = Page.CommunityNewsDetail;
 		pr.setRedirect(true);
@@ -246,7 +294,11 @@ public with sharing class CommunityNewsController {
 
 	public PageReference cancel() {
 		if (!clearUpdateTemporaryFiles() && mode == 'preview') {
-			delete news;
+			//delete news;
+			CommunityAccess.DeleteWithoutSharing(
+				news,
+				'CommunityNewsController.cls [cancel]'
+			);
 		}
 		PageReference pr;
 		String retUrlParam = ApexPages.currentPage().getParameters().get('retURL');
@@ -263,14 +315,6 @@ public with sharing class CommunityNewsController {
 			}
 			else {
 				resultList = SObjectType.Community_News__c.FieldSets.ViewNews.getFields();
-				/*resultList = new List<Schema.FieldSetMember>();
-				rowspanCount = 0;
-				Boolean contentFieldNotFound = true;
-				for (Schema.FieldSetMember f2 : SObjectType.Community_News__c.FieldSets.ViewNews.getFields()) {
-					resultList.add(f2);
-					rowspanCount += contentFieldNotFound ? 1 : 0;
-					contentFieldNotFound = contentFieldNotFound && f2.getFieldPath() != 'Content__c';
-				}*/
 			}
 			return resultList;
 		}
@@ -348,6 +392,7 @@ public with sharing class CommunityNewsController {
 	private void initList() {
 		//List<String> communityNewsIdList = new List<String>();
 		Datetime nNow = Datetime.now();
+		if (!SObjectType.Community_News__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_News__c);
 		String nQuery = 'SELECT Id, Image_Path__c, Title__c, Teaser__c, Entry_Date__c, Make_Entry_Sticky__c FROM Community_News__c';
 		nQuery += ' WHERE Entry_Date__c <= :nNow AND Expiration_Date__c > :nNow AND Alert__c = false AND Status__c != \'Pending\'';
 		Set<Id> cnIds = new Set<Id>();

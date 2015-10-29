@@ -34,6 +34,7 @@ public with sharing class CommunityFeed_PeopleController {
 	@RemoteAction
 	public static List<UserItem> getPeoples() {
 		List<UserItem> peoples = new List<UserItem>();
+		if (!SObjectType.EntitySubscription.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.EntitySubscription);
 		List<EntitySubscription> followings = [
 			SELECT SubscriberId, ParentId, IsDeleted, Id, CreatedDate, CreatedById
 			FROM EntitySubscription WHERE SubscriberId =:Userinfo.getUserId() AND IsDeleted = false
@@ -119,6 +120,7 @@ public with sharing class CommunityFeed_PeopleController {
 				}
 			}
 			if (contactsToFindRole.size() > 0) {
+				if (!SObjectType.Contact.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Contact);
 				for (Contact cItem : [SELECT Id, Primary_Role__c FROM Contact WHERE Id IN :contactsToFindRole]) {
 					resultRoles.put(cItem.Id, cItem.Primary_Role__c);
 				}
