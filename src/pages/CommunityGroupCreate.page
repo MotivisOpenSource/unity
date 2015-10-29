@@ -259,7 +259,7 @@
 				</apex:outputPanel>
 				<apex:outputPanel layout="block" styleClass="row u-page-block" rendered="{!step == 4}">
 					<div class="col-sm-12">
-						<apex:outputText value="{!termsAndConditions}" escape="false"/>
+						<apex:outputField value="{!termsAndConditions.Terms_Body__c}"/>
 						<div class="text-center margin-top-20">
 							<apex:inputCheckbox value="{!CurrentGroup.T_C_Accepted__c}" onchange="chkchkb(this);"/>&nbsp;<label>{!$Label.LBL_AgreeToTerms}</label>
 						</div>
