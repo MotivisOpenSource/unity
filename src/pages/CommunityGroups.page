@@ -176,10 +176,11 @@
 						gid,
 						a,
 						function(result, event) {
-							var ihtml = '<li><i class="fa fa-group"></i><span name="folc">'+result.memberCount+'</span>&nbsp;{!$Label.LBL_Followers}</li>';
-							ihtml += '<li class="'+result.lnkStyle+'"><i class="fa '+result.lnkIcon+'"></i><a href="javascript:;"';
-							ihtml += ' onclick="chckabtn(\''+result.action+'\',\''+result.groupId+'\');">'+result.btnLabel+'</a></li>';
-							$('#gr' + gid).html(ihtml);
+							_.templateSettings.variable = 'rc';
+							var template = _.template('<li><i class="fa fa-group"></i><span name="folc"><%- rc.memberCount %></span> \
+									&nbsp;{!$Label.LBL_Followers}</li><li class="<%- rc.lnkStyle %>"><i class="fa <%- rc.lnkIcon %>"></i> \
+									<a href="javascript:;" onclick="chckabtn(\'<%- rc.action %>\',\'<%- rc.groupId %>\');"><%- rc.btnLabel %></a></li>');
+							$('#gr' + gid).html(template(result));
 						}
 					);
 				}

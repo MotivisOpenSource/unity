@@ -108,7 +108,16 @@ public with sharing class CommunityGroupCreateController {
 		try {
 			if (step == 1) {
 				currentGroup.Status__c = 'Pending';
-				upsert currentGroup;
+				//upsert currentGroup;
+				CommunityAccess.UpsertWithoutSharing(
+					currentGroup,
+					'CommunityGroupCreateController.cls [doSubmit]',
+					new List<Schema.DescribeFieldResult> {
+						Community_Group_Control__c.Name.getDescribe(),
+						Community_Group_Control__c.Status__c.getDescribe(),
+						Community_Group_Control__c.Chatter_Group_ID__c.getDescribe()
+					}
+				);
 				pr = Page.CommunityGroupCreate;
 				currentGroup = [SELECT Id, Chatter_Group_ID__c FROM Community_Group_Control__c WHERE Id =:currentGroup.Id];
 				pr.getParameters().put('step', String.isBlank(currentGroup.Chatter_Group_ID__c) ? '3' : '2');
@@ -120,12 +129,20 @@ public with sharing class CommunityGroupCreateController {
 					pi.cropY = Integer.valueOf(cropYCr);
 					pi.cropSize = Integer.valueOf(cropSizeCr)-1;
 					ConnectApi.Photo groupPhoto = ConnectApi.ChatterGroups.setPhotoWithAttributes(
-						Network.getNetworkId(),
+
+						Network.getNetworkId(), 
 						currentGroup.Chatter_Group_ID__c,
 						pi,
 						new ConnectApi.BinaryInput(imageBody, imageContentType, imageFileName)
 					);
-					update currentGroup;
+					//update currentGroup;
+					CommunityAccess.UpdateWithoutSharing(
+						currentGroup,
+						'CommunityGroupCreateController.cls [doSubmit]',
+						new List<Schema.DescribeFieldResult> {
+							Community_Group_Control__c.Chatter_Group_ID__c.getDescribe()
+						}
+					);
 				}
 				pr = Page.CommunityGroupCreate;
 				pr.getParameters().put('step', '3');
@@ -143,7 +160,14 @@ public with sharing class CommunityGroupCreateController {
 					pr = Page.CommunityGroupManager;
 					pr.getParameters().put('gc', currentGroup.Id);
 					currentGroup.Status__c = 'Approved';
-					update currentGroup;
+					//update currentGroup;
+					CommunityAccess.UpdateWithoutSharing(
+						currentGroup,
+						'CommunityGroupCreateController.cls [doSubmit]',
+						new List<Schema.DescribeFieldResult> {
+							Community_Group_Control__c.Status__c.getDescribe()
+						}
+					);
 				}
 				else {
 					pr = Page.CommunityGroupCreate;
@@ -163,7 +187,14 @@ public with sharing class CommunityGroupCreateController {
 					currentGroup.Terms__c = caList[0].Id;
 				}
 				currentGroup.Status__c = 'Approved';
-				update currentGroup;
+				//update currentGroup;
+				CommunityAccess.UpdateWithoutSharing(
+					currentGroup,
+					'CommunityGroupCreateController.cls [doSubmit]',
+					new List<Schema.DescribeFieldResult> {
+						Community_Group_Control__c.Status__c.getDescribe()
+					}
+				);
 			}
 			pr.getParameters().put('id', currentGroup.Id);
 			pr.setRedirect(true);
@@ -205,7 +236,7 @@ public with sharing class CommunityGroupCreateController {
 				: -1;
 	}
 
-	public String getTermsAndConditions() {
+	public Community_Admins__c getTermsAndConditions() {
 		List<Community_Admins__c> caList;
 		if (step == 4) {
 			caList = [
@@ -214,17 +245,25 @@ public with sharing class CommunityGroupCreateController {
 				ORDER BY Terms_Published_Date__c DESC LIMIT 1
 			];
 		}
-		return caList != NULL && caList.size() > 0 ? caList[0].Terms_Body__c : '';
+		return caList != NULL && caList.size() > 0 ? caList[0] : new Community_Admins__c(Terms_Body__c = '');
 	}
 
 	public PageReference cancel() {
 		if (String.isNotBlank(currentGroup.Chatter_Group_ID__c)) {
 			List<CollaborationGroup> cgToDelete = [SELECT Id FROM CollaborationGroup WHERE Id = :currentGroup.Chatter_Group_ID__c];
 			if (cgToDelete.size() > 0) {
-				delete cgToDelete;
+				//delete cgToDelete;
+				CommunityAccess.DeleteWithoutSharing(
+					cgToDelete,
+					'CommunityGroupCreateController.cls [cancel]'
+				);
 			}
 		}
-		delete currentGroup;
+		//delete currentGroup;
+		CommunityAccess.DeleteWithoutSharing(
+			currentGroup,
+			'CommunityGroupCreateController.cls [cancel]'
+		);
 		PageReference pr = Page.CommunityGroups;
 		pr.getParameters().put('f', 'all_groups');
 		pr.setRedirect(true);
@@ -233,8 +272,9 @@ public with sharing class CommunityGroupCreateController {
 
 	@RemoteAction
 	public static Boolean checkAvailability(String nameToCheck) {
-		List<Community_Group_Control__c> matchedGroups = [SELECT Id FROM Community_Group_Control__c WHERE Name = :nameToCheck];
-		List<CollaborationGroup> matchedChatterGroups = [SELECT Id FROM CollaborationGroup WHERE Name = :nameToCheck];
+		String queryNameToCheck = String.escapeSingleQuotes(nameToCheck);
+		List<Community_Group_Control__c> matchedGroups = [SELECT Id FROM Community_Group_Control__c WHERE Name = :queryNameToCheck];
+		List<CollaborationGroup> matchedChatterGroups = [SELECT Id FROM CollaborationGroup WHERE Name = :queryNameToCheck];
 		return matchedGroups.isEmpty() && matchedChatterGroups.isEmpty();
 	}
 }

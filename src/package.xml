@@ -3,6 +3,8 @@
     <fullName>unity</fullName>
     <types>
         <members>CommunityAboutGroupComponentController</members>
+        <members>CommunityAccess</members>
+        <members>CommunityAccessException</members>
         <members>CommunityEventController</members>
         <members>CommunityFeedController</members>
         <members>CommunityFeedNavigationController</members>
