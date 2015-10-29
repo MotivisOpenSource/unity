@@ -64,7 +64,9 @@ public with sharing class CommunityObjectController {
 			else if (so instanceof Community_Profile__c) {
 				haveAccessToEditObject = true;
 				Id cpId = (Id)so.get('Id');
-				Community_Profile__c cpItem = [SELECT Contact__c FROM Community_Profile__c WHERE Id = :cpId];
+				if (!SObjectType.Community_Profile__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Profile__c);
+				String queryCpId = String.escapeSingleQuotes(cpId);
+				Community_Profile__c cpItem = [SELECT Contact__c FROM Community_Profile__c WHERE Id = :queryCpId];
 				CommunityProfilePageController cppc = new CommunityProfilePageController();
 				haveAccessToEditObject = (cppc.currentProfile.Contact__c == cpItem.Contact__c) && SObjectType.Community_Profile__c.isUpdateable();
 			}

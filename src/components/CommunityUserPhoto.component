@@ -98,8 +98,6 @@
             // calculate real width and height
             imgRealWidth = this.width;
             imgRealHeight = this.height;
-            console.log("height-real: "+this.height+"width-real: "+this.width);
-            
             // remove styles
             jQuery('[id$=croppingImageId]').removeAttr("width").removeAttr("height").css({ width: "auto" , height: "auto" });
             // set image and preview image
@@ -111,11 +109,8 @@
             // start cropping with params
             var imgWidth =jQuery('[id$=croppingImageId]').width();
             var imgHeight =jQuery('[id$=croppingImageId]').height();
-            console.log("height: "+imgHeight+"width: "+imgWidth);
             scale = imgRealWidth/$('[id$=croppingImageId]').width();
-            console.log("scale" + scale);
             var rectSide = (imgWidth >= imgHeight)?imgHeight/3:imgWidth/3;
-            console.log("rectSide" + rectSide);
             jQuery('[id$=croppingImageId]').Jcrop({
                 onChange: showPreview, onSelect: showPreview, aspectRatio: 1,
                 setSelect: [ imgWidth/2-rectSide, imgHeight/2-rectSide, imgWidth/2+rectSide, imgHeight/2+rectSide ]
@@ -144,12 +139,9 @@
         // save photo
         function saveBtn() {
             stepUpload = 4;
-             
             jQuery('[id$=cropXId]').val(Math.round(imgX*scale));
             jQuery('[id$=cropYId]').val(Math.round(imgY*scale));
             jQuery('[id$=cropSizeId]').val(Math.round(imgSize*scale));
-            console.log('X-' + Math.round(imgX*scale) + ' Y-' + Math.round(imgY*scale) + ' S-' + Math.round(imgSize*scale));
-            
             // call action function and save img and crop it
             photoaction();
         }
