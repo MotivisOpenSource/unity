@@ -87,7 +87,6 @@ global with sharing class CommunityHomeNotificationsController {
 	// where user is owner or manager
 	private static List<NotificationWrapper> getGroupManagerFeeds(){
 		
-		String userId = UserInfo.getUserId();
 		String userType = UserInfo.getUserType();
 		
 		Set<Id> managersIds = new Set<Id>();
@@ -102,9 +101,10 @@ global with sharing class CommunityHomeNotificationsController {
 		Set<Id> followsIds = new Set<Id>();
 	// get Group_Control 
 	// where user is owner or manager
+		if (!SObjectType.Community_Group_Manager__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Manager__c);
 		List<Community_Group_Manager__c> cGManagers = [SELECT Manager_Role__c, Group_Manager_User__c, Group_Control__c 
 														FROM Community_Group_Manager__c 
-														WHERE Group_Manager_User__c = :userId];
+														WHERE Group_Manager_User__c = :UserInfo.getUserId()];
 
 		if(cGManagers.isEmpty()) return NULL;
 
@@ -114,9 +114,10 @@ global with sharing class CommunityHomeNotificationsController {
 
 		
 		if(userType.equalsIgnoreCase('Standard')){
+			if (!SObjectType.EntitySubscription.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.EntitySubscription);
 			follows = [SELECT Id, ParentId, SubscriberId, NetworkId 
 						FROM EntitySubscription
-						WHERE SubscriberId = :userId
+						WHERE SubscriberId = :UserInfo.getUserId()
 						];
 		}
 		Schema.DescribeSObjectResult cg = Community_Group_Control__c.sObjectType.getDescribe();
@@ -126,7 +127,7 @@ global with sharing class CommunityHomeNotificationsController {
 				followsIds.add(follow.ParentId);
 			}
 		}		 
-
+		if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
 		List<Community_Group_Control__c> gControls = [SELECT Id, Chatter_Group_ID__c, Name, Group_Control_SF_ID__c 
 										   				FROM Community_Group_Control__c
 														WHERE id IN :managersIds
@@ -143,12 +144,12 @@ global with sharing class CommunityHomeNotificationsController {
 		List<FeedItem> feeds = [SELECT Id, ParentId, Type, CommentCount, LinkUrl, LastModifiedDate, CreatedById, Visibility 
 								FROM FeedItem
 							   WHERE ParentId IN :controlsIds 
-							   AND CreatedById != :userId
+							   AND CreatedById != :UserInfo.getUserId()
 							   AND Visibility = 'AllUsers'
 							   LIMIT 10000];
 							   */
 							   
-		List<FeedItem> feeds = CommunityHelperWithoutSharing.getFeeds(controlsIds, userId);
+		List<FeedItem> feeds = CommunityHelperWithoutSharing.getFeeds(controlsIds, UserInfo.getUserId());
 
 	   if(feeds.isEmpty()) {
 	    	System.debug('feednul');
@@ -161,6 +162,7 @@ global with sharing class CommunityHomeNotificationsController {
 		}
 
 	// get users Name and SmallPhoto
+		if (!SObjectType.User.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.User);
 		for(User us : [SELECT Id, SmallPhotoUrl, Name FROM User WHERE Id IN :userPostedIds]){
 			userPhotoAndName.put(us.id, new List<String>{us.SmallPhotoUrl, us.Name});	
 		}
