@@ -31,12 +31,9 @@
 <apex:composition template="{!$Site.Template}">
 <apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
 <apex:define name="body">
-<script>
-	/*ON PAGE*/
+<script type="text/javascript">
 	var MS_PROC_RA_STRING = '{!$RemoteAction.CommunityGroupManageController.membership}';
-	function isTagsEmpty() {
-        return ($('#tagViewPanel a').length==0);
-    }
+	function isTagsEmpty() { return ($('#tagViewPanel a').length==0); }
 </script>
 
 	<!--=== Breadcrumbs ===-->
@@ -490,10 +487,9 @@
 											'{!control.Id}',
 											inm,
 											function(result, event) {
-												var temp = result.split('-;-');
-												var div = document.createElement('div');
-												div.innerHTML = temp[0];
-												$('#cell'+temp[1]).html(div.firstChild.nodeValue);
+												_.templateSettings.variable = 'rc';
+												var template = _.template('<button class="btn-u <%- rc.styleClass %>" onclick="msproc(\'<%- rc.toogleMode %>\', \'<%- rc.userId %>\');return false;"><i class="fa <%- rc.icon %>"></i>&nbsp;<%- rc.label %></button>');
+												$('#cell' + result.userId).html(template(result));
 											}
 										);
 									}

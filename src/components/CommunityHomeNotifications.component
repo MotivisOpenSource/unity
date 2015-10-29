@@ -29,7 +29,7 @@
 
 <apex:component controller="CommunityHomeNotificationsController">
 	<div class="profile CommunityHomeNotifications">
-        <div class="headline"><h2><i class="fa fa-bell-o"></i> {!$Label.LBL_Notifications}</h2></div>
+		<div class="headline"><h2><i class="fa fa-bell-o"></i>&nbsp;{!$Label.LBL_Notifications}</h2></div>
 		<div id="notif-panel"></div>
 	</div>
 
@@ -38,27 +38,25 @@
 			<% _.each(rc, function(n){ %>
 				<li class="notification">
 					<div class="overflow-h">
-						<a href = "<%= n.ParentURL %>" class="notifyClass">
+						<a href = "<%- n.ParentURL %>" class="notifyClass">
 							<% if(n.Type == 'Message') {%>
-								<i class="<%= n.ClassStyle %>"></i>
+								<i class="<%- n.ClassStyle %>"></i>
 							<% } else { %>
-								<img class="rounded-x" src="<%= n.Image %>" alt=""/>
+								<img class="rounded-x" src="<%- n.Image %>" alt=""/>
 							<% } %>
-							
-			            	 <span><strong><%= n.Name%></strong> <%= n.Message%></span>
-			            </a>
-		                 <small><%= n.DateString%></small><br>
-	                </div>  
-	            </li>
-	        <% }); %>
+							 <span><strong><%- n.Name%></strong> <%- n.Message%></span>
+						</a>
+						 <small><%- n.DateString%></small><br>
+					</div>
+				</li>
+			<% }); %>
 		</ul>
 		<% if (sizeData > limitSize) {%>
-			<button type="button" class="btn-u btn-u-default btn-u-sm btn-block" onclick = "changeLimit(); return false;">Load More</button>
+			<button type="button" class="btn-u btn-u-default btn-u-sm btn-block" onclick = "changeLimit(); return false;">{!$Label.LBL_Load_More}</button>
 		<% } %>
 	</script>
 
 	<script type="text/javascript">
-		
 		$(document).ready(function() {
 			loadNotifications();
 		});
@@ -72,24 +70,18 @@
 				'{!$RemoteAction.CommunityHomeNotificationsController.notifications}',
 				function(result, event){
 					if(result.split('EMPTY').length > 1){
-						var div = document.createElement('div');
-						div.innerHTML = result;
 						$('#notif-panel').html(result.substring(5, result.length));
 					}else{
-						var div = document.createElement('div');
-						div.innerHTML = result;
 						_.templateSettings.variable = 'rc';
 						var template = _.template($('#nPanel').html());
-						notifications = JSON.parse(div.firstChild.nodeValue);
+						notifications = jsonObj(result);
 						var notificationsCopy = notifications.slice(0,limitSize);
-						//sizeData = notifications.length;
 						$('#notif-panel').prepend(template(notificationsCopy));
-
 						jQuery(document).ready(function ($) {
 							"use strict";
 							$('.contentHolder').perfectScrollbar();
 						});
-					}	
+					}
 				}
 			);
 		}
@@ -106,13 +98,7 @@
 				"use strict";
 				$('.contentHolder').perfectScrollbar();
 			});
-
 		}
-
-		
-
 	</script>
-
-
 
 </apex:component>

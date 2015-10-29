@@ -115,9 +115,7 @@
 				query,
 				function(result, event) {
 					if(result == null) return;
-					var div = document.createElement('div');
-					div.innerHTML = result;
-					var gdata = JSON.parse(div.firstChild.nodeValue);
+					var gdata = jsonObj(result);
 					groups = [];
 					groups_map = [];
 					_.each(gdata, function (group, ix, list) {
@@ -131,7 +129,6 @@
 
 		jQuery(document).ready(function() {
 			jQuery("[id $= 'availGroupsPanel']").hide();
-			console.log('1212121');
 			jQuery('#groupsInput').typeahead({
 				source:function (query, process) {
 					searchGroups(query, process);
@@ -188,7 +185,6 @@
 			var sobjId = window.location.href.split("id=")[1];
 			var linkName = jQuery("input[id *='linkName']").val();
 			var shareOnProfile = jQuery("input[id $='shareOnProfile']").is(':checked');
-			console.log(jQuery("input[id $='shareOnProfile']"));
 			Visualforce.remoting.Manager.invokeAction(
 				'{!$RemoteAction.CommunityShareController.shareForGroups}',
 				groupsIds,
@@ -198,9 +194,8 @@
 				shareOnProfile,
 				function(result, event) {
 					if(result.split('ERR').length > 1){
-						var div = document.createElement('div');
-						div.innerHTML = result;
-						jQuery('[id *= "messageArea"]').html('<div id="messageAreaIn" layout="block" class="alert alert-danger fade in"><strong>Error!</strong> ' + result.substring(3, result.length)+'</div>');
+						var template = _.template('<div id="messageAreaIn" layout="block" class="alert alert-danger fade in"><strong>Error!</strong> <%- msg %></div>');
+						jQuery('[id *= "messageArea"]').html(template({ msg: result.substring(3, result.length) }));
 						jQuery('[id *= "messageArea"]').show();
 					}else{
 						jQuery('#shareModalDialog').hide();
@@ -257,9 +252,7 @@
 					'{!$RemoteAction.CommunityShareController.getGroups}',
 					'',
 					function(result, event) {
-						var div = document.createElement('div');
-						div.innerHTML = result;
-						jQuery('#list').html(div.firstChild.nodeValue);
+						jQuery('#list').html(encode(result));
 					}
 				);
 			}
