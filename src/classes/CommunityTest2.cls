@@ -57,6 +57,7 @@ private class CommunityTest2 {
 		System.assertEquals(true, sMessage);
 
 		cfnc.chatterGroupId = cg.Id;
+		cfnc.getBannerTextLabel();
 		Boolean showGM = cfnc.getShowGroupManager();
 		System.assertEquals(true, showGM);
 		System.assert(cfnc.modalTitle != null);
