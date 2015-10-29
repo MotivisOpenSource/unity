@@ -30,7 +30,7 @@
 public with sharing class CommunityUtils {
     //Moderate Chatter
     public static Boolean isModerateChatter() {
-		Boolean Result = [SELECT PermissionsModerateChatter,Name,id FROM Profile WHERE Id =: UserInfo.getProfileId()].PermissionsModerateChatter;
+		Boolean Result = [SELECT PermissionsModerateChatter, Name, Id FROM Profile WHERE Id =: UserInfo.getProfileId()].PermissionsModerateChatter;
 		if (Result != true) {
 			for (PermissionSetAssignment psa : [SELECT PermissionSet.PermissionsModerateChatter FROM PermissionSetAssignment WHERE AssigneeId = :UserInfo.getUserId()]) {
 				if (psa.PermissionSet.PermissionsModerateChatter == true) {
@@ -43,7 +43,7 @@ public with sharing class CommunityUtils {
 	}
 	
  public static Boolean isModerateChatterAndModerateNetworkFeeds() {
-		Profile prof = [SELECT PermissionsModerateChatter,PermissionsModerateNetworkFeeds,Name,id FROM Profile WHERE Id =: UserInfo.getProfileId()];
+		Profile prof = [SELECT PermissionsModerateChatter, PermissionsModerateNetworkFeeds, Name, Id FROM Profile WHERE Id =: UserInfo.getProfileId()];
 		Boolean Result = false;
 		if (prof.PermissionsModerateChatter != true && prof.PermissionsModerateNetworkFeeds != true) {
 			for (PermissionSetAssignment psa : [SELECT PermissionSet.PermissionsModerateChatter, PermissionSet.PermissionsModerateNetworkFeeds FROM PermissionSetAssignment WHERE AssigneeId = :UserInfo.getUserId()]) {
@@ -145,7 +145,9 @@ public with sharing class CommunityUtils {
 	public static Integer getRequestJoinGroupCount(Id chatterGroupId) {
 		Integer result = 0;
 		if (chatterGroupId != NULL) {
-			List<CollaborationGroupMemberRequest> cgmrList = [SELECT Id FROM CollaborationGroupMemberRequest WHERE CollaborationGroupId =:chatterGroupId AND Status = 'Pending'];
+			if (!SObjectType.CollaborationGroupMemberRequest.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.CollaborationGroupMemberRequest);
+			String queryChatterGroupId = String.escapeSingleQuotes(chatterGroupId);
+			List<CollaborationGroupMemberRequest> cgmrList = [SELECT Id FROM CollaborationGroupMemberRequest WHERE CollaborationGroupId =:queryChatterGroupId AND Status = 'Pending'];
 			result = cgmrList.size();
 		}
 		return result;
@@ -157,11 +159,13 @@ public with sharing class CommunityUtils {
 
 	public static void subscriberUser(Id memberId, Boolean isSubscribe) {
 		if (!isSubscribe) {
+			if (!SObjectType.EntitySubscription.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.EntitySubscription);
+			String queryMemberId = String.escapeSingleQuotes(memberId);
 			List<EntitySubscription> followings = [
-				Select SubscriberId, ParentId, IsDeleted, Id, CreatedDate, CreatedById
-				From EntitySubscription
+				SELECT SubscriberId, ParentId, IsDeleted, Id, CreatedDate, CreatedById
+				FROM EntitySubscription
 				WHERE SubscriberId =:Userinfo.getUserId()
-				AND ParentId = :memberId
+				AND ParentId = :queryMemberId
 				LIMIT 1
 			];
 			if (!followings.isEmpty()) {
@@ -248,9 +252,7 @@ public with sharing class CommunityUtils {
 			if (noImgUrl == NULL) {
 				String ns = getPackagePrefix();
 				List<StaticResource> srList = [SELECT SystemModstamp FROM StaticResource WHERE Name = 'assets' AND NamespacePrefix = :ns.replace('__','')];
-				noImgUrl = (srList.size() == 0)
-							? ''
-							: ('/resource/' + srList[0].SystemModstamp.getTime() +'/' + ns + 'assets/img/demo.jpg');
+				noImgUrl = (srList.size() == 0) ? '' : ('/resource/' + srList[0].SystemModstamp.getTime() +'/' + ns + 'assets/img/demo.jpg');
 			}
 			inUrl = noImgUrl;
 		}
@@ -261,6 +263,7 @@ public with sharing class CommunityUtils {
 	}
 
 	public static Boolean checkNewsOverlapInterval(String uCondition, Datetime uStart, Datetime uEnd) {
+		if (!SObjectType.Community_News__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_News__c);
 		String uQuery = 'SELECT Id FROM Community_News__c WHERE ' + uCondition;
 		if (uStart != NULL || uEnd != NULL) {
 			uQuery += ' AND ((Entry_Date__c = NULL AND Expiration_Date__c = NULL) OR (';
@@ -283,6 +286,7 @@ public with sharing class CommunityUtils {
 	public static void checkPrimaryProfile(Map<Id,String> inMap) {
 		Map<String,Community_Profile__c> modifiedProfilesMap = new Map<String,Community_Profile__c>();
 		Map<String,Community_Profile__c> existingProfilesMap = new Map<String,Community_Profile__c>();
+		if (!SObjectType.Community_Profile__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Profile__c);
 		for (Community_Profile__c cpItem : [SELECT Id, Primary__c, RecordType.Name, Contact__c FROM Community_Profile__c WHERE Contact__c IN :inMap.keySet()]) {
 			String newRole = inMap.get(cpItem.Contact__c);
 			String profileKey = cpItem.Contact__c + cpItem.RecordType.Name;
@@ -298,6 +302,7 @@ public with sharing class CommunityUtils {
 		}
 
 		Map<String,Schema.RecordTypeInfo> profileNameToRecordTypeMap = Schema.SObjectType.Community_Profile__c.getRecordTypeInfosByName();
+		if (!SObjectType.Contact.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Contact);
 		List<Contact> cList = [SELECT Id, Primary_Community_Profile__c, Primary_Role__c FROM Contact WHERE Id IN :inMap.keySet()];
 		for (Contact cItem : cList) {
 			String newRole2 = inMap.get(cItem.Id);
@@ -461,8 +466,16 @@ public with sharing class CommunityUtils {
 		Database.rollback(sp);
 		
 		return result;
-	} 
+	}
 
+	static public Boolean isValidId(String paramId) {
+		String checkId = String.escapeSingleQuotes(paramId);
+		return String.isNotBlank(checkId) && (checkId.length() == 15 || checkId.length() == 18) && Pattern.matches('^[a-zA-Z0-9]*$', checkId);
+	}
+
+	static public Community_Resource__c getHtmlField(String value) {
+		return new Community_Resource__c(Description__c = String.isNotBlank(value) ? value.unescapeHtml4() : '');
+	}
 
 	//wrapper classes
 
