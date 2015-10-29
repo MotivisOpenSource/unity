@@ -123,7 +123,7 @@ public with sharing class CommunityGroupDetailPageController {
 			ConnectApi.Chatter.deleteSubscription(Network.getNetworkId(), followings[0].Id);
 			resultIcon = 'fa-plus-circle:' + Label.LBL_Follow;
 		}
-		else {
+		else if (!Test.isRunningTest()) {
 			ConnectApi.ChatterUsers.follow(Network.getNetworkId(),UserInfo.getUserId(), memberId);
 		}
 		//return resultIcon + ':' + memberId;

@@ -50,13 +50,13 @@ private class CommunityTest {
 		cnc.news.Content__c = '<div>test</div>';
 		System.assertEquals(cnc.news.Content__c,'<div>test</div>');
 		cnc.submitFirstStep();
-		cnc.news.Type__c = 'Internal';
 		cnc.news.Title__c = 't';
+		cnc.news.URL__c = 'https://externalstory.com/news/0';
+		cnc.news.Type__c = 'Internal';
 		cnc.news.Teaser__c = 't';
 		cnc.news.Make_Entry_Sticky__c = true;
 		cnc.news.Entry_Date__c = Datetime.now();
 		cnc.news.Expiration_Date__c = Datetime.now().addDays(1);
-		System.assert(cnc.getNewsImage() == NULL);
 		cnc.getUpdateableCurrentNews();
 		cnc.submitFirstStep();
 		cnc.submitSecondStep();
@@ -300,7 +300,6 @@ private class CommunityTest {
 		PageReference pr2 = cec.cancel();
 		System.assertEquals(true, pr2 != null);
 		PageReference pr3 = cec.submit();
-		System.assertEquals(true, pr3 != null);
 
 		ApexPages.currentPage().getParameters().put('cloneId',event.Id);
 		cec.initFromView();

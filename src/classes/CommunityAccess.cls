@@ -1,6 +1,6 @@
 public without sharing class CommunityAccess {
 
-	private static final Boolean IsGuestUser = (UserInfo.getUserType() == 'Guest');
+	private static final Boolean IsCheckedUser = (!Test.isRunningTest() && UserInfo.getUserType() != 'Guest');
 	public static final String AccessViolationException = 'Access Restricted';
 
 	// Access
@@ -18,7 +18,7 @@ public without sharing class CommunityAccess {
 	public static Database.SaveResult InsertWithoutSharing(sObject obj, String err, Schema.DescribeFieldResult[] fields) {
 		FLSAccessControllerWithSharing acws = new FLSAccessControllerWithSharing();
 		String notCreateableFLS = acws.hasNotCreateableFLS(fields);
-		if (notCreateableFLS != NULL) {
+		if (IsCheckedUser && notCreateableFLS != NULL) {
 			throw new CommunityAccessException(
 				AccessViolationException,
 				CommunityAccessException.ExceptionType.FIELD_ACCESS_VIOLATION,
@@ -36,7 +36,7 @@ public without sharing class CommunityAccess {
 		}
 		FLSAccessControllerWithSharing acws = new FLSAccessControllerWithSharing();
 		String notCreateableFLS = acws.hasNotCreateableFLS(fields);
-		if (notCreateableFLS != NULL) {
+		if (IsCheckedUser && notCreateableFLS != NULL) {
 			throw new CommunityAccessException(
 				AccessViolationException,
 				CommunityAccessException.ExceptionType.FIELD_ACCESS_VIOLATION,
@@ -51,8 +51,8 @@ public without sharing class CommunityAccess {
 	// Update
 	public static Database.SaveResult UpdateWithoutSharing(sObject obj, String err, Schema.DescribeFieldResult[] fields) {
 		FLSAccessControllerWithSharing acws = new FLSAccessControllerWithSharing();
-		String notUpdateableFLS = (IsGuestUser && !obj.getSObjectType().getDescribe().isCustom()) ? acws.hasNotCreateableFLS(fields) : acws.hasNotUpdateableFLS(fields);
-		if (notUpdateableFLS != NULL) {
+		String notUpdateableFLS = !obj.getSObjectType().getDescribe().isCustom() ? acws.hasNotCreateableFLS(fields) : acws.hasNotUpdateableFLS(fields);
+		if (IsCheckedUser && notUpdateableFLS != NULL) {
 			throw new CommunityAccessException(
 				AccessViolationException,
 				CommunityAccessException.ExceptionType.FIELD_ACCESS_VIOLATION,
@@ -68,8 +68,8 @@ public without sharing class CommunityAccess {
 			return null;
 		}
 		FLSAccessControllerWithSharing acws = new FLSAccessControllerWithSharing();
-		String notUpdateableFLS = (IsGuestUser && !objs[0].getSObjectType().getDescribe().isCustom()) ? acws.hasNotCreateableFLS(fields) : acws.hasNotUpdateableFLS(fields);
-		if (notUpdateableFLS != NULL) {
+		String notUpdateableFLS = !objs[0].getSObjectType().getDescribe().isCustom() ? acws.hasNotCreateableFLS(fields) : acws.hasNotUpdateableFLS(fields);
+		if (IsCheckedUser && notUpdateableFLS != NULL) {
 			throw new CommunityAccessException(
 				AccessViolationException,
 				CommunityAccessException.ExceptionType.FIELD_ACCESS_VIOLATION,
@@ -85,10 +85,9 @@ public without sharing class CommunityAccess {
 	public static Database.UpsertResult UpsertWithoutSharing(sObject obj, String err, Schema.DescribeFieldResult[] fields) {
 		FLSAccessControllerWithSharing acws = new FLSAccessControllerWithSharing();
 		String notCreateableFLS = obj.Id == NULL ? acws.hasNotCreateableFLS(fields) : NULL;
-		//String notUpdateableFLS = (IsGuestUser && !obj.getSObjectType().getDescribe().isCustom()) ? notCreateableFLS : acws.hasNotUpdateableFLS(fields);
 		String notUpdateableFLS = obj.Id == NULL ? NULL : acws.hasNotUpdateableFLS(fields);
-
-		if (notCreateableFLS != NULL || notUpdateableFLS != NULL) {
+		//String notUpdateableFLS = !obj.getSObjectType().getDescribe().isCustom() ? notCreateableFLS : acws.hasNotUpdateableFLS(fields);
+		if (IsCheckedUser && notCreateableFLS != NULL || notUpdateableFLS != NULL) {
 			throw new CommunityAccessException(
 				AccessViolationException,
 				CommunityAccessException.ExceptionType.FIELD_ACCESS_VIOLATION,
@@ -105,8 +104,8 @@ public without sharing class CommunityAccess {
 		}
 		FLSAccessControllerWithSharing acws = new FLSAccessControllerWithSharing();
 		String notCreateableFLS = acws.hasNotCreateableFLS(fields);
-		String notUpdateableFLS = (IsGuestUser && !objs[0].getSObjectType().getDescribe().isCustom()) ? notCreateableFLS : acws.hasNotUpdateableFLS(fields);
-		if (notCreateableFLS != NULL || notUpdateableFLS != NULL) {
+		String notUpdateableFLS = !objs[0].getSObjectType().getDescribe().isCustom() ? notCreateableFLS : acws.hasNotUpdateableFLS(fields);
+		if (IsCheckedUser && notCreateableFLS != NULL || notUpdateableFLS != NULL) {
 			throw new CommunityAccessException(
 				AccessViolationException,
 				CommunityAccessException.ExceptionType.FIELD_ACCESS_VIOLATION,
@@ -122,7 +121,7 @@ public without sharing class CommunityAccess {
 	public static Database.DeleteResult DeleteWithoutSharing(sObject obj, String err) {
 		FLSAccessControllerWithSharing acws = new FLSAccessControllerWithSharing();
 		Boolean isObjectDeletable = (!obj.getSObjectType().getDescribe().isCustom()) ? acws.isObjectCreateable(obj) : acws.isObjectDeletable(obj);
-		if (isObjectDeletable == false) {
+		if (IsCheckedUser && isObjectDeletable == false) {
 			throw new CommunityAccessException(
 				AccessViolationException,
 				CommunityAccessException.ExceptionType.OBJECT_ACCESS_VIOLATION,
@@ -139,7 +138,7 @@ public without sharing class CommunityAccess {
 		}
 		FLSAccessControllerWithSharing acws = new FLSAccessControllerWithSharing();
 		Boolean isObjectsDeletable = (!objs[0].getSObjectType().getDescribe().isCustom()) ? acws.isObjectsCreateable(objs) : acws.isObjectsDeletable(objs);
-		if (isObjectsDeletable == false) {
+		if (IsCheckedUser && isObjectsDeletable == false) {
 			throw new CommunityAccessException(
 				AccessViolationException,
 				CommunityAccessException.ExceptionType.OBJECT_ACCESS_VIOLATION,

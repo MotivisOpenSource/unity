@@ -186,7 +186,7 @@ public with sharing class CommunityNewsController {
 			if (news.Make_Entry_Sticky__c == true && cs != NULL && cs.News_Max_Sticky__c != NULL) {
 				Datetime startDate = news.Entry_Date__c;
 				Datetime endDate = news.Expiration_Date__c;
-				Id queryNewsId = String.escapeSingleQuotes(news.Id);
+				Id queryNewsId = news.Id != NULL ? String.escapeSingleQuotes(news.Id) : NULL;
 				if (!SObjectType.Community_News__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_News__c);
 				String nmsQuery = 'SELECT Id FROM Community_News__c WHERE Entry_Date__c <= :endDate AND Expiration_Date__c >= :startDate';
 				nmsQuery += (queryNewsId == NULL) ? ' AND Make_Entry_Sticky__c = true' : ' AND (Make_Entry_Sticky__c = true OR (Make_Entry_Sticky__c != true AND Id = :queryNewsId))';

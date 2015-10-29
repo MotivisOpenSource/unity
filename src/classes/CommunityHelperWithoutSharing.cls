@@ -306,10 +306,12 @@ public without sharing class CommunityHelperWithoutSharing {
 			List<CollaborationGroupMemberRequest> cgmrList = [SELECT Id FROM CollaborationGroupMemberRequest WHERE CollaborationGroupId =:cgc.Chatter_Group_ID__c AND RequesterId =:queryInUserId AND Status = 'Pending'];
 			if (inmm == 6) {
 				//delete cgmrList;
-				CommunityAccess.DeleteWithoutSharing(
-					cgmrList,
-					'CommunityHelperWithoutSharing.cls [membershipWOSH]'
-				);
+				if (!cgmrList.isEmpty()) {
+					CommunityAccess.DeleteWithoutSharing(
+						cgmrList,
+						'CommunityHelperWithoutSharing.cls [membershipWOSH]'
+					);
+				}
 				resultType = ConnectApi.GroupMembershipType.NotAMember;
 			}
 			else {
@@ -334,27 +336,31 @@ public without sharing class CommunityHelperWithoutSharing {
 			if (!SObjectType.CollaborationGroupMemberRequest.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.CollaborationGroupMemberRequest);
 			List<CollaborationGroupMemberRequest> cgmrList = [SELECT Id, Status FROM CollaborationGroupMemberRequest WHERE CollaborationGroupId =:cgc.Chatter_Group_ID__c AND RequesterId =:queryInUserId AND Status = 'Pending'];
 			if (inmm == 8) {
-				cgmrList[0].Status = 'Declined';
-				update cgmrList;
-				CommunityAccess.UpdateWithoutSharing(
-					cgmrList,
-					'CommunityHelperWithoutSharing.cls [membershipWOSH]',
-					new List<Schema.DescribeFieldResult> {
-						CollaborationGroupMemberRequest.Status.getDescribe()
-					}
-				);
+				if (!cgmrList.isEmpty()) {
+					cgmrList[0].Status = 'Declined';
+					update cgmrList;
+					CommunityAccess.UpdateWithoutSharing(
+						cgmrList,
+						'CommunityHelperWithoutSharing.cls [membershipWOSH]',
+						new List<Schema.DescribeFieldResult> {
+							CollaborationGroupMemberRequest.Status.getDescribe()
+						}
+					);
+				}
 				resultType = ConnectApi.GroupMembershipType.NotAMember;
 			}
 			else {
-				cgmrList[0].Status = 'Accepted';
-				//update cgmrList;
-				CommunityAccess.UpdateWithoutSharing(
-					cgmrList,
-					'CommunityHelperWithoutSharing.cls [membershipWOSH]',
-					new List<Schema.DescribeFieldResult> {
-						CollaborationGroupMemberRequest.Status.getDescribe()
-					}
-				);
+				if (!cgmrList.isEmpty()) {
+					cgmrList[0].Status = 'Accepted';
+					//update cgmrList;
+					CommunityAccess.UpdateWithoutSharing(
+						cgmrList,
+						'CommunityHelperWithoutSharing.cls [membershipWOSH]',
+						new List<Schema.DescribeFieldResult> {
+							CollaborationGroupMemberRequest.Status.getDescribe()
+						}
+					);
+				}
 				resultType = ConnectApi.GroupMembershipType.StandardMember;
 			}
 		}

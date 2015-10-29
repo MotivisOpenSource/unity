@@ -474,7 +474,7 @@ public with sharing class CommunityUtils {
 	}
 
 	static public Community_Resource__c getHtmlField(String value) {
-		return new Community_Resource__c(Description__c = value.unescapeHtml4());
+		return new Community_Resource__c(Description__c = String.isNotBlank(value) ? value.unescapeHtml4() : '');
 	}
 
 	//wrapper classes
