@@ -72,7 +72,12 @@
 						<div class="CommunityTagSelector">
 							<div class="div-like-input clearfix">
 								<span id="ptcon" class="tags-container clearfix">
-									<apex:outputText value="{!primaryTagHtml}" escape="false"/>
+									<apex:outputPanel layout="none" rendered="{!isShowPrimaryTag}">
+										<span id="{!resource.Primary_Tag__c}" class="item guestItem">
+											<span>{!resource.Primary_Tag__r.Community_Theme__r.Name} &gt; {!resource.Primary_Tag__r.Name}</span>
+											<a href="javascript:;" onclick="removePrimaryTag('{!resource.Primary_Tag__c}')" class="remove"><img src="/s.gif"/></a>
+										</span>
+									</apex:outputPanel>
 									<input id="ptin" class="input-inviz" type="text" data-provide="typeahead" autocomplete="off" size="2" style="display:{!IF(ISBLANK(resource.Primary_Tag__c),'block','none')};"></input>
 								</span>
 								<input id="ptag" name="ptag" style="display:none" visibility="hidden" required="required"/>
