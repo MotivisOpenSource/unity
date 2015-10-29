@@ -71,6 +71,7 @@ public with sharing class CommunityMenuController {
 
 	public String getAlert() {
 		DateTime Now = DateTime.now();
+		if (!SObjectType.Community_News__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_News__c);
 		List<Community_News__c> newsList = [
 			SELECT Id, Name, Teaser__c
 			FROM Community_News__c
@@ -82,6 +83,7 @@ public with sharing class CommunityMenuController {
 	}
 
 	public String getHelpLink() {
+		if (!SObjectType.Community_Resource__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Resource__c);
 		List<Community_Resource__c> helpList = [SELECT Id, Link__c FROM Community_Resource__c WHERE Status__c = 'Active' AND Help_Link__c = true AND Link__c != NULL];
 		return (helpList.size() > 0 && String.isNotBlank(helpList[0].Link__c)) ? helpList[0].Link__c : NULL;
 	}
@@ -91,6 +93,7 @@ public with sharing class CommunityMenuController {
 		get {
 			List<LinkItem> temp = new List<LinkItem>();
 
+			if (!SObjectType.Community_Resource__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Resource__c);
 			List<Community_Resource__c>  tmp = [
 				SELECT Name, Link__c, Sort__c
 				FROM Community_Resource__c 

@@ -87,9 +87,7 @@
 				query,
 				'Interest',
 				function(result, event) {
-					var div = document.createElement('div');
-					div.innerHTML = result;
-					var mdata = JSON.parse(div.firstChild.nodeValue);
+					var mdata = jsonObj(result);
 					tags = [];
 					tags_map = [];
 					_.each(mdata, function (tag, ix, list) {
@@ -107,9 +105,7 @@
 				'{!objectType}',
 				'{!filterName}',
 				function(result, event) {
-					var div = document.createElement('div');
-					div.innerHTML = result;
-					var mdata = JSON.parse(div.firstChild.nodeValue);
+					var mdata = jsonObj(result);
 					_.each(mdata, function (tag, ix, list) {
 						var span = '<span id="'+tag.id+'" class="item guestItem"><span>'+tag.fullname+'</span><a href="javascript:void(0);" onclick="removeTag(\''+tag.id+'\')" class="remove"><img src="/s.gif"></a></span>';
 						jQuery('#tagsInput').before(span);
@@ -183,9 +179,7 @@
 					query,
 					'Resource',
 					function(result, event) {
-						var div = document.createElement('div');
-						div.innerHTML = result;
-						var mdata = JSON.parse(div.firstChild.nodeValue);
+						var mdata = jsonObj(result);
 						tags = [];
 						tags_map = [];
 						_.each(mdata, function (tag, ix, list) {

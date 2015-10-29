@@ -217,7 +217,7 @@
 			//alert();
 			var $img = $imagesCache[$F(this).data('imageNumber')];
 			var $imgnameField = $F('label[id$=cnif1e]');
-			$imgnameField.html($img.name);
+			$imgnameField.text($img.name);
 			$F('.imageselector').removeClass('selected');
 			$F(this).addClass('selected');
 			$selectedImagePath = $img.id;
