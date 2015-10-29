@@ -51,7 +51,9 @@ global with sharing class CommunityFieldLayout {
 		if (inid != NULL) {
 			List<String> cfAsList = new List<String>();
 			cfAsList.addAll(collectedFields);
-			sobj = Database.query('SELECT ' + String.join(cfAsList, ', ') + ' FROM ' + indso.getName() + ' WHERE Id =\'' + inid + '\'');
+			String queryInId = String.escapeSingleQuotes(inid);
+			String queryObjName = String.escapeSingleQuotes(indso.getName());
+			sobj = Database.query('SELECT ' + String.join(cfAsList, ', ') + ' FROM ' + queryObjName + ' WHERE Id =\'' + queryInId + '\'');
 		}
 	}
 
