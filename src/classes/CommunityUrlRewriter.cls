@@ -39,9 +39,12 @@ global without sharing class CommunityUrlRewriter implements Site.UrlRewriter {
 	private final String CHATTER_COMMENT_NOTIFICATION = 'chatterCommentNotification';
 	private final String CHATTER_POST_NOTIFICATION = 'chatterPostNotification';
 	private final String CHATTER_PRIVATE_MESSAGE_NOTIFICATION = 'chatterPrivateMessageNotification';
+	private final String CHATTER_LIKE_NOTIFICATION = 'chatterLikeNotification';
+	private final String COMMENT_ACTION = 'OpenCommentForEdit';
 
 	global PageReference mapRequestUrl(PageReference myFriendlyUrl) {
 		String url = myFriendlyUrl.getUrl();
+		String messageType = myFriendlyUrl.getParameters().get('emkind');
 		PageReference redirect;
 
 		if (myFriendlyUrl.getParameters().containsKey('nr')) {
@@ -73,18 +76,25 @@ global without sharing class CommunityUrlRewriter implements Site.UrlRewriter {
 				}
 			}
 		}
-		else if (myFriendlyUrl.getParameters().get('emkind') == CHATTER_PRIVATE_MESSAGE_NOTIFICATION) {
+		else if (messageType == CHATTER_PRIVATE_MESSAGE_NOTIFICATION && !url.contains(STANDARD_USER_DETAIL_PAGE)) {
 			redirect = Page.CommunityFeed_MyMessages;
 		}
-		else if (myFriendlyUrl.getParameters().get('emkind') == CHATTER_POST_NOTIFICATION) {
+		else if (messageType == CHATTER_POST_NOTIFICATION && url.contains(COMMENT_ACTION)) {
 			redirect = Page.CommunityFeed_MyFeed;
 		}
-		else if (myFriendlyUrl.getParameters().get('emkind') == CHATTER_COMMENT_NOTIFICATION) {
+		else if (messageType == CHATTER_COMMENT_NOTIFICATION || messageType == CHATTER_LIKE_NOTIFICATION) {
 			String feedItemId = myFriendlyUrl.getParameters().get('fId');
 			if (!String.isBlank(feedItemId)) {
 				String parentId = [SELECT Id, ParentId FROM FeedItem WHERE Id = :feedItemId LIMIT 1].ParentId;
-				redirect = Page.CommunityProfilePage;
-				redirect.getParameters().put('id', parentId);
+				String currentId = myFriendlyUrl.getParameters().get('s1uid');
+				if (parentId.substring(0, currentId.length()) == currentId) {
+					redirect = Page.CommunityFeed_MyFeed;
+				}
+				else {
+					redirect = Page.CommunityProfilePage;
+					redirect.getParameters().put('id', parentId);
+					redirect.getParameters().put('f', '2');
+				}
 			}
 		}
 
