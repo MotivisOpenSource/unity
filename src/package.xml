@@ -37,6 +37,7 @@
         <members>CommunityTopCategoriesController</members>
         <members>CommunityTopicController</members>
         <members>CommunityUrlRewriter</members>
+		<members>CommunityUrlRewriterTest</members>
         <members>CommunityUtils</members>
         <members>UnityAdminController</members>
         <name>ApexClass</name>
