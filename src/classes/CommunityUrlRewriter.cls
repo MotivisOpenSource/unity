@@ -79,7 +79,7 @@ global without sharing class CommunityUrlRewriter implements Site.UrlRewriter {
 		else if (messageType == CHATTER_PRIVATE_MESSAGE_NOTIFICATION && !url.contains(STANDARD_USER_DETAIL_PAGE)) {
 			redirect = Page.CommunityFeed_MyMessages;
 		}
-		else if (messageType == CHATTER_POST_NOTIFICATION && url.contains(COMMENT_ACTION)) {
+		else if (messageType == CHATTER_POST_NOTIFICATION && myFriendlyUrl.getParameters().get('fId') != null) {
 			redirect = Page.CommunityFeed_MyFeed;
 		}
 		else if (messageType == CHATTER_COMMENT_NOTIFICATION || messageType == CHATTER_LIKE_NOTIFICATION) {
