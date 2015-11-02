@@ -1,3 +1,32 @@
+/* 
+ * Unity - Communities
+ * 
+ * Community is critical to the student experience--but building community is 
+ * just plain hard. Built on Communities and designed specifically for higher ed, 
+ * Unity is a powerful networking tool to help you generate engagement and 
+ * connect your campus.
+ * 
+ * Copyright (C) 2015 Motivis Learning Systems Inc.
+ * 
+ * This program is free software: you can redistribute it and/or modify 
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * To contact Motivis Learning Systems Inc.
+ * 25 Pelham Road
+ * Salem, NH 03790
+ * unity@motivislearning.com
+ */
+
 trigger CommunityGroupControl on Community_Group_Control__c (before insert, after insert, after update) {
 
 	if (Trigger.isBefore && Trigger.isInsert) {
@@ -15,6 +44,10 @@ trigger CommunityGroupControl on Community_Group_Control__c (before insert, afte
 		}
 		for (Community_Group_Control__c cgcItem : Trigger.new) {
 			// Validation block
+			if (String.isNotBlank(cgcItem.Chatter_Group_ID__c) && !CommunityUtils.isValidId(cgcItem.Chatter_Group_ID__c)) {
+				cgcItem.addError('Value of Chatter Group ID field is not a valid Id.');
+				validationPassed = false;
+			}
 			if (checkUniqueNamesMap.containsKey(cgcItem.Name)) {
 				cgcItem.addError(Label.ERR_Dup_Group_Name);
 				validationPassed = false;
@@ -24,9 +57,9 @@ trigger CommunityGroupControl on Community_Group_Control__c (before insert, afte
 					cgcItem.addError(Label.ERR_Name_is_too_long);
 					validationPassed = false;
 				}
-			    else {
-				    checkUniqueNamesMap.put(cgcItem.Name, cgcItem);
-			    }
+				else {
+					checkUniqueNamesMap.put(cgcItem.Name, cgcItem);
+				}
 			}
 			// Operation block
 			if (validationPassed && cgcItem.Chatter_Group_ID__c == NULL) {
@@ -104,6 +137,10 @@ trigger CommunityGroupControl on Community_Group_Control__c (before insert, afte
 
 		for (Community_Group_Control__c cgcItem2 : Trigger.new) {
 			if (cgcItem2.Name != Trigger.oldMap.get(cgcItem2.Id).Name) {
+				if (String.isNotBlank(cgcItem2.Chatter_Group_ID__c) && !CommunityUtils.isValidId(cgcItem2.Chatter_Group_ID__c)) {
+					cgcItem2.addError('Value of Chatter Group ID field is not a valid Id.');
+					validationPassed2 = false;
+				}
 				if (checkUniqueNamesMap2.containsKey(cgcItem2.Name)) {
 					cgcItem2.addError(Label.ERR_Dup_Group_Name);
 					validationPassed2 = false;
@@ -131,8 +168,8 @@ trigger CommunityGroupControl on Community_Group_Control__c (before insert, afte
 					chatterGroupsWithNewOwners.put(tId, cgcItem2.OwnerId);
 				}
 			}
-
 		}
+
 		if (validationPassed2 && checkUniqueNamesMap2.size() > 0) {
 			for (Community_Group_Control__c cgcItem3 : [SELECT Name FROM Community_Group_Control__c WHERE Name IN :checkUniqueNamesMap2.keySet() AND Id NOT IN :excludeCurrentGroupControls]) {
 				checkUniqueNamesMap2.get(cgcItem3.Name).addError(Label.ERR_Dup_Group_Name);
@@ -244,17 +281,14 @@ trigger CommunityGroupControl on Community_Group_Control__c (before insert, afte
 				update updateOwnerList;
 			}
 		}
-		
-		
-		
-		
+
 		// sync
 		List<CollaborationGroup> cgListForUpdate = new List<CollaborationGroup>();
 		List<Id> chatterGroupIdList = new List<Id>();
 		for (Community_Group_Control__c cgcItem : Trigger.new) {
 			chatterGroupIdList.add(cgcItem.Chatter_Group_Id__c);
 		}
-		List<CollaborationGroup> cgList = [Select Id, Name, Description,InformationBody From CollaborationGroup Where Id in :chatterGroupIdList];
+		List<CollaborationGroup> cgList = [SELECT Id, Name, Description,InformationBody FROM CollaborationGroup WHERE Id IN :chatterGroupIdList];
 		if(cgList.Size()>0){
 			for (Community_Group_Control__c cgcItem : Trigger.new){
 				for(CollaborationGroup cgItem : cgList){
@@ -278,22 +312,5 @@ trigger CommunityGroupControl on Community_Group_Control__c (before insert, afte
 				}
 			}
 		}
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
 	}
 }

@@ -1,3 +1,32 @@
+/* 
+ * Unity - Communities
+ * 
+ * Community is critical to the student experience--but building community is 
+ * just plain hard. Built on Communities and designed specifically for higher ed, 
+ * Unity is a powerful networking tool to help you generate engagement and 
+ * connect your campus.
+ * 
+ * Copyright (C) 2015 Motivis Learning Systems Inc.
+ * 
+ * This program is free software: you can redistribute it and/or modify 
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * To contact Motivis Learning Systems Inc.
+ * 25 Pelham Road
+ * Salem, NH 03790
+ * unity@motivislearning.com
+ */
+
 @isTest
 private class CommunityTest {
 /*Page Controllers Tests*/
@@ -17,17 +46,24 @@ private class CommunityTest {
 		cnc.imgBody = Blob.valueOf('blob');
 		cnc.imgFileName = 'ifn';
 		cnc.news.Type__c = 'External';
-		cnc.news.Teaser__c='';
-		cnc.news.Content__c='<div>test</div>';
+		cnc.news.Teaser__c = '';
+		cnc.news.Content__c = '<div>test</div>';
 		System.assertEquals(cnc.news.Content__c,'<div>test</div>');
 		cnc.submitFirstStep();
+		cnc.news.Title__c = 't';
+		cnc.news.URL__c = 'https://externalstory.com/news/0';
 		cnc.news.Type__c = 'Internal';
-		cnc.news.Title__c='t';
-		cnc.news.Teaser__c='t';
+		cnc.news.Teaser__c = 't';
 		cnc.news.Make_Entry_Sticky__c = true;
-		cnc.news.Entry_Date__c=Datetime.now();
-		cnc.news.Expiration_Date__c=Datetime.now().addDays(1);
+		cnc.news.Entry_Date__c = Datetime.now();
+		cnc.news.Expiration_Date__c = Datetime.now().addDays(1);
+		cnc.getUpdateableCurrentNews();
 		cnc.submitFirstStep();
+		cnc.submitSecondStep();
+		System.debug(cnc.urlForBackToNewsEdit);
+		System.debug(cnc.folderId);
+		
+		//cnc.edit();
 
 		CommunityNewsController cnc2 = new CommunityNewsController(new ApexPages.StandardController(cnc.news));
 		cnc2.initFromEdit();
@@ -35,6 +71,7 @@ private class CommunityTest {
 		ApexPages.currentPage().getParameters().put('cloneId',cnc.news.Id);
 		CommunityNewsController cnc2c = new CommunityNewsController(new ApexPages.StandardController(new Community_News__c()));
 		cnc2c.initFromEdit();
+		cnc.getPostedStr();
 
 		insert new Community_News__c(Title__c='t',Teaser__c='t',Entry_Date__c=Datetime.now(),Expiration_Date__c=Datetime.now().addDays(1));
 
@@ -43,7 +80,7 @@ private class CommunityTest {
 		cnc3.mode = 'view';
 		cnc3.init();
 		cnc3.cancel();
-		//cnc3.edit();
+		cnc3.edit();
 		Boolean b = cnc3.allowComments;
 		String tst = cnc3.urlForEditNews;
 		tst = cnc3.urlForNewNews;
@@ -77,7 +114,7 @@ private class CommunityTest {
 		crc.linkText = 'www.tut.by';
 		crc.resource.Primary_Tag__c = ct.Id;
 		crc.saveResource();
-		crc.getPrimaryTagHtml();
+		crc.getIsShowPrimaryTag();
 		crc.getResourceLink();
 		crc.linkText = NULL;
 		crc.imgBody = Blob.valueOf('blob');
@@ -146,7 +183,8 @@ private class CommunityTest {
 
 
 		cgcc.initFromCreate();
-		cgcc.getTermsAndConditions();
+		Community_Admins__c ca = cgcc.getTermsAndConditions();
+		System.assert(ca != NULL);
 		txt = cgcc.headerText;
 		cgcc.doSubmit();
 
@@ -177,7 +215,6 @@ private class CommunityTest {
 		cppc.cancelChangePassword();
 		cppc.submit();
 		CommunityProfilePageController.NotificationPage np = cppc.getEmailNotifications();
-		np.sections[0].items[0].getInputHtml();
 		CollaborationGroup cg = new CollaborationGroup(Name='t', CollaborationType = 'Public');
 		insert cg;
 		CollaborationGroupMember cgm = new CollaborationGroupMember(CollaborationGroupId=cg.id,MemberId = u.Id,NotificationFrequency='P');
@@ -189,6 +226,11 @@ private class CommunityTest {
 		cppc.getDigestSettings();
 		cppc.getDefaultDigest();
 		cppc.getIsSubscribe();
+		cppc.getIsCommunityUser();
+		cppc.getShowChangePassword();
+
+		System.assert(cppc.getfsMap() != null);
+
 		System.AssertEquals(cppc.getIsSubscribe(),false);
 		System.RunAs(u) {
 		    CommunityProfilePageController.toggleUserDigest(cg.id,'P');
@@ -239,7 +281,7 @@ private class CommunityTest {
 		System.assertEquals(true, googleCalendar.length() > 0);
 		ApexPages.currentPage().getParameters().put('tags',ct.Id);
 
-		cec.downloadICS();
+		cec.generateDownloadIcsLink();
 		cec.getStartDate();
 		cec.getEndDate();
 
@@ -258,7 +300,6 @@ private class CommunityTest {
 		PageReference pr2 = cec.cancel();
 		System.assertEquals(true, pr2 != null);
 		PageReference pr3 = cec.submit();
-		System.assertEquals(true, pr3 != null);
 
 		ApexPages.currentPage().getParameters().put('cloneId',event.Id);
 		cec.initFromView();
@@ -361,12 +402,14 @@ private class CommunityTest {
 		ApexPages.currentPage().getParameters().put('u',u.Id);
 		CommunityGroupDetailPageController.toggleSubscriber(u.Id);
 		CommunityGroupDetailPageController cgc = new CommunityGroupDetailPageController();
+		cgc.getGroupEditable();
 		cgc.getUrlForCreateEvent();
 		cgc.switchToMemberMode();
 		cgc.switchToRequestMode();
 		cgc.getHideFeedComponent();
 		cgc.getShowPendingMembers();
 		cgc.getActionButton();
+		cgc.getFieldset();
 		cgc.getEvents();
 		Boolean b = cgc.showCreateEvent;
 		cgc.groupMode = '1';
@@ -384,6 +427,9 @@ private class CommunityTest {
 		cgc.control = group1;
 		cgc.accepted = false;
 		cgc.requesterId = u.Id;
+		System.debug(cgc.groupRoleString);
+		System.assert(cgc.showFilesSection != null);
+
 	}
 
 	static testMethod void test_CommunityGroupManageController() {
@@ -572,9 +618,9 @@ private class CommunityTest {
 		CommunityGroupFilesController cgfc = new CommunityGroupFilesController();
 		cgfc.initFromPage();
 		cgfc.getCommunityId();
-		System.assert(cgfc.chatterGroup != NULL, true);
+		System.assert(cgfc.parentId != NULL, true);
 		insert new FeedItem(
-			ParentId = cgfc.chatterGroup.Id,
+			ParentId = cgfc.parentId,
 			ContentFileName = 'tst',
 			ContentData = EncodingUtil.base64Decode('/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////2wBDAf//////////////////////////////////////////////////////////////////////////////////////wAARCAAMABADASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAQAC/8QAGRAAAwADAAAAAAAAAAAAAAAAAAERElFx/8QAFAEBAAAAAAAAAAAAAAAAAAAAAP/EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDEQA/ADF6KOGp0IB//9k='),
 			Body = 'tst'
@@ -586,7 +632,7 @@ private class CommunityTest {
 		String vId = cgfc.getFileDetail().versionId;
 		String dId = cgfc.getFileDetail().documentId;
 		cgfc.mode = 'list';
-		cgfc.shareChoice = cgfc.chatterGroup.Id;
+		cgfc.shareChoice = cgfc.parentId;
 		cgfc.shareComment = 'cmnt';
 		cgfc.stack = vId;
 		cgfc.shareAction();
@@ -618,13 +664,6 @@ private class CommunityTest {
 
 	@IsTest(SeeAllData=true)
 	static void test_CommunityTopicController() {
-		String sLabels;
-		sLabels = Label.LBL_Shue_To_Delete_Topic;
-		sLabels = Label.LBL_People_Talking_About_This;
-		sLabels = Label.LBL_Topics_I_Use;
-		sLabels = Label.LBL_My_Favorites;
-		sLabels = Label.LBL_TalkingAbout;
-		sLabels = Label.LBL_All;	
 		Account acc = new Account(Name='testAccount');
 		insert acc;
 		Contact con = new Contact(LastName='TCLN', MailingPostalCode='99013', email='testc@testdomain.com', AccountId=acc.Id, Primary_Role__c='Student');
@@ -691,6 +730,8 @@ private class CommunityTest {
 			insert top1;
 
 			String result = CommunityTopicController.updateTopic('descr', top1.Id);
+			String canNotFoundTopicResult = CommunityTopicController.updateTopic('descr', '00x000000000000');
+			System.assert(canNotFoundTopicResult == Label.ERR_Can_not_found_Topic);
 			Boolean bool = CommunityTopicController.subscriberAction(u.Id, false);
 
 			String result1 = CommunityTopicController.addToFavorites(top1.Id);

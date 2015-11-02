@@ -1,3 +1,32 @@
+/* 
+ * Unity - Communities
+ * 
+ * Community is critical to the student experience--but building community is 
+ * just plain hard. Built on Communities and designed specifically for higher ed, 
+ * Unity is a powerful networking tool to help you generate engagement and 
+ * connect your campus.
+ * 
+ * Copyright (C) 2015 Motivis Learning Systems Inc.
+ * 
+ * This program is free software: you can redistribute it and/or modify 
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * To contact Motivis Learning Systems Inc.
+ * 25 Pelham Road
+ * Salem, NH 03790
+ * unity@motivislearning.com
+ */
+
 global with sharing class CommunityShareController {
 
 	public String shareLinkUrl { get;set; }
@@ -62,6 +91,7 @@ global with sharing class CommunityShareController {
 
 		try {
 			Set<String> gcSet2 = new Set<String>();
+			if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
 			for (Community_Group_Control__c cgc2 : [SELECT Chatter_Group_ID__c
 													FROM Community_Group_Control__c
 													WHERE Chatter_Group_ID__c IN :groupsIds
@@ -72,7 +102,7 @@ global with sharing class CommunityShareController {
 			String cprefix = '';
 			Network nRec;
 			if(networkId!=null) {
-				nRec = [SELECT UrlPathPrefix FROM Network WHERE Id = :networkId];
+				nRec = [SELECT UrlPathPrefix FROM Network WHERE Id = :Network.getNetworkId()];
 				cprefix = nRec.UrlPathPrefix != null ? '/' + nRec.UrlPathPrefix + '/' : '/';
 			}
 			
@@ -85,18 +115,29 @@ global with sharing class CommunityShareController {
 			
 			}
 			else if(!gcSet2.isEmpty()){
+				if (!SObjectType.CollaborationGroup.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.CollaborationGroup);
 				cgrec = [ SELECT Id, NetworkId
 						FROM CollaborationGroup
 						WHERE NetworkId = :Network.getNetworkId() AND Id IN :gcSet2
 						];
 			}
 			if(shareLinkProfile){
-				insert new FeedItem (
+				//insert
+				FeedItem feed = new FeedItem (
 									LinkUrl = cprefix + shareLinkUrl,
 									Title = shareLinkName,
 									ParentId = UserInfo.getUserId(),
 									NetworkScope = Network.getNetworkId(),
 									Body = shareComment	);
+				CommunityAccess.InsertWithoutSharing(
+					feed,
+					'CommunityShareController.cls [shareForGroups]',
+					new List<Schema.DescribeFieldResult> {
+						FeedItem.LinkUrl.getDescribe(),
+						FeedItem.Title.getDescribe(),
+						FeedItem.Body.getDescribe()
+					}
+				);
 				message	= 'SUCCESS';
 			}
 			if (!cgrec.isEmpty()) {
@@ -112,7 +153,16 @@ global with sharing class CommunityShareController {
 									Body = shareComment	)
 					);
 				}
-				insert shareFeeds;
+				//insert shareFeeds;
+				CommunityAccess.InsertWithoutSharing(
+					shareFeeds,
+					'CommunityShareController.cls [shareForGroups]',
+					new List<Schema.DescribeFieldResult> {
+						FeedItem.LinkUrl.getDescribe(),
+						FeedItem.Title.getDescribe(),
+						FeedItem.Body.getDescribe()
+					}
+				);
 				message	= 'SUCCESS';
 			}
 			else if(!shareLinkProfile){
@@ -130,6 +180,7 @@ global with sharing class CommunityShareController {
 		
 		Map<Id, String> cGroups = new Map<Id, String>();
 
+		if (!SObjectType.CollaborationGroup.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.CollaborationGroup);
 		List<CollaborationGroup> groups = [SELECT Id, Name, CollaborationType, NetworkId FROM CollaborationGroup WHERE NetworkId =:Network.getNetworkId()];
 		List<String> groupsNames = new List<String>();
 
@@ -152,6 +203,7 @@ global with sharing class CommunityShareController {
 		}
 
 		Set<Id> cGroupsIds = cGroups.keySet();
+		if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
 		List<Community_Group_Control__c> availibleGroupsControll = [SELECT Chatter_Group_ID__c, Id
 																	FROM Community_Group_Control__c
 																	WHERE Chatter_Group_ID__c IN :cGroupsIds
@@ -163,6 +215,7 @@ global with sharing class CommunityShareController {
 
 		Set<Id> availibleGCIds = new Set<Id>();
 		availibleGCIds.addAll(cgiCGC.keySet());
+		if (!SObjectType.Community_Group_Control_Tag__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control_Tag__c);
 		List<Community_Group_Control_Tag__c> groupControlTags = [SELECT Group_Control__c, Community_Tag__r.Theme_Name__c 
 																FROM Community_Group_Control_Tag__c 
 																WHERE Group_Control__c IN :availibleGCIds ORDER BY Community_Tag__r.Theme_Name__c];
@@ -236,10 +289,13 @@ global with sharing class CommunityShareController {
 		String SearchQuery = query == null ? '%%' : '%'+query+'%';
 		Set<Id> chatterGroups = new Set<Id>();
 		List<GroupFinderWrapper> groupsNames = new List<GroupFinderWrapper>();
+		if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
 		for (Community_Group_Control__c gcItem : [SELECT Chatter_Group_ID__c FROM Community_Group_Control__c WHERE Status__c = 'Approved' AND Name LIKE :SearchQuery LIMIT 100]) {
 			chatterGroups.add(gcItem.Chatter_Group_ID__c);
 		}
 		List<String> groupIdList = new List<String>();
+		if (!SObjectType.CollaborationGroup.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.CollaborationGroup);
+		if (!SObjectType.CollaborationGroupMember.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.CollaborationGroupMember);
 		for (CollaborationGroup cgItem : [
 											SELECT Id, Name FROM CollaborationGroup Where NetworkId = :Network.getNetworkId() AND ID in :chatterGroups AND
 												ID in (SELECT CollaborationGroupId FROM CollaborationGroupMember WHERE
@@ -257,9 +313,11 @@ global with sharing class CommunityShareController {
 	global static String getGroups(String query) {
 		String result = '';
 		Set<String> gcSet = new Set<String>();
+		if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
 		for (Community_Group_Control__c cgc : [SELECT Chatter_Group_ID__c FROM Community_Group_Control__c WHERE Chatter_Group_ID__c != NULL AND Status__c = 'Approved']) {
 			gcSet.add(cgc.Chatter_Group_ID__c);
 		}
+		if (!SObjectType.CollaborationGroup.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.CollaborationGroup);
 		for (CollaborationGroup cg : [SELECT Name FROM CollaborationGroup WHERE Id IN :gcSet AND NetworkId = :Network.getNetworkId()]) {
 			result += '<option value="' + cg.Name + '"></option>';
 		}
@@ -311,6 +369,7 @@ global with sharing class CommunityShareController {
 		get {
 			Set<String> filtredChatterGroups = new Set<String>();
 			Set<String> filtredTotalChatterGroups = new Set<String>();
+			if (!SObjectType.CollaborationGroupMember.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.CollaborationGroupMember);
 			for (CollaborationGroupMember cgmItem : [
 					SELECT CollaborationGroupId FROM CollaborationGroupMember
 					WHERE CollaborationGroup.NetworkId = :Network.getNetworkId() AND MemberId = :UserInfo.getUserId()
@@ -318,9 +377,11 @@ global with sharing class CommunityShareController {
 				filtredChatterGroups.add(cgmItem.CollaborationGroupId);
 			}
 			//gQuery += ' WHERE Chatter_Group_ID__c IN :filtredChatterGroups';
+			if (!SObjectType.CollaborationGroup.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.CollaborationGroup);
 			for (CollaborationGroup cgItem: [SELECT Id, Name, IsArchived FROM CollaborationGroup WHERE ID IN :filtredChatterGroups and IsArchived = false LIMIT 100]) {
 				filtredTotalChatterGroups.add(cgItem.Id);
 			}			
+			if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);			
 			return filtredTotalChatterGroups.size() > 0?[SELECT Id, Name, Chatter_Group_ID__c, Status__c FROM  Community_Group_Control__c WHERE Chatter_Group_ID__c IN :filtredTotalChatterGroups AND Status__c = 'Approved' ORDER BY Name ASC  LIMIT 100]:null;			
 		}
 		set;
