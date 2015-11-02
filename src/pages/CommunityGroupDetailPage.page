@@ -298,11 +298,11 @@
                         function(result, event) {}
                     );
                     if ($('#' + inid + '.btn-u-blue').length == 0) {
-                        $('#' + inid).addClass('btn-u-blue').html('<i class="fa fa-check"></i>&nbsp;{!$Label.BTN_Following}');
+                        $('#' + inid).addClass('btn-u-blue').html('<i class="fa fa-check"></i>&nbsp;{!JSINHTMLENCODE($Label.BTN_Following)}');
                         $('#' + inid + ' i').attr('class','fa fa-check');
                     }
                     else {
-                        $('#' + inid).removeClass('btn-u-blue').html('<i class="fa fa-plus-circle"></i>&nbsp;{!$Label.LBL_Follow}');
+                        $('#' + inid).removeClass('btn-u-blue').html('<i class="fa fa-plus-circle"></i>&nbsp;{!JSINHTMLENCODE($Label.LBL_Follow)}');
                     }
                 }
                 var searchAction = _.debounce(function(inthis) {

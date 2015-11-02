@@ -44,6 +44,10 @@ trigger CommunityGroupControl on Community_Group_Control__c (before insert, afte
 		}
 		for (Community_Group_Control__c cgcItem : Trigger.new) {
 			// Validation block
+			if (String.isNotBlank(cgcItem.Chatter_Group_ID__c) && !CommunityUtils.isValidId(cgcItem.Chatter_Group_ID__c)) {
+				cgcItem.addError('Value of Chatter Group ID field is not a valid Id.');
+				validationPassed = false;
+			}
 			if (checkUniqueNamesMap.containsKey(cgcItem.Name)) {
 				cgcItem.addError(Label.ERR_Dup_Group_Name);
 				validationPassed = false;
@@ -140,6 +144,10 @@ trigger CommunityGroupControl on Community_Group_Control__c (before insert, afte
 
 		for (Community_Group_Control__c cgcItem2 : Trigger.new) {
 			if (cgcItem2.Name != Trigger.oldMap.get(cgcItem2.Id).Name) {
+				if (String.isNotBlank(cgcItem2.Chatter_Group_ID__c) && !CommunityUtils.isValidId(cgcItem2.Chatter_Group_ID__c)) {
+					cgcItem2.addError('Value of Chatter Group ID field is not a valid Id.');
+					validationPassed2 = false;
+				}
 				if (checkUniqueNamesMap2.containsKey(cgcItem2.Name)) {
 					cgcItem2.addError(Label.ERR_Dup_Group_Name);
 					validationPassed2 = false;
@@ -167,8 +175,8 @@ trigger CommunityGroupControl on Community_Group_Control__c (before insert, afte
 					chatterGroupsWithNewOwners.put(tId, cgcItem2.OwnerId);
 				}
 			}
-
 		}
+
 		if (validationPassed2 && checkUniqueNamesMap2.size() > 0) {
 			for (Community_Group_Control__c cgcItem3 : [SELECT Name FROM Community_Group_Control__c WHERE Name IN :checkUniqueNamesMap2.keySet() AND Id NOT IN :excludeCurrentGroupControls]) {
 				checkUniqueNamesMap2.get(cgcItem3.Name).addError(Label.ERR_Dup_Group_Name);
@@ -287,7 +295,8 @@ trigger CommunityGroupControl on Community_Group_Control__c (before insert, afte
 		for (Community_Group_Control__c cgcItem : Trigger.new) {
 			chatterGroupIdList.add(cgcItem.Chatter_Group_Id__c);
 		}
-		List<CollaborationGroup> cgList = [Select Id, Name, Description,InformationBody From CollaborationGroup Where Id in :chatterGroupIdList];
+
+		List<CollaborationGroup> cgList = [SELECT Id, Name, Description,InformationBody FROM CollaborationGroup WHERE Id IN :chatterGroupIdList];
 		if (cgList.Size() > 0) {
 			for (Community_Group_Control__c cgcItem : Trigger.new) {
 				for (CollaborationGroup cgItem : cgList) {

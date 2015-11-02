@@ -57,7 +57,6 @@
     <link rel="stylesheet" href="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.css"/>
     <!-- <link rel="stylesheet" href="{!$Resource.assets}/css/plugins/cropper.css"/> -->
 
-
     <!-- CSS Page Style -->
     <link rel="stylesheet" href="{!$Resource.assets}/css/pages/blog_magazine.css"/>
     
@@ -65,23 +64,13 @@
     <link rel="stylesheet" href="{!$Resource.assets}/css/pages/profile.css"/>
     <link rel="stylesheet" href="{!$Resource.assets}/css/app.css"/>
 
-    <!-- CSS Theme -->
-    <!-- <link rel="stylesheet" href="{!$Resource.assets}/css/theme-colors/default.css"/> -->
-
     <!-- CSS Customization -->
     <link rel="stylesheet" href="{!$Resource.assets}/css/custom.css"/>
     <!-- Removed Inline Styles -->
     <link rel="stylesheet" href="{!$Resource.assets}/css/app/app.styles.css"/>
     <!-- Themes Styles -->
-    <!-- <apex:outputPanel rendered="{!IF($Setup.Community_Template_Settings__c.Color_Scheme__c!='Green',true,false)}"> -->
-    	<link rel="stylesheet" href="{!$Resource.assets}/css/theme-colors/{!$Setup.Community_Template_Settings__c.Color_Scheme__c}.theme.css"/>
-    <!-- </apex:outputPanel> -->
-    <apex:outputText value="{!$Setup.Community_Template_Settings__c.Color_Scheme__c}" style="display:none;" />
-    
-    <script>
-    	 //var df = '{!$Setup.Community_Template_Settings__c.Color_Scheme__c}';
-    	 /*if(df == '') jQuery('head').append('<link rel="stylesheet" href="{!$Resource.assets}/css/theme-colors/' + (df == '' ? 'Green' : df) + '.theme.css"/>');*/ 
-    </script>
-    
-    
+    <apex:outputPanel rendered="{!NOT(ISBLANK($Setup.Community_Template_Settings__c.Color_Scheme__c))}">
+        <link rel="stylesheet" href="{!$Resource.assets}/css/theme-colors/{!$Setup.Community_Template_Settings__c.Color_Scheme__c}.theme.css"/>
+    </apex:outputPanel>
+
 </apex:component>

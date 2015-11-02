@@ -35,8 +35,9 @@ public with sharing class CommunityFollowController {
 		set {
 			if (subscriptionParentId == NULL) {
 				subscriptionParentId = value;
+				String querySubscrParentId = String.escapeSingleQuotes(subscriptionParentId);
 				List<EntitySubscription> subscriptionForEventList = [SELECT Id FROM EntitySubscription 
-					WHERE ParentId = :this.subscriptionParentId 
+					WHERE ParentId = :querySubscrParentId
 					AND SubscriberId = :UserInfo.getUserId() 
 					LIMIT 1
 				];
@@ -47,7 +48,11 @@ public with sharing class CommunityFollowController {
 
 	public PageReference follow() {
 		if (subscription.Id != NULL) {
-			delete subscription;
+			//delete subscription;
+			CommunityAccess.DeleteWithoutSharing(
+				subscription,
+				'CommunityFollowController.cls [follow]'
+			);
 			subscription = new EntitySubscription();
 		}
 		else {
@@ -56,7 +61,15 @@ public with sharing class CommunityFollowController {
 			if (Network.getNetworkId() != NULL) {
 				subscription.put('NetworkId', Network.getNetworkId());
 			}
-			insert subscription;
+			//insert subscription;
+			CommunityAccess.InsertWithoutSharing(
+				subscription,
+				'CommunityFollowController.cls [follow]',
+				new List<Schema.DescribeFieldResult> {
+					EntitySubscription.ParentId.getDescribe(),
+					EntitySubscription.SubscriberId.getDescribe()
+				}
+			);
 		}
 		return NULL;
 	}
