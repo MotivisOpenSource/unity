@@ -1,3 +1,32 @@
+/* 
+ * Unity - Communities
+ * 
+ * Community is critical to the student experience--but building community is 
+ * just plain hard. Built on Communities and designed specifically for higher ed, 
+ * Unity is a powerful networking tool to help you generate engagement and 
+ * connect your campus.
+ * 
+ * Copyright (C) 2015 Motivis Learning Systems Inc.
+ * 
+ * This program is free software: you can redistribute it and/or modify 
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * To contact Motivis Learning Systems Inc.
+ * 25 Pelham Road
+ * Salem, NH 03790
+ * unity@motivislearning.com
+ */
+
 global with sharing class CommunityRegTermsController {
 
 	public Menu leftSideBar { get; set; }
@@ -47,6 +76,7 @@ global with sharing class CommunityRegTermsController {
 					
 				}*/
 				else if (stepName == 'tc') {
+					if (!SObjectType.Community_Admins__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Admins__c);
 					List<Community_Admins__c> admins = [SELECT Id, Terms_Body__c FROM Community_Admins__c WHERE RecordType.Name = 'Community Terms' AND Terms_Status__c = 'Published' ORDER BY Terms_Published_Date__c DESC LIMIT 1];
 					caText = admins.isEmpty() ? NULL : admins[0];
 				}
@@ -70,6 +100,8 @@ global with sharing class CommunityRegTermsController {
 		try {
 			Integer stepCounter = 1;
 			if (cs.Disable_Registration__c != true) {
+				if (!SObjectType.User.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.User);
+				if (!SObjectType.Contact.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Contact);
 				currentUser = [SELECT Id, Name, ContactId, FullPhotoUrl, Community_Contact_ID__c, Completed_Registration_Date__c, Terms_of_Use__c FROM User WHERE Id = :UserInfo.getUserId()];
 				currentContact = [
 							SELECT Id, Primary_Community_Profile__c, Reg_General_Info_Completed__c, Reg_Interests_Completed__c, Reg_Picture_Completed__c,
@@ -110,7 +142,14 @@ global with sharing class CommunityRegTermsController {
 		PageReference pageRef;
 		try {
 			if (stepName == 'info') {
-				update currentProfile;
+				//update currentProfile;
+				CommunityAccess.UpdateWithoutSharing(
+					currentProfile,
+					'CommunityRegTermsController.cls [completeCurrentStep]',
+					new List<Schema.DescribeFieldResult> {
+						Community_Profile__c.OwnerId.getDescribe()
+					}
+				);
 				currentContact.Reg_General_Info_Completed__c = Datetime.now();
 			}
 			else if (stepName == 'interest') {
@@ -133,8 +172,26 @@ global with sharing class CommunityRegTermsController {
 				currentUser.Completed_Registration_Date__c = Datetime.now();
 				pageRef = Page.CommunityHome;
 			}
-			update currentContact;
-			update currentUser;
+			//update currentContact;
+			CommunityAccess.UpdateWithoutSharing(
+				currentContact,
+				'CommunityRegTermsController.cls [completeCurrentStep]',
+				new List<Schema.DescribeFieldResult> {
+					Contact.Reg_General_Info_Completed__c.getDescribe(),
+					Contact.Reg_Interests_Completed__c.getDescribe(),
+					Contact.Reg_Picture_Completed__c.getDescribe(),
+					Contact.Reg_Completed__c.getDescribe()
+				}
+			);
+			//update currentUser;
+			CommunityAccess.UpdateWithoutSharing(
+				currentUser,
+				'CommunityRegTermsController.cls [completeCurrentStep]',
+				new List<Schema.DescribeFieldResult> {
+					User.Terms_of_Use__c.getDescribe(),
+					User.Completed_Registration_Date__c.getDescribe()
+				}
+			);
 			pageRef.setRedirect(true);
 		}
 		catch (Exception e) {

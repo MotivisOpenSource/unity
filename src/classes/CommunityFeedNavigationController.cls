@@ -1,3 +1,32 @@
+/* 
+ * Unity - Communities
+ * 
+ * Community is critical to the student experience--but building community is 
+ * just plain hard. Built on Communities and designed specifically for higher ed, 
+ * Unity is a powerful networking tool to help you generate engagement and 
+ * connect your campus.
+ * 
+ * Copyright (C) 2015 Motivis Learning Systems Inc.
+ * 
+ * This program is free software: you can redistribute it and/or modify 
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * To contact Motivis Learning Systems Inc.
+ * 25 Pelham Road
+ * Salem, NH 03790
+ * unity@motivislearning.com
+ */
+
 public with sharing class CommunityFeedNavigationController {
 
 	public Integer MessageUnreadCount { get; set; }
@@ -20,7 +49,9 @@ public with sharing class CommunityFeedNavigationController {
 	public Boolean getShowGroupManager() {
 		Boolean result = false;
 		if (String.isNotBlank(chatterGroupId)) {
-			List<Community_Group_Manager__c> cgmList = [SELECT Id FROM Community_Group_Manager__c WHERE Group_Manager_User__c = :UserInfo.getUserId() AND Group_Control__r.Chatter_Group_ID__c = :chatterGroupId];
+			if (!SObjectType.Community_Group_Manager__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Manager__c);
+			String queryChatterGroupId = String.escapeSingleQuotes(chatterGroupId);
+			List<Community_Group_Manager__c> cgmList = [SELECT Id FROM Community_Group_Manager__c WHERE Group_Manager_User__c = :UserInfo.getUserId() AND Group_Control__r.Chatter_Group_ID__c = :queryChatterGroupId];
 			result = cgmList.size() > 0;
 		}
 		return result;
@@ -28,22 +59,23 @@ public with sharing class CommunityFeedNavigationController {
 
 
 	public String getPhotoUrl() {
+		if (!SObjectType.User.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.User);
 		return [SELECT FullPhotoUrl FROM User WHERE Id = :UserInfo.getUserId()].FullPhotoUrl;
 	}
 	
 	
-	public String controllerPhotoUrl { 
+	public String controllerPhotoUrl {
 		get {
 			if(groupRole!=null){
 				return controllerPhotoUrl;
 			}
 			else {
+	        	if (!SObjectType.User.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.User);
 				if (controllerPhotoUrl == null) return [SELECT FullPhotoUrl FROM User WHERE Id = :UserInfo.getUserId()].FullPhotoUrl;
 				else return controllerPhotoUrl;
 			}
 		}
-		set; 
-		
+		set;
 	}
 	// photo vars
 	public Blob photoBody { get; set; }
@@ -76,7 +108,9 @@ public with sharing class CommunityFeedNavigationController {
 				return grID;
 			}	
 			else if (gcID!= null) {
-				List<Community_Group_Control__c> ls = [SELECT ID, Chatter_Group_ID__c FROM Community_Group_Control__c WHERE ID =: gcID LIMIT 1];				
+				if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
+				String queryGroupControlId = String.escapeSingleQuotes(gcID);
+				List<Community_Group_Control__c> ls = [SELECT Id, Chatter_Group_ID__c FROM Community_Group_Control__c WHERE Id =: queryGroupControlId LIMIT 1];
 				return ls[0].Chatter_Group_ID__c;
 			}
 			return null;
@@ -87,14 +121,14 @@ public with sharing class CommunityFeedNavigationController {
 	
 	public String actionPhotoLabel { 
 		get {
-				if (getGroupId != null) {
-					ConnectApi.Photo photoGroup = ConnectApi.ChatterGroups.getPhoto(Network.getNetworkId(), getGroupId);
-					return (String.valueOf(photoGroup).contains('default')||(photoGroup==null))?Label.LBL_Add_Photo:Label.BTN_Update;						
-				}
-				else {
-					ConnectApi.Photo photoUser = ConnectApi.ChatterUsers.getPhoto(Network.getNetworkId(), UserInfo.getUserId());
-					return (String.valueOf(photoUser).contains('default')||(photoUser==null))?Label.LBL_Add_Photo:Label.BTN_Update;						
-				}
+			if (getGroupId != null) {
+				ConnectApi.Photo photoGroup = ConnectApi.ChatterGroups.getPhoto(Network.getNetworkId(), getGroupId);
+				return (String.valueOf(photoGroup).contains('default')||(photoGroup==null))?Label.LBL_Add_Photo:Label.BTN_Update;						
+			}
+			else {
+				ConnectApi.Photo photoUser = ConnectApi.ChatterUsers.getPhoto(Network.getNetworkId(), UserInfo.getUserId());
+				return (String.valueOf(photoUser).contains('default')||(photoUser==null))?Label.LBL_Add_Photo:Label.BTN_Update;						
+			}
 		}
 		set; 
 	}
@@ -140,19 +174,24 @@ public with sharing class CommunityFeedNavigationController {
 						new ConnectApi.BinaryInput(photoBody, photoContentType, photoName)
 					);
 				}
-					
-				
+				cropX = '';
+				cropY = '';
+				cropSize = '';
+				photoContentType = '';
+				photoBody = null;
 			}
 			PageReference pr = new PageReference(ApexPages.currentPage().getUrl());
 			pr.setRedirect(true);
 			return pr;
 		}
-		catch(Exception e) {
+		catch (Exception e) {
 			ApexPages.addMessages(e);
 			return null;
 		}
 		
 	}
-	
-	
+
+	public Community_Resource__c getBannerTextLabel() {
+		return CommunityUtils.getHtmlField(Label.LBL_Banner_Text);
+	}
 }

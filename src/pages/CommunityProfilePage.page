@@ -1,10 +1,39 @@
+<!--  
+ * Unity - Communities
+ * 
+ * Community is critical to the student experience--but building community is 
+ * just plain hard. Built on Communities and designed specifically for higher ed, 
+ * Unity is a powerful networking tool to help you generate engagement and 
+ * connect your campus.
+ * 
+ * Copyright (C) 2015 Motivis Learning Systems Inc.
+ * 
+ * This program is free software: you can redistribute it and/or modify 
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * To contact Motivis Learning Systems Inc.
+ * 25 Pelham Road
+ * Salem, NH 03790
+ * unity@motivislearning.com
+-->
+
 <apex:page showHeader="false" sideBar="false" standardStylesheets="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false" controller="CommunityProfilePageController">
 <apex:composition template="{!$Site.Template}">
 <apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
 <apex:define name="body">
 	<!--=== Profile ===-->	
 	<div class="profile CommunityProfilePage">
-		<apex:outputPanel styleClass="container content" rendered="{!isCommunityUser}">
+		<apex:outputPanel styleClass="container content" rendered="{!isCommunityUser}" layout="block">
 			<div class="row">
 				<!--Left Sidebar-->
 				<div class="col-md-3 md-margin-bottom-40">
@@ -258,7 +287,13 @@
 											<label><h4><strong>{!section.sectionLabel}</strong></h4></label>
 											<apex:repeat value="{!section.items}" var="it">
 												<label class="toggle{!IF(section.general,'',' plus')}">
-													<apex:outputText value="{!it.InputHtml}" escape="false"/>
+													<apex:outputPanel layout="none" rendered="{!it.disabled}">
+														<input type="checkbox" onchange="chnot(this);" name="{!it.fieldName}" checked="{!IF(it.checked, 'true', 'false')}" disabled="disabled" />
+													</apex:outputPanel>
+													<apex:outputPanel layout="none" rendered="{!!it.disabled}">
+														<input type="checkbox" onchange="chnot(this);" name="{!it.fieldName}" checked="{!IF(it.checked, 'true', 'false')}"/>
+													</apex:outputPanel>
+													<i class="{!IF(it.disabled, '', IF(it.checked, 'green-btn', 'red-btn'))}"></i>
 													{!it.fieldLabel}
 												</label>
 											</apex:repeat>
@@ -379,7 +414,7 @@
 			</div>
 			<!--/end row-->
 		</apex:outputPanel>
-		<apex:outputpanel styleClass="container content" rendered="{!!isCommunityUser}">
+		<apex:outputpanel styleClass="container content" rendered="{!!isCommunityUser}" layout="block">
 			<div class="profile-body">
 				<div class="calert">
 					<div class="message">

@@ -1,3 +1,32 @@
+<!--  
+ * Unity - Communities
+ * 
+ * Community is critical to the student experience--but building community is 
+ * just plain hard. Built on Communities and designed specifically for higher ed, 
+ * Unity is a powerful networking tool to help you generate engagement and 
+ * connect your campus.
+ * 
+ * Copyright (C) 2015 Motivis Learning Systems Inc.
+ * 
+ * This program is free software: you can redistribute it and/or modify 
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * To contact Motivis Learning Systems Inc.
+ * 25 Pelham Road
+ * Salem, NH 03790
+ * unity@motivislearning.com
+-->
+
 <apex:component controller="CommunityFeedNavigationController" allowDML="true">
     <apex:attribute name="current" description="this is current user and photo is uploaded" type="Boolean" required="false" default="true" assignTo="{!currentUser}"/>
     <apex:attribute name="photoUrl" description="" type="String" required="false" assignTo="{!controllerPhotoUrl}"/>
@@ -69,8 +98,6 @@
             // calculate real width and height
             imgRealWidth = this.width;
             imgRealHeight = this.height;
-            console.log("height-real: "+this.height+"width-real: "+this.width);
-            
             // remove styles
             jQuery('[id$=croppingImageId]').removeAttr("width").removeAttr("height").css({ width: "auto" , height: "auto" });
             // set image and preview image
@@ -82,11 +109,8 @@
             // start cropping with params
             var imgWidth =jQuery('[id$=croppingImageId]').width();
             var imgHeight =jQuery('[id$=croppingImageId]').height();
-            console.log("height: "+imgHeight+"width: "+imgWidth);
             scale = imgRealWidth/$('[id$=croppingImageId]').width();
-            console.log("scale" + scale);
             var rectSide = (imgWidth >= imgHeight)?imgHeight/3:imgWidth/3;
-            console.log("rectSide" + rectSide);
             jQuery('[id$=croppingImageId]').Jcrop({
                 onChange: showPreview, onSelect: showPreview, aspectRatio: 1,
                 setSelect: [ imgWidth/2-rectSide, imgHeight/2-rectSide, imgWidth/2+rectSide, imgHeight/2+rectSide ]
@@ -115,12 +139,9 @@
         // save photo
         function saveBtn() {
             stepUpload = 4;
-             
             jQuery('[id$=cropXId]').val(Math.round(imgX*scale));
             jQuery('[id$=cropYId]').val(Math.round(imgY*scale));
             jQuery('[id$=cropSizeId]').val(Math.round(imgSize*scale));
-            console.log('X-' + Math.round(imgX*scale) + ' Y-' + Math.round(imgY*scale) + ' S-' + Math.round(imgSize*scale));
-            
             // call action function and save img and crop it
             photoaction();
         }

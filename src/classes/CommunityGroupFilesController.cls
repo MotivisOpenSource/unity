@@ -1,11 +1,37 @@
+/* 
+ * Unity - Communities
+ * 
+ * Community is critical to the student experience--but building community is 
+ * just plain hard. Built on Communities and designed specifically for higher ed, 
+ * Unity is a powerful networking tool to help you generate engagement and 
+ * connect your campus.
+ * 
+ * Copyright (C) 2015 Motivis Learning Systems Inc.
+ * 
+ * This program is free software: you can redistribute it and/or modify 
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * To contact Motivis Learning Systems Inc.
+ * 25 Pelham Road
+ * Salem, NH 03790
+ * unity@motivislearning.com
+ */
+
 public with sharing class CommunityGroupFilesController {
 
-	public transient Community_Group_Control__c control { get; set; }
-	public transient CollaborationGroup chatterGroup { get; set; }
-	public transient List<FileWrapper> FileList { get; set; }
-	public Id chatterGroupId { get { return chatterGroupId == NULL ? chatterGroup.Id : chatterGroupId; } set; }
+	public transient List<FileWrapper> fileList { get; set; }
 	public Id contentDetailId { get; set; }
-
+	public String feedNavNumber { get; set; }
 	public String mode { get { return mode == NULL ? 'initial' : mode; } set; }
 	public String modal { get { return modal == NULL ? 'none' : modal; } set; }
 	public String stack { get; set; }
@@ -19,47 +45,108 @@ public with sharing class CommunityGroupFilesController {
 	private Integer FILES_PAGE_SIZE { get { return mode == 'initial' ? 5 : 10; } }
 	public Boolean allOk { get; set; }
 	public Boolean enableShare { get; set; }
-	
-	public String detailParam { get{ return ApexPages.currentPage().getParameters().get('f'); } set;}
+
+	public String parentId { get; set; }
+	public ParentWrapper parent { get; set; }
 
 	public ContentVersion cvRecord { get; set; }
 
-	public CommunityGroupFilesController() {}
+	private String f;
+	private String fi;
+	private String gc;
+	private String gr;
+	private String p;
+
+	public CommunityGroupFilesController() {
+		f = ApexPages.currentPage().getParameters().get('f');
+		fi = ApexPages.currentPage().getParameters().get('fi');
+		gc = ApexPages.currentPage().getParameters().get('gc');
+		gr = ApexPages.currentPage().getParameters().get('gr');
+		p = ApexPages.currentPage().getParameters().get('p');
+	}
 
 	public void initFromPage() {
-		
-		if (String.isBlank(detailParam)) {
-			mode = 'list';
+		allOk = true;
+		feedNavNumber = '1';
+		mode = String.isBlank(f) ? 'list' : 'detail';
+		contentDetailId = (mode == 'detail') ? Id.valueOf(f) : contentDetailId;
+		parentId = String.isBlank(parentId) ? p : parentId;
+		if (String.isBlank(parentId) && (String.isNotBlank(gr) || String.isNotBlank(gc))) {
+			parentId = String.isNotBlank(gr) ? gr : gc;
 		}
-		else {
-			mode = 'detail';
-			contentDetailId = Id.valueOf(detailParam);
+		if (String.isBlank(parentId) && String.isNotBlank(fi)) {
+			String queryFeedId = String.escapeSingleQuotes(fi);
+			List<FeedItem> fItems = [SELECT Id, ParentId FROM FeedItem WHERE Id = :queryFeedId];
+			parentId = fItems[0].ParentId;
 		}
-		control = CommunityGroupManageController.pullGroupControlRecord(false);
-		if (control != NULL && control.Chatter_Group_ID__c != NULL) {
-			chatterGroup = [SELECT Id, FullPhotoUrl, CollaborationType FROM CollaborationGroup WHERE Id = :control.Chatter_Group_ID__c];
-			chatterGroupId = chatterGroup.Id;
+		Map<String,String> keys = new Map<String,String>();
+		Map<String,Schema.SobjectType> describe = Schema.getGlobalDescribe();
+		for (String s : describe.keyset()) {
+			keys.put(describe.get(s).getDescribe().getKeyPrefix(), s);
 		}
-		allOk = chatterGroupId != NULL && Community_Settings__c.getInstance().Chatter_Action_Disable_Group_Files__c != true;
-		if (allOk) {
-			ConnectApi.GroupMembershipType groupRole = ConnectApi.ChatterGroups.getGroup(Network.getNetworkId(), chatterGroup.Id).MyRole;
-			allOk = control.Type__c == 'Public' || (groupRole != ConnectApi.GroupMembershipType.NotAMember && groupRole != ConnectApi.GroupMembershipType.NotAMemberPrivateRequested);
+		String parentObjectType = String.isNotBlank(parentId) ? keys.get(String.valueOf(parentId).substring(0,3)) : '';
+		String pp = CommunityUtils.getPackagePrefix();
+		parentObjectType = String.isNotBlank(pp) ? parentObjectType.replace(pp,'') : parentObjectType;
+		String queryParentId = String.escapeSingleQuotes(parentId);
+		if (String.isNotBlank(parentObjectType)) {
+			if (parentObjectType.equalsIgnoreCase('CollaborationGroup') || parentObjectType.equalsIgnoreCase('Community_Group_Control__c')) {
+				gr = String.isBlank(gr) && parentObjectType.equalsIgnoreCase('CollaborationGroup') ? parentId : gr;
+				gc = String.isBlank(gr) && String.isBlank(gc) && parentObjectType.equalsIgnoreCase('Community_Group_Control__c') ? parentId : gc;
+				Community_Group_Control__c control = CommunityGroupManageController.pullGroupControlRecord(false, gr, gc);
+				if (control != NULL && control.Chatter_Group_ID__c != NULL) {
+					if (!SObjectType.CollaborationGroup.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.CollaborationGroup);
+					CollaborationGroup chatterGroup = [SELECT Id, FullPhotoUrl, CollaborationType FROM CollaborationGroup WHERE Id = :control.Chatter_Group_ID__c];
+					parent = new ParentWrapper(chatterGroup.Id, control.Name, Label.LBL_Groups, prepareUrl(Page.CommunityGroups.getUrl()), prepareUrl(Page.CommunityGroupDetailPage.getUrl())+'?gr='+chatterGroup.Id, chatterGroup.FullPhotoUrl);
+					allOk = chatterGroup.Id != NULL && Community_Settings__c.getInstance().Chatter_Action_Disable_Group_Files__c != true;
+					if (allOk) {
+						ConnectApi.GroupMembershipType groupRole = ConnectApi.ChatterGroups.getGroup(Network.getNetworkId(), chatterGroup.Id).MyRole;
+						allOk = control.Type__c == 'Public' || (groupRole != ConnectApi.GroupMembershipType.NotAMember && groupRole != ConnectApi.GroupMembershipType.NotAMemberPrivateRequested);
+						enableShare = chatterGroup != NULL && chatterGroup.CollaborationType == 'Public';
+					}
+				}
+				feedNavNumber = '5';
+			}
+			else if (parentObjectType.equalsIgnoreCase('Community_News__c')) {
+				if (!SObjectType.Community_News__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_News__c);
+				List<Community_News__c> cNews = [SELECT Id, Title__c, Image_Path__c FROM Community_News__c WHERE Id = :queryParentId];
+				parent = new ParentWrapper(cNews[0].Id, cNews[0].Title__c, Label.LBL_News, prepareUrl(Page.CommunityNews.getUrl()), prepareUrl(Page.CommunityNewsDetail.getUrl())+'?id='+cNews[0].Id, CommunityUtils.checkUrl(cNews[0].Image_Path__c));
+			}
+			else if (parentObjectType.equalsIgnoreCase('Community_Events__c')) {
+				if (!SObjectType.Community_Events__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Events__c);
+				List<Community_Events__c> cEvents = [SELECT Id, Name__c FROM Community_Events__c WHERE Id = :queryParentId];
+				parent = new ParentWrapper(cEvents[0].Id, cEvents[0].Name__c, Label.LBL_Events, prepareUrl(Page.CommunityEventsList.getUrl()), prepareUrl(Page.CommunityEventDetail.getUrl())+'?id='+cEvents[0].Id, null);
+			}
+			else if (parentObjectType.equalsIgnoreCase('User') || parentObjectType.equalsIgnoreCase('Contact')) {
+				if (!SObjectType.User.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.User);
+				List<User> uList = [SELECT Id, Name, FullPhotoUrl FROM User WHERE Id = :queryParentId OR ContactId = :queryParentId];
+				parent = new ParentWrapper(uList[0].Id, uList[0].Name, Label.LBL_People, prepareUrl(Page.CommunityFeed_People.getUrl()), prepareUrl(Page.CommunityProfilePage.getUrl())+'?id='+uList[0].Id, uList[0].FullPhotoUrl);
+			}
 		}
 		if (allOk) {
 			init();
-			enableShare = Community_Settings__c.getInstance().Disable_Share__c != true && chatterGroup != NULL && chatterGroup.CollaborationType == 'Public';
+			enableShare = Community_Settings__c.getInstance().Disable_Share__c != true && enableShare != false;
 		}
 	}
+	
 
 	public void init() {
-		FileList = new List<FileWrapper>();
+		fileList = new List<FileWrapper>();
 		
 		List<String> feedElementsIds = new List<String>();
-		for (FeedItem fi : CommunityHelperWithoutSharing.getFeeds(chatterGroupId)) {
-			feedElementsIds.add(fi.Id);
+		List<ContentVersion> cvList = new List<ContentVersion>();
+		Set<String> collectedVersionIds = new Set<String>();
+
+		parentId = String.isBlank(parentId) && parent != NULL && String.isNotBlank(parent.id) ? parent.id : parentId;
+		if (String.isNotBlank(parentId)) {
+			for (FeedItem fi : CommunityHelperWithoutSharing.getFeeds(parentId)) {
+				feedElementsIds.add(fi.Id);
+			}
 		}
 		List<ConnectApi.FeedElement> elements = new List<ConnectApi.FeedElement>();
-		Set<String> collectedVersionIds = new Set<String>();
+		Set<String> subscribedToContent = new Set<String>();
+		Map<String, String> contentDocumentToVersionMap = new Map<String, String>();
+		Map<String, ContentDocument> cdMap = new Map<String, ContentDocument>();
+
 		for (ConnectApi.BatchResult batchResult : ConnectApi.ChatterFeeds.getFeedElementBatch(Network.getNetworkId(), feedElementsIds)) {
 			if (batchResult.isSuccess() && batchResult.getResult() instanceof ConnectApi.FeedElement) {
 				ConnectApi.FeedElement fe = (ConnectApi.FeedElement)batchResult.getResult();
@@ -69,63 +156,61 @@ public with sharing class CommunityGroupFilesController {
 				}
 			}
 		}
-		if (collectedVersionIds.size() > 0) {
-			Set<String> subscribedToContent = new Set<String>();
-			Map<String, String> contentDocumentToVersionMap = new Map<String, String>();
-			Map<String, ContentDocument> cdMap = new Map<String, ContentDocument>();
-			List<String> cvAsList = new List<String>();
-			cvAsList.addAll(collectedVersionIds);
+		if (cvList.isEmpty()) {
+			if (!SObjectType.ContentVersion.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.ContentVersion);
 			String cvQuery = 'SELECT Id, ContentDocumentId, ContentDocument.Id, ContentDocument.OwnerId, ContentDocument.Owner.Name, ContentDocument.LastModifiedDate, ContentDocument.Description FROM ContentVersion';
-			cvQuery += ' WHERE Id IN (\'' + String.join(cvAsList, '\',\'') + '\')';
+			String whQuery = !collectedVersionIds.isEmpty() ? ' Id IN :collectedVersionIds' : '';
 			if (mode == 'detail') {
-				cvQuery += ' AND ContentDocumentId = \'' + contentDetailId + '\'';
+				whQuery += (String.isNotBlank(whQuery) ? ' AND' : '') + ' ContentDocumentId = \'' + String.escapeSingleQuotes(contentDetailId) + '\'';
 			}
 			if (mode == 'list' && String.isNotBlank(fileQuery)) {
-				cvQuery += ' AND ContentDocument.Title LIKE \'%' + String.escapeSingleQuotes(fileQuery) + '%\'';
+				whQuery += (String.isNotBlank(whQuery) ? ' AND' : '') + ' ContentDocument.Title LIKE \'%' + String.escapeSingleQuotes(fileQuery) + '%\'';
 			}
-			
-			for (ContentVersion cvItem : Database.query(cvQuery)) {
-				contentDocumentToVersionMap.put(cvItem.ContentDocumentId, cvItem.Id);
-				cdMap.put(cvItem.Id, cvItem.ContentDocument);
+			cvQuery += String.isNotBlank(whQuery) ? ' WHERE' + whQuery : '';
+			cvList = Database.query(cvQuery);
+		}
+		for (ContentVersion cvItem : cvList) {
+			contentDocumentToVersionMap.put(cvItem.ContentDocumentId, cvItem.Id);
+			cdMap.put(cvItem.Id, cvItem.ContentDocument);
+		}
+		if (!SObjectType.EntitySubscription.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.EntitySubscription);
+		for (EntitySubscription esItem : [SELECT ParentId FROM EntitySubscription WHERE SubscriberId =:Userinfo.getUserId() AND ParentId IN :contentDocumentToVersionMap.keySet() LIMIT 1000]) {
+			subscribedToContent.add(contentDocumentToVersionMap.get(esItem.ParentId));
+		}
+
+		Set<String> filtredContentVersionsId = new Set<String>();
+		filtredContentVersionsId.addAll(contentDocumentToVersionMap.values());
+		Set<String> checkForDuplicatingSet = new Set<String>();
+		List<ConnectApi.FeedElement> filteredElements = new List<ConnectApi.FeedElement>();
+		for (ConnectApi.FeedElement fe3 : elements) {
+			if (filtredContentVersionsId.contains(fe3.capabilities.content.versionId) && !checkForDuplicatingSet.contains(fe3.capabilities.content.versionId)) {
+				filteredElements.add(fe3);
+				checkForDuplicatingSet.add(fe3.capabilities.content.versionId);
 			}
-			for (EntitySubscription esItem : [SELECT ParentId FROM EntitySubscription WHERE SubscriberId =:Userinfo.getUserId() AND ParentId IN :contentDocumentToVersionMap.keySet() LIMIT 1000]) {
-				subscribedToContent.add(contentDocumentToVersionMap.get(esItem.ParentId));
-			}
-			Set<String> filtredContentVersionsId = new Set<String>();
-			filtredContentVersionsId.addAll(contentDocumentToVersionMap.values());
-			Set<String> checkForDuplicatingSet = new Set<String>();
-			List<ConnectApi.FeedElement> filteredElements = new List<ConnectApi.FeedElement>();
-			for (ConnectApi.FeedElement fe3 : elements) {
-				if (filtredContentVersionsId.contains(fe3.capabilities.content.versionId) && !checkForDuplicatingSet.contains(fe3.capabilities.content.versionId)) {
-					filteredElements.add(fe3);
-					checkForDuplicatingSet.add(fe3.capabilities.content.versionId);
-				}
-			}
-			Integer fqlSize = filteredElements.size();
-			filesTotal = fqlSize;
-			filesPagesTotal = fqlSize / FILES_PAGE_SIZE + ((Math.mod(fqlSize, FILES_PAGE_SIZE) == 0) ? 0 : 1);
-			if (filesPageNumber > filesPagesTotal) {
-				filesPageNumber = filesPagesTotal;
-			}
-			Integer startCopyInterval = filesPageNumber > 1 ? ((filesPageNumber - 1) * FILES_PAGE_SIZE) : 0;
-			Integer endCopyInterval = (fqlSize <= (startCopyInterval + FILES_PAGE_SIZE)) ? fqlSize : (startCopyInterval + FILES_PAGE_SIZE);
-			Boolean modifyAllDataAccess = CommunityUtils.isModifyAllData();
-			for (Integer ii = startCopyInterval; ii < endCopyInterval; ii++) {
-				String vId = filteredElements[ii].capabilities.content.versionId;
-				Boolean subscribed = subscribedToContent.contains(vId);
-				ContentDocument cdItem = cdMap.get(vId);
-				Boolean modifiable = modifyAllDataAccess || cdItem.OwnerId == UserInfo.getUserId();
-				FileList.add(new FileWrapper(filteredElements[ii], subscribed, modifiable, cdItem));
-			}
+		}
+		Integer fqlSize = filteredElements.size();
+		filesTotal = fqlSize;
+		filesPagesTotal = fqlSize / FILES_PAGE_SIZE + ((Math.mod(fqlSize, FILES_PAGE_SIZE) == 0) ? 0 : 1);
+		if (filesPageNumber > filesPagesTotal) {
+			filesPageNumber = filesPagesTotal;
+		}
+		Integer startCopyInterval = filesPageNumber > 1 ? ((filesPageNumber - 1) * FILES_PAGE_SIZE) : 0;
+		Integer endCopyInterval = (fqlSize <= (startCopyInterval + FILES_PAGE_SIZE)) ? fqlSize : (startCopyInterval + FILES_PAGE_SIZE);
+		Boolean modifyAllDataAccess = CommunityUtils.isModifyAllData();
+		for (Integer ii = startCopyInterval; ii < endCopyInterval; ii++) {
+			String vId = filteredElements[ii].capabilities.content.versionId;
+			Boolean subscribed = subscribedToContent.contains(vId);
+			ContentDocument cdItem = cdMap.get(vId);
+			Boolean modifiable = modifyAllDataAccess || cdItem.OwnerId == UserInfo.getUserId();
+			fileList.add(new FileWrapper(filteredElements[ii], subscribed, modifiable, cdItem));
 		}
 	}
 
 	public FileWrapper getFileDetail() {
-		return (mode == 'detail' && FileList != NULL && FileList.size() > 0) ? FileList[0] : NULL;
+		return (mode == 'detail' && fileList != NULL && fileList.size() > 0) ? fileList[0] : NULL;
 	}
 
 	public void searchAction() {
-		//System.debug('\n**\n' + json.serialize(this));
 		filesPageNumber = 1;
 		init();
 	}
@@ -135,7 +220,9 @@ public with sharing class CommunityGroupFilesController {
 		shareComment = NULL;
 		cvRecord = NULL;
 		if (modal == 'update') {
-			cvRecord = [SELECT Id, Title, Description FROM ContentVersion WHERE Id = :stack];
+			if (!SObjectType.ContentVersion.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.ContentVersion);
+			String queryStack = String.escapeSingleQuotes(stack);
+			cvRecord = [SELECT Id, Title, Description FROM ContentVersion WHERE Id = :queryStack];
 		}
 	}
 
@@ -146,7 +233,9 @@ public with sharing class CommunityGroupFilesController {
 	public String getParentDocumentId() {
 		String result;
 		if (modal == 'newversion') {
-			result = [SELECT ContentDocumentId FROM ContentVersion WHERE Id = :stack].ContentDocumentId;
+			if (!SObjectType.ContentVersion.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.ContentVersion);
+			String queryStack = String.escapeSingleQuotes(stack);
+			result = [SELECT ContentDocumentId FROM ContentVersion WHERE Id = :queryStack].ContentDocumentId;
 		}
 		return result;
 	}
@@ -176,7 +265,9 @@ public with sharing class CommunityGroupFilesController {
 
 	public void shareAction() {
 		List<ConnectApi.BatchInput> feedElements = new List<ConnectApi.BatchInput>();
-		String documentIdToShare = [SELECT ContentDocumentId FROM ContentVersion WHERE Id = :stack].ContentDocumentId;
+		if (!SObjectType.ContentVersion.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.ContentVersion);
+		String queryStack = String.escapeSingleQuotes(stack);
+		String documentIdToShare = [SELECT ContentDocumentId FROM ContentVersion WHERE Id = :queryStack].ContentDocumentId;
 		for (String sId : shareChoice.split(',')) {
 			if (String.isNotBlank(sId)) {
 				ConnectApi.FeedElementCapabilitiesInput feci = new ConnectApi.FeedElementCapabilitiesInput();
@@ -204,22 +295,40 @@ public with sharing class CommunityGroupFilesController {
 	}
 
 	public void updateAction() {
-		update cvRecord;
+		//update cvRecord;
+		CommunityAccess.UpdateWithoutSharing(
+			cvRecord,
+			'CommunityGroupFilesController.cls [updateAction]',
+			new List<Schema.DescribeFieldResult> {
+				ContentVersion.Title.getDescribe(),
+				ContentVersion.Description.getDescribe()
+			}
+		);
 		modal = 'none';
 		modeAction();
 		init();
 	}
 
 	public PageReference deleteAction() {
-		ContentDocument cdDelete = [SELECT Id FROM ContentDocument WHERE Id IN (SELECT ContentDocumentId FROM ContentVersion WHERE Id = :stack)];
-		delete cdDelete;
+		if (!SObjectType.ContentDocument.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.ContentDocument);
+		if (!SObjectType.ContentVersion.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.ContentVersion);
+		String queryStack = String.escapeSingleQuotes(stack);
+		List<ContentVersion> cVerDelete = [SELECT Id, ContentDocument.Id FROM ContentVersion WHERE Id = :queryStack];
+		//List<ContentDocument> cDocDelete = [SELECT Id FROM ContentDocument WHERE Id IN (SELECT ContentDocumentId FROM ContentVersion WHERE Id = :queryStack)];
+		if (!cVerDelete.isEmpty()){
+			ContentDocument cDocDelete = cVerDelete[0].ContentDocument;
+			delete cDocDelete;
+			//CommunityAccess.DeleteWithoutSharing(
+			//	cDocDelete,
+			//	'CommunityGroupFilesController.cls [deleteAction]'
+			//);
+		}
 		PageReference pr;
 		if (mode == 'detail') {
 			pr = Page.CommunityGroupFiles;
-			String groupControlIdParam = ApexPages.currentPage().getParameters().get('gc');
-			String chatterGroupIdParam = ApexPages.currentPage().getParameters().get('gr');
-			String groupParam = String.escapeSingleQuotes(String.isBlank(chatterGroupIdParam) ? groupControlIdParam : chatterGroupIdParam);
-			pr.getParameters().put('gr', groupParam);
+			if (String.isNotBlank(parentId)) {
+				pr.getParameters().put('p', parentId);
+			}
 			pr.setRedirect(true);
 		}
 		else {
@@ -238,7 +347,13 @@ public with sharing class CommunityGroupFilesController {
 	public static String getPeoplesSelector(String query) {
 		List<BlockWrapper> result = new List<BlockWrapper>();
 		String escapedQuery = String.escapeSingleQuotes(query) + '%';
-		List<User> uList = CommunityHelperWithoutSharing.getCommunityUsers(escapedQuery, 100, null,'Name',true);
+		if (!SObjectType.User.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.User);
+		List<User> uList = [
+			SELECT Id, Name FROM User
+			WHERE (ContactId != NULL OR Community_Contact_ID__c != NULL) AND isActive = true AND Id != :UserInfo.getUserId()
+			AND (FirstName LIKE :escapedQuery OR LastName LIKE :escapedQuery OR Name LIKE :escapedQuery)
+			ORDER BY Name ASC
+				];
 		for (User uItem : uList) {
 			result.add(new BlockWrapper(uItem.Id, uItem.Name));
 		}
@@ -247,7 +362,9 @@ public with sharing class CommunityGroupFilesController {
 
 	@RemoteAction
 	public static String subscriberAction(String versionId, Boolean inf) {
-		String cdId = [SELECT ContentDocumentId FROM ContentVersion WHERE Id = :versionId].ContentDocumentId;
+		if (!SObjectType.ContentVersion.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.ContentVersion);
+		String queryVersionId = String.escapeSingleQuotes(versionId);
+		String cdId = [SELECT ContentDocumentId FROM ContentVersion WHERE Id = :queryVersionId].ContentDocumentId;
 		CommunityUtils.subscriberUser(cdId, !inf);
 		return '';
 	}
@@ -255,10 +372,12 @@ public with sharing class CommunityGroupFilesController {
 	private static List<BlockWrapper> pullGroups(String inQuery) {
 		List<BlockWrapper> resultList = new List<BlockWrapper>();
 		Set<String> filtredChatterGroups = new Set<String>();
+		if (!SObjectType.CollaborationGroupMember.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.CollaborationGroupMember);
 		for (CollaborationGroupMember cgmItem : [SELECT CollaborationGroupId FROM CollaborationGroupMember WHERE CollaborationGroup.NetworkId = :Network.getNetworkId() AND MemberId = :UserInfo.getUserId()]) {
 			filtredChatterGroups.add(cgmItem.CollaborationGroupId);
 		}
 		if (filtredChatterGroups.size() > 0) {
+			if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
 			String queryString = 'SELECT Id, Name, Chatter_Group_ID__c FROM Community_Group_Control__c WHERE Chatter_Group_ID__c IN :filtredChatterGroups AND Status__c = \'Approved\'';
 			if (String.isNotBlank(inQuery)) {
 				queryString += ' AND Name LIKE \'' + String.escapeSingleQuotes(inQuery) + '%\'';
@@ -273,6 +392,10 @@ public with sharing class CommunityGroupFilesController {
 
 	public List<BlockWrapper> getGroups() {
 		return (modal == 'sharegroup') ? pullGroups(NULL) : NULL;
+	}
+
+	private static String prepareUrl(String inUncouthUrl) {
+		return String.isNotBlank(Site.getPathPrefix()) ? inUncouthUrl.replace('/apex/', Site.getPathPrefix() + '/') : inUncouthUrl;
 	}
 
 	public class FileWrapper {
@@ -292,7 +415,6 @@ public with sharing class CommunityGroupFilesController {
 		public String getShortName() {
 			return name.abbreviate(20);
 		}
-
 		public FileWrapper(ConnectApi.FeedElement inchf, Boolean inf, Boolean inm, ContentDocument incd) {
 			if (inchf.capabilities != NULL && inchf.capabilities.content != NULL) {
 				ConnectApi.ContentCapability cc = inchf.capabilities.content;
@@ -319,6 +441,24 @@ public with sharing class CommunityGroupFilesController {
 		public BlockWrapper(String inid, String inname) {
 			id = inid;
 			name = inname;
+		}
+	}
+
+	public class ParentWrapper {
+		public Id id { get; set; }
+		public String name { get; set; }
+		public String type { get; set; }
+		public String page { get; set; }
+		public String detailPage { get; set; }
+		public String photoUrl { get; set; }
+
+		public ParentWrapper(Id inId, String inName, String inType, String inPage, String inDetailPage, String inPhotoUrl) {
+			id = inId;
+			name = inName;
+			type = inType;
+			page = inPage;
+			detailPage = inDetailPage;
+			photoUrl = inPhotoUrl;
 		}
 	}
 }
