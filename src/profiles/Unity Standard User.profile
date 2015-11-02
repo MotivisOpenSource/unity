@@ -1002,6 +1002,10 @@
         <enabled>true</enabled>
     </pageAccesses>
     <pageAccesses>
+        <apexPage>CommunityNavigator</apexPage>
+        <enabled>true</enabled>
+    </pageAccesses>
+    <pageAccesses>
         <apexPage>CommunityNews</apexPage>
         <enabled>true</enabled>
     </pageAccesses>
