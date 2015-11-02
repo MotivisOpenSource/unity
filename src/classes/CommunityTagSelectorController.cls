@@ -45,7 +45,8 @@ global with sharing class CommunityTagSelectorController {
 				}
 			}
 		}
-		String query = 'SELECT Id, Community_Tag__c FROM ' + String.escapeSingleQuotes(objectType) + ' WHERE ' + String.escapeSingleQuotes(filterName) + ' =: objectId';
+		String queryObjectId = String.escapeSingleQuotes(objectId);
+		String query = 'SELECT Id, Community_Tag__c FROM ' + String.escapeSingleQuotes(objectType) + ' WHERE ' + String.escapeSingleQuotes(filterName) + ' =: queryObjectId';
 		query += objectType.endsWith('Community_Event_Tag__c__') ? ' AND Community_Group_Control__c = NULL' : '';
 		query += CommunityUtils.accessSystemTagLevel() > 1 ? '' : ' AND Community_Tag__r.Community_Theme__r.Theme_Type__c != \'System\'';
 		List<sObject> deleteList = new List<sObject>();
@@ -92,11 +93,12 @@ global with sharing class CommunityTagSelectorController {
 	}
 
 	public static List<Community_Tag__c> getTagsLocal(String q, String themeType) {
+		if (!SObjectType.Community_Tag__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Tag__c);
 		String tagQuery = 'SELECT Id, Name, Community_Theme__c, Community_Theme__r.Name FROM Community_Tag__c WHERE Community_Theme__r.Theme_Type__c IN (\'';
 		tagQuery += themeType + ( (themeType == 'Interest' && CommunityUtils.accessSystemTagLevel() == 2) ? '\',\'System\')' : '\')');
 		if (q != NULL) {
 			List<String> queries = q.split(',');
-			String tQuery = queries.get(queries.size()-1).trim();
+			String tQuery = String.escapeSingleQuotes(queries.get(queries.size()-1).trim());
 			tagQuery += ' AND (Name LIKE \'%' + tQuery + '%\' OR Community_Theme__r.Name LIKE \'%' + tQuery + '%\')';
 		}
 		tagQuery += ' ORDER BY Community_Theme__r.Name, Name';
@@ -139,7 +141,10 @@ global with sharing class CommunityTagSelectorController {
 	global static String getExistingTags(String recordId, String objType, String filterName) {
 		Set<String> tagIds = new Set<String>();
 		if (String.isNotBlank(recordId)) {
-			String etQuery = 'SELECT Id, Community_Tag__c FROM ' + objType + ' WHERE ' + filterName + ' =:recordId';
+			String queryObjType = String.escapeSingleQuotes(objType);
+			String queryFilterName = String.escapeSingleQuotes(filterName);
+			String queryRecordId = String.escapeSingleQuotes(recordId);
+			String etQuery = 'SELECT Id, Community_Tag__c FROM ' + queryObjType + ' WHERE ' + queryFilterName + ' = :queryRecordId';
 			etQuery += objType.endsWith('Community_Event_Tag__c') ? ' AND Community_Group_Control__c = NULL' : '';
 			etQuery += CommunityUtils.accessSystemTagLevel() > 1 ? '' : ' AND Community_Tag__r.Community_Theme__r.Theme_Type__c != \'System\'';
 			for (SObject obj : Database.query(etQuery)) {
@@ -148,6 +153,7 @@ global with sharing class CommunityTagSelectorController {
 		}
 		List<TagWrapper> existingTags = new List<TagWrapper>();
 		if (tagIds.size() > 0) {
+			if (!SObjectType.Community_Tag__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Tag__c);
 			for (Community_Tag__c ct : [SELECT Id, Name, Community_Theme__r.Name FROM Community_Tag__c WHERE Id IN :tagIds]) {
 				existingTags.add(new TagWrapper(ct.Id, ct.Name, ct.Community_Theme__r.Name));
 			}
@@ -158,7 +164,11 @@ global with sharing class CommunityTagSelectorController {
 	public without sharing class SecurityWrapper{
 
 		public void deleteTags(List<sObject> deleteList){
-			delete deleteList;
+			//delete deleteList;
+			CommunityAccess.DeleteWithoutSharing(
+				deleteList,
+				'CommunityTagSelectorController.cls [deleteTags]'
+			);
 		}
 	}
 }
