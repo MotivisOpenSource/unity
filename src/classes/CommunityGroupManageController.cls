@@ -1,3 +1,32 @@
+/* 
+ * Unity - Communities
+ * 
+ * Community is critical to the student experience--but building community is 
+ * just plain hard. Built on Communities and designed specifically for higher ed, 
+ * Unity is a powerful networking tool to help you generate engagement and 
+ * connect your campus.
+ * 
+ * Copyright (C) 2015 Motivis Learning Systems Inc.
+ * 
+ * This program is free software: you can redistribute it and/or modify 
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * To contact Motivis Learning Systems Inc.
+ * 25 Pelham Road
+ * Salem, NH 03790
+ * unity@motivislearning.com
+ */
+
 public with sharing class CommunityGroupManageController {
 
 	public Community_Group_Control__c control { get;set; }
@@ -20,6 +49,7 @@ public with sharing class CommunityGroupManageController {
 		if (allOk) {
 			tinyGroup = control.Chatter_Group_ID__c == NULL;
 			if (!tinyGroup) {
+				if (!SObjectType.CollaborationGroup.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.CollaborationGroup);
 				chatterGroup = [SELECT Id, FullPhotoUrl FROM CollaborationGroup WHERE Id = :control.Chatter_Group_ID__c];
 				members = new MemberPage('members', chatterGroup.Id, control);
 			}
@@ -28,8 +58,13 @@ public with sharing class CommunityGroupManageController {
 	}
 
 	public static Community_Group_Control__c pullGroupControlRecord(Boolean useFieldSet) {
-		String chatterGroupId = ApexPages.currentPage().getParameters().get('gr');
-		String groupControlId = ApexPages.currentPage().getParameters().get('gc');
+		Map<String, String> pageParams = ApexPages.currentPage().getParameters();
+		String chatterGroupId = pageParams.containsKey('gr') ? pageParams.get('gr') : '';
+		String groupControlId = pageParams.containsKey('gc') ? pageParams.get('gc') : '';
+		return pullGroupControlRecord(useFieldSet, chatterGroupId, groupControlId);
+	}
+
+	public static Community_Group_Control__c pullGroupControlRecord(Boolean useFieldSet, String chatterGroupId, String groupControlId) {
 		if (String.isNotBlank(chatterGroupId) || String.isNotBlank(groupControlId)) {
 			Set<String> collectedFields = new Set<String> {'Id', 'Name', 'Chatter_Group_ID__c', 'Type__c', 'OwnerId', 'UserRecordAccess.HasEditAccess'};
 			if (useFieldSet) {
@@ -46,8 +81,11 @@ public with sharing class CommunityGroupManageController {
 			}
 			List<String> fieldList = new List<String>();
 			fieldList.addAll(collectedFields);
+			if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
+			String queryChatterGroupId = String.isNotBlank(chatterGroupId) ? String.escapeSingleQuotes(chatterGroupId) : '';
+			String queryGroupControlId = String.isNotBlank(groupControlId) ? String.escapeSingleQuotes(groupControlId) : '';
 			String mQuery = 'SELECT ' + String.join(fieldList, ', ') + ' FROM Community_Group_Control__c WHERE ';
-			mQuery += String.isNotBlank(chatterGroupId) ? 'Chatter_Group_ID__c = :chatterGroupId' : 'Id = :groupControlId';
+			mQuery += String.isNotBlank(chatterGroupId) ? 'Chatter_Group_ID__c = :queryChatterGroupId' : 'Id = :queryGroupControlId';
 			List<Community_Group_Control__c> cgcList = Database.query(mQuery);
 			return cgcList.size() > 0 ? cgcList[0] : NULL;
 		}
@@ -89,6 +127,7 @@ public with sharing class CommunityGroupManageController {
 	public Statistic getStat() {
 		Statistic sres = new Statistic();
 		if (chatterGroup != NULL) {
+			if (!SObjectType.CollaborationGroupMember.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.CollaborationGroupMember);
 			sres.totalMembers = [SELECT COUNT() FROM CollaborationGroupMember WHERE CollaborationGroupId = :chatterGroup.Id];
 			sres.newThisWeek = [SELECT COUNT() FROM CollaborationGroupMember WHERE CollaborationGroupId = :chatterGroup.Id AND CreatedDate = THIS_WEEK];
 			sres.newLastMonth = [SELECT COUNT() FROM CollaborationGroupMember WHERE CollaborationGroupId = :chatterGroup.Id AND CreatedDate = LAST_MONTH];
@@ -100,6 +139,7 @@ public with sharing class CommunityGroupManageController {
 	}
 
 	public Boolean getUserCanAccess() {
+		if (!SObjectType.Community_Group_Manager__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Manager__c);
 		Integer userHasCGM = [SELECT COUNT() FROM Community_Group_Manager__c WHERE Group_Manager_User__c =:UserInfo.getUserId() AND Group_Control__c =:control.Id];
 		return userHasCGM > 0;
 	}
@@ -146,26 +186,31 @@ public with sharing class CommunityGroupManageController {
 			changeOwnerMode = NULL;
 			control.OwnerId = Id.valueOf(ownerString);
 			update control;
+			CommunityAccess.UpdateWithoutSharing(
+				control,
+				'CommunityGroupManageController.cls [changeOwner]',
+				new List<Schema.DescribeFieldResult> {
+					Community_Group_Control__c.OwnerId.getDescribe()
+				}
+			);
 			allusers.newOwner(control.OwnerId);
 		}
 		allusers.init();
 	}
 
-	private static Map<Integer,String> BTN_MAP = new Map<Integer,String> {
-		1 => '2:;: btn-u-blue:;:fa-check:;:' + Label.LBL_Member,
-		2 => '1:;: :;:fa-plus-circle:;:' +Label.LBL_Add,
-		3 => '4:;: :;:fa-star-half-o:;:' + Label.LBL_Manager,
-		4 => '3:;: btn-u-blue:;:fa-check:;:' + Label.LBL_Member
+	private static Map<Integer, MembershipButton> NEW_BTN_MAP = new Map<Integer, MembershipButton> {
+		1 => new MembershipButton('2', 'btn-u-blue', 'fa-check', Label.LBL_Member),
+		2 => new MembershipButton('1', '', 'fa-plus-circle', Label.LBL_Add),
+		3 => new MembershipButton('4', '', 'fa-star-half-o', Label.LBL_Manager),
+		4 => new MembershipButton('3', 'btn-u-blue', 'fa-check', Label.LBL_Member)
 	};
 
 	@RemoteAction
-	public static String membership(String inUserId, String inGroupContolId, Integer inMode) {
+	public static MembershipButton membership(String inUserId, String inGroupContolId, Integer inMode) {
 		CommunityUtils.membership(inUserId, inGroupContolId, String.valueOf(inMode));
-		String resultHtml;
-		List<String> parts = BTN_MAP.get(inMode).split(':;:');
-		resultHtml = '<button class="btn-u' + parts[1] + '" onclick="msproc(' + parts[0] + ',\'' + inUserId + '\');return false;">';
-		resultHtml += '<i class="fa ' + parts[2] + '"></i>&nbsp;' + parts[3] + '</button>';
-		return resultHtml + '-;-' + inUserId;
+		MembershipButton btn = NEW_BTN_MAP.get(inMode);
+		btn.userId = inUserId;
+		return btn;
 	}
 
 	public String urlForGroupReturn {
@@ -216,7 +261,7 @@ public with sharing class CommunityGroupManageController {
 	}
 
 	public Boolean getShowChangeOwnerLink() {
-		return managerMode && !changeOwnerMode && control.UserRecordAccess.HasEditAccess == true;
+		return (managerMode && !changeOwnerMode && control.OwnerId == UserInfo.getUserId() && control.UserRecordAccess.HasEditAccess == true) || CommunityUtils.isModifyAllData();
 	}
 
 	// MEMBER HANDLER CLASS
@@ -264,14 +309,17 @@ public with sharing class CommunityGroupManageController {
 			Boolean requestsMode = mode == 'requests';
 			List<User> allUsers;
 			
+			String queryGIdChatter = String.escapeSingleQuotes(gIdChatter);
+			String queryGIdControl = String.escapeSingleQuotes(gIdControl);
 			if (allMode) { 
 				List<String> orderList = new List<String> {'','Name'};
 				String columnSortStr = (columnSort > 0)?orderList[columnSort]:'';
-				allUsers = CommunityHelperWithoutSharing.getCommunityUsers(null, 100, new List<String>{'ContactId', 'City', 'Country', 'Community_Contact_ID__c', 'SmallPhotoUrl'}, columnSortStr , ascSort);
+				allUsers = CommunityHelperWithoutSharing.getCommunityUsers(null, 50000, new List<String>{'ContactId', 'City', 'Country', 'Community_Contact_ID__c', 'SmallPhotoUrl'}, columnSortStr , ascSort);
 			}
 			else if (membersMode) {
+				if (!SObjectType.CollaborationGroupMember.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.CollaborationGroupMember);
 				String mQuery2 = 'SELECT MemberId, Member.Name, Member.Id, Member.ContactId, Member.City, Member.Country, Member.Community_Contact_ID__c, Member.SmallPhotoUrl FROM CollaborationGroupMember';
-				mQuery2 += ' WHERE CollaborationGroupId =\'' + gIdChatter + '\' AND (Member.ContactId != NULL OR Member.Community_Contact_ID__c != NULL) AND Member.isActive = true';
+				mQuery2 += ' WHERE CollaborationGroupId =\'' + queryGIdChatter + '\' AND (Member.ContactId != NULL OR Member.Community_Contact_ID__c != NULL) AND Member.isActive = true';
 				mQuery2 = checkQuery(mQuery2, 'Member.');
 				if (columnSort > 0) {
 					List<String> orderList = new List<String> {'','Member.Name'};
@@ -283,8 +331,9 @@ public with sharing class CommunityGroupManageController {
 				}
 			}
 			else if (managersMode) {
+				if (!SObjectType.Community_Group_Manager__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Manager__c);
 				String mQuery3 = 'SELECT Group_Manager_User__c, Group_Manager_User__r.Id, Group_Manager_User__r.Name, Group_Manager_User__r.ContactId, Group_Manager_User__r.City, Group_Manager_User__r.Country, Group_Manager_User__r.Community_Contact_ID__c, Group_Manager_User__r.SmallPhotoUrl FROM Community_Group_Manager__c';
-				mQuery3 += ' WHERE Group_Control__c =\'' + gIdControl + '\' AND (Group_Manager_User__r.ContactId != NULL OR Group_Manager_User__r.Community_Contact_ID__c != NULL) AND Group_Manager_User__r.isActive = true';
+				mQuery3 += ' WHERE Group_Control__c =\'' + queryGIdControl + '\' AND (Group_Manager_User__r.ContactId != NULL OR Group_Manager_User__r.Community_Contact_ID__c != NULL) AND Group_Manager_User__r.isActive = true';
 				mQuery3 = checkQuery(mQuery3, 'Group_Manager_User__r.');
 				if (columnSort > 0) {
 					List<String> orderList = new List<String> {'','Group_Manager_User__r.Name'};
@@ -297,11 +346,13 @@ public with sharing class CommunityGroupManageController {
 			}
 			else if (requestsMode) {
 				Set<Id> initialFoundUsers = new Set<Id>();
-				for (CollaborationGroupMemberRequest cgmrItem : [SELECT RequesterId FROM CollaborationGroupMemberRequest WHERE CollaborationGroupId =:gIdChatter AND Status = 'Pending']) {
+				if (!SObjectType.CollaborationGroupMemberRequest.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.CollaborationGroupMemberRequest);
+				for (CollaborationGroupMemberRequest cgmrItem : [SELECT RequesterId FROM CollaborationGroupMemberRequest WHERE CollaborationGroupId =:queryGIdChatter AND Status = 'Pending']) {
 					initialFoundUsers.add(cgmrItem.RequesterId);
 				}
 				allUsers = new List<User>();
 				if (initialFoundUsers.size() > 0) {
+					if (!SObjectType.User.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.User);
 					String mQuery4 = 'SELECT Id, Name, ContactId, City, Country, Community_Contact_ID__c, SmallPhotoUrl FROM User WHERE Id IN :initialFoundUsers';
 					mQuery4 = checkQuery(mQuery4, '');
 					if (columnSort > 0) {
@@ -331,19 +382,23 @@ public with sharing class CommunityGroupManageController {
 				catch(Exception e) {}
 			}
 			Map<Id, String> roleMap = new Map<Id, String>();
+			if (!SObjectType.Contact.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Contact);
 			for (Contact cItem : [SELECT Id, Primary_Role__c FROM Contact WHERE Id IN :userByContactIdsMap.keySet()]) {
 				roleMap.put(userByContactIdsMap.get(cItem.Id), cItem.Primary_Role__c);
 			}
 			Set<Id> membersIds = new Set<Id>();
-			for (CollaborationGroupMember mu2 : [SELECT MemberId FROM CollaborationGroupMember WHERE CollaborationGroupId = :gIdChatter AND MemberId IN :userByContactIdsMap.values()]) {
+			if (!SObjectType.CollaborationGroupMember.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.CollaborationGroupMember);
+			for (CollaborationGroupMember mu2 : [SELECT MemberId FROM CollaborationGroupMember WHERE CollaborationGroupId = :queryGIdChatter AND MemberId IN :userByContactIdsMap.values()]) {
 				membersIds.add(mu2.MemberId);
 			}
 			Set<Id> managersIds = new Set<Id>();
-			for (Community_Group_Manager__c cgm2 : [SELECT Group_Manager_User__c FROM Community_Group_Manager__c WHERE Group_Control__c = :gIdControl AND Group_Manager_User__c IN :userByContactIdsMap.values()]) {
+			if (!SObjectType.Community_Group_Manager__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Manager__c);
+			for (Community_Group_Manager__c cgm2 : [SELECT Group_Manager_User__c FROM Community_Group_Manager__c WHERE Group_Control__c = :queryGIdControl AND Group_Manager_User__c IN :userByContactIdsMap.values()]) {
 				managersIds.add(cgm2.Group_Manager_User__c);
 			}
 			Set<Id> subscribedToUsers = new Set<Id>();
 			if (membersMode) {
+				if (!SObjectType.EntitySubscription.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.EntitySubscription);
 				for (EntitySubscription es : [SELECT Id, ParentId FROM EntitySubscription WHERE SubscriberId =:Userinfo.getUserId() AND ParentId IN :usersIds LIMIT 500]) {
 					subscribedToUsers.add(es.ParentId);
 				}
@@ -422,6 +477,22 @@ public with sharing class CommunityGroupManageController {
 			manager = inManager;
 		}
 	}
+
+		public class MembershipButton {
+		public String userId { get;set; }
+		public String toogleMode { get;set; }
+		public String styleClass { get;set; }
+		public String icon { get;set; }
+		public String label { get;set; }
+
+		public MembershipButton(String inToogleMode, String inStyleClass, String inIcon, String inLabel) {
+			toogleMode = inToogleMode;
+			styleClass = inStyleClass;
+			icon = inIcon;
+			label = inLabel;
+		}
+	}
+
 	
 	public Integer getTagsCount() {
 		Community_Settings__c cs = Community_Settings__c.getInstance();

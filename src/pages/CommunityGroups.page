@@ -1,3 +1,32 @@
+<!--  
+ * Unity - Communities
+ * 
+ * Community is critical to the student experience--but building community is 
+ * just plain hard. Built on Communities and designed specifically for higher ed, 
+ * Unity is a powerful networking tool to help you generate engagement and 
+ * connect your campus.
+ * 
+ * Copyright (C) 2015 Motivis Learning Systems Inc.
+ * 
+ * This program is free software: you can redistribute it and/or modify 
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * To contact Motivis Learning Systems Inc.
+ * 25 Pelham Road
+ * Salem, NH 03790
+ * unity@motivislearning.com
+-->
+
 <apex:page controller="CommunityGroupsController" showHeader="false" sideBar="false" standardStylesheets="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false">
 <apex:composition template="{!$Site.Template}">
 <apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
@@ -147,10 +176,11 @@
 						gid,
 						a,
 						function(result, event) {
-							var ihtml = '<li><i class="fa fa-group"></i><span name="folc">'+result.memberCount+'</span>&nbsp;{!$Label.LBL_Followers}</li>';
-							ihtml += '<li class="'+result.lnkStyle+'"><i class="fa '+result.lnkIcon+'"></i><a href="javascript:;"';
-							ihtml += ' onclick="chckabtn(\''+result.action+'\',\''+result.groupId+'\');">'+result.btnLabel+'</a></li>';
-							$('#gr' + gid).html(ihtml);
+							_.templateSettings.variable = 'rc';
+							var template = _.template('<li><i class="fa fa-group"></i><span name="folc"><%- rc.memberCount %></span> \
+									&nbsp;{!$Label.LBL_Followers}</li><li class="<%- rc.lnkStyle %>"><i class="fa <%- rc.lnkIcon %>"></i> \
+									<a href="javascript:;" onclick="chckabtn(\'<%- rc.action %>\',\'<%- rc.groupId %>\');"><%- rc.btnLabel %></a></li>');
+							$('#gr' + gid).html(template(result));
 						}
 					);
 				}

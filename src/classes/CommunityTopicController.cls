@@ -1,8 +1,37 @@
+/* 
+ * Unity - Communities
+ * 
+ * Community is critical to the student experience--but building community is 
+ * just plain hard. Built on Communities and designed specifically for higher ed, 
+ * Unity is a powerful networking tool to help you generate engagement and 
+ * connect your campus.
+ * 
+ * Copyright (C) 2015 Motivis Learning Systems Inc.
+ * 
+ * This program is free software: you can redistribute it and/or modify 
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * To contact Motivis Learning Systems Inc.
+ * 25 Pelham Road
+ * Salem, NH 03790
+ * unity@motivislearning.com
+ */
+
 public with sharing class CommunityTopicController {
     
-    public String topicId { get{ return ApexPages.CurrentPage().getParameters().get('id'); } }
-    public String parentId { get{ return ApexPages.CurrentPage().getParameters().get('pid'); } }
-    public Boolean showTopics {  get{ return topicId == null ? false : true ;} }
+    public String topicId { get; set; }
+    public String parentId { get; set; }
+    public Boolean showTopics { get{ return topicId == null ? false : true ;} }
     public static String sortField { get; set; }
     public Boolean isTopicUpdateable { get{ return CommunityUtils.checkCRUDforObject('Topic').get('isUpdateable');} }
     public Boolean isTopicDeleteable { get{ return CommunityUtils.checkCRUDforObject('Topic').get('isDeletable');} }
@@ -11,7 +40,13 @@ public with sharing class CommunityTopicController {
     
     public Boolean isFeedTraking { get{ return CommunityUtils.isFeedTrakingEnabled('Topic', new Map<String, String>{'Name' => 'string'}); } }
     public Boolean topicExists { get{ return [SELECT Count() FROM Topic WHERE Id =:topicId AND NetworkId =: Network.getNetworkId()] > 0 ? true : false;}}
-    
+
+    public CommunityTopicController() {
+        String topId = ApexPages.CurrentPage().getParameters().get('id');
+        String parId = ApexPages.CurrentPage().getParameters().get('pid');
+        topicId = topId != NULL ? String.escapeSingleQuotes(topId) : NULL;
+        parentId = parId != NULL ? String.escapeSingleQuotes(parId) : NULL;
+    }
 
     @RemoteAction
 	public static List<TopicItem> getTopics(Map<String, String> params){
@@ -20,7 +55,8 @@ public with sharing class CommunityTopicController {
         Set<String> parentFollowingIds = new Set<String>();
 		String topId = params.get('topicId');
 		if(String.isNotEmpty(topId)){
-			Topic t = [SELECT Id, Name, NetworkId, TalkingAbout, CreatedById, Description FROM Topic WHERE Id =:topId AND NetworkId =: Network.getNetworkId() LIMIT 1];
+            String queryTopId = String.escapeSingleQuotes(topId);
+			Topic t = [SELECT Id, Name, NetworkId, TalkingAbout, CreatedById, Description FROM Topic WHERE Id = :queryTopId AND NetworkId =: Network.getNetworkId() LIMIT 1];
 			topicsItemIds.add(t.Id);
 			topicsItems.add(new TopicItem(t));
 		}else{
@@ -60,12 +96,15 @@ public with sharing class CommunityTopicController {
     }
 
     @RemoteAction
-	public static String updateTopic(String descr, String topId){
-		Topic top = [SELECT Id, Name, NetworkId, Description FROM Topic WHERE NetworkId =: Network.getNetworkId() AND Id =:topId LIMIT 1];
-        if(top == null) return Label.ERR_Can_not_found_Topic;
-        if(top.Description != descr){
-            top.Description = descr;
-            update top;
+	public static String updateTopic(String descr, String topicId){
+        String queryTopicId = String.escapeSingleQuotes(topicId);
+		List<Topic> top = [SELECT Id, Name, NetworkId, Description FROM Topic WHERE NetworkId =: Network.getNetworkId() AND Id = :queryTopicId];
+        if (top.isEmpty()) {
+            return Label.ERR_Can_not_found_Topic;
+        }
+        if (top[0].Description != descr) {
+            top[0].Description = descr;
+            update top[0];
         }
         return '';
     }

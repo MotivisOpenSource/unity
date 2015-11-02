@@ -1,3 +1,32 @@
+<!--  
+ * Unity - Communities
+ * 
+ * Community is critical to the student experience--but building community is 
+ * just plain hard. Built on Communities and designed specifically for higher ed, 
+ * Unity is a powerful networking tool to help you generate engagement and 
+ * connect your campus.
+ * 
+ * Copyright (C) 2015 Motivis Learning Systems Inc.
+ * 
+ * This program is free software: you can redistribute it and/or modify 
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * To contact Motivis Learning Systems Inc.
+ * 25 Pelham Road
+ * Salem, NH 03790
+ * unity@motivislearning.com
+-->
+
 <apex:page showHeader="false" sideBar="false" controller="CommunityGroupFilesController" action="{!initFromPage}" standardStylesheets="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false">
 <apex:composition template="{!$Site.Template}">
 <apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
@@ -8,15 +37,15 @@
 		<div class="breadcrumbs margin-bottom-10">
 			<div class="container">
 				<h1 class="pull-left">
-					<apex:outputPanel layout="none" rendered="{!mode == 'list'}">{!$Label.LBL_Files_ListingPageTitle}&nbsp;{!control.Name}</apex:outputPanel>
+					<apex:outputPanel layout="none" rendered="{!mode == 'list' && parent.name != NULL}">{!$Label.LBL_Files_ListingPageTitle}&nbsp;{!parent.name}</apex:outputPanel>
 					<apex:outputPanel id="brname" rendered="{!mode == 'detail'}">
 						<i class="fa {!FileDetail.aicon}"></i>&nbsp;{!FileDetail.name}
 					</apex:outputPanel>
 				</h1>
 				<ul class="pull-right breadcrumb">
 					<li><a href="{!$Page.CommunityHome}">{!$Label.LBL_Home}</a></li>
-					<li><a href="{!$Page.CommunityGroups}">{!$Label.LBL_Groups}</a></li>
-					<li><a href="{!$Page.CommunityGroupDetailPage}?gr={!chatterGroup.Id}">{!control.Name}</a></li>
+					<apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(parent.type))}"><li><a href="{!parent.page}">{!parent.type}</a></li></apex:outputPanel>
+					<apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(parent.detailPage))}"><li><a href="{!parent.detailPage}">{!parent.name}</a></li></apex:outputPanel>
 					<li class="active">{!$Label.LBL_Files_Files}</li>
 				</ul>
 			</div>
@@ -27,8 +56,10 @@
 
 					<!--Left Sidebar-->
 					<div class="col-md-3 md-margin-bottom-20">
-						<div class="chatter-photo"><c:CommunityUserPhoto current="false" photoUrl="{!chatterGroup.FullPhotoUrl}" currentGroupRole="none"/></div>
-						<c:CommunityFeedNavigation pn="5"/>
+						<apex:outputPanel layout="none" rendered="{!parent.photoUrl != NULL}"><div class="chatter-photo"><c:CommunityUserPhoto current="false" photoUrl="{!parent.photoUrl}" currentGroupRole="none"/></div></apex:outputPanel>
+						<apex:outputPanel layout="none" rendered="{!parent.photoUrl == NULL}"><div class="chatter-photo"><c:CommunityUserPhoto current="true" /></div></apex:outputPanel>
+
+						<c:CommunityFeedNavigation pn="{!feedNavNumber}"/>
 					</div>
 					<!--End Left Sidebar-->
 
@@ -39,7 +70,7 @@
 								<section class="col col-10">
 									<label class="input">
 										<i class="icon-append fa fa-search"></i>
-										<apex:inputText id="cgsid" value="{!fileQuery}" html-placeholder="{!$Label.LBL_Files_SearchBox} {!control.Name}" onkeyup="cgsa(this);"/>
+										<apex:inputText id="cgsid" value="{!fileQuery}" html-placeholder="{!$Label.LBL_Files_SearchBox} {!parent.name}" onkeyup="cgsa(this);"/>
 									</label>
 								</section>
 								<section class="col col-2">
@@ -75,7 +106,7 @@
 										</tr>
 									</thead>
 									<tbody>
-										<apex:repeat value="{!FileList}" var="fs2"><tr>
+										<apex:repeat value="{!fileList}" var="fs2"><tr>
 											<td class="file-actions">
 												<apex:outputLink value="#cglayout" onclick="makepreview('{!JSENCODE(fs2.previewUrl)}','{!JSENCODE(fs2.name)}');" html-role="button" html-data-toggle="modal" rendered="{!!ISBLANK(fs2.previewUrl)}">
 													<i class='fa fa-file-text' title="{!$Label.BTN_Preview}"></i>
@@ -93,7 +124,7 @@
 												<span id="{!fs2.versionId}" onclick="followa(this,{!fs2.following});"><i class="fa fa-plus-circle{!IF(fs2.following,' active','')}" title="{!IF(fs2.following, $Label.BTN_Following, $Label.LBL_Follow)}"></i></span>
 												<apex:outputPanel onclick="delfg('{!JSENCODE(fs2.versionId)}');" rendered="{!fs2.modifiable}"><i id="df{!JSENCODE(fs2.versionId)}" class="fa fa-trash" title="{!$Label.LBL_Delete}"></i></apex:outputPanel>
 											</td>
-											<td><i class="fa {!fs2.aicon}"></i>&nbsp;<a href="{!$Page.CommunityGroupFiles}?f={!fs2.documentId}&gr={!chatterGroupId}">{!fs2.name}</a></td>
+											<td><i class="fa {!fs2.aicon}"></i>&nbsp;<a href="{!$Page.CommunityGroupFiles}?f={!fs2.documentId}&p={!parent.id}">{!fs2.name}</a></td>
 											<td class="hidden-sm"><a href="{!$Page.CommunityProfilePage}?id={!fs2.ownerId}">{!fs2.ownerName}</a></td>
 											<td class="hidden-sm">{!fs2.lastModified}</td>
 										</tr></apex:repeat>
@@ -168,7 +199,7 @@
 						</apex:outputPanel>
 
 						<apex:outputPanel layout="block" rendered="{!!allOk}" styleClass="alert alert-info">
-							<a href="{!$Page.CommunityGroupDetailPage}?gr={!chatterGroup.Id}" class="alert-link">{!$Label.LBL_ReturnToGroup}</a>
+							<a href="{!$Page.CommunityGroupDetailPage}?gr={!parent.id}" class="alert-link">{!$Label.LBL_ReturnToGroup}</a>
 						</apex:outputPanel>
 					</div>
 					<!-- End Center -->
@@ -328,9 +359,7 @@
 										query,
 										function(result, event) {
 											if(result == null) return;
-											var div = document.createElement('div');
-											div.innerHTML = result;
-											var gdata = JSON.parse(div.firstChild.nodeValue);
+											var gdata = jsonObj(result)
 											groups = [];
 											groups_map = [];
 											_.each(gdata, function (group, ix, list) {

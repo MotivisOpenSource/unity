@@ -1,13 +1,51 @@
+/* 
+ * Unity - Communities
+ * 
+ * Community is critical to the student experience--but building community is 
+ * just plain hard. Built on Communities and designed specifically for higher ed, 
+ * Unity is a powerful networking tool to help you generate engagement and 
+ * connect your campus.
+ * 
+ * Copyright (C) 2015 Motivis Learning Systems Inc.
+ * 
+ * This program is free software: you can redistribute it and/or modify 
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * To contact Motivis Learning Systems Inc.
+ * 25 Pelham Road
+ * Salem, NH 03790
+ * unity@motivislearning.com
+ */
+
 public with sharing class CommunityTopCategoriesController {
 	// COMMON VARIABLES
 	public Boolean resourceOnly { get; set; }
+	public static Integer countCol { get; set; }
+	public Boolean compRendered { get; set; }
 
 	//CONTROLLER
 	public CommunityTopCategoriesController() {
 	}
 
+	public void setColumns(){
+		compRendered = true;
+	}
+
+
 	//GET DATA LIST
 	public List<themeTagWapper> getWrappedThemes() {
+		countCol = countCol != null ? countCol : 3;
+		compRendered = compRendered != null ? compRendered : false;
 		List<themeTagWapper> resultList = new List<themeTagWapper>();
 
 		List<Community_Tag__c> allTags = [
@@ -58,8 +96,8 @@ public with sharing class CommunityTopCategoriesController {
 			themeIconColor = t.Icon_Color__c;
 			tagColumns = new List<List<themeTagItem>>();
 			if (tags != NULL && tags.size() > 0) {
-				Integer breakpoint = tags.isEmpty() ? 0 : tags.size()/3;
-				for(Integer colCount = 0; colCount < 3; colCount++) {
+				Integer breakpoint = tags.isEmpty() ? 0 : tags.size()/countCol;
+				for(Integer colCount = 0; colCount < countCol; colCount++) {
 					tagColumns.add(new List<themeTagItem>());
 				}
 				Integer tagCount = 0;
