@@ -1,3 +1,32 @@
+/* 
+ * Unity - Communities
+ * 
+ * Community is critical to the student experience--but building community is 
+ * just plain hard. Built on Communities and designed specifically for higher ed, 
+ * Unity is a powerful networking tool to help you generate engagement and 
+ * connect your campus.
+ * 
+ * Copyright (C) 2015 Motivis Learning Systems Inc.
+ * 
+ * This program is free software: you can redistribute it and/or modify 
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * To contact Motivis Learning Systems Inc.
+ * 25 Pelham Road
+ * Salem, NH 03790
+ * unity@motivislearning.com
+ */
+
 @IsTest(SeeAllData=true)
 private class CommunityTest2 {
 /*Component Controllers Tests*/
@@ -28,18 +57,20 @@ private class CommunityTest2 {
 		System.assertEquals(true, sMessage);
 
 		cfnc.chatterGroupId = cg.Id;
+		cfnc.getBannerTextLabel();
 		Boolean showGM = cfnc.getShowGroupManager();
 		System.assertEquals(true, showGM);
 		System.assert(cfnc.modalTitle != null);
 		System.assert(cfnc.actionPhotoLabel != null);
 		System.assert(cfnc.permitions != null);
 		
-		cfnc.photoBody = Blob.valueOf('body');
-		cfnc.cropSize = '4';
-		cfnc.cropX = '2';
-		cfnc.cropY = '2';
-		cfnc.photoName = 'test Name';
-		cfnc.photoContentType = 'image/jpg';
+		System.Debug('11111111111111');
+		//cfnc.photoBody = Blob.valueOf('body');
+		//cfnc.cropSize = '4';
+		//cfnc.cropX = '2';
+		//cfnc.cropY = '2';
+		//cfnc.photoName = 'test Name';
+		//cfnc.photoContentType = 'image/jpg';
 		//Boolean uploadM = cfnc.uploadMode;
 		//System.assertEquals(false, uploadM);
 
@@ -86,6 +117,7 @@ private class CommunityTest2 {
 
 	@IsTest(SeeAllData=true)
 	static void test_CommunityFeedController() {
+        String strlabel = Label.ERR_Set_Up_Community_Profile;
 		CommunityFeedController cfc1 = new CommunityFeedController();
 		String communityPrefix1 = cfc1.communityPrefix;
 		Account acc = new Account(Name='testAccount');
@@ -156,9 +188,6 @@ private class CommunityTest2 {
 		
 		ConnectApi.Comment commentRep = ConnectApi.ChatterFeeds.postComment(Network.getNetworkId(), feedItemRep.Id, cInput, null);
 
-
-			//
-
 		System.runAs(u) {
 			ConnectApi.FeedElementPage testPage = new ConnectApi.FeedElementPage();
 			List<ConnectApi.FeedItem> testItemList = new List<ConnectApi.FeedItem>();
@@ -210,22 +239,22 @@ private class CommunityTest2 {
 			System.debug('Exception = '+e.getMessage());
 		}
 		
-		try{
-			CommunityFeedController.inlineAction(feedItemRep.Id, 'fa-flag','');
-		} catch (Exception e){
-			System.debug('Exception = '+e.getMessage());
-		}
+		//try{
+		//	CommunityFeedController.inlineAction(feedItemRep.Id, 'fa-flag','');
+		//} catch (Exception e){
+		//	System.debug('Exception = '+e.getMessage());
+		//}
 		
 		try{
 			CommunityFeedController.inlineAction(feedItemRep.Id, 'fa-thumbs-up','test');
 		} catch (Exception e){
 			System.debug('Exception = '+e.getMessage());
 		}
-		try{
-			CommunityFeedController.inlineAction(feedItemRep.Id, 'fa-thumbs-up','');
-		} catch (Exception e){
-			System.debug('Exception = '+e.getMessage());
-		}
+		//try{
+		//	CommunityFeedController.inlineAction(feedItemRep.Id, 'fa-thumbs-up','');
+		//} catch (Exception e){
+		//	System.debug('Exception = '+e.getMessage());
+		//}
 		try{
 			CommunityFeedController.inlineAction(feedItemRep.Id, 'fa-bookmark','test');
 		} catch (Exception e){
@@ -236,11 +265,11 @@ private class CommunityTest2 {
 		} catch (Exception e){
 			System.debug('Exception = '+e.getMessage());
 		}
-		try{
-			CommunityFeedController.inlineAction(feedItemRep.Id, 'fa-times','');
-		} catch (Exception e){
-			System.debug('Exception = '+e.getMessage());
-		}
+		//try{
+		//	CommunityFeedController.inlineAction(feedItemRep.Id, 'fa-times','');
+		//} catch (Exception e){
+		//	System.debug('Exception = '+e.getMessage());
+		//}
 
 		Map<String, List<String>> parentTypeParentId = new Map<String, List<String>>();
 		Community_Group_Control__c cgc1 = new Community_Group_Control__c();

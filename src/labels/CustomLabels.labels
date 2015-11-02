@@ -372,6 +372,13 @@
         <value>This contact already has a Community Profile with this Record Type.</value>
     </labels>
     <labels>
+        <fullName>ERR_Set_Up_Community_Profile</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>ERR Set Up Community Profile</shortDescription>
+        <value>Please set up Community Profile for current User.</value>
+    </labels>
+    <labels>
         <fullName>ERR_Topic_Not_Available</fullName>
         <language>en_US</language>
         <protected>true</protected>

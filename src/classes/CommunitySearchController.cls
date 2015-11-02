@@ -1,3 +1,32 @@
+/* 
+ * Unity - Communities
+ * 
+ * Community is critical to the student experience--but building community is 
+ * just plain hard. Built on Communities and designed specifically for higher ed, 
+ * Unity is a powerful networking tool to help you generate engagement and 
+ * connect your campus.
+ * 
+ * Copyright (C) 2015 Motivis Learning Systems Inc.
+ * 
+ * This program is free software: you can redistribute it and/or modify 
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * To contact Motivis Learning Systems Inc.
+ * 25 Pelham Road
+ * Salem, NH 03790
+ * unity@motivislearning.com
+ */
+
 public with sharing class CommunitySearchController {
 
 	public String mode { get; set; }
@@ -61,6 +90,10 @@ public with sharing class CommunitySearchController {
 		catch(Exception e) {}
 		if (validated) {
 			List<String> parts = SOQL_FILTER.get(sobj).split(':;:');
+			if (!SObjectType.Community_Event_Tag__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Event_Tag__c);
+			if (!SObjectType.Community_Group_Control_Tag__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control_Tag__c);
+			if (!SObjectType.Community_News_Tag__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_News_Tag__c);
+			if (!SObjectType.Community_Resource_Tag__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Resource_Tag__c);
 			String soqlStr = 'SELECT ' + parts[0] + parts[1] + ' AND Community_Tag__c =\'' + String.escapeSingleQuotes(tagId) + '\'';
 			for (sObject soItem : Database.query(soqlStr)) {
 				results.add((Id)soItem.get(parts[0]));
@@ -94,8 +127,9 @@ public with sharing class CommunitySearchController {
 		}
 		else if (mode == 'discover' || mode == 'resource') {
 			try {
-				Id tagId = Id.valueOf(mode == 'discover' ? pageParams.get('t') : pageParams.get('tr'));
-				resultStr = [SELECT Name FROM Community_Tag__c WHERE Id = :tagId LIMIT 1].Name;
+				String queryTagId = String.escapeSingleQuotes(Id.valueOf(mode == 'discover' ? pageParams.get('t') : pageParams.get('tr')));
+				if (!SObjectType.Community_Tag__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Tag__c);
+				resultStr = [SELECT Name FROM Community_Tag__c WHERE Id = :queryTagId LIMIT 1].Name;
 			}
 			catch (Exception e) {}
 		}
@@ -120,6 +154,7 @@ public with sharing class CommunitySearchController {
 				result = new SearchItem();
 			}
 			else {
+				if (!SObjectType.Community_News__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_News__c);
 				List<Community_News__c> cnList = [SELECT Id, Title__c, Teaser__c, Entry_Date__c, Image_Path__c FROM Community_News__c WHERE Id IN :newsIds];
 				result = new SearchItem(cnList, newsPageNum);
 			}
@@ -145,6 +180,7 @@ public with sharing class CommunitySearchController {
 				result = new SearchItem();
 			}
 			else {
+				if (!SObjectType.Community_Events__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Events__c);
 				List<Community_Events__c> eList = [SELECT Id, Name__c, Teaser__c, Start__c FROM Community_Events__c WHERE Id IN :eventIds];
 				result = new SearchItem(eList, eventPageNum);
 			}
@@ -167,6 +203,7 @@ public with sharing class CommunitySearchController {
 		if (groupPageNum != 0) {
 			Set<Id> groupsIds = filterObjects('Community_Group_Control__c');
 			if (!groupsIds.isEmpty()) {
+				if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
 				List<Community_Group_Control__c> gList = [
 					SELECT Id, Name, Chatter_Group_ID__c, Discoverable__c, Description__c, Type__c
 					FROM Community_Group_Control__c
@@ -195,6 +232,7 @@ public with sharing class CommunitySearchController {
 		SearchItem result;
 		if (resourcePageNum != 0) {
 			Set<Id> resourcesIds = filterObjects('Community_Resource__c');
+			if (!SObjectType.Community_Resource__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Resource__c);
 			String rQuery = 'SELECT Id, Name, Resource_Name__c, Link__c, Description__c,';
 			rQuery += 		' (SELECT Id, IsNote, Title FROM NotesAndAttachments WHERE IsNote = false ORDER BY CreatedDate DESC LIMIT 1) ';
 			rQuery += 		'FROM Community_Resource__c WHERE';
@@ -231,7 +269,9 @@ public with sharing class CommunitySearchController {
 	@RemoteAction
 	public static CommunityUtils.GroupAction membershipGroup(String mc, String grId, String action) {
 		CommunityUtils.GroupAction resultAction;
-		List<Community_Group_Control__c> cgcList = [SELECT Id, Type__c FROM Community_Group_Control__c WHERE Chatter_Group_ID__c = :grId];
+		String queryGrId = String.escapeSingleQuotes(grId);
+		if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
+		List<Community_Group_Control__c> cgcList = [SELECT Id, Type__c FROM Community_Group_Control__c WHERE Chatter_Group_ID__c = :queryGrId];
 		if (action != '3' && cgcList.size() > 0) {
 			ConnectApi.GroupMembershipType ngr = CommunityUtils.membership(UserInfo.getUserId(), cgcList[0].Id, action);
 			resultAction = CommunityUtils.getActionButton(ngr, cgcList[0].Type__c == 'Public');
@@ -283,7 +323,7 @@ public with sharing class CommunitySearchController {
 				SearchResult sr = new SearchResult();
 				sr.imagePath = CommunityUtils.checkUrl(inNews[ii].Image_Path__c);
 				sr.title = inNews[ii].Title__c;
-				sr.teaser = inNews[ii].Teaser__c;
+				sr.teaser = CommunityUtils.getHtmlField(inNews[ii].Teaser__c);
 				sr.fdate = inNews[ii].Entry_Date__c != NULL ? inNews[ii].Entry_Date__c.format('MMMM dd, yyyy') : '';
 				sr.detailUrl = CommunityUtils.checkUrl('/' + inNews[ii].Id);
 				results.add(sr);
@@ -300,7 +340,7 @@ public with sharing class CommunitySearchController {
 			for (Integer ii = startCopyInterval; ii < endCopyInterval; ii++) {
 				SearchResult sr = new SearchResult();
 				sr.title = inEvents[ii].Name__c;
-				sr.teaser = inEvents[ii].Teaser__c;
+				sr.teaser = CommunityUtils.getHtmlField(inEvents[ii].Teaser__c);
 				sr.fdate = inEvents[ii].Start__c != NULL ? inEvents[ii].Start__c.format('MMMM dd, yyyy') : '';
 				sr.detailUrl = CommunityUtils.checkUrl('/' + inEvents[ii].Id);
 				results.add(sr);
@@ -317,7 +357,7 @@ public with sharing class CommunitySearchController {
 			for (Integer ii = startCopyInterval; ii < endCopyInterval; ii++) {
 				SearchResult sr = new SearchResult();
 				sr.title = inResources[ii].Name;
-				sr.teaser = inResources[ii].Description__c;
+				sr.teaser = CommunityUtils.getHtmlField(inResources[ii].Description__c);
 				if (String.isNotBlank(inResources[ii].Link__c)) {
 					sr.linkUrl = inResources[ii].Link__c;
 					sr.imagePath = 'fa-link';
@@ -349,13 +389,13 @@ public with sharing class CommunitySearchController {
 				Integer totalPages = totalRecords / pageSize + ((Math.mod(totalRecords, pageSize) == 0) ? 0 : 1);
 				// << section
 				if (currentPageNumber > 1) {
-					pagination.add(new List<String> {'&laquo;', String.valueOf(currentPageNumber - 1), ''});
+					pagination.add(new List<String> {'left', String.valueOf(currentPageNumber - 1), ''});
 				}
 				// 1 section
 				pagination.add(new List<String> {'1', '1', (currentPageNumber == 1 ? 'active' : '')});
 				// 2 section
 				if (totalPages > 7 && currentPageNumber > 4 && currentPageNumber <= (totalPages - 3)) {
-					pagination.add(new List<String> {'&hellip;', String.valueOf(currentPageNumber - 2), ''});
+					pagination.add(new List<String> {'middle', String.valueOf(currentPageNumber - 2), ''});
 				}
 				else {
 					pagination.add(new List<String> {'2', '2', (currentPageNumber == 2 ? 'active' : '')});
@@ -374,11 +414,11 @@ public with sharing class CommunitySearchController {
 						pagination.add(new List<String> {'4', '4', (currentPageNumber == 4 ? 'active' : '')});
 					}
 					else if (currentPageNumber <= 3) {
-						pagination.add(new List<String> {'&hellip;', '4', ''});
+						pagination.add(new List<String> {'middle', '4', ''});
 					}
 					else if (currentPageNumber > (totalPages - 3)) {
 						String pn = String.valueOf(totalPages - 3);
-						pagination.add(new List<String> {'&hellip;', pn, ''});
+						pagination.add(new List<String> {'middle', pn, ''});
 					}
 					else {
 						String pn = String.valueOf(currentPageNumber);
@@ -410,7 +450,7 @@ public with sharing class CommunitySearchController {
 					}
 					else {
 						String pn = String.valueOf(currentPageNumber + 2);
-						pagination.add(new List<String> {'&hellip;', pn, ''});
+						pagination.add(new List<String> {'middle', pn, ''});
 					}
 				}
 				// 7 section
@@ -420,7 +460,7 @@ public with sharing class CommunitySearchController {
 				}
 				// >> section
 				if (currentPageNumber < totalPages) {
-					pagination.add(new List<String> {'&raquo;', String.valueOf(currentPageNumber + 1), ''});
+					pagination.add(new List<String> {'right', String.valueOf(currentPageNumber + 1), ''});
 				}
 			}
 		}
@@ -429,7 +469,7 @@ public with sharing class CommunitySearchController {
 	public class SearchResult {
 		public String imagePath { get; set; }
 		public String title { get; set; }
-		public String teaser { get; set; }
+		public Community_Resource__c teaser { get; set; }
 		public String fdate { get; set; }
 		public String detailUrl { get; set; }
 		public String linkUrl { get; set; }

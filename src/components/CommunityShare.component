@@ -1,3 +1,32 @@
+<!--  
+ * Unity - Communities
+ * 
+ * Community is critical to the student experience--but building community is 
+ * just plain hard. Built on Communities and designed specifically for higher ed, 
+ * Unity is a powerful networking tool to help you generate engagement and 
+ * connect your campus.
+ * 
+ * Copyright (C) 2015 Motivis Learning Systems Inc.
+ * 
+ * This program is free software: you can redistribute it and/or modify 
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * To contact Motivis Learning Systems Inc.
+ * 25 Pelham Road
+ * Salem, NH 03790
+ * unity@motivislearning.com
+-->
+
 <apex:component controller="CommunityShareController" allowDml="true">
 	<apex:attribute name="sO" type="SObject" assignTo="{!sobj}" required="true" description="Parent Object" />
 
@@ -86,9 +115,7 @@
 				query,
 				function(result, event) {
 					if(result == null) return;
-					var div = document.createElement('div');
-					div.innerHTML = result;
-					var gdata = JSON.parse(div.firstChild.nodeValue);
+					var gdata = jsonObj(result);
 					groups = [];
 					groups_map = [];
 					_.each(gdata, function (group, ix, list) {
@@ -102,7 +129,6 @@
 
 		jQuery(document).ready(function() {
 			jQuery("[id $= 'availGroupsPanel']").hide();
-			console.log('1212121');
 			jQuery('#groupsInput').typeahead({
 				source:function (query, process) {
 					searchGroups(query, process);
@@ -159,7 +185,6 @@
 			var sobjId = window.location.href.split("id=")[1];
 			var linkName = jQuery("input[id *='linkName']").val();
 			var shareOnProfile = jQuery("input[id $='shareOnProfile']").is(':checked');
-			console.log(jQuery("input[id $='shareOnProfile']"));
 			Visualforce.remoting.Manager.invokeAction(
 				'{!$RemoteAction.CommunityShareController.shareForGroups}',
 				groupsIds,
@@ -169,9 +194,8 @@
 				shareOnProfile,
 				function(result, event) {
 					if(result.split('ERR').length > 1){
-						var div = document.createElement('div');
-						div.innerHTML = result;
-						jQuery('[id *= "messageArea"]').html('<div id="messageAreaIn" layout="block" class="alert alert-danger fade in"><strong>Error!</strong> ' + result.substring(3, result.length)+'</div>');
+						var template = _.template('<div id="messageAreaIn" layout="block" class="alert alert-danger fade in"><strong>Error!</strong> <%- msg %></div>');
+						jQuery('[id *= "messageArea"]').html(template({ msg: result.substring(3, result.length) }));
 						jQuery('[id *= "messageArea"]').show();
 					}else{
 						jQuery('#shareModalDialog').hide();
@@ -228,9 +252,7 @@
 					'{!$RemoteAction.CommunityShareController.getGroups}',
 					'',
 					function(result, event) {
-						var div = document.createElement('div');
-						div.innerHTML = result;
-						jQuery('#list').html(div.firstChild.nodeValue);
+						jQuery('#list').html(encode(result));
 					}
 				);
 			}

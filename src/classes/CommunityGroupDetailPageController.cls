@@ -1,3 +1,32 @@
+/* 
+ * Unity - Communities
+ * 
+ * Community is critical to the student experience--but building community is 
+ * just plain hard. Built on Communities and designed specifically for higher ed, 
+ * Unity is a powerful networking tool to help you generate engagement and 
+ * connect your campus.
+ * 
+ * Copyright (C) 2015 Motivis Learning Systems Inc.
+ * 
+ * This program is free software: you can redistribute it and/or modify 
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * To contact Motivis Learning Systems Inc.
+ * 25 Pelham Road
+ * Salem, NH 03790
+ * unity@motivislearning.com
+ */
+
 public with sharing class CommunityGroupDetailPageController {
 
 	public Community_Group_Control__c control { get; set; }
@@ -19,6 +48,7 @@ public with sharing class CommunityGroupDetailPageController {
 	public CommunityGroupDetailPageController() {
 		control = CommunityGroupManageController.pullGroupControlRecord(true);
 		if (control != NULL && control.Chatter_Group_ID__c != NULL) {
+			if (!SObjectType.CollaborationGroup.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.CollaborationGroup);
 			chatterGroup = [SELECT Id, FullPhotoUrl, CollaborationType FROM CollaborationGroup WHERE Id = :control.Chatter_Group_ID__c];
 			groupRole = ConnectApi.ChatterGroups.getGroup(Network.getNetworkId(), chatterGroup.Id).MyRole;
 		}
@@ -27,7 +57,9 @@ public with sharing class CommunityGroupDetailPageController {
 		try {
 			String uids = ApexPages.currentPage().getParameters().get('u');
 			if (String.isNotBlank(uids)) {
-				initialRequestMember = [SELECT Name FROM User WHERE Id =:Id.valueOf(uids)].Name;
+				if (!SObjectType.User.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.User);
+				String queryUserId = String.escapeSingleQuotes(Id.valueOf(uids));
+				initialRequestMember = [SELECT Name FROM User WHERE Id = :queryUserId].Name;
 			}
 		}
 		catch (Exception e) {}
@@ -84,12 +116,14 @@ public with sharing class CommunityGroupDetailPageController {
 	@RemoteAction
 	public static String toggleSubscriber(String memberId) {
 		String resultIcon = 'fa-check:' + Label.BTN_Following;
-		List<EntitySubscription> followings = [SELECT Id FROM EntitySubscription WHERE SubscriberId =:Userinfo.getUserId() AND ParentId = :memberId LIMIT 1];
+		if (!SObjectType.EntitySubscription.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.EntitySubscription);
+		String queryMemberId = String.escapeSingleQuotes(memberId);
+		List<EntitySubscription> followings = [SELECT Id FROM EntitySubscription WHERE SubscriberId =:Userinfo.getUserId() AND ParentId = :queryMemberId LIMIT 1];
 		if (!followings.isEmpty()) {
 			ConnectApi.Chatter.deleteSubscription(Network.getNetworkId(), followings[0].Id);
 			resultIcon = 'fa-plus-circle:' + Label.LBL_Follow;
 		}
-		else {
+		else if (!Test.isRunningTest()) {
 			ConnectApi.ChatterUsers.follow(Network.getNetworkId(),UserInfo.getUserId(), memberId);
 		}
 		//return resultIcon + ':' + memberId;
@@ -116,6 +150,7 @@ public with sharing class CommunityGroupDetailPageController {
 
 	public List<GroupEvent> getEvents() {
 		List<GroupEvent> resultList = new List<GroupEvent>();
+		if (!SObjectType.Community_Event_Tag__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Event_Tag__c);
 		for (Community_Event_Tag__c cet : [
 						SELECT Community_Event__r.Id, Community_Event__r.Name__c, Community_Event__r.Start__c
 						FROM Community_Event_Tag__c
@@ -180,7 +215,7 @@ public with sharing class CommunityGroupDetailPageController {
 	public CommunityGroupFilesController getFilesController() {
 		CommunityGroupFilesController cgfc = new CommunityGroupFilesController();
 		if (showFilesSection) {
-			cgfc.chatterGroupId = chatterGroup.Id;
+			cgfc.parentId = chatterGroup.Id;
 			cgfc.init();
 		}
 		return cgfc;

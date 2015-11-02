@@ -1,3 +1,32 @@
+/* 
+ * Unity - Communities
+ * 
+ * Community is critical to the student experience--but building community is 
+ * just plain hard. Built on Communities and designed specifically for higher ed, 
+ * Unity is a powerful networking tool to help you generate engagement and 
+ * connect your campus.
+ * 
+ * Copyright (C) 2015 Motivis Learning Systems Inc.
+ * 
+ * This program is free software: you can redistribute it and/or modify 
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * To contact Motivis Learning Systems Inc.
+ * 25 Pelham Road
+ * Salem, NH 03790
+ * unity@motivislearning.com
+ */
+
 global with sharing class CommunityTagSelectorController {
 	public String objectId { get; set; }
 	public String objectType { get; set; }
@@ -18,7 +47,8 @@ global with sharing class CommunityTagSelectorController {
 				}
 			}
 		}
-		String query = 'SELECT Id, Community_Tag__c FROM ' + String.escapeSingleQuotes(objectType) + ' WHERE ' + String.escapeSingleQuotes(filterName) + ' =: objectId';
+		String queryObjectId = String.escapeSingleQuotes(objectId);
+		String query = 'SELECT Id, Community_Tag__c FROM ' + String.escapeSingleQuotes(objectType) + ' WHERE ' + String.escapeSingleQuotes(filterName) + ' =: queryObjectId';
 		query += objectType.endsWith('Community_Event_Tag__c__') ? ' AND Community_Group_Control__c = NULL' : '';
 		query += CommunityUtils.accessSystemTagLevel() > 1 ? '' : ' AND Community_Tag__r.Community_Theme__r.Theme_Type__c != \'System\'';
 		List<sObject> deleteList = new List<sObject>();
@@ -65,11 +95,12 @@ global with sharing class CommunityTagSelectorController {
 	}
 
 	public static List<Community_Tag__c> getTagsLocal(String q, String themeType) {
+		if (!SObjectType.Community_Tag__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Tag__c);
 		String tagQuery = 'SELECT Id, Name, Community_Theme__c, Community_Theme__r.Name FROM Community_Tag__c WHERE Community_Theme__r.Theme_Type__c IN (\'';
 		tagQuery += themeType + ( (themeType == 'Interest' && CommunityUtils.accessSystemTagLevel() == 2) ? '\',\'System\')' : '\')');
 		if (q != NULL) {
 			List<String> queries = q.split(',');
-			String tQuery = queries.get(queries.size()-1).trim();
+			String tQuery = String.escapeSingleQuotes(queries.get(queries.size()-1).trim());
 			tagQuery += ' AND (Name LIKE \'%' + tQuery + '%\' OR Community_Theme__r.Name LIKE \'%' + tQuery + '%\')';
 		}
 		tagQuery += ' ORDER BY Community_Theme__r.Name, Name';
@@ -112,7 +143,10 @@ global with sharing class CommunityTagSelectorController {
 	global static String getExistingTags(String recordId, String objType, String filterName) {
 		Set<String> tagIds = new Set<String>();
 		if (String.isNotBlank(recordId)) {
-			String etQuery = 'SELECT Id, Community_Tag__c FROM ' + objType + ' WHERE ' + filterName + ' =:recordId';
+			String queryObjType = String.escapeSingleQuotes(objType);
+			String queryFilterName = String.escapeSingleQuotes(filterName);
+			String queryRecordId = String.escapeSingleQuotes(recordId);
+			String etQuery = 'SELECT Id, Community_Tag__c FROM ' + queryObjType + ' WHERE ' + queryFilterName + ' = :queryRecordId';
 			etQuery += objType.endsWith('Community_Event_Tag__c') ? ' AND Community_Group_Control__c = NULL' : '';
 			etQuery += CommunityUtils.accessSystemTagLevel() > 1 ? '' : ' AND Community_Tag__r.Community_Theme__r.Theme_Type__c != \'System\'';
 			for (SObject obj : Database.query(etQuery)) {
@@ -121,6 +155,7 @@ global with sharing class CommunityTagSelectorController {
 		}
 		List<TagWrapper> existingTags = new List<TagWrapper>();
 		if (tagIds.size() > 0) {
+			if (!SObjectType.Community_Tag__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Tag__c);
 			for (Community_Tag__c ct : [SELECT Id, Name, Community_Theme__r.Name FROM Community_Tag__c WHERE Id IN :tagIds]) {
 				existingTags.add(new TagWrapper(ct.Id, ct.Name, ct.Community_Theme__r.Name));
 			}
@@ -131,7 +166,11 @@ global with sharing class CommunityTagSelectorController {
 	public without sharing class SecurityWrapper{
 
 		public void deleteTags(List<sObject> deleteList){
-			delete deleteList;
+			//delete deleteList;
+			CommunityAccess.DeleteWithoutSharing(
+				deleteList,
+				'CommunityTagSelectorController.cls [deleteTags]'
+			);
 		}
 	}
 }

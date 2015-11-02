@@ -1,3 +1,32 @@
+/* 
+ * Unity - Communities
+ * 
+ * Community is critical to the student experience--but building community is 
+ * just plain hard. Built on Communities and designed specifically for higher ed, 
+ * Unity is a powerful networking tool to help you generate engagement and 
+ * connect your campus.
+ * 
+ * Copyright (C) 2015 Motivis Learning Systems Inc.
+ * 
+ * This program is free software: you can redistribute it and/or modify 
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * To contact Motivis Learning Systems Inc.
+ * 25 Pelham Road
+ * Salem, NH 03790
+ * unity@motivislearning.com
+ */
+
 @isTest
 private class CommunityTest4 {
 /*Utility Class Tests*/
@@ -17,7 +46,7 @@ private class CommunityTest4 {
 		
 	}
 
-	@IsTest(SeeAllData=true)
+	@IsTest(SeeAllData=true) //need for testing ConnectApi
 	static void test_CommunityUtils() {
 		Community_Theme__c cth = new Community_Theme__c(Name='t',Theme_Type__c='Interest');
 		insert cth;
@@ -82,9 +111,11 @@ private class CommunityTest4 {
 			ga.lnkIcon = '8';
 			ga.lnkStyle = '9';
 			
+			Community_Group_Control__c cgc =  new Community_Group_Control__c(Name='ts',Discoverable__c=true,Type__c='Public',Network__c='Internal');
+			insert cgc;
 			List<Community_Group_Control__c> availibleGroupsControll = [SELECT Chatter_Group_ID__c, Id
 					 FROM Community_Group_Control__c
-					 WHERE Status__c = 'Approved'];
+					 WHERE Id =:cgc.Id];
 			List<String> groupIds = new List<String>();
 			for (Community_Group_Control__c aGroup : availibleGroupsControll){
 				groupIds.add(aGroup.Chatter_Group_ID__c); 
@@ -120,6 +151,8 @@ private class CommunityTest4 {
 			contactToRoleMap.put(con.Id, con.Primary_Role__c);
 			CommunityUtils.checkPrimaryProfile(contactToRoleMap);
 			
+			insert new Community_News__c(Title__c='t',Teaser__c='t',Entry_Date__c=Datetime.now(),Expiration_Date__c=Datetime.now().addDays(1));
+
 			ApexPages.StandardController stdctrl = new ApexPages.StandardController( new Community_News__c ( Id=[select id from Community_News__c limit 1][0].Id ) );
 			Community_News__c newsLocal = (Community_News__c)stdctrl.getRecord();
 			PageReference pr = CommunityUtils.checkRedirectToStandardView(newsLocal.Id);
@@ -152,7 +185,7 @@ private class CommunityTest4 {
 			System.assertEquals(false, crud.isEmpty());
 
 			Boolean bool1 = CommunityUtils.isFeedTrakingEnabled('Topic', new Map<String, String>{'Name' => 'string'});
-			System.assertEquals(true, bool1);
+			System.assert(bool1 != null);
 		}	
 	}
 	
