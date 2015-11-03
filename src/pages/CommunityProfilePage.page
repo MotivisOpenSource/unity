@@ -33,7 +33,7 @@
 <apex:define name="body">
 	<!--=== Profile ===-->	
 	<div class="profile CommunityProfilePage">
-		<apex:outputPanel styleClass="container content" rendered="{!isCommunityUser}" layout="block">
+		<apex:outputPanel styleClass="container content" rendered="{!isCommunityUser}"  layout="block">
 			<apex:variable var="pft" value="{!IF(ISBLANK($CurrentPage.parameters.f),'1',JSENCODE($CurrentPage.parameters.f))}"/>
 			<div class="row">
 				<!--Left Sidebar-->

@@ -44,7 +44,7 @@
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/sky-forms/version-2.0.1/js/jquery.validate.min.js"></script> <!--  path contains old version -->
 	<script type="text/javascript" src="/soap/ajax/33.0/connection.js"></script>
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/ImageLoad/load-image.all.min.js"></script>
-	
+
 	<apex:stylesheet value="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.css" />
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.js"></script>
 	<!-- script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.13.1/jquery.validate.min.js"></script-->
@@ -93,9 +93,9 @@
 
 						<% if (p.showLink) { %>
 						<div class="d-link">
-						<a href="<%= p.linkHref %>" target="_blank" >
+						<a href="<%- p.linkHref %>" target="_blank" >
 							<i class="fa fa-link"></i>
-							<%= p.linkName %><br>
+							<%- p.linkName %><br>
 						</a>
 						<% print(wrapnl(p.linkHref)); %>
 						</div>
@@ -395,7 +395,7 @@
 						<% } %>
 					<% } else {%>
 						<section>
-							<label class="label input"><%= ii.label %></label>
+							<label class="label input"><%- ii.label %></label>
 							<% if (ii.ftype == "textarea") { %>
 							<label class="textarea input">
 								<textarea id="<%- ii.fieldName %>" name="<%- ii.fieldName %>" class="form-control <%- ii.validationClass %>"<%- ii.requiredAttr %> > </textarea>
