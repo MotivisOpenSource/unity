@@ -94,6 +94,7 @@ trigger CommunityGroupControl on Community_Group_Control__c (before insert, afte
 
 	if (Trigger.isAfter && Trigger.isInsert) {
 		Map<Id, Community_Group_Control__c> GroupControlIdByChatterGroupId = new Map<Id, Community_Group_Control__c>();
+		List<EntitySubscription> subscriptionsListToInsert = new List<EntitySubscription>();
 		for (Community_Group_Control__c cgcItem : Trigger.new) {
 			if (cgcItem.Chatter_Group_ID__c != NULL) {
 				GroupControlIdByChatterGroupId.put(Id.valueOf(cgcItem.Chatter_Group_ID__c), cgcItem);
@@ -114,9 +115,15 @@ trigger CommunityGroupControl on Community_Group_Control__c (before insert, afte
 						Manager_Role__c = (cgmItem.CollaborationGroup.OwnerId == cgmItem.MemberId ? 'Owner' : 'Manager')
 					)
 				);
+				subscriptionsListToInsert.add(new EntitySubscription(
+					SubscriberId = cgcFromMap.OwnerId,
+					ParentId = cgcFromMap.Id,
+					NetworkId = Network.getNetworkId()
+				));
 			}
 			if (membersCommunityGroup.size() > 0) {
 				insert membersCommunityGroup;
+				insert subscriptionsListToInsert;
 			}
 		}
 	}
@@ -288,12 +295,13 @@ trigger CommunityGroupControl on Community_Group_Control__c (before insert, afte
 		for (Community_Group_Control__c cgcItem : Trigger.new) {
 			chatterGroupIdList.add(cgcItem.Chatter_Group_Id__c);
 		}
+
 		List<CollaborationGroup> cgList = [SELECT Id, Name, Description,InformationBody FROM CollaborationGroup WHERE Id IN :chatterGroupIdList];
-		if(cgList.Size()>0){
-			for (Community_Group_Control__c cgcItem : Trigger.new){
-				for(CollaborationGroup cgItem : cgList){
-					if(cgItem.Id == cgcItem.Chatter_Group_ID__c){
-						if((cgcItem.Description__c != cgItem.Description) ||(cgcItem.Information__c != cgItem.InformationBody)) {
+		if (cgList.Size() > 0) {
+			for (Community_Group_Control__c cgcItem : Trigger.new) {
+				for (CollaborationGroup cgItem : cgList) {
+					if (cgItem.Id == cgcItem.Chatter_Group_ID__c) {
+						if ((cgcItem.Description__c != cgItem.Description) || (cgcItem.Information__c != cgItem.InformationBody)) {
 							System.Debug('Same changes control');
 							cgItem.Description = cgcItem.Description__c;
 							cgItem.InformationBody = cgcItem.Information__c;
@@ -303,12 +311,12 @@ trigger CommunityGroupControl on Community_Group_Control__c (before insert, afte
 					}
 				}
 			}
-			if(cgListForUpdate.Size()>0){
-				try{
+			if (cgListForUpdate.Size() > 0) {
+				try {
 					update cgListForUpdate;
 				}
-				catch(Exception e){
-					System.Debug(e);
+				catch (Exception e) {
+					System.debug(e);
 				}
 			}
 		}
