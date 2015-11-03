@@ -193,7 +193,7 @@ global with sharing class CommunityProfilePageController {
 	public void initInterests() {
 		Set<Id> activeTags = new Set<Id>();
 		if (!SObjectType.Community_Profile_Tag__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Profile_Tag__c);
-		String queryContactId = String.escapeSingleQuotes(contactId);
+		String queryContactId = String.isNotBlank(contactId) ? String.escapeSingleQuotes(contactId) : '';
 		for (Community_Profile_Tag__c cptItem : [SELECT Community_Tag__c FROM Community_Profile_Tag__c WHERE Contact__c =:queryContactId AND Active__c = true]) {
 			activeTags.add(cptItem.Community_Tag__c);
 		}
