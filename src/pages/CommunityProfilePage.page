@@ -288,7 +288,13 @@
 											<label><h4><strong>{!section.sectionLabel}</strong></h4></label>
 											<apex:repeat value="{!section.items}" var="it">
 												<label class="toggle{!IF(section.general,'',' plus')}">
-													<apex:outputText value="{!it.InputHtml}" escape="false"/>
+													<apex:outputPanel layout="none" rendered="{!it.disabled}">
+														<input type="checkbox" onchange="chnot(this);" name="{!it.fieldName}" checked="{!IF(it.checked, 'true', 'false')}" disabled="disabled" />
+													</apex:outputPanel>
+													<apex:outputPanel layout="none" rendered="{!!it.disabled}">
+														<input type="checkbox" onchange="chnot(this);" name="{!it.fieldName}" checked="{!IF(it.checked, 'true', 'false')}"/>
+													</apex:outputPanel>
+													<i class="{!IF(it.disabled, '', IF(it.checked, 'green-btn', 'red-btn'))}"></i>
 													{!it.fieldLabel}
 												</label>
 											</apex:repeat>

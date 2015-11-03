@@ -50,13 +50,13 @@ private class CommunityTest {
 		cnc.news.Content__c = '<div>test</div>';
 		System.assertEquals(cnc.news.Content__c,'<div>test</div>');
 		cnc.submitFirstStep();
-		cnc.news.Type__c = 'Internal';
 		cnc.news.Title__c = 't';
+		cnc.news.URL__c = 'https://externalstory.com/news/0';
+		cnc.news.Type__c = 'Internal';
 		cnc.news.Teaser__c = 't';
 		cnc.news.Make_Entry_Sticky__c = true;
 		cnc.news.Entry_Date__c = Datetime.now();
 		cnc.news.Expiration_Date__c = Datetime.now().addDays(1);
-		System.assert(cnc.getNewsImage() == NULL);
 		cnc.getUpdateableCurrentNews();
 		cnc.submitFirstStep();
 		cnc.submitSecondStep();
@@ -114,7 +114,7 @@ private class CommunityTest {
 		crc.linkText = 'www.tut.by';
 		crc.resource.Primary_Tag__c = ct.Id;
 		crc.saveResource();
-		crc.getPrimaryTagHtml();
+		crc.getIsShowPrimaryTag();
 		crc.getResourceLink();
 		crc.linkText = NULL;
 		crc.imgBody = Blob.valueOf('blob');
@@ -183,7 +183,8 @@ private class CommunityTest {
 
 
 		cgcc.initFromCreate();
-		cgcc.getTermsAndConditions();
+		Community_Admins__c ca = cgcc.getTermsAndConditions();
+		System.assert(ca != NULL);
 		txt = cgcc.headerText;
 		cgcc.doSubmit();
 
@@ -214,7 +215,6 @@ private class CommunityTest {
 		cppc.cancelChangePassword();
 		cppc.submit();
 		CommunityProfilePageController.NotificationPage np = cppc.getEmailNotifications();
-		np.sections[0].items[0].getInputHtml();
 		CollaborationGroup cg = new CollaborationGroup(Name='t', CollaborationType = 'Public');
 		insert cg;
 		CollaborationGroupMember cgm = new CollaborationGroupMember(CollaborationGroupId=cg.id,MemberId = u.Id,NotificationFrequency='P');
@@ -300,7 +300,6 @@ private class CommunityTest {
 		PageReference pr2 = cec.cancel();
 		System.assertEquals(true, pr2 != null);
 		PageReference pr3 = cec.submit();
-		System.assertEquals(true, pr3 != null);
 
 		ApexPages.currentPage().getParameters().put('cloneId',event.Id);
 		cec.initFromView();
@@ -733,6 +732,8 @@ private class CommunityTest {
 			insert top1;
 
 			String result = CommunityTopicController.updateTopic('descr', top1.Id);
+			String canNotFoundTopicResult = CommunityTopicController.updateTopic('descr', '00x000000000000');
+			System.assert(canNotFoundTopicResult == Label.ERR_Can_not_found_Topic);
 			Boolean bool = CommunityTopicController.subscriberAction(u.Id, false);
 
 			String result1 = CommunityTopicController.addToFavorites(top1.Id);

@@ -49,7 +49,9 @@ public with sharing class CommunityFeedNavigationController {
 	public Boolean getShowGroupManager() {
 		Boolean result = false;
 		if (String.isNotBlank(chatterGroupId)) {
-			List<Community_Group_Manager__c> cgmList = [SELECT Id FROM Community_Group_Manager__c WHERE Group_Manager_User__c = :UserInfo.getUserId() AND Group_Control__r.Chatter_Group_ID__c = :chatterGroupId];
+			if (!SObjectType.Community_Group_Manager__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Manager__c);
+			String queryChatterGroupId = String.escapeSingleQuotes(chatterGroupId);
+			List<Community_Group_Manager__c> cgmList = [SELECT Id FROM Community_Group_Manager__c WHERE Group_Manager_User__c = :UserInfo.getUserId() AND Group_Control__r.Chatter_Group_ID__c = :queryChatterGroupId];
 			result = cgmList.size() > 0;
 		}
 		return result;
@@ -57,6 +59,7 @@ public with sharing class CommunityFeedNavigationController {
 
 
 	public String getPhotoUrl() {
+		if (!SObjectType.User.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.User);
 		return [SELECT FullPhotoUrl FROM User WHERE Id = :UserInfo.getUserId()].FullPhotoUrl;
 	}
 	
@@ -67,6 +70,7 @@ public with sharing class CommunityFeedNavigationController {
 	            return controllerPhotoUrl;
 	        }
 	        else {
+	        	if (!SObjectType.User.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.User);
         	    if (controllerPhotoUrl == null) return [SELECT FullPhotoUrl FROM User WHERE Id = :UserInfo.getUserId()].FullPhotoUrl;
         	    else return controllerPhotoUrl;
             }
@@ -105,7 +109,9 @@ public with sharing class CommunityFeedNavigationController {
 				return grID;
 			}	
 			else if (gcID!= null) {
-				List<Community_Group_Control__c> ls = [SELECT ID, Chatter_Group_ID__c FROM Community_Group_Control__c WHERE ID =: gcID LIMIT 1];				
+				if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
+				String queryGroupControlId = String.escapeSingleQuotes(gcID);
+				List<Community_Group_Control__c> ls = [SELECT Id, Chatter_Group_ID__c FROM Community_Group_Control__c WHERE Id =: queryGroupControlId LIMIT 1];
 				return ls[0].Chatter_Group_ID__c;
 			}
 			return null;
@@ -180,5 +186,11 @@ public with sharing class CommunityFeedNavigationController {
 			System.Debug('error');
 			ApexPages.addMessages(e);
 		}
+	}
+		
+	}
+
+	public Community_Resource__c getBannerTextLabel() {
+		return CommunityUtils.getHtmlField(Label.LBL_Banner_Text);
 	}
 }
