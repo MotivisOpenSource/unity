@@ -52,7 +52,7 @@ public with sharing class CommunityFeedNavigationController {
 			if (!SObjectType.Community_Group_Manager__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Manager__c);
 			String queryChatterGroupId = String.escapeSingleQuotes(chatterGroupId);
 			List<Community_Group_Manager__c> cgmList = [SELECT Id FROM Community_Group_Manager__c WHERE Group_Manager_User__c = :UserInfo.getUserId() AND Group_Control__r.Chatter_Group_ID__c = :queryChatterGroupId];
-			result = cgmList.size() > 0;
+			result = cgmList.size() > 0 || CommunityUtils.isModifyAllData();
 		}
 		return result;
 	}
