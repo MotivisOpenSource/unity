@@ -141,7 +141,7 @@ public with sharing class CommunityGroupManageController {
 	public Boolean getUserCanAccess() {
 		if (!SObjectType.Community_Group_Manager__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Manager__c);
 		Integer userHasCGM = [SELECT COUNT() FROM Community_Group_Manager__c WHERE Group_Manager_User__c =:UserInfo.getUserId() AND Group_Control__c =:control.Id];
-		return userHasCGM > 0 || (CommunityUtils.isModifyAllData() && !CommunityUtils.checkGroupOwnerIsActive(control.Chatter_Group_ID__c));
+		return userHasCGM > 0 || CommunityUtils.isModifyAllData();
 	}
 
 	//ADD/REMOVE MEMBERS/MANAGERS
