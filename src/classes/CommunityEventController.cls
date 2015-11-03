@@ -645,7 +645,7 @@ public with sharing class CommunityEventController {
 		List<String> groupIds = new List<String>();
 		if (!SObjectType.CollaborationGroup.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.CollaborationGroup);
 		if (!SObjectType.CollaborationGroupMember.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.CollaborationGroupMember);
-		String gueryNetworkId = !Test.isRunninTest() ? String.escapeSingleQuotes(Network.getNetworkId()) : null;
+		String gueryNetworkId = !Test.isRunningTest() ? String.escapeSingleQuotes(Network.getNetworkId()) : null;
 		String cgQuery = 'SELECT Id, Name FROM CollaborationGroup WHERE NetworkId = \'' + gueryNetworkId + '\' AND Id IN :chatterGroups';
 		cgQuery += CommunityUtils.isModifyAllData() ? '' : ' AND Id IN (SELECT CollaborationGroupId FROM CollaborationGroupMember WHERE MemberId = \'' + String.escapeSingleQuotes(UserInfo.getUserId()) + '\')';
 		List<CollaborationGroup> cgList = Database.query(cgQuery);
