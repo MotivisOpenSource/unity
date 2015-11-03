@@ -1,3 +1,32 @@
+<!--  
+ * Unity - Communities
+ * 
+ * Community is critical to the student experience--but building community is 
+ * just plain hard. Built on Communities and designed specifically for higher ed, 
+ * Unity is a powerful networking tool to help you generate engagement and 
+ * connect your campus.
+ * 
+ * Copyright (C) 2015 Motivis Learning Systems Inc.
+ * 
+ * This program is free software: you can redistribute it and/or modify 
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * To contact Motivis Learning Systems Inc.
+ * 25 Pelham Road
+ * Salem, NH 03790
+ * unity@motivislearning.com
+-->
+
 <apex:page controller="CommunitySearchController" showHeader="false" sideBar="false" standardStylesheets="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false">
 	<apex:composition template="{!$Site.Template}">
 		<apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
@@ -23,12 +52,14 @@
 							<apex:outputPanel layout="block" styleClass="text-center" rendered="{!groups.showPagination}">
 								<ul class="pagination">
 									<apex:repeat value="{!groups.pagination}" var="pg">
-										<apex:outputPanel layout="none" rendered="{!pg[2] == 'active'}">
-											<li class="active"><a href="javascript:;"><apex:outputText value="{!pg[0]}" escape="false"/></a></li>
-										</apex:outputPanel>
-										<apex:outputPanel layout="none" rendered="{!pg[2] != 'active'}">
-											<li><a href="javascript:;" onclick="setGroupsPage('{!pg[1]}')"><apex:outputText value="{!pg[0]}" escape="false"/></a></li>
-										</apex:outputPanel>
+										<li class="{!IF(pg[2] == 'active', 'active', '')}">
+											<a href="javascript:;" onclick="{!IF(pg[2] == 'active', 'javascript:void(0)', 'setGroupsPage('+JSENCODE(pg[1])+')')}">
+												<apex:outputPanel layout="none" rendered="{!pg[0] == 'left'}">&laquo;</apex:outputPanel>
+												<apex:outputPanel layout="none" rendered="{!pg[0] == 'middle'}">&hellip;</apex:outputPanel>
+												<apex:outputPanel layout="none" rendered="{!pg[0] == 'right'}">&raquo;</apex:outputPanel>
+												<apex:outputPanel layout="none" rendered="{!pg[0] != 'left' && pg[0] != 'middle' && pg[0] != 'right'}">{!pg[0]}</apex:outputPanel>
+											</a>
+										</li>
 									</apex:repeat>
 								</ul>
 							</apex:outputPanel>
@@ -88,10 +119,11 @@
 											gid,
 											a,
 											function(result, event) {
-												var ihtml = '<li><i class="fa fa-group"></i><span name="folc">'+result.memberCount+'</span>&nbsp;{!$Label.LBL_Followers}</li>';
-												ihtml += '<li class="'+result.lnkStyle+'"><i class="fa '+result.lnkIcon+'"></i><a href="javascript:;"';
-												ihtml += ' onclick="chckabtn(\''+result.action+'\',\''+result.groupId+'\');">'+result.btnLabel+'</a></li>';
-												$('#gr' + gid).html(ihtml);
+												_.templateSettings.variable = 'rc';
+												var template = _.template('<li><i class="fa fa-group"></i><span name="folc"><%- rc.memberCount %></span> \
+														&nbsp;{!$Label.LBL_Followers}</li><li class="<%- rc.lnkStyle %>"><i class="fa <%- rc.lnkIcon %>"></i> \
+														<a href="javascript:;" onclick="chckabtn(\'<%- rc.action %>\',\'<%- rc.groupId %>\');"><%- rc.btnLabel %></a></li>');
+												$('#gr' + gid).html(template(result));
 											}
 										);
 									}
@@ -116,12 +148,14 @@
 							<apex:outputPanel layout="block" styleClass="text-center" rendered="{!events.showPagination}">
 								<ul class="pagination">
 									<apex:repeat value="{!events.pagination}" var="pg">
-										<apex:outputPanel layout="none" rendered="{!pg[2] == 'active'}">
-											<li class="active"><a href="javascript:;"><apex:outputText value="{!pg[0]}" escape="false"/></a></li>
-										</apex:outputPanel>
-										<apex:outputPanel layout="none" rendered="{!pg[2] != 'active'}">
-											<li><a href="javascript:;" onclick="setEventsPage('{!pg[1]}')"><apex:outputText value="{!pg[0]}" escape="false"/></a></li>
-										</apex:outputPanel>
+										<li class="{!IF(pg[2] == 'active', 'active', '')}">
+											<a href="javascript:;" onclick="{!IF(pg[2] == 'active', 'javascript:void(0)', 'setEventsPage('+JSENCODE(pg[1])+')')}">
+												<apex:outputPanel layout="none" rendered="{!pg[0] == 'left'}">&laquo;</apex:outputPanel>
+												<apex:outputPanel layout="none" rendered="{!pg[0] == 'middle'}">&hellip;</apex:outputPanel>
+												<apex:outputPanel layout="none" rendered="{!pg[0] == 'right'}">&raquo;</apex:outputPanel>
+												<apex:outputPanel layout="none" rendered="{!pg[0] != 'left' && pg[0] != 'middle' && pg[0] != 'right'}">{!pg[0]}</apex:outputPanel>
+											</a>
+										</li>
 									</apex:repeat>
 								</ul>
 							</apex:outputPanel>
@@ -138,7 +172,7 @@
 												</td>
 												<td>
 													<h3><a href="{!ev.detailUrl}">{!ev.title}</a></h3>
-													<p><apex:outputText value="{!ev.teaser}" escape="false"/></p>
+													<p><apex:outputField value="{!ev.teaser.Description__c}"/></p>
 												</td>
 												<!--td>
 													<span class="label label-success">Read more...</span>
@@ -168,12 +202,14 @@
 							<apex:outputPanel layout="block" styleClass="text-center" rendered="{!news.showPagination}">
 								<ul class="pagination">
 									<apex:repeat value="{!news.pagination}" var="pg">
-										<apex:outputPanel layout="none" rendered="{!pg[2] == 'active'}">
-											<li class="active"><a href="javascript:;"><apex:outputText value="{!pg[0]}" escape="false"/></a></li>
-										</apex:outputPanel>
-										<apex:outputPanel layout="none" rendered="{!pg[2] != 'active'}">
-											<li><a href="javascript:;" onclick="setNewsPage('{!pg[1]}')"><apex:outputText value="{!pg[0]}" escape="false"/></a></li>
-										</apex:outputPanel>
+										<li class="{!IF(pg[2] == 'active', 'active', '')}">
+											<a href="javascript:;" onclick="{!IF(pg[2] == 'active', 'javascript:void(0)', 'setNewsPage('+JSENCODE(pg[1])+')')}">
+												<apex:outputPanel layout="none" rendered="{!pg[0] == 'left'}">&laquo;</apex:outputPanel>
+												<apex:outputPanel layout="none" rendered="{!pg[0] == 'middle'}">&hellip;</apex:outputPanel>
+												<apex:outputPanel layout="none" rendered="{!pg[0] == 'right'}">&raquo;</apex:outputPanel>
+												<apex:outputPanel layout="none" rendered="{!pg[0] != 'left' && pg[0] != 'middle' && pg[0] != 'right'}">{!pg[0]}</apex:outputPanel>
+											</a>
+										</li>
 									</apex:repeat>
 								</ul>
 							</apex:outputPanel>
@@ -188,7 +224,7 @@
 												</td>
 												<td styleClass="td-width">
 													<h3><a href="{!nw.detailUrl}">{!nw.title}</a></h3>
-													<p><apex:outputText value="{!nw.teaser}" escape="false"/></p>
+													<p><apex:outputField value="{!nw.teaser.Description__c}"/></p>
 													<small class="hex">
 														{!nw.fdate}
 													</small>
@@ -221,12 +257,14 @@
 							<apex:outputPanel layout="block" styleClass="text-center" rendered="{!resources.showPagination}">
 								<ul class="pagination">
 									<apex:repeat value="{!resources.pagination}" var="pg">
-										<apex:outputPanel layout="none" rendered="{!pg[2] == 'active'}">
-											<li class="active"><a href="javascript:;"><apex:outputText value="{!pg[0]}" escape="false"/></a></li>
-										</apex:outputPanel>
-										<apex:outputPanel layout="none" rendered="{!pg[2] != 'active'}">
-											<li><a href="javascript:;" onclick="setResourcesPage('{!pg[1]}')"><apex:outputText value="{!pg[0]}" escape="false"/></a></li>
-										</apex:outputPanel>
+										<li class="{!IF(pg[2] == 'active', 'active', '')}">
+											<a href="javascript:;" onclick="{!IF(pg[2] == 'active', 'javascript:void(0)', 'setResourcesPage('+JSENCODE(pg[1])+')')}">
+												<apex:outputPanel layout="none" rendered="{!pg[0] == 'left'}">&laquo;</apex:outputPanel>
+												<apex:outputPanel layout="none" rendered="{!pg[0] == 'middle'}">&hellip;</apex:outputPanel>
+												<apex:outputPanel layout="none" rendered="{!pg[0] == 'right'}">&raquo;</apex:outputPanel>
+												<apex:outputPanel layout="none" rendered="{!pg[0] != 'left' && pg[0] != 'middle' && pg[0] != 'right'}">{!pg[0]}</apex:outputPanel>
+											</a>
+										</li>
 									</apex:repeat>
 								</ul>
 							</apex:outputPanel>
@@ -239,7 +277,7 @@
 												<td styleClass="td-width">
 													<a href="{!rs.detailUrl}" class="text-decoration-none">
 														<h3>{!rs.title}</h3>
-														<p><apex:outputText value="{!rs.teaser}" escape="false"/></p>
+														<p><apex:outputField value="{!rs.teaser.Description__c}"/></p>
 													</a>
 												</td>
 												<td>

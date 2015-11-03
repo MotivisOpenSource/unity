@@ -1,20 +1,50 @@
+<!--  
+ * Unity - Communities
+ * 
+ * Community is critical to the student experience--but building community is 
+ * just plain hard. Built on Communities and designed specifically for higher ed, 
+ * Unity is a powerful networking tool to help you generate engagement and 
+ * connect your campus.
+ * 
+ * Copyright (C) 2015 Motivis Learning Systems Inc.
+ * 
+ * This program is free software: you can redistribute it and/or modify 
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * To contact Motivis Learning Systems Inc.
+ * 25 Pelham Road
+ * Salem, NH 03790
+ * unity@motivislearning.com
+-->
+
 <apex:component controller="CommunityFeedController">
 	<apex:attribute name="pid" type="String" assignTo="{!parentId}" required="false" description="Parent Id" />
 	<apex:attribute name="ft" type="String" assignTo="{!feedType}" required="false" description="Feed Type" />
 	<apex:attribute name="ti" type="String" assignTo="{!topicId}" required="false" description="Topic Id" />
-	<apex:attribute name="fm" type="Boolean" assignTo="{!fullMode}" required="false" default="true" description="Feed Type" />
-	<apex:attribute name="fu" type="Boolean" assignTo="{!showFileUpload}" required="false" default="false" description="Show File Upload" />
+	<apex:attribute name="fm" type="Boolean" assignTo="{!fullMode}" required="false" default="true" description="Full Mode" />
+	<apex:attribute name="fu" type="Boolean" assignTo="{!showFileUpload}" required="false" default="true" description="Show File Upload" />
 	<apex:attribute name="sjcb" type="Boolean" required="false" default="false" description="show Join the Conversation button" />
 	<apex:attribute name="tf" type="Boolean" required="false" default="false" description="show feeds from" />
 	<apex:attribute name="gID" type="Boolean" assignTo="{!grID}" required="false" default="false" description="ID for Group" />
 	<apex:attribute name="he" type="Boolean" assignTo="{!hideEventBtn}" required="false" default="false" description="hide create event button" />
 	<script src="{!$Resource.CommunityResources}/js/underscore/underscore-min.js"></script>
-	<script type="text/javascript" src="{!$Resource.assets}/plugins/mentions/jquery.mentionsInput.js" ></script>
+	<!--<script type="text/javascript" src="{!$Resource.assets}/plugins/mentions/jquery.mentionsInput.js" ></script>-->
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/mentions/jquery.events.input.js" ></script>
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/sky-forms/version-2.0.1/js/jquery-ui.min.js"></script>
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/sky-forms/version-2.0.1/js/jquery.validate.min.js"></script> <!--  path contains old version -->
 	<script type="text/javascript" src="/soap/ajax/33.0/connection.js"></script>
-	
+	<script type="text/javascript" src="{!$Resource.assets}/plugins/ImageLoad/load-image.all.min.js"></script>
+	<script type="text/javascript" src="{!$Resource.assets}/plugins/hashtagsinput/jquery_hashtagsinput.js" ></script>
 	
 
 	<apex:stylesheet value="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.css" />
@@ -38,13 +68,13 @@
 						'{!feedType}',
 						'',
 						function(result, event) {
-							var div = document.createElement('div');
-							div.innerHTML = result;
-							_.templateSettings.variable = 'rc';
-							var template = _.template($('#tto').html());
-							var tt = JSON.parse(div.firstChild.nodeValue);
-							$('#scrollbar4').append(template(tt));
-							$('[id$=simple]').fadeIn();
+							if (event.status) {
+								_.templateSettings.variable = 'rc';
+								var template = _.template($('#tto').html());
+								var tt = jsonObj(result);
+								$('#scrollbar4').append(template(tt));
+								$('[id$=simple]').fadeIn();
+							}
 						}
 					);
 				});
@@ -52,18 +82,18 @@
 			<script id="tto" type="text/template">
 				<% _.each(rc.elements, function(p){ %>
 				<div class="comment">
-					<img src="<%= p.actor.photo.smallPhotoUrl %>" alt=""/>
+					<img src="<%- p.actor.photo.smallPhotoUrl %>" alt=""/>
 					<div class="overflow-h">
-						<strong><%= p.actor.displayName %> <%= p.actor.role !== null ?  '(' + p.actor.role + ')': '' %> <small class="pull-right"><%= p.dateStr %></small></strong>
+						<strong><%- p.actor.displayName %> <%- p.actor.role !== null ?  '(' + p.actor.role + ')': '' %> <small class="pull-right"><%- p.dateStr %></small></strong>
 						<% if(p.parentType != null && {!tf}){ %>
-							<p><strong><a class="<%= p.parentIcon %> font-weight-bold" href="<%= p.parentLink %>"> <%= p.parentType %> - <%= p.parentName %> <% if(p.parentAcssesType != null){ %> (<%= p.parentAcssesType %>) <% } %></a>
+							<p><strong><a class="<%- p.parentIcon %> font-weight-bold" href="<%- p.parentLink %>"> <%- p.parentType %> - <%- p.parentName %> <% if(p.parentAcssesType != null){ %> (<%- p.parentAcssesType %>) <% } %></a>
 							</strong></p>
 						<% } %>	 
 						<p><% 	var pp = parseFeedBody(p.body,p.topicsUser);
 								print(wrapnl(pp)); %>
 						</p>
 						<ul class="list-inline comment-list">
-							<li><i class="fa fa-comments"></i> <a href="#"><%= p.total %></a></li>
+							<li><i class="fa fa-comments"></i> <a href="#"><%- p.total %></a></li>
 						</ul>
 					</div>	
 				</div>
@@ -104,17 +134,17 @@
 			</button>
 			<script id="ttp1" type="text/template">
 				<% _.each(rc.elements, function(p2){ %>
-				<div class="media media-v2" id="m<%= p2.id %>">
-					<a class="pull-left" href="{!$Page.CommunityProfilePage}?id=<%= p2.actor.id %>">
-						<img class="media-object rounded-x" src="<%= p2.actor.photo.smallPhotoUrl %>" alt=""/>
+				<div class="media media-v2" id="m<%- p2.id %>">
+					<a class="pull-left" href="{!$Page.CommunityProfilePage}?id=<%- p2.actor.id %>">
+						<img class="media-object rounded-x" src="<%- p2.actor.photo.smallPhotoUrl %>" alt=""/>
 					</a>
 					<div class="media-body">
 						<h4 class="media-heading">
-							<strong><a href="{!$Page.CommunityProfilePage}?id=<%= p2.actor.id %>"><%= p2.actor.displayName %> <%= p2.actor.role !== null ?  '(' + p2.actor.role + ')': '' %></a></strong>
-							<small><%= p2.dateStr %></small>
+							<strong><a href="{!$Page.CommunityProfilePage}?id=<%- p2.actor.id %>"><%- p2.actor.displayName %> <%- p2.actor.role !== null ?  '(' + p2.actor.role + ')': '' %></a></strong>
+							<small><%- p2.dateStr %></small>
 						</h4>
 						<% if(p2.parentType != null && {!tf}){ %>
-							<p><strong><a class="<%= p2.parentIcon %> font-weight-bold" href="<%= p2.parentLink %>"> <%= p2.parentType %> - <%= p2.parentName %> <% if(p2.parentAcssesType != null){ %> (<%= p2.parentAcssesType %>) <% } %></a>
+							<p><strong><a class="<%- p2.parentIcon %> font-weight-bold" href="<%- p2.parentLink %>"> <%- p2.parentType %> - <%- p2.parentName %> <% if(p2.parentAcssesType != null){ %> (<%- p2.parentAcssesType %>) <% } %></a>
 							</strong></p>
 						<% } %>	
 						<% if (!p2.showLink && !p2.showContent && !p2.capabilities.poll) { %>
@@ -127,9 +157,9 @@
 								print(wrapnl(p2p)); %>
 							</p> 
 						<div class="d-link">
-						<a href="<%= p2.linkHref %>" target="_blank" >
+						<a href="<%- p2.linkHref %>" target="_blank" >
 							<i class="fa fa-link"></i>
-							<%= p2.linkName %><br>
+							<%- p2.linkName %><br>
 						</a>
 						<% print(wrapnl(p2.linkHref)); %>
 						</div>
@@ -138,36 +168,77 @@
 							<p>	<% var p2p = parseFeedBody(p2.body,p2.topicsUser);
 								print(wrapnl(p2p)); %>
 							</p>
-							<div class="file-section">
 								<% if (p2.capabilities.content.fileExtension) { %>
-									<span>
+						<% if(['png', 'gif', 'jpg', 'jpeg'].indexOf(p2.capabilities.content.fileExtension) < 0 ) {%>
+							<div class="row">
+								<div class="col-md-12">
+									<div class="pull-left">
+										<div class="image-link__container--pdf">
 									<a href="javascript: void(0);" target="_self">
-										<img src="<%= p2.capabilities.content.renditionUrl %>" alt="" onerror="this.style.visibility = 'hidden'"/>
+												<img src="<%- p2.capabilities.content.renditionUrl %>" alt="" class="img-responsive" onerror="this.style.visibility = 'hidden'"/>
 									</a>
-									</span>
-									<span class="file-info">
-
-										<p class="file-title">
-											<a href="<%= p2.capabilities.content.downloadUrl %>" target="_blank">
+										</div>
+									</div>
+									<div class="pull-left">
+										<div class="download-links__container">
+											<div class="download-links__file__container--pdf">
+												<a href="{!$Page.CommunityGroupFiles}?f=<%- p2.capabilities.content.id %>&fi=<%- p2.id %>" target="_self">
 												<i class="fa fa-file"></i>
-												<%= p2.capabilities.content.title %>
+													<%- p2.capabilities.content.title %>
+												</a>
+											</div>
+											<div class="download-links__file-size__container">
+												<a href="<%- p2.capabilities.content.downloadUrl %>" target="_blank">
+													<i class="fa fa-download"></i>
+													<span>
+														Download <%- p2.capabilities.content.fileExtension %>
+													</span> 
+													<span>
+														(<%- fileSizeIEC(p2.capabilities.content.fileSize) %>)
+													</span>
+												</a>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						<%} else {%>
+							<div class="row">
+								<div class="col-md-12">
+									<div class="image-link__container">
+										<a href="javascript: void(0);" target="_self">
+											<img src="<%- p2.capabilities.content.downloadUrl %>" alt="" style="max-height:500px;" class="img-responsive" onerror="this.style.visibility = 'hidden'"/>
+										</a>
+									</div>
+									<div class="download-links__container">
+										<div class="pull-left download-links__file__container">
+											<a href="{!$Page.CommunityGroupFiles}?f=<%- p2.capabilities.content.id %>&fi=<%- p2.id %>" target="_self">
+											<i class="fa fa-file"></i>
+												<%- p2.capabilities.content.title %>
 											</a>
-										</p>
-										<small>
-											<a href="<%= p2.capabilities.content.downloadUrl %>" target="_blank">
+										</div>
+										<div class="pull-left download-links__file-size__container">
+											<a href="<%- p2.capabilities.content.downloadUrl %>" target="_blank">
 												<i class="fa fa-download"></i>
-												<span>Download <%= p2.capabilities.content.fileExtension %></span> <span>(<%= fileSizeIEC(p2.capabilities.content.fileSize) %>)</span>
+												<span>
+													Download <%- p2.capabilities.content.fileExtension %>
+												</span> 
+												<span>
+													(<%- fileSizeIEC(p2.capabilities.content.fileSize) %>)
+												</span>
 											</a>
-										</small>
-									</span>
+										</div>
+									</div>
+								</div>
+							</div>
+						<%} %>
 								<% } else { %>
 									<p>
 										<i class="fa fa-file-o"></i> The file is no longer available.
 									</p>
 								<% } %>
+				<% } %>
 
-							</div>
-						<% } %>
 						<% if (p2.capabilities.poll && p2.capabilities.poll.choices) { %>					
 							<p>	<% var p2p = parseFeedBody(p2.body,p2.topicsUser);
 								print(wrapnl(p2p)); %>
@@ -177,10 +248,10 @@
 									<% _.each(p2.capabilities.poll.choices, function(choice) { %>
 											<% if (p2.capabilities.poll.myChoiceId && (p2.id != changeVoteId)) {%>
 												<li class="pollchoice">
-													<label class="input" for="<%=choice.id%>"></label>
-													<h3 class="heading-xs"><%=choice.text%> <span class="pull-right"><%=choice.voteCount%> (<%=Math.round(choice.voteCountRatio*100)%>%)</span></h3>
+													<label class="input" for="<%-choice.id%>"></label>
+													<h3 class="heading-xs"><%-choice.text%> <span class="pull-right"><%-choice.voteCount%> (<%-Math.round(choice.voteCountRatio*100)%>%)</span></h3>
 													<div class="progress progress-u progress-sm">
-														<div class="progress-bar progress-bar-u" role="progressbar" aria-valuenow="<%=choice.voteCountRatio*100%>" aria-valuemin="0" aria-valuemax="100" style="width: <%=choice.voteCountRatio*100%>%;">
+														<div class="progress-bar progress-bar-u" role="progressbar" aria-valuenow="<%-choice.voteCountRatio*100%>" aria-valuemin="0" aria-valuemax="100" style="width: <%-choice.voteCountRatio*100%>%;">
 														</div>
 
 													</div>
@@ -188,79 +259,79 @@
 
 											<% } else { %>
 												<li>
-													<input type="radio" id="<%=choice.id%>" name="pollchoicesgroup__<%=p2.id%>" onchange="enableBtn('vote_<%= p2.id %>')"/>
-													<label class="input" for="<%=choice.id%>"><%=choice.text%></label>
+													<input type="radio" id="<%-choice.id%>" name="pollchoicesgroup__<%-p2.id%>" onchange="enableBtn('vote_<%- p2.id %>')"/>
+													<label class="input" for="<%-choice.id%>"><%-choice.text%></label>
 												</li>
 											<%}%>
 									<% }); %>
 								</ul>
 								<% if (!p2.capabilities.poll.myChoiceId || changeVoteId != null) {%>
-									<input class="btn-u" type="button" value="Vote" title="Vote" onclick="vote(this);" id="vote_<%= p2.id %>" disabled="disabled">
+									<input class="btn-u" type="button" value="Vote" title="Vote" onclick="vote(this);" id="vote_<%- p2.id %>" disabled="disabled">
 								<%}%>
-								<span class="pollvotecount"><%=p2.capabilities.poll.totalVoteCount%> votes</span>
+								<span class="pollvotecount"><%-p2.capabilities.poll.totalVoteCount%> votes</span>
 								<% if (p2.capabilities.poll.myChoiceId && changeVoteId == null) {%>
 									&bull;  <a href="javascript: void(0);"> <span onclick="refreshFeed();">Refresh</span></a>
-									&bull;  <a href="javascript: void(0);">	<span onclick="changeVote('<%= p2.id %>');">Change Vote</span></a>
+									&bull;  <a href="javascript: void(0);">	<span onclick="changeVote('<%- p2.id %>');">Change Vote</span></a>
 								<%}%>
 								
 							</fieldset>
 						<%} %>
 						<% 
 						if (!_.isEmpty(p2.topicsUser) && wraptop(p2.topicsUser) != "") {%>
-							<br /><p id="topiclabel<%= p2.id %>"><a href="{!$Page.CommunityTopic}">{!$Label.LBL_Topic}</a> :
+							<br /><p id="topiclabel<%- p2.id %>"><a href="{!$Page.CommunityTopic}">{!$Label.LBL_Topic}</a> :
 							 	<% var p2t = wraptop(p2.topicsUser);
 							 	print(wrapnl(p2t)); 
 							 	%>
 							 </p>
 						<% } %>  
 						<ul class="list-inline results-list pull-left">
-							<li><a href="javascript:void(0);"><span><%= p2.countLikes %></span> Likes</a></li>
+							<li><a href="javascript:void(0);"><span><%- p2.countLikes %></span> Likes</a></li>
 						</ul>
-						<ul class="list-inline pull-right margin-top-5" id="ul<%= p2.id %>">
-							<li><a href="javascript:void(0);"><i onclick="focusComment('<%= p2.id %>');" class="expand-list rounded-x fa fa-reply"></i></a></li>
-							<li><a href="javascript:void(0);"><i onclick="inlAct('<%= p2.id %>','fa-thumbs-up','<%= p2.likeId %>');" class="expand-list rounded-x fa fa-thumbs-up<%= p2.likeStyle %>"></i></a></li>
+						<ul class="list-inline pull-right margin-top-5" id="ul<%- p2.id %>">
+							<li><a href="javascript:void(0);"><i onclick="focusComment('<%- p2.id %>');" class="expand-list rounded-x fa fa-reply"></i></a></li>
+							<li><a href="javascript:void(0);"><i onclick="inlAct('<%- p2.id %>','fa-thumbs-up','<%- p2.likeId %>');" class="expand-list rounded-x fa fa-thumbs-up<%- p2.likeStyle %>"></i></a></li>
 							<% if ( (p2.showFlag)&&chekFlagOnPage(p2.parentType) ) { %>
-							<li><a href="javascript:void(0);"><i onclick="inlAct('<%= p2.id %>','fa-flag','<%= p2.flagStatus %>');" class="expand-list rounded-x fa fa-flag<%= p2.flagStyle %>"></i></a></li>
+							<li><a href="javascript:void(0);"><i onclick="inlAct('<%- p2.id %>','fa-flag','<%- p2.flagStatus %>');" class="expand-list rounded-x fa fa-flag<%- p2.flagStyle %>"></i></a></li>
 							<% } %>
-							<li><a href="javascript:void(0);"><i onclick="inlAct('<%= p2.id %>','fa-bookmark','<%= p2.bookmarkStatus %>');" class="expand-list rounded-x fa fa-bookmark<%= p2.bookmarkStyle %>"></i></a></li>
+							<li><a href="javascript:void(0);"><i onclick="inlAct('<%- p2.id %>','fa-bookmark','<%- p2.bookmarkStatus %>');" class="expand-list rounded-x fa fa-bookmark<%- p2.bookmarkStyle %>"></i></a></li>
 							<% if (p2.isDeleteRestricted) { %>
-							<li><a href="javascript:void(0);"><i onclick="inlAct('<%= p2.id %>','fa-times','');" class="expand-list rounded-x fa fa-times"></i></a></li>
+							<li><a href="javascript:void(0);"><i onclick="inlAct('<%- p2.id %>','fa-times','');" class="expand-list rounded-x fa fa-times"></i></a></li>
 							<% } %>
 						</ul>
 						<div class="clearfix"></div>
 						<% if (p2.showComments) { %>
 						<% if (p2.capabilities.comments.page.showNextComments) { %>
-							<a id="l<%= p2.id %>" href="javascript:void(0);" onclick="getComments('<%= p2.id %>', '<%= p2.capabilities.comments.page.nextPageToken%>');">Show More Comments</a>
+							<a id="l<%- p2.id %>" href="javascript:void(0);" onclick="getComments('<%- p2.id %>', '<%- p2.capabilities.comments.page.nextPageToken%>');">Show More Comments</a>
 						<% } %>
-						<div class="media media-v2" id="c<%= p2.id %>" name="<%= p2.id %>">
+						<div class="media media-v2" id="c<%- p2.id %>" name="<%- p2.id %>">
 							<% _.each(p2.capabilities.comments.page.items, function(c2){ %>
 			</script>
 			<script id="ttp21" type="text/template">
 							<% _.each(rc.items, function(c2){ %>
 			</script>
 			<script id="ttp2" type="text/template">
-								<span id="m<%= c2.id %>">
-								<a class="pull-left" href="{!$Page.CommunityProfilePage}?id=<%= c2.user.id %>">
-									<img class="media-object rounded-x" src="<%= c2.user.photo.smallPhotoUrl %>" alt=""/>
+								<span id="m<%- c2.id %>">
+								<a class="pull-left" href="{!$Page.CommunityProfilePage}?id=<%- c2.user.id %>">
+									<img class="media-object rounded-x" src="<%- c2.user.photo.smallPhotoUrl %>" alt=""/>
 								</a>
 								<div class="media-body">
 									<h4 class="media-heading">
-										<strong><a href="{!$Page.CommunityProfilePage}?id=<%= c2.user.id %>"><%= c2.user.displayName %> <%= c2.user.role !== null ?  '(' + c2.user.role + ')': '' %></a></strong>
-										<small><%= c2.dateStr %></small>
+										<strong><a href="{!$Page.CommunityProfilePage}?id=<%- c2.user.id %>"><%- c2.user.displayName %> <%- c2.user.role !== null ?  '(' + c2.user.role + ')': '' %></a></strong>
+										<small><%- c2.dateStr %></small>
 									</h4>
 									<p>	<% var p2p = parseFeedBody(c2.body,c2.topicsUser);
 										print(wrapnl(p2p)); %>
 									</p> 
 									<ul class="list-inline results-list pull-left">
-										<li><a href="#"><span><%= c2.countLikes %></span> Likes</a></li>
+										<li><a href="#"><span><%- c2.countLikes %></span> Likes</a></li>
 									</ul>
-									<ul class="list-inline pull-right" id="ul<%= c2.id %>">
-										<li><a href="javascript:void(0);"><i onclick="inlAct('<%= c2.id %>','fa-thumbs-up','<%= c2.likeId %>');" class="expand-list rounded-x fa fa-thumbs-up<%= c2.likeStyle %>"></i></a></li>
+									<ul class="list-inline pull-right" id="ul<%- c2.id %>">
+										<li><a href="javascript:void(0);"><i onclick="inlAct('<%- c2.id %>','fa-thumbs-up','<%- c2.likeId %>');" class="expand-list rounded-x fa fa-thumbs-up<%- c2.likeStyle %>"></i></a></li>
 										<% if ( (c2.showFlag)&&chekFlagOnPage(c2.parentType) ) { %>
-										<li><a href="javascript:void(0);"><i onclick="inlAct('<%= c2.id %>','fa-flag','<%= c2.flagStatus %>');" class="expand-list rounded-x fa fa-flag<%= c2.flagStyle %>"></i></a></li>
+										<li><a href="javascript:void(0);"><i onclick="inlAct('<%- c2.id %>','fa-flag','<%- c2.flagStatus %>');" class="expand-list rounded-x fa fa-flag<%- c2.flagStyle %>"></i></a></li>
 										<% } %>
 										<% if (c2.isDeleteRestricted) { %>
-										<li><a href="javascript:void(0);"><i onclick="inlAct('<%= c2.id %>','fa-times','');" class="expand-list rounded-x fa fa-times"></i></a></li>
+										<li><a href="javascript:void(0);"><i onclick="inlAct('<%- c2.id %>','fa-times','');" class="expand-list rounded-x fa fa-times"></i></a></li>
 										<% } %>
 									</ul>
 								</div>
@@ -270,17 +341,17 @@
 			</script>
 			<script id="ttp3" type="text/template">
 						<% } else { %>
-						<div class="media media-v2" id="c<%= p2.id %>" name="<%= p2.id %>" style="display:none;">
+						<div class="media media-v2" id="c<%- p2.id %>" name="<%- p2.id %>" style="display:none;">
 						<% } %>
-							<div id="d<%= p2.id %>" class="margin-bottom-10"></div>
-							<span id="s<%= p2.id %>">
+							<div id="d<%- p2.id %>" class="margin-bottom-10"></div>
+							<span id="s<%- p2.id %>">
 								<a class="pull-left" href="javascript:void(0);">
 									<img class="media-object rounded-x" src="{!currentUserPhoto}" alt=""/>
 								</a>
 								<div class="media-body">
-									<textarea id="a<%= p2.id %>" class="form-control margin-bottom-5" onclick="checkmi(this);" onkeyup="checkbtn(this,'#b<%= p2.id %>');"></textarea>
+									<textarea id="a<%- p2.id %>" class="form-control margin-bottom-5" onclick="checkmi(this);" onkeyup="checkbtn(this,'#b<%- p2.id %>');"></textarea>
 									<ul class="list-inline pull-right">
-										<button type="button" class="btn-u opacity-75" id="b<%= p2.id %>" onclick="postComment($('#a<%= p2.id %>').val(),'<%= p2.id %>', '<%=p2.topicsUser.length%>');" disabled="disabled">
+										<button type="button" class="btn-u opacity-75" id="b<%- p2.id %>" onclick="postComment($('#a<%- p2.id %>').val(),'<%- p2.id %>', '<%-p2.topicsUser.length%>');" disabled="disabled">
 											<i class="fa fa-spinner fa-pulse" style="display:none;"></i>
 											<span>Comment</span>
 										</button>
@@ -308,7 +379,7 @@
 						<% if (rc.beforeFields) { %>
 					</div>
 						<% } %>
-						<textarea id="<%= ii.fieldName %>" name="<%= ii.fieldName %>" class="form-control tagged_text share <%= ii.validationClass %>" onFocus="checkmi(this);"  onclick="checkmi(this);" placeholder="<%= ii.placeholder %>"></textarea>
+						<textarea id="<%- ii.fieldName %>" name="<%- ii.fieldName %>" class="form-control tagged_text share <%- ii.validationClass %>" onFocus="checkmi(this);"  onclick="checkmi(this);" placeholder="<%- ii.placeholder %>"></textarea>
 						<% if (rc.afterFields) { %>
 					<div class="sky-div-margin">
 						<% } %>
@@ -317,15 +388,15 @@
 							<label class="label input"><%= ii.label %></label>
 							<% if (ii.ftype == "textarea") { %>
 							<label class="textarea input">
-								<textarea id="<%= ii.fieldName %>" name="<%= ii.fieldName %>" class="form-control <%= ii.validationClass %>"<%= ii.requiredAttr %> > </textarea>
+								<textarea id="<%- ii.fieldName %>" name="<%- ii.fieldName %>" class="form-control <%- ii.validationClass %>"<%- ii.requiredAttr %> > </textarea>
 							</label>
 							<% } else if (ii.ftype == "inputfile"){%>
 							<label for="file" class="input input-file">
-								<div class="button"><input type="file" id="<%= ii.fieldName %>" name="<%= ii.fieldName %>" onchange="this.parentNode.nextSibling.value = this.files[0].name" <%= ii.requiredAttr %>>Browse</div><input type="text" readonly="">
+								<div class="button"><input type="file" id="<%- ii.fieldName %>" name="<%- ii.fieldName %>" onchange="inputFileOnchange(this);" <%- ii.requiredAttr %>>Browse</div><input type="text" readonly="">
 							</label>
 							<% } else {%>
 							<label class="input">
-								<input id="<%= ii.fieldName %>" name="<%= ii.fieldName %>" type="<%= ii.inputtype %>" <%= ii.requiredAttr %> class="form-control <%= ii.validationClass %>" />
+								<input id="<%- ii.fieldName %>" name="<%- ii.fieldName %>" type="<%- ii.inputtype %>" <%- ii.requiredAttr %> class="form-control <%- ii.validationClass %>" />
 							</label>
 							<% } %>
 						</section>
@@ -344,7 +415,7 @@
 				<div class="text-right">
 					<button type="submit" value="submit" class="submit btn-u" id="mesbtn" onclick="initTextareaBTN(this);postAction($('#message').val());return false;" >
 						<i class="fa fa-spinner fa-pulse" style="display:none;"></i>
-						<span><%= rc.btntxt %></span>
+						<span><%- rc.btntxt %></span>
 					</button>
 				</div>
 				<% } else { %>
@@ -352,7 +423,7 @@
 				<div class="text-right">
 					<button type="button" class="btn-u" id="mesbtn" onclick="postAction(''); return false;">
 						<i class="fa fa-spinner fa-pulse" style="display:none;"></i>
-						<span><%= rc.btntxt %></span>
+						<span><%- rc.btntxt %></span>
 					</button>
 				</div>
 				<% } %>
@@ -360,6 +431,13 @@
 			</script>
 
 			<script>
+			
+    			function inputFileOnchange(elm) {
+    			    console.log(elm);
+    			    if (elm.files.length>0) elm.parentNode.nextSibling.value = elm.files[0].name;
+    			    else elm.parentNode.nextSibling.value = '';
+    			}
+			
 				var chekFlagOnPage = function(type){
 
 					if(!(_.contains(['News','Events','Manager'], type)) ) {
@@ -382,36 +460,8 @@
 							$('#postarea').hide();
 						}
 					}
-					
-					/*TEMPORARY/
-					$('#date').datepicker({
-						dateFormat: 'dd.mm.yy',
-						prevText: '<i class="fa fa-angle-left"></i>',
-						nextText: '<i class="fa fa-angle-right"></i>'
-					});
-					/*TEMPORARY*/
-					// $(document).on('focus', '.validate-datepicker', function () {
-					// 	var $this = $(this);
-					// 	$this.datepicker({
-					// 		prevText: '<i class="fa fa-angle-left"></i>',
-					// 		nextText: '<i class="fa fa-angle-right"></i>'
-					// 	});
-					// });
-					// $(document).on('focus', '.validate-datetimepicker', function () {
-					// 	var currentdate = new Date(); 
-					// 	var datetime = (currentdate.getMonth()+1) + '/' + currentdate.getDate() + '/' + currentdate.getFullYear() + ' ' + currentdate.getHours() + ":"  + currentdate.getMinutes();
-					// 	var $this = $(this);
-					// 	$this.datetimepicker({
-					// 		minDate:datetime,
-					// 		format:'m/d/Y h:i A',
-					// 		formatTime:'h:i A',
-					// 		formatDate:'m/d/Y',
-					// 		step:30
-					// 	});
-					// });
 				});
 
-				
 				function loadFeeds(inpt) {
 					disableBtn('shmbtn',true);
 					// console.log('parentId','{!parentId}');
@@ -422,15 +472,13 @@
 						inpt,
 						function(result, event) {
 							if (event.status) {
-							var div = document.createElement('div');
-							div.innerHTML = result;
-							_.templateSettings.variable = 'rc';
-							var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
-							var tt = JSON.parse(div.firstChild.nodeValue);
-							$('#cfcmp').append(template(tt));
-							enableBtn('shmbtn');
-							$('#shmbtn').css('display',tt.showMore?'block':'none').attr('onclick','loadFeeds(\'' + tt.nextPageToken + '\');return false;');
-						}
+								_.templateSettings.variable = 'rc';
+								var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
+								var tt = jsonObj(result);
+								$('#cfcmp').append(template(tt));
+								enableBtn('shmbtn');
+								$('#shmbtn').css('display',tt.showMore?'block':'none').attr('onclick','loadFeeds(\'' + tt.nextPageToken + '\');return false;');
+							}
 						}
 					);
 					initValidator();
@@ -446,11 +494,9 @@
 						'{!$RemoteAction.CommunityFeedController.feedsForTopics}',
 						params,
 						function(result, event) {
-							var div = document.createElement('div');
-							div.innerHTML = result;
 							_.templateSettings.variable = 'rc';
 							var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
-							var tt = JSON.parse(div.firstChild.nodeValue);
+							var tt = jsonObj(result);
 							$('#cfcmp').append(template(tt));
 							enableBtn('shmbtn');
 							$('#shmbtn').css('display',tt.showMore?'block':'none').attr('onclick','loadFeedsForTopic(\'' + tt.nextPageToken + '\');return false;');
@@ -471,11 +517,9 @@
 								'{!$RemoteAction.CommunityFeedController.postFeeds}',
 								params,
 								function(result, event) {
-									var div = document.createElement('div');
-									div.innerHTML = result;
 									_.templateSettings.variable = 'rc';
 									var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
-									var tt = JSON.parse(div.firstChild.nodeValue);
+									var tt = jsonObj(result);
 									$('#cfcmp').prepend(template(tt));
 									enableBtn('mesbtn');
 									$('#message').val('');
@@ -488,83 +532,67 @@
 						enableBtn('mesbtn');
 					}
 				}
-				/*function postAction(text) {
-					disableBtn('mesbtn');
-					$('#message').mentionsInput('val', function(text) {
-						
-						if (chataction.layout.name == 'FeedItem.LinkPost') {
-							chataction.layout.items[0].value = 'http://www.tut.by/';
-							chataction.layout.items[2].value = text;
-						} else if (chataction.layout.name == 'FeedItem.PollPost') {
-							
-							chataction.layout.items[0].value = $('#message').val();//QUESTION
-							var choices = $('#message').parent().parent().find('input[type=text]');
-							for (var i = 0; i <choices.length; i++ ) {
-								if (!chataction.layout.items[i+1]) {
-									chataction.layout.items[i+1] = {
-										fieldName: "",
-										ftype: "input",
-										label: "Choice "+ (i+1),
-										placeholder: "",
-										required: true,
-										value: ""
-									};
-								}
-								chataction.layout.items[i+1].value = choices[i].value;
-							}
-						}
-						Visualforce.remoting.Manager.invokeAction(
-							'{!$RemoteAction.CommunityFeedController.postAction}',
-							'{!parentId}',
-							JSON.stringify(chataction.layout),
-							null,
-							null,
-							null,
-							function(result, event) {
-								var div = document.createElement('div');
-								div.innerHTML = result;
-								var rm = div.firstChild.nodeValue;
-								if (rm.substring(0, 3) == "ERR") {
-									console.log(rm.substring(3, rm.length));
-								}
-								else {
-									_.templateSettings.variable = 'rc';
-									var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
-									var tt = JSON.parse(rm);
-									$('#cfcmp').prepend(template(tt));
-									$('#message').val('');
-								}
-								enableBtn('mesbtn');
-							}
-						);
-					});
-				}*/
-				// var openFile = function() {				
-				// 	var inputfile = $('#file-input-selector')[0].files[0];
-				// 	console.log('inputfile', inputfile);
 					
-				// 	var reader = new FileReader();
-				// 	reader.onloadstart = function(){
-				// 		console.log('start load');
-				// 	};
-				// 	reader.onloadend = function(){
-				// 		var arrayBuffer = reader.result;
-				// 		console.log(arrayBuffer);
-				// 		console.log(arrayBuffer.byteLength);
-				// 		console.log('end load');
-				// 	};
-				// 	reader.readAsArrayBuffer(inputfile);
-				// };
+				uploadAttachment = function(binary,fName,fType) {
+					// send attacment
+										var __sfdcSessionId = '{!GETSESSIONID()}';
+					if(!'{!JSENCODE(parentIdForAtt)}'.length>0) {
+											enableBtn('mesbtn');
+
+						$('#postform-error').html('<strong>Error!</strong> {!JSINHTMLENCODE($Label.ERR_Set_Up_Community_Profile)}');
+											$('#postform-error').show();
+											return null;
+										}
+										sforce.connection.serverUrl = '{!$Site.Prefix}/services/Soap/u/33.0';
+										sforce.connection.sessionId = __sfdcSessionId;
+										var Attachment = new sforce.SObject('Attachment');
+										Attachment.Name = fName;
+										Attachment.ContentType = fType;
+										Attachment.Body  = binary;
+										Attachment.ParentId = '{!JSENCODE(parentIdForAtt)}';
+										sforce.connection.create([Attachment],
+					{
+						onSuccess : function(result, source)
+										    {
+										        if (result[0].getBoolean("success"))
+										        {
+										            if($("[name='message']").val()) {
+														$('#message').mentionsInput('val', function(text) {
+															chataction.layout.items[messageItemIndex].value = text;
+															insertAttIntoFeed(result[0].id, JSON.stringify(chataction.layout));
+														});
+													}else{
+														insertAttIntoFeed(result[0].id, null);
+													}
+													postFile = false;
+											    }
+										        else
+										        {
+										        	postFile = false;
+													enableBtn('mesbtn');
+										            $('#postform-error').html(_.template('<strong>Error!</strong> <%- msg %> ', { msg: result[0].errors.message}));
+													$('#postform-error').show();	
+										        }
+										    },
+										    onFailure : function(error, source)
+										    {
+										    	postFile = false;
+												enableBtn('mesbtn');
+												$('#postform-error').html(_.template('<strong>Error!</strong> <%- msg %> ', { msg: result[0].errors.message}));
+												$('#postform-error').show();	
+					    }
+					});
+					// end sending
+										        
+				}
+
 				var postFile = false;
 				var postEvent = false;
 
 				function postAction(text) {
 					if( checkTopicsCount(text) == -1 ) return ;
-
 					$('#postform-error').hide();	
 					disableBtn('mesbtn');
-
-
 					var messageItemIndex = -1;
 					var fBaseStr = null;
 					var fType = null;
@@ -583,71 +611,46 @@
 								if(inputfile != undefined) {
 									fType = inputfile.type;
 									fName = inputfile.name;
-						
-									var reader = new FileReader();
-						
-									reader.onloadend = function(){
-										var binary = "";
-										var bytes = new Uint8Array(reader.result);
-										var length = bytes.byteLength;
-										 
-										for (var i = 0; i < length; i++)
-										{
-										    binary += String.fromCharCode(bytes[i]);
-										}
-										var __sfdcSessionId = '{!GETSESSIONID()}';
-										if('{!JSENCODE(parentIdForAtt)}' == null){
-											enableBtn('mesbtn');
-											$('#postform-error').html('<strong>Error!</strong> You have no permissions for upload');
-											$('#postform-error').show();
-											return null;
-										}
-										sforce.connection.serverUrl = '{!$Site.Prefix}/services/Soap/u/33.0';
-										sforce.connection.sessionId = __sfdcSessionId;
-										
-										var Attachment = new sforce.SObject('Attachment');
-										Attachment.Name = fName;
-										Attachment.ContentType = fType;
-										Attachment.Body  = new sforce.Base64Binary(binary).toString();
-										Attachment.ParentId = '{!JSENCODE(parentIdForAtt)}';
-									
-										sforce.connection.create([Attachment],
-										{ 	onSuccess : function(result, source)
-										    {
-										        if (result[0].getBoolean("success"))
-										        {
-										            if($("[name='message']").val()) {
-														$('#message').mentionsInput('val', function(text) {
-															chataction.layout.items[messageItemIndex].value = text;
-															insertAttIntoFeed(result[0].id, JSON.stringify(chataction.layout));
-														});
-													}else{
-															insertAttIntoFeed(result[0].id, "");
-													}
-													postFile = false;
-											    }
-										        else
-										        {
-										        	postFile = false;
-													enableBtn('mesbtn');
-										            $('#postform-error').html('<strong>Error!</strong> ' + result[0].errors.message);
-													$('#postform-error').show();	
-										        }
-										    },
-										    onFailure : function(error, source)
-										    {
-										    	postFile = false;
-												enableBtn('mesbtn');
-												$('#postform-error').html('<strong>Error!</strong> ' + result[0].errors.message);
-												$('#postform-error').show();	
-										        
-										    }
+									if(inputfile.size>26214400) {
+										enableBtn('mesbtn');
+								 		return null;
+									}
+									// my code
+									if(fType.indexOf("image/")>-1) {
+										var options = {
+											maxWidth: 1000,
+											maxHeight: 1000,
+											canvas: true
+										};
+										loadImage.parseMetaData(inputfile, function (data) {
+											if(data.exif) {
+												// get orientation from image if it is
+												options.orientation = data.exif.get('Orientation');
+											}
+											loadImage( inputfile,
+												function (img) {
+													var binary = img.toDataURL(fType).substring(img.toDataURL(fType).indexOf("base64,")+"base64,".length);
+													uploadAttachment(binary,fName,fType);
+												}, options
+											);
 										});
-		
+									}
+									else {
+										// end my code
+										var reader = new FileReader();
+										reader.onloadend = function(){
+											var binary = "";
+											var bytes = new Uint8Array(reader.result);
+											var length = bytes.byteLength;
+											for (var i = 0; i < length; i++)
+											{
+											    binary += String.fromCharCode(bytes[i]);
+											}
+											uploadAttachment(new sforce.Base64Binary(binary).toString(),fName,fType);
 									};
-									
 									reader.readAsArrayBuffer(inputfile);
 								}
+							}
 							}
 							item.value = $("[name='" + item.fieldName + "']").val();
 						});	
@@ -704,18 +707,21 @@
 						function(result, event) {
 							if(event.status){
 								if(result != undefined) {
-									var div = document.createElement('div');
-									div.innerHTML = result;
-									var rm = div.firstChild.nodeValue;
-									if (rm.substring(0, 3) == "ERR") {
-										$('#postform-error').html('<strong>Error!</strong> ' + rm.substring(3, rm.length));
-										$('#postform-error').show();
+									if (result.substring(0, 3) == "ERR") {
+									    if( (result.substring(3, result.length)).indexOf('{!$Label.LBL_File_Upload_Size_Limit}') > -1) {
+								        	$('#postform-error').html('<strong>Error!</strong> {!JSINHTMLENCODE($Label.LBL_File_Upload_Size_Limit)}');
+										    $('#postform-error').show();
+									    }
+									    else {
+											$('#postform-error').html(_.template('<strong>Error!</strong> <%- msg %> ', { msg: result.substring(3, result.length)}));
+											$('#postform-error').show();
+									    }
 										err = true;	
 									}
 									else {
 										_.templateSettings.variable = 'rc';
 										var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
-										var tt = JSON.parse(rm);
+										var tt = jsonObj(result);
 										$('#cfcmp').prepend(template(tt));
 										_.each(chataction.layout.items, function(item) {
 											$("[name='" + item.fieldName + "']").val('');
@@ -743,11 +749,9 @@
 						feedid,
 						token,
 						function(result, event) {
-							var div = document.createElement('div');
-							div.innerHTML = result;
 							_.templateSettings.variable = 'rc';
 							var template = _.template($('#ttp21').html() + $('#ttp2').html());
-							var tt = JSON.parse(div.firstChild.nodeValue);
+							var tt = jsonObj(result);
 							$('#c'+tt.feedId).prepend(template(tt));
 							$('#l'+tt.feedId).css('display',tt.showNextComments?'block':'none').attr('onclick','getComments(\'' + tt.feedId + '\',\'' + tt.nextPageToken + '\');return false;');
 						}
@@ -784,12 +788,10 @@
 									alert(event.message);
 									enableBtn('b'+feedid);
 									return false;
-								}	
-								var div = document.createElement('div');
-								div.innerHTML = result;
+								}
 								_.templateSettings.variable = 'rc';
 								var template = _.template($('#ttp21').html() + $('#ttp2').html());
-								var tt = JSON.parse(div.firstChild.nodeValue);
+								var tt = jsonObj(result);
 								$('#d'+tt.feedId).before(template(tt));
 								enableBtn('b'+feedid);
 								$('#a'+tt.feedId).val('');
@@ -827,9 +829,7 @@
 						ins,
 						ini,
 						function(result, event) {
-							var div = document.createElement('div');
-							div.innerHTML = result;
-							var tt = JSON.parse(div.firstChild.nodeValue);
+							var tt = jsonObj(result);
 							if (tt.cname=='fa-times') {
 								$('#m'+tt.pid).remove();
 								if (typeof(switchToMemberMode) == 'function') switchToMemberMode();
@@ -852,9 +852,7 @@
 								'{!$RemoteAction.CommunityFeedController.getUsers}',
 								query,
 								function(result, event) {
-									var div = document.createElement('div');
-									div.innerHTML = result;
-									callback(JSON.parse(div.firstChild.nodeValue));
+									callback(jsonObj(result));
 								}
 							);
 						},
@@ -869,9 +867,7 @@
 									'{!$RemoteAction.CommunityFeedController.getUsers}',
 									query,
 									function(result, event) {
-										var div = document.createElement('div');
-										div.innerHTML = result;
-										callback(JSON.parse(div.firstChild.nodeValue));
+										callback(jsonObj(result));
 									}
 								);
 							}else if(charValue == '#'){ //&& {!isTopicCreateable} && {!isTopicAssignmentCreateable}){
@@ -879,9 +875,7 @@
 									'{!$RemoteAction.CommunityFeedController.getTopics}',
 									query,
 									function(result, event) {
-										var div = document.createElement('div');
-										div.innerHTML = result;
-										callback(JSON.parse(div.firstChild.nodeValue));
+										callback(jsonObj(result));
 									}
 								);
 							}
@@ -941,10 +935,8 @@
 							invokeActionStr,
 							invokeActionParam,
 							function(result, event) {
-								var div = document.createElement('div');
-								div.innerHTML = result;
 								chataction.loading = false;
-								chataction.layout = JSON.parse(div.firstChild.nodeValue);
+								chataction.layout = jsonObj(result);
 								_.templateSettings.variable = 'rc';
 								var template = _.template($('#atp').html());
 								$('#postarea').html(template(chataction.layout));
@@ -1017,12 +1009,10 @@
 							'{!parentId}',
 							'{!feedType}',
 							function(result, event) {
-								var div = document.createElement('div');
-								div.innerHTML = result;
 								_.templateSettings.variable = 'rc';
 								changeVoteId = null;
 								var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
-								var tt = JSON.parse(div.firstChild.nodeValue);
+								var tt = jsonObj(result);
 								$('#cfcmp').empty();
 								$('#cfcmp').prepend(template(tt));
 								t_el.removeAttr('disabled');
@@ -1041,14 +1031,12 @@
 						'',
 						function(result, event) {
 							if (event.status) {
-							var div = document.createElement('div');
-							div.innerHTML = result;
-							_.templateSettings.variable = 'rc';
-							var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
-							var tt = JSON.parse(div.firstChild.nodeValue);
-							$('#cfcmp').empty();
-							$('#cfcmp').prepend(template(tt));
-						}
+								_.templateSettings.variable = 'rc';
+								var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
+								var tt = jsonObj(result);
+								$('#cfcmp').empty();
+								$('#cfcmp').prepend(template(tt));
+							}
 						}
 					);
 					

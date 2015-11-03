@@ -3,6 +3,8 @@
     <fullName>unity</fullName>
     <types>
         <members>CommunityAboutGroupComponentController</members>
+        <members>CommunityAccess</members>
+        <members>CommunityAccessException</members>
         <members>CommunityEventController</members>
         <members>CommunityFeedController</members>
         <members>CommunityFeedNavigationController</members>
@@ -311,6 +313,7 @@
         <members>ERR_Group_Picture_FileError</members>
         <members>ERR_Maximum_number_topics</members>
         <members>ERR_MissingImageLibrary</members>
+		<members>ERR_Set_Up_Community_Profile</members>
         <members>ERR_MissingPermission</members>
         <members>ERR_Name_is_too_long</members>
         <members>ERR_News_Too_Many_Sticky</members>
