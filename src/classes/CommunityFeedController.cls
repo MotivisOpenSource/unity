@@ -46,7 +46,8 @@ global with sharing class CommunityFeedController {
 	public Boolean isTopicCreateable { get{ return CommunityUtils.checkCRUDforObject('Topic').get('isCreateable');} }
 	public Boolean isTopicAssignmentCreateable { get{ return CommunityUtils.checkCRUDforObject('TopicAssignment').get('isCreateable');} }
 	public class appException extends Exception { }
-	public String parentIdForAtt {get {
+	public String parentIdForAtt {
+		get {
 			try {
 				if (!SObjectType.User.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.User);
 				User us = [SELECT Id, ContactId, Community_Contact_ID__c FROM User WHERE Id = :UserInfo.getUserId() LIMIT 1];
@@ -61,17 +62,22 @@ global with sharing class CommunityFeedController {
 			catch (Exception ex) {
 				return null;
 			}
-		} set;}
-		
+		}
+		set;
+	}
 	public String NetworkId {
-		get {
-			return (!parentId.startsWith('0F9') && (String.isBlank(feedType) || feedType == '4' || feedType == '5')) ? 'AllNetworks' : Network.getNetworkId();
+		get { 
+			if(!parentId.startsWith('0F9') && (String.isBlank(feedType) || feedType == '4' || feedType == '5')) {
+				return 'AllNetworks';
+			}
+			else {
+				return Network.getNetworkId();
+			}
 		}
 		set;
 	}
 
 	public String communityPrefix {
-
 		get {
 			String nwid = Network.getNetworkId();
 			String servUrl = URL.getSalesforceBaseUrl().toExternalForm();
