@@ -1,0 +1,2 @@
+<apex:page standardController="Community_Group_Control__c" extensions="CommunityGroupCreateController" action="{!initFromView}">
+</apex:page>

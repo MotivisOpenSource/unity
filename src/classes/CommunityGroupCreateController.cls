@@ -1,26 +1,26 @@
-/* 
+/*
  * Unity - Communities
- * 
- * Community is critical to the student experience--but building community is 
- * just plain hard. Built on Communities and designed specifically for higher ed, 
- * Unity is a powerful networking tool to help you generate engagement and 
+ *
+ * Community is critical to the student experience--but building community is
+ * just plain hard. Built on Communities and designed specifically for higher ed,
+ * Unity is a powerful networking tool to help you generate engagement and
  * connect your campus.
- * 
+ *
  * Copyright (C) 2015 Motivis Learning Systems Inc.
- * 
- * This program is free software: you can redistribute it and/or modify 
+ *
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * To contact Motivis Learning Systems Inc.
  * 25 Pelham Road
  * Salem, NH 03790
@@ -49,13 +49,24 @@ public with sharing class CommunityGroupCreateController {
 	public CommunityGroupCreateController(ApexPages.StandardController stdController) {
 		currentGroup = (Community_Group_Control__c)stdController.getRecord();
 	}
-	
-	private Map<String, String> pageParams { 
+
+	private Map<String, String> pageParams {
 		get {
 			return  ApexPages.currentPage().getParameters();
 		}
 		set;
 	}
+
+	public PageReference initFromView() {
+		PageReference pageRef = CommunityUtils.checkRedirectToStandardView(currentGroup.Id);
+		if (pageRef == NULL) {
+			currentGroup = [SELECT Id, Chatter_Group_Id__c FROM Community_Group_Control__c WHERE Id = :currentGroup.Id LIMIT 1];
+			pageRef = Page.CommunityGroupManager;
+			pageRef.getParameters().put('gr', currentGroup.Chatter_Group_ID__c);
+		}
+		return pageRef;
+	}
+
 	public void initFromCreate() {
 		Set<String> availableSteps = new Set<String> {'2','3','4'};
 		//Map<String, String> pageParams = ApexPages.currentPage().getParameters();
@@ -174,7 +185,7 @@ public with sharing class CommunityGroupCreateController {
 					SELECT Id FROM Community_Admins__c
 					WHERE Terms_Status__c = 'Published' AND RecordType.Name = 'Group Terms'
 					ORDER BY CreatedDate DESC LIMIT 1
-						];
+				];
 				if (caList != NULL && caList.size() > 0) {
 					currentGroup.Terms__c = caList[0].Id;
 				}
@@ -235,7 +246,7 @@ public with sharing class CommunityGroupCreateController {
 				SELECT Terms_Body__c FROM Community_Admins__c
 				WHERE Terms_Status__c = 'Published' AND RecordType.Name = 'Group Terms'
 				ORDER BY Terms_Published_Date__c DESC LIMIT 1
-					];
+			];
 		}
 		return caList != NULL && caList.size() > 0 ? caList[0] : new Community_Admins__c(Terms_Body__c = '');
 	}

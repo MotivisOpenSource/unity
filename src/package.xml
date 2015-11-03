@@ -37,6 +37,7 @@
         <members>CommunityTopCategoriesController</members>
         <members>CommunityTopicController</members>
         <members>CommunityUrlRewriter</members>
+		<members>CommunityUrlRewriterTest</members>
         <members>CommunityUtils</members>
         <members>UnityAdminController</members>
         <name>ApexClass</name>
@@ -77,6 +78,7 @@
         <members>CommunityGroupManager</members>
         <members>CommunityGroups</members>
         <members>CommunityHome</members>
+		<members>CommunityNavigator</members>
         <members>CommunityNews</members>
         <members>CommunityNewsDetail</members>
         <members>CommunityNewsEdit</members>
