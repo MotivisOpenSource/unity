@@ -98,6 +98,7 @@
         <members>CommunityProfile</members>
         <members>CommunityResource</members>
         <members>Contact</members>
+        <members>NetworkMember</members>
         <members>User</members>
         <name>ApexTrigger</name>
     </types>
@@ -533,6 +534,7 @@
         <members>LBL_Upload_File</members>
         <members>LBL_Upload_Group_Photo</members>
         <members>LBL_Upload_Profile_Photo</members>
+        <members>LBL_User_Not_Available</members>
         <members>LBL_Username</members>
         <members>LBL_VerifyNewPassword</members>
         <members>LBL_When</members>

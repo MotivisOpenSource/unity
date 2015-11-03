@@ -1848,6 +1848,13 @@
         <value>Upload Profile Photo</value>
     </labels>
     <labels>
+        <fullName>LBL_User_Not_Available</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL User Not Available</shortDescription>
+        <value>Not Available</value>
+    </labels>
+    <labels>
         <fullName>LBL_Username</fullName>
         <language>en_US</language>
         <protected>true</protected>

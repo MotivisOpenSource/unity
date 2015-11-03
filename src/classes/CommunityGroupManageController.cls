@@ -23,7 +23,7 @@ public with sharing class CommunityGroupManageController {
 				chatterGroup = [SELECT Id, FullPhotoUrl FROM CollaborationGroup WHERE Id = :control.Chatter_Group_ID__c];
 				members = new MemberPage('members', chatterGroup.Id, control);
 			}
-			managers = new MemberPage('managers', (chatterGroup == NULL ? NULL : chatterGroup.Id), control);
+			managers = new MemberPage('managersonly', (chatterGroup == NULL ? NULL : chatterGroup.Id), control);
 		}
 	}
 
@@ -115,7 +115,8 @@ public with sharing class CommunityGroupManageController {
 
 	public void msShow() {
 		Id tempChGroup = chatterGroup == NULL ? NULL : chatterGroup.Id;
-		String determineMode = managerMode ? (showOnlyMode ? 'managers' : 'members') : (showOnlyMode ? 'members' : 'all');
+		String determineMode = managerMode ? (showOnlyMode ? 'managersonly' : 'managers') : (showOnlyMode ? 'members' : 'all');
+		//String determineMode = managerMode ? (showOnlyMode ? 'managers' : 'members') : (showOnlyMode ? 'members' : 'all');
 		determineMode = requestMode ? 'requests' : determineMode;
 		allusers = new MemberPage(determineMode, tempChGroup, control);
 	}
@@ -260,8 +261,10 @@ public with sharing class CommunityGroupManageController {
 		public void init() {
 			Boolean allMode = mode == 'all';
 			Boolean membersMode = mode == 'members';
-			Boolean managersMode = mode == 'managers';
+			Boolean managersMode = mode == 'managers' || mode == 'managersonly';
 			Boolean requestsMode = mode == 'requests';
+			//Get active network member
+
 			List<User> allUsers;
 			
 			if (allMode) { 
@@ -283,14 +286,28 @@ public with sharing class CommunityGroupManageController {
 				}
 			}
 			else if (managersMode) {
-				String mQuery3 = 'SELECT Group_Manager_User__c, Group_Manager_User__r.Id, Group_Manager_User__r.Name, Group_Manager_User__r.ContactId, Group_Manager_User__r.City, Group_Manager_User__r.Country, Group_Manager_User__r.Community_Contact_ID__c, Group_Manager_User__r.SmallPhotoUrl FROM Community_Group_Manager__c';
-				mQuery3 += ' WHERE Group_Control__c =\'' + gIdControl + '\' AND (Group_Manager_User__r.ContactId != NULL OR Group_Manager_User__r.Community_Contact_ID__c != NULL) AND Group_Manager_User__r.isActive = true';
+				String mQuery3 = 'SELECT MemberId, Member.Name, Member.Id, Member.ContactId, Member.City, Member.Country, Member.Community_Contact_ID__c, Member.SmallPhotoUrl FROM CollaborationGroupMember';
+				mQuery3 += ' WHERE CollaborationGroupId =\'' + gIdChatter + '\' AND (Member.ContactId != NULL OR Member.Community_Contact_ID__c != NULL) AND Member.isActive = true';
+				mQuery3 = checkQuery(mQuery3, 'Member.');
+				if (columnSort > 0) {
+					List<String> orderList = new List<String> {'','Member.Name'};
+					mQuery3 += ' ORDER BY ' + orderList[columnSort] + (ascSort ? ' ASC' : ' DESC');
+				}
+				Set<Id> colMemberIds = new Set<Id>();
+				allUsers = new List<User>();
+				if (mode != 'managersonly') {
+					for (CollaborationGroupMember mu : Database.query(mQuery3)) {
+						allUsers.add(mu.Member);
+						colMemberIds.add(mu.Member.Id);
+					}
+				}
+				mQuery3 = 'SELECT Group_Manager_User__c, Group_Manager_User__r.Id, Group_Manager_User__r.Name, Group_Manager_User__r.ContactId, Group_Manager_User__r.City, Group_Manager_User__r.Country, Group_Manager_User__r.Community_Contact_ID__c, Group_Manager_User__r.SmallPhotoUrl FROM Community_Group_Manager__c';
+				mQuery3 += ' WHERE Group_Manager_User__r.Id NOT IN :colMemberIds AND Group_Control__c =\'' + gIdControl + '\' AND (Group_Manager_User__r.ContactId != NULL OR Group_Manager_User__r.Community_Contact_ID__c != NULL)';
 				mQuery3 = checkQuery(mQuery3, 'Group_Manager_User__r.');
 				if (columnSort > 0) {
 					List<String> orderList = new List<String> {'','Group_Manager_User__r.Name'};
 					mQuery3 += ' ORDER BY ' + orderList[columnSort] + (ascSort ? ' ASC' : ' DESC');
 				}
-				allUsers = new List<User>();
 				for (Community_Group_Manager__c cgm : Database.query(mQuery3)) {
 					allUsers.add(cgm.Group_Manager_User__r);
 				}
@@ -348,12 +365,20 @@ public with sharing class CommunityGroupManageController {
 					subscribedToUsers.add(es.ParentId);
 				}
 			}
+			Set<Id> activeNMs = new Set<Id>();
+			if (managersMode) {
+				for (NetworkMember nm: [SELECT Id, MemberId FROM NetworkMember WHERE Member.isActive = true AND MemberId IN :usersIds AND NetworkId = :Network.getNetworkId()]) {
+					activeNMs.add(nm.MemberId);
+				}
+			}
+
 			users = new List<Member>();
 			for (Integer jj = startCopyInterval; jj < endCopyInterval; jj++) {
 				Member nm = new Member(allUsers[jj], membersIds.contains(allUsers[jj].Id), managersIds.contains(allUsers[jj].Id), roleMap.get(allUsers[jj].Id), ownerControlId);
 				nm.city = allUsers[jj].City;
 				nm.country = allUsers[jj].Country;
 				nm.follow = subscribedToUsers.contains(allUsers[jj].Id);
+				nm.available = managersMode ? activeNMs.contains(allUsers[jj].Id) : true;
 				users.add(nm);
 			}
 			totalUsers = allUsers.size();
@@ -411,6 +436,8 @@ public with sharing class CommunityGroupManageController {
 		public Boolean manager { get;set; }
 		public Boolean owner { get;set; }
 		public Boolean follow { get; set; }
+		public Boolean available { get; set; }
+
 
 		public Member(User inU, Boolean inMember, Boolean inManager, String inRole, Id inOwnerId) {
 			name = inU.Name;
