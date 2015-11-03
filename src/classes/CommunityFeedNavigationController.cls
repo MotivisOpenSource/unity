@@ -187,8 +187,6 @@ public with sharing class CommunityFeedNavigationController {
 			ApexPages.addMessages(e);
 		}
 	}
-		
-	}
 
 	public Community_Resource__c getBannerTextLabel() {
 		return CommunityUtils.getHtmlField(Label.LBL_Banner_Text);
