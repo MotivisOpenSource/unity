@@ -1,26 +1,26 @@
-/* 
+/*
  * Unity - Communities
- * 
- * Community is critical to the student experience--but building community is 
- * just plain hard. Built on Communities and designed specifically for higher ed, 
- * Unity is a powerful networking tool to help you generate engagement and 
+ *
+ * Community is critical to the student experience--but building community is
+ * just plain hard. Built on Communities and designed specifically for higher ed,
+ * Unity is a powerful networking tool to help you generate engagement and
  * connect your campus.
- * 
+ *
  * Copyright (C) 2015 Motivis Learning Systems Inc.
- * 
- * This program is free software: you can redistribute it and/or modify 
+ *
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * To contact Motivis Learning Systems Inc.
  * 25 Pelham Road
  * Salem, NH 03790
@@ -30,6 +30,60 @@
 @isTest
 private class CommunityTest4 {
 /*Utility Class Tests*/
+	private static final String testUrl = 'testUrl';
+	private static final String messageTypeParam = 'emkind';
+	private static final String testId = '123456789';
+
+	private static String prepareFeedItemData() {
+		FeedItem testFeedItem = new FeedItem(
+			ParentId = UserInfo.getUserId(),
+			Body = 'testBody'
+		);
+		insert testFeedItem;
+
+		return testFeedItem.Id;
+	}
+
+	static testMethod void commonRewriterTest() {
+		String feedItemId = prepareFeedItemData();
+		CommunityUrlRewriter testRewriter = new CommunityUrlRewriter();
+
+		PageReference testPageRef = new PageReference(testRewriter.STANDARD_USER_DETAIL_PAGE + testUrl);
+		testPageRef.getParameters().put('u', testId);
+		testPageRef.getParameters().put('fi', testId);
+		testRewriter.mapRequestUrl(testPageRef);
+
+		testPageRef = new PageReference(testRewriter.STANDARD_CHATTER_PAGE + testUrl);
+		testRewriter.mapRequestUrl(testPageRef);
+
+		testPageRef = new PageReference(testRewriter.STANDARD_GROUP_DETAIL_PAGE + testUrl);
+		testPageRef.getParameters().put('u', testId);
+		testPageRef.getParameters().put('g', UserInfo.getUserId());
+		testRewriter.mapRequestUrl(testPageRef);
+
+		testPageRef = new PageReference(testUrl);
+		testPageRef.getParameters().put(messageTypeParam, testRewriter.CHATTER_PRIVATE_MESSAGE_NOTIFICATION);
+		testRewriter.mapRequestUrl(testPageRef);
+
+		testPageRef = new PageReference(testUrl);
+		testPageRef.getParameters().put(messageTypeParam, testRewriter.CHATTER_POST_NOTIFICATION);
+		testPageRef.getParameters().put('fid', testId);
+		testRewriter.mapRequestUrl(testPageRef);
+
+		testPageRef = new PageReference(testUrl);
+		testPageRef.getParameters().put(messageTypeParam, testRewriter.CHATTER_COMMENT_NOTIFICATION);
+		testPageRef.getParameters().put('fId', feedItemId);
+		testPageRef.getParameters().put('s1uid', Userinfo.getUserId());
+		testRewriter.mapRequestUrl(testPageRef);
+
+		testPageRef = new PageReference(testUrl);
+		testPageRef.getParameters().put(messageTypeParam, testRewriter.CHATTER_COMMENT_NOTIFICATION);
+		testPageRef.getParameters().put('fId', feedItemId);
+		testPageRef.getParameters().put('s1uid', testId);
+		testRewriter.mapRequestUrl(testPageRef);
+
+		System.assertEquals(testRewriter.generateUrlFor(new List<PageReference>()), null);
+	}
 
 	static testMethod void test_CommunityUrlRewriter() {
 		CommunityUrlRewriter rewriter = new CommunityUrlRewriter();
@@ -43,7 +97,7 @@ private class CommunityTest4 {
 		rewriter.mapRequestUrl(new PageReference('https://motivis-developer-edition.ap2.force.com/studentcommunity/_ui/core/chatter/groups/GroupProfilePage?g='+cg[0].ID+'&filter=requests&fromEmail=1'));
 		rewriter.mapRequestUrl(new PageReference('https://motivis-developer-edition.ap2.force.com/studentcommunity/_ui/core/chatter/groups/GroupProfilePage?g='+cg[0].ID+'&u='+us[0].ID+'&fromEmail=1'));
 		rewriter.mapRequestUrl(new PageReference('https://motivis-developer-edition.ap2.force.com/studentcommunity/_ui/core/userprofile/?u='+us[0].Id));
-		
+
 	}
 
 	@IsTest(SeeAllData=true) //need for testing ConnectApi
@@ -84,22 +138,22 @@ private class CommunityTest4 {
 			CommunityUtils.isViewAllData();
 			CommunityUtils.canCreateGroup();
 			CommunityUtils.getPackagePrefix();
-			
+
 			CommunityUtils.getActionButton(ConnectApi.GroupMembershipType.GroupOwner, TRUE);
 			CommunityUtils.getActionButton(ConnectApi.GroupMembershipType.GroupManager, TRUE);
 			CommunityUtils.getActionButton(ConnectApi.GroupMembershipType.StandardMember, TRUE);
 			CommunityUtils.getActionButton(ConnectApi.GroupMembershipType.NotAMember, TRUE);
 			CommunityUtils.getActionButton(ConnectApi.GroupMembershipType.NotAMemberPrivateRequested, TRUE);
-			
+
 			CommunityUtils.getActionButton(ConnectApi.GroupMembershipType.GroupOwner, FALSE);
 			CommunityUtils.getActionButton(ConnectApi.GroupMembershipType.GroupManager, FALSE);
 			CommunityUtils.getActionButton(ConnectApi.GroupMembershipType.StandardMember, FALSE);
 			CommunityUtils.getActionButton(ConnectApi.GroupMembershipType.NotAMember, FALSE);
 			CommunityUtils.getActionButton(ConnectApi.GroupMembershipType.NotAMemberPrivateRequested, FALSE);
-						
+
 			CommunityUtils.subscriberUser(u2.Id,TRUE);
-			CommunityUtils.subscriberUser(u2.Id,FALSE);	
-			
+			CommunityUtils.subscriberUser(u2.Id,FALSE);
+
 			CommunityUtils.GroupAction ga = new CommunityUtils.GroupAction();
 			ga.btnLabel = '1';
 			ga.btnIcon = '2';
@@ -110,26 +164,26 @@ private class CommunityTest4 {
 			ga.memberCount = '7';
 			ga.lnkIcon = '8';
 			ga.lnkStyle = '9';
-			
+
 			Community_Group_Control__c cgc =  new Community_Group_Control__c(Name='ts',Discoverable__c=true,Type__c='Public',Network__c='Internal');
 			insert cgc;
 			List<Community_Group_Control__c> availibleGroupsControll = [SELECT Chatter_Group_ID__c, Id
-					 FROM Community_Group_Control__c
-					 WHERE Id =:cgc.Id];
+					FROM Community_Group_Control__c
+					WHERE Id =:cgc.Id];
 			List<String> groupIds = new List<String>();
 			for (Community_Group_Control__c aGroup : availibleGroupsControll){
-				groupIds.add(aGroup.Chatter_Group_ID__c); 
-			}		
+				groupIds.add(aGroup.Chatter_Group_ID__c);
+			}
 			CommunityUtils.getNamesOfAvailableGroups(groupIds);
 			System.assert(CommunityUtils.getNamesOfAvailableGroups(groupIds).size()>0);
-			
-			
+
+
 			List<String> checkFieldList = new List<String> {'Building__c', 'Room__c', 'Street_Address__c', 'City__c', 'State__c', 'Zip__c'};
 			Set<String> checkFieldSet = new Set<String>();
 			checkFieldSet.addAll(checkFieldList);
 			checkFieldSet = CommunityUtils.checkFLSFields('Community_Events__c', checkFieldSet);
 			checkFieldSet = CommunityUtils.checkFLSFields('Community_Events__c', null);
-			
+
 			string year = '2008';
 			string month = '10';
 			string day = '5';
@@ -137,26 +191,26 @@ private class CommunityTest4 {
 			string minute = '20';
 			string second = '20';
 			string stringDate = year + '-' + month + '-' + day + ' ' + hour + ':' + minute +  ':' + second;
-			
+
 			CommunityUtils.checkNewsOverlapInterval(' IsDeleted=false ', Datetime.valueOf(stringDate), Datetime.valueOf(stringDate));
 			CommunityUtils.checkNewsOverlapInterval(' IsDeleted=false ', null, Datetime.valueOf(stringDate));
 			CommunityUtils.checkNewsOverlapInterval(' IsDeleted=false ', Datetime.valueOf(stringDate), null);
-			
-			Test.setCurrentPage(Page.CommunityHome);		
+
+			Test.setCurrentPage(Page.CommunityHome);
 			CommunityUtils.checkUrl('   ');
 			CommunityUtils.checkUrl('/profilephoto/0F9/F');
 			CommunityUtils.checkUrl('motivisSKL/profilephoto/0F9/F');
-			
+
 			Map<Id,String> contactToRoleMap = new Map<Id,String>();
 			contactToRoleMap.put(con.Id, con.Primary_Role__c);
 			CommunityUtils.checkPrimaryProfile(contactToRoleMap);
-			
+
 			insert new Community_News__c(Title__c='t',Teaser__c='t',Entry_Date__c=Datetime.now(),Expiration_Date__c=Datetime.now().addDays(1));
 
 			ApexPages.StandardController stdctrl = new ApexPages.StandardController( new Community_News__c ( Id=[select id from Community_News__c limit 1][0].Id ) );
 			Community_News__c newsLocal = (Community_News__c)stdctrl.getRecord();
 			PageReference pr = CommunityUtils.checkRedirectToStandardView(newsLocal.Id);
-			
+
 			// 1 - Create Chatter Group Member
 			// 2 - Delete Chatter Group Member
 			// 3 - Create Group Manager
@@ -165,11 +219,11 @@ private class CommunityTest4 {
 			// 6 - Delete Join Private Group Request
 			// 7 - Accept Join Private Group Request
 			// 8 - Decline Join Private Group Request
-			
+
 			CollaborationGroup cg = new CollaborationGroup();
 			cg.Name = 'newgroup';
 			cg.CollaborationType = 'Public' ;
-			insert cg;			
+			insert cg;
 			insert new Community_Group_Control__c(Name='1212t',Discoverable__c=true,Type__c='Public',Network__c='Internal', Chatter_Group_ID__c=cg.Id);
 			Community_Group_Control__c control = [SELECT id FROM Community_Group_Control__c  Where Chatter_Group_ID__c =: cg.Id LIMIT 1];
 			CommunityUtils.membership(UserInfo.getUserId(), control.Id, '1');
@@ -186,9 +240,9 @@ private class CommunityTest4 {
 
 			Boolean bool1 = CommunityUtils.isFeedTrakingEnabled('Topic', new Map<String, String>{'Name' => 'string'});
 			System.assert(bool1 != null);
-		}	
+		}
 	}
-	
+
 	static testMethod void test_UnityAdminController() {
 		UnityAdminController ua = new UnityAdminController();
 		ua.getFieldsCR();
