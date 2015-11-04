@@ -55,8 +55,8 @@ global with sharing class CommunityProfilePageController {
 		
 	public CommunityProfilePageController() {
 		try {
-			String tempContactId = ApexPages.currentPage().getParameters().get('cid');
-			String tempUserId = ApexPages.currentPage().getParameters().get('id');
+			String tempContactId = CommunityUtils.validateId(ApexPages.currentPage().getParameters().get('cid'));
+			String tempUserId = CommunityUtils.validateId(ApexPages.currentPage().getParameters().get('id'));
 			if (String.isBlank(tempUserId) && String.isNotBlank(tempContactId)) {
 				contactId = Id.valueOf(tempContactId);
 				List<User> currentUserList2 = CommunityHelperWithoutSharing.getCommunityUsers(null,100,new List<String>{'ContactId','FullPhotoUrl'},'Name',true);
@@ -67,7 +67,7 @@ global with sharing class CommunityProfilePageController {
 			else {
 				currentUserId = String.isNotBlank(tempUserId) ? Id.valueOf(tempUserId) : UserInfo.getUserId();
 				if (!SObjectType.User.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.User);
-				String queryCurrentUserId = String.escapeSingleQuotes(currentUserId);
+				String queryCurrentUserId =CommunityUtils.validateId(currentUserId);
 				User currentUserLocal2 = [SELECT ContactId, Community_Contact_ID__c, FullPhotoUrl FROM User WHERE Id = :queryCurrentUserId];
 				contactId = currentUserLocal2.ContactId != NULL ? currentUserLocal2.ContactId : currentUserLocal2.Community_Contact_ID__c;
 				FullPhotoUrl = currentUserLocal2.FullPhotoUrl;
@@ -88,7 +88,7 @@ global with sharing class CommunityProfilePageController {
 		try {
 			// select available profiles for current user
 			if (!SObjectType.Community_Profile__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Profile__c);
-			String queryContactId = String.escapeSingleQuotes(contactId);
+			String queryContactId = CommunityUtils.validateId(contactId);
 			List<Community_Profile__c> localProfiles = [SELECT Id, Name, Primary__c, RecordType.Name FROM Community_Profile__c WHERE Contact__c = :queryContactId];
 			Map<Id, Community_Profile__c> cpMap = new Map<Id, Community_Profile__c>();
 			Community_Profile__c primaryCp;
@@ -193,7 +193,7 @@ global with sharing class CommunityProfilePageController {
 	public void initInterests() {
 		Set<Id> activeTags = new Set<Id>();
 		if (!SObjectType.Community_Profile_Tag__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Profile_Tag__c);
-		String queryContactId = String.escapeSingleQuotes(contactId);
+		String queryContactId = CommunityUtils.validateId(contactId);
 		for (Community_Profile_Tag__c cptItem : [SELECT Community_Tag__c FROM Community_Profile_Tag__c WHERE Contact__c =:queryContactId AND Active__c = true]) {
 			activeTags.add(cptItem.Community_Tag__c);
 		}
@@ -367,8 +367,8 @@ global with sharing class CommunityProfilePageController {
 		Id ccId = currentUserLocal3.ContactId != NULL ? currentUserLocal3.ContactId : currentUserLocal3.Community_Contact_ID__c;
 		if (ccId != NULL) {
 			if (!SObjectType.Community_Profile_Tag__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Profile_Tag__c);
-			String queryCcId = String.escapeSingleQuotes(ccId);
-			String queryInId = String.escapeSingleQuotes(inid);
+			String queryCcId = CommunityUtils.validateId(ccId);
+			String queryInId = CommunityUtils.validateId(inid);
 			List<Community_Profile_Tag__c> cptList3 = [SELECT Id, Active__c FROM Community_Profile_Tag__c WHERE Contact__c = :queryCcId AND Community_Tag__c = :queryInId LIMIT 1];
 			if (cptList3.size() > 0) {
 				cptList3[0].Active__c = sel;
@@ -437,7 +437,7 @@ global with sharing class CommunityProfilePageController {
 		}
 		else {
 			if (!SObjectType.CollaborationGroupMember.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.CollaborationGroupMember);
-			String queryGroupId = String.escapeSingleQuotes(groupId);
+			String queryGroupId = CommunityUtils.validateId(groupId);
 			CollaborationGroupMember cgm = [SELECT Id, NotificationFrequency FROM CollaborationGroupMember WHERE MemberId = :UserInfo.getUserId() AND CollaborationGroupId = :queryGroupId];
 			cgm.NotificationFrequency = freq;
 			//update cgm;
