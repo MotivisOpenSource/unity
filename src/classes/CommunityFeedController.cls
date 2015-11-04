@@ -52,7 +52,7 @@ global with sharing class CommunityFeedController {
 				User us = [SELECT Id, ContactId, Community_Contact_ID__c FROM User WHERE Id = :UserInfo.getUserId() LIMIT 1];
 				String contId = (us.ContactId != null) ? us.ContactId : us.Community_Contact_ID__c;
 				if(contId != null) {
-					String queryContId = String.escapeSingleQuotes(contId);
+					String queryContId = CommunityUtils.validateId(contId);
 					List<Community_Profile__c> cpl = [SELECT Id FROM Community_Profile__c WHERE Contact__c = :queryContId LIMIT 1]; 
 					if(cpl.size()>0) return cpl[0].Id;
 				}
@@ -133,14 +133,14 @@ global with sharing class CommunityFeedController {
 
 		String result = '';
 		
-		String queryTopicId = String.escapeSingleQuotes(topicId);
+		String queryTopicId = CommunityUtils.validateId(topicId);
 		for(TopicAssignment topicA : [SELECT Id, NetworkId, TopicId, EntityId FROM TopicAssignment
 										WHERE NetworkId =: Network.getNetworkId()
 										AND TopicId =: queryTopicId LIMIT 1000]){
 			feedsIds.add(topicA.EntityId);
 		}
 		if(inParentId2 != UserInfo.getUserId()){
-			String queryInParentId2 = String.escapeSingleQuotes(inParentId2);
+			String queryInParentId2 = CommunityUtils.validateId(inParentId2);
 			for(FeedItem fItem : [SELECT Id, ParentId FROM FeedItem WHERE Id IN :feedsIds AND ParentId =:queryInParentId2 LIMIT 1000]){
 				feedsParents.add(fItem.Id);
 				managersParent.put(fItem.Id, fItem.ParentId);
@@ -879,7 +879,7 @@ global with sharing class CommunityFeedController {
 					// insert group link for event
 					//Community_Group_Control__c groupControl = [SELECT ID FROM Community_Group_Control__c WHERE Chatter_Group_ID__c = :inParentId4 LIMIT 1];
 					if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
-					String queryInParentId4 = String.escapeSingleQuotes(inParentId4);
+					String queryInParentId4 = CommunityUtils.validateId(inParentId4);
 					if(![SELECT ID FROM Community_Group_Control__c WHERE Chatter_Group_ID__c = :queryInParentId4 LIMIT 1].isEmpty()){
 						if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
 						Id grControllID = [SELECT ID FROM Community_Group_Control__c WHERE Chatter_Group_ID__c = :queryInParentId4 LIMIT 1].Id;

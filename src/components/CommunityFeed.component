@@ -462,7 +462,7 @@
 				var changeVoteId = null;
 				
 				$(document).ready(function() {
-					var top = '{!topicId}';
+					var top = '{!JSENCODE(topicId)}';
 					if(!top){
 						loadFeeds(null);
 					}else{
