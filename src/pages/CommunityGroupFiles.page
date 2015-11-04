@@ -283,7 +283,7 @@
 										/*ContentVersion.Description = $('#nvta').val();*/
 										ContentVersion.ReasonForChange = $('#nvta').val();
 										ContentVersion.ContentDocumentId = '{!JSENCODE(ParentDocumentId)}';
-										ContentVersion.NetworkId = '{!CommunityId}';
+										ContentVersion.NetworkId = '{!JSENCODE(CommunityId)}';
 										ContentVersion.PathOnClient = $('#nvfile')[0].files[0].name;
 										sforce.connection.create(
 											[ContentVersion], 

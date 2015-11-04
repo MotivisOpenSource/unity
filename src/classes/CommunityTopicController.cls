@@ -42,10 +42,8 @@ public with sharing class CommunityTopicController {
     public Boolean topicExists { get{ return [SELECT Count() FROM Topic WHERE Id =:topicId AND NetworkId =: Network.getNetworkId()] > 0 ? true : false;}}
 
     public CommunityTopicController() {
-        String topId = ApexPages.CurrentPage().getParameters().get('id');
-        String parId = ApexPages.CurrentPage().getParameters().get('pid');
-        topicId = topId != NULL ? String.escapeSingleQuotes(topId) : NULL;
-        parentId = parId != NULL ? String.escapeSingleQuotes(parId) : NULL;
+        topicId = CommunityUtils.validateId(ApexPages.CurrentPage().getParameters().get('id'));
+        parentId = CommunityUtils.validateId(ApexPages.CurrentPage().getParameters().get('pid'));
     }
 
     @RemoteAction
@@ -55,7 +53,7 @@ public with sharing class CommunityTopicController {
         Set<String> parentFollowingIds = new Set<String>();
 		String topId = params.get('topicId');
 		if(String.isNotEmpty(topId)){
-            String queryTopId = String.escapeSingleQuotes(topId);
+            String queryTopId = CommunityUtils.validateId(topId);
 			Topic t = [SELECT Id, Name, NetworkId, TalkingAbout, CreatedById, Description FROM Topic WHERE Id = :queryTopId AND NetworkId =: Network.getNetworkId() LIMIT 1];
 			topicsItemIds.add(t.Id);
 			topicsItems.add(new TopicItem(t));
@@ -97,7 +95,7 @@ public with sharing class CommunityTopicController {
 
     @RemoteAction
 	public static String updateTopic(String descr, String topicId){
-        String queryTopicId = String.escapeSingleQuotes(topicId);
+        String queryTopicId = CommunityUtils.validateId(topicId);
 		List<Topic> top = [SELECT Id, Name, NetworkId, Description FROM Topic WHERE NetworkId =: Network.getNetworkId() AND Id = :queryTopicId];
         if (top.isEmpty()) {
             return Label.ERR_Can_not_found_Topic;
