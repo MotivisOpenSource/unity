@@ -906,10 +906,6 @@
         <enabled>false</enabled>
     </pageAccesses>
     <pageAccesses>
-        <apexPage>CommunityNavigator</apexPage>
-        <enabled>false</enabled>
-    </pageAccesses>
-    <pageAccesses>
         <apexPage>CommunityNews</apexPage>
         <enabled>false</enabled>
     </pageAccesses>
