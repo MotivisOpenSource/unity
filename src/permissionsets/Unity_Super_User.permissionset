@@ -145,10 +145,6 @@
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
-        <apexClass>CommunityUrlRewriterTest</apexClass>
-        <enabled>false</enabled>
-    </classAccesses>
-    <classAccesses>
         <apexClass>CommunityUtils</apexClass>
         <enabled>false</enabled>
     </classAccesses>
