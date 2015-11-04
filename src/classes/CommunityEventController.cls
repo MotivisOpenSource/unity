@@ -210,8 +210,8 @@ public with sharing class CommunityEventController {
 		if (pr == NULL || Test.isRunningTest()) {
 			mode = 'view';
 			init();
+			generateDownloadIcsLink();
 		}
-		generateDownloadIcsLink();
 		return pr;
 	}
 

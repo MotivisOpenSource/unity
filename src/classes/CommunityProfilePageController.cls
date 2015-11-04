@@ -194,7 +194,7 @@ global with sharing class CommunityProfilePageController {
 	}
 
 	public String getStudentName() {
-		return currentProfile.Contact__r.Name;
+		return currentProfile == NULL ? '' : currentProfile.Contact__r.Name;
 	}
 
 	public void initInterests() {

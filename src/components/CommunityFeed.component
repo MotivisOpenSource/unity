@@ -53,7 +53,7 @@
 			<div id="cfcmp" class="col-sm-12 profile margin-bottom-20">
 				<div class="panel panel-profile">
 					<div id="scrollbar4" class="panel-body contentHolder ps-container"></div>
-				</div>
+				</div>	
 			</div>
 			<apex:outputPanel layout="block" styleClass="col-sm-12" rendered="{!sjcb}">
 				<button class="btn-u btn-u-blue" onclick="window.open('{!$Page.CommunityFeed_MyFeed}','_self');" type="button"><i class="fa fa-comment-o"></i> Join the conversation</button> 
@@ -119,14 +119,16 @@
 					</apex:repeat>
 				</ul>
 				<div class="clearfix"></div>
-				<div id="postform-error" class="alert alert-danger fade in" style="display:none;"></div>
 				<div id="postarea">
 					<form name="postform">
+						<div id="postform-error" class="alert alert-danger fade in" style="display:none;">
+							{!$Label.LBL_Oh_Snap}								
+						</div>
 						<div class="sky-form bordered margin-bottom-5">
 							<textarea name="message" id="message" class="form-control share" onclick="checkmi(this);"></textarea>
 						</div>
 						<div class="text-right">
-							<button type="button" class="btn-u" id="mesbtn">
+							<button type="button" class="btn-u" id="mesbtn" onclick="postFeed($('#message').val());">
 								<i class="fa fa-spinner fa-pulse" style="display:none;"></i>
 								<span>{!$Label.LBL_Share}</span>
 							</button>
@@ -374,6 +376,9 @@
 			</script>
 			<script id="atp" type="text/template">
 				<form name="postform">
+				<div id="postform-error" class="alert alert-danger fade in" style="display:none;">
+					<strong>Oh snap!</strong> Change a few things up and try submitting again.
+				</div>
 
 				<div class="sky-form bordered margin-bottom-5">
 				<% if (rc.beforeFields || !rc.post) { %>
@@ -436,19 +441,15 @@
 			</script>
 
 			<script>
-				function showFeedError(msg) {
-					$('#postform-error').text(msg).show();
-				}
-				function hideFeedError() {
-					$('#postform-error').hide();
-				}
-				
-		 		function inputFileOnchange(elm) {
-	    			    console.log(elm);
-	    			    if (elm.files.length>0) elm.parentNode.nextSibling.value = elm.files[0].name;
-	    			    else elm.parentNode.nextSibling.value = '';
-	    			}
+			
+    			function inputFileOnchange(elm) {
+    			    console.log(elm);
+    			    if (elm.files.length>0) elm.parentNode.nextSibling.value = elm.files[0].name;
+    			    else elm.parentNode.nextSibling.value = '';
+    			}
+			
 				var chekFlagOnPage = function(type){
+
 					if(!(_.contains(['News','Events','Manager'], type)) ) {
 						listPages = ['CommunityNewsDetail', 'CommunityEventDetail', 'CommunityGroupManager'];
 						_.each(listPages, function(value, key, obj){ obj[key] = '{!packagePrefix}'+ value.toLowerCase(); });
@@ -457,12 +458,12 @@
 					else return false;
 				}
 				var changeVoteId = null;
+				
 				$(document).ready(function() {
 					var top = '{!topicId}';
 					if(!top){
 						loadFeeds(null);
-					}
-					else {
+					}else{
 						loadFeedsForTopic(null);
 						if({!!isTopicAssignmentCreateable}){
 							$('#palist').hide();
@@ -472,15 +473,15 @@
 				});
 
 				function loadFeeds(inpt) {
-					$('a.curr i.fa-comment').removeClass('fa-comment').addClass('fa-spinner fa-pulse');
 					disableBtn('shmbtn',true);
+					// console.log('parentId','{!parentId}');
 					Visualforce.remoting.Manager.invokeAction(
 						'{!$RemoteAction.CommunityFeedController.feeds}',
 						'{!parentId}',
 						'{!feedType}',
 						inpt,
 						function(result, event) {
-							if (event.result) {
+							if (event.status) {
 								_.templateSettings.variable = 'rc';
 								var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
 								var tt = jsonObj(result);
@@ -488,38 +489,27 @@
 								enableBtn('shmbtn');
 								$('#shmbtn').css('display',tt.showMore?'block':'none').attr('onclick','loadFeeds(\'' + tt.nextPageToken + '\');return false;');
 							}
-							else {
-								showFeedError(event.message);
-							}
-							$('a.curr i.fa-spinner').removeClass('fa-spinner fa-pulse').addClass('fa-comment');
 						}
 					);
 					initValidator();
 				}
 
 				function loadFeedsForTopic(inpt) {
-					$('a.curr i.fa-comment').removeClass('fa-comment').addClass('fa-spinner fa-pulse');
 					disableBtn('shmbtn',true);
-					var params = {'parentId' : '{!parentId}',
+					var params = {'parentId' : '{!parentId}', 
 								'feedType' 	 : '{!feedType}',
-								'inpt'		 : inpt,
+								'inpt'		 : inpt, 
 								'topicId' 	 : '{!topicId}'};
 					Visualforce.remoting.Manager.invokeAction(
 						'{!$RemoteAction.CommunityFeedController.feedsForTopics}',
 						params,
 						function(result, event) {
-							if (event.result) {
-								_.templateSettings.variable = 'rc';
-								var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
-								var tt = jsonObj(result);
-								$('#cfcmp').append(template(tt));
-								enableBtn('shmbtn');
-								$('#shmbtn').css('display',tt.showMore?'block':'none').attr('onclick','loadFeedsForTopic(\'' + tt.nextPageToken + '\');return false;');
-							}
-							else {
-								showFeedError(event.message);
-							}
-							$('a.curr i.fa-spinner').removeClass('fa-spinner fa-pulse').addClass('fa-comment');
+							_.templateSettings.variable = 'rc';
+							var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
+							var tt = jsonObj(result);
+							$('#cfcmp').append(template(tt));
+							enableBtn('shmbtn');
+							$('#shmbtn').css('display',tt.showMore?'block':'none').attr('onclick','loadFeedsForTopic(\'' + tt.nextPageToken + '\');return false;');
 						}
 					);
 					initValidator();
@@ -555,48 +545,55 @@
 					
 				uploadAttachment = function(binary,fName,fType) {
 					// send attacment
-					var __sfdcSessionId = '{!GETSESSIONID()}';
-					if('{!JSENCODE(parentIdForAtt)}'.length == 0) {
-							enableBtn('mesbtn');
-							showFeedError('{!JSINHTMLENCODE($Label.ERR_Set_Up_Community_Profile)}');
-							return null;
-						}
-						sforce.connection.serverUrl = '{!$Site.Prefix}/services/Soap/u/33.0';
-						sforce.connection.sessionId = __sfdcSessionId;
-						var Attachment = new sforce.SObject('Attachment');
-						Attachment.Name = fName;
-						Attachment.ContentType = fType;
-						Attachment.Body  = binary;
-						Attachment.ParentId = '{!JSENCODE(parentIdForAtt)}';
-						sforce.connection.create([Attachment],
-						{
-							onSuccess : function(result, source) {
-								if (result[0].getBoolean("success")) {
-								if($("[name='message']").val()) {
-										$('#message').mentionsInput('val', function(text) {
-											chataction.layout.items[messageItemIndex].value = text;
-											insertAttIntoFeed(result[0].id, JSON.stringify(chataction.layout));
-										});
-									}
-									else {
-										insertAttIntoFeed(result[0].id, null);
-									}
-									postFile = false;
-								}
-								else {
-									postFile = false;
-									enableBtn('mesbtn');
-									enableBtn('mesbtn');
-									showFeedError(result[0].errors.message);
-								}
-							},
-							onFailure : function(error, source) {
-								postFile = false;
-								enableBtn('mesbtn');
-								showFeedError(result[0].errors.message);
-							}
+										var __sfdcSessionId = '{!GETSESSIONID()}';
+					if(!'{!JSENCODE(parentIdForAtt)}'.length>0) {
+											enableBtn('mesbtn');
+
+						$('#postform-error').html('<strong>Error!</strong> {!JSINHTMLENCODE($Label.ERR_Set_Up_Community_Profile)}');
+											$('#postform-error').show();
+											return null;
+										}
+										sforce.connection.serverUrl = '{!$Site.Prefix}/services/Soap/u/33.0';
+										sforce.connection.sessionId = __sfdcSessionId;
+										var Attachment = new sforce.SObject('Attachment');
+										Attachment.Name = fName;
+										Attachment.ContentType = fType;
+										Attachment.Body  = binary;
+										Attachment.ParentId = '{!JSENCODE(parentIdForAtt)}';
+										sforce.connection.create([Attachment],
+					{
+						onSuccess : function(result, source)
+										    {
+										        if (result[0].getBoolean("success"))
+										        {
+										            if($("[name='message']").val()) {
+														$('#message').mentionsInput('val', function(text) {
+															chataction.layout.items[messageItemIndex].value = text;
+															insertAttIntoFeed(result[0].id, JSON.stringify(chataction.layout));
+														});
+													}else{
+														insertAttIntoFeed(result[0].id, null);
+													}
+													postFile = false;
+											    }
+										        else
+										        {
+										        	postFile = false;
+													enableBtn('mesbtn');
+										            $('#postform-error').html(_.template('<strong>Error!</strong> <%- msg %> ', { msg: result[0].errors.message}));
+													$('#postform-error').show();	
+										        }
+										    },
+										    onFailure : function(error, source)
+										    {
+										    	postFile = false;
+												enableBtn('mesbtn');
+												$('#postform-error').html(_.template('<strong>Error!</strong> <%- msg %> ', { msg: result[0].errors.message}));
+												$('#postform-error').show();	
+					    }
 					});
 					// end sending
+										        
 				}
 
 				var postFile = false;
@@ -604,15 +601,16 @@
 
 				function postAction(text) {
 					if( checkTopicsCount(text) == -1 ) return ;
-					hideFeedError();
+					$('#postform-error').hide();	
 					disableBtn('mesbtn');
 					var messageItemIndex = -1;
 					var fBaseStr = null;
 					var fType = null;
 					var fName = null;
 					var sendFile = false;
+					
 					if($("form[name='postform']").data('validator').checkForm()) {
-						postEvent = chataction.layout.name == 'Create_Event';
+						postEvent = chataction.layout.name == 'Create_Event';			
 						_.each(chataction.layout.items, function(item) {
 							if(item.fieldName == 'message') {
 								messageItemIndex = chataction.layout.items.indexOf(item);
@@ -666,7 +664,7 @@
 							}
 							item.value = $("[name='" + item.fieldName + "']").val();
 						});	
-						if(sendFile == false) {
+						if(sendFile == false) {					
 							if($("[name='message']").val()) {
 								$('#message').mentionsInput('val', function(text) {
 									chataction.layout.items[messageItemIndex].value = text;
@@ -682,23 +680,23 @@
 						$("form[name='postform']").data('validator').showErrors(); 
 						enableBtn('mesbtn');
 					}
+					
 				}
-				function insertAttIntoFeed(attId, jsontext) {
-					hideFeedError();
+				function insertAttIntoFeed(attId, jsontext){
 					Visualforce.remoting.Manager.invokeAction(
 						'{!$RemoteAction.CommunityFeedController.insertAttacmentIntoFeed}',
 						'{!parentId}',
 						attId,
 						jsontext,
 						function(result, event){
-							if(event.result){
+							if(result != undefined){
 								enableBtn('mesbtn');
 								refreshFeed();
 								setActiveli();
 								if (typeof(switchToMemberMode) == 'function') switchToMemberMode();
-							}
-							else {
-								showFeedError(event.message);
+							}else{
+								$('#postform-error').html('<strong>Error!</strong> ');
+								$('#postform-error').show();
 							}
 						}
 					);
@@ -707,28 +705,27 @@
 				function sendPostAction (jsontext, infilebstr, infiletype, infilename) {
 					Visualforce.remoting.timeout = 120000;
 					var err = false;
-					var params = {
-						'parentId'	 : '{!parentId}',
-						'jsontext'	 : jsontext,
-						'infilebstr' : infilebstr,
-						'infiletype' : infiletype,
-						'infilename' : infilename,
-						'topicId' 	 : '{!topicId}'
-					};
-					hideFeedError();
+					var params = {'parentId' : '{!parentId}', 
+								'jsontext' 	 : jsontext, 
+								'infilebstr' : infilebstr, 
+								'infiletype' : infiletype, 
+								'infilename' : infilename,
+								'topicId' 	 : '{!topicId}'};
 					Visualforce.remoting.Manager.invokeAction(
 						'{!$RemoteAction.CommunityFeedController.postActions}',
 						params,
 						function(result, event) {
-							if (event.result) {
+							if(event.status){
 								if(result != undefined) {
 									if (result.substring(0, 3) == "ERR") {
-										if( (result.indexOf('{!$Label.LBL_File_Upload_Size_Limit}') > -1) {
-											showFeedError('{!JSINHTMLENCODE($Label.LBL_File_Upload_Size_Limit)}');
-										}
-										else {
-											showFeedError(result.substring(3,result.length));
-										}
+									    if( (result.substring(3, result.length)).indexOf('{!$Label.LBL_File_Upload_Size_Limit}') > -1) {
+								        	$('#postform-error').html('<strong>Error!</strong> {!JSINHTMLENCODE($Label.LBL_File_Upload_Size_Limit)}');
+										    $('#postform-error').show();
+									    }
+									    else {
+											$('#postform-error').html(_.template('<strong>Error!</strong> <%- msg %> ', { msg: result.substring(3, result.length)}));
+											$('#postform-error').show();
+									    }
 										err = true;	
 									}
 									else {
@@ -743,45 +740,43 @@
 									if(postEvent && !err) setActiveli();
 								}
 								if(!postFile) enableBtn('mesbtn');
-							else {
-								showFeedError(event.message);
 							}
-							if(!postFile) enableBtn('mesbtn');
+							else if(event.status == false){
+									//alert(event.message);
+									return false;
+								}	
+							else {
+								// some errors
+							}
 						}
-					);
+					);					
 					if(!postFile && !postEvent) setActiveli();
 					if (typeof(switchToMemberMode) == 'function') switchToMemberMode();
 				}
 				function getComments(feedid, token) {
-					hideFeedError();
 					Visualforce.remoting.Manager.invokeAction(
 						'{!$RemoteAction.CommunityFeedController.getComments}',
 						feedid,
 						token,
 						function(result, event) {
-							if (event.result) {
-								_.templateSettings.variable = 'rc';
-								var template = _.template($('#ttp21').html() + $('#ttp2').html());
-								var tt = jsonObj(result);
-								$('#c'+tt.feedId).prepend(template(tt));
-								$('#l'+tt.feedId).css('display',tt.showNextComments?'block':'none').attr('onclick','getComments(\'' + tt.feedId + '\',\'' + tt.nextPageToken + '\');return false;');
-							}
-							else {
-								showFeedError(event.message);
-							}
+							_.templateSettings.variable = 'rc';
+							var template = _.template($('#ttp21').html() + $('#ttp2').html());
+							var tt = jsonObj(result);
+							$('#c'+tt.feedId).prepend(template(tt));
+							$('#l'+tt.feedId).css('display',tt.showNextComments?'block':'none').attr('onclick','getComments(\'' + tt.feedId + '\',\'' + tt.nextPageToken + '\');return false;');
 						}
 					);
 				}
+				
 				var checkTopicsCount = function (text) {
 					if({!!isTopicAssignmentCreateable}) return 1;
 					var pos = 0;
 					var numbertopics = 0;
-					do {
-						var foundPos = text.indexOf('#[', pos);
+					do{					  
+						var foundPos = text.indexOf('#[', pos);	
 						numbertopics = foundPos!=-1? numbertopics+1:numbertopics;
 						pos = foundPos + 1;
-					}
-					while (foundPos!=-1);
+					} while (foundPos!=-1);
 					if(numbertopics>10) {
 						alert("{!$Label.ERR_Maximum_number_topics}");
 						numbertopics = 0;
@@ -789,26 +784,30 @@
 					}
 					return 1;
 				}
+				
 				function postComment(text, feedid, size) {
+					
 					disableBtn('b'+feedid);
 					$('#a'+feedid).mentionsInput('val', function(text) {
-						hideFeedError();
 						Visualforce.remoting.Manager.invokeAction(
 							'{!$RemoteAction.CommunityFeedController.postComment}',
 							feedid,
 							text,
 							function(result, event) {
-								if (event.result) {
-									_.templateSettings.variable = 'rc';
-									var template = _.template($('#ttp21').html() + $('#ttp2').html());
-									var tt = jsonObj(result);
-									$('#d'+tt.feedId).before(template(tt));
-									$('#a'+tt.feedId).val('');
+								if(event.status == false){
+									alert(event.message);
+									enableBtn('b'+feedid);
+									return false;
 								}
-								else {
-									showFeedError(event.message);
-								}
+								_.templateSettings.variable = 'rc';
+								var template = _.template($('#ttp21').html() + $('#ttp2').html());
+								var tt = jsonObj(result);
+								$('#d'+tt.feedId).before(template(tt));
 								enableBtn('b'+feedid);
+								$('#a'+tt.feedId).val('');
+								// if( text.indexOf('#[') != -1 ){
+								// 	refreshFeed();										
+								// }
 							}
 						);
 					});
@@ -834,30 +833,24 @@
 				}
 				function inlAct(inpid,ins,ini) {
 					$('#ul'+inpid+' .'+ins).removeClass(ins).removeClass('active').addClass('fa-spinner fa-pulse').attr('name',ins);
-					hideFeedError();
 					Visualforce.remoting.Manager.invokeAction(
 						'{!$RemoteAction.CommunityFeedController.inlineAction}',
 						inpid,
 						ins,
 						ini,
 						function(result, event) {
-							if (event.result) {
-								var tt = jsonObj(result);
-								if (tt.cname=='fa-times') {
-									$('#m'+tt.pid).remove();
-									if (typeof(switchToMemberMode) == 'function') switchToMemberMode();
-								}
-								else {
-									var nocl = 'inlAct(\''+tt.pid+'\',\''+tt.cname+'\',\''+tt.oid+'\');';
-									$('#ul'+tt.pid+' [name="'+tt.cname+'"]').removeClass('fa-spinner fa-pulse').addClass(tt.cname+tt.stl).attr('onclick',nocl);
-									if (tt.cname=='fa-thumbs-up') {
-										var dti = parseInt($('#m'+tt.pid+' .pull-left span').first().text());
-										$('#m'+tt.pid+' .pull-left span').first().text(tt.oid==''?(dti-1):(dti+1));
-									}
-								}
+							var tt = jsonObj(result);
+							if (tt.cname=='fa-times') {
+								$('#m'+tt.pid).remove();
+								if (typeof(switchToMemberMode) == 'function') switchToMemberMode();
 							}
 							else {
-								showFeedError(event.message);
+								var nocl = 'inlAct(\''+tt.pid+'\',\''+tt.cname+'\',\''+tt.oid+'\');';
+								$('#ul'+tt.pid+' [name="'+tt.cname+'"]').removeClass('fa-spinner fa-pulse').addClass(tt.cname+tt.stl).attr('onclick',nocl);
+								if (tt.cname=='fa-thumbs-up') {
+									var dti = parseInt($('#m'+tt.pid+' .pull-left span').first().text());
+									$('#m'+tt.pid+' .pull-left span').first().text(tt.oid==''?(dti-1):(dti+1));
+								}
 							}
 						}
 					);
@@ -876,10 +869,10 @@
 						elastic: false
 					}).focus();
 				}
-				function initTextarea(element) {
-					$(element).mentionsInput({
+				function initTextarea(element) {					
+					$(element).mentionsInput({					
 						onDataRequest:function (mode, charValue, query, callback) {
-							if(charValue == '@') {
+							if(charValue == '@'){					
 								Visualforce.remoting.Manager.invokeAction(
 									'{!$RemoteAction.CommunityFeedController.getUsers}',
 									query,
@@ -887,8 +880,7 @@
 										callback(jsonObj(result));
 									}
 								);
-							}
-							else if(charValue == '#') {
+							}else if(charValue == '#'){ //&& {!isTopicCreateable} && {!isTopicAssignmentCreateable}){
 								Visualforce.remoting.Manager.invokeAction(
 									'{!$RemoteAction.CommunityFeedController.getTopics}',
 									query,
@@ -897,6 +889,7 @@
 									}
 								);
 							}
+
 						},
 						elastic: false
 					}).css('height','78px').focus();
@@ -918,7 +911,7 @@
 				function setActiveli(element) {
 					if(!element) element = $("#palist a").get(0); 
 					if (!chataction.loading) {
-						hideFeedError();
+						$('#postform-error').hide();	
 						chataction.loading = true;
 						$('#palist a').removeClass('curr');
 						$(element).addClass('curr');
@@ -952,45 +945,40 @@
 							invokeActionStr,
 							invokeActionParam,
 							function(result, event) {
-								if (event.result) {
-									chataction.loading = false;
-									chataction.layout = jsonObj(result);
-									_.templateSettings.variable = 'rc';
-									var template = _.template($('#atp').html());
-									$('#postarea').html(template(chataction.layout));
-									var aname = $('#palist .fa-spinner').closest('a').attr('name');
-									$('#palist .fa-spinner').removeClass('fa-spinner fa-pulse').addClass(aname);
-									initValidator();
-									//datetime
-									if($('.validate-datetimepicker')) {
-										var currentdate = new Date(); 
-										var datetime = (currentdate.getMonth()+1) + '/' + currentdate.getDate() + '/' + currentdate.getFullYear() + ' ' + currentdate.getHours() + ":"  + currentdate.getMinutes();
-										$('.validate-datetimepicker').datetimepicker({
-											minDate:datetime,
-											format:'m/d/Y h:i A',
-											formatTime:'h:i A',
-											formatDate:'m/d/Y',
-											step:30,
-											closeOnTimeSelect: true,
-											lang: 'en'
-										});
-									}
-									//date
-									if(jQuery('.validate-datepicker')) {
-										var currentdate = new Date(); 
-										var datetime = (currentdate.getMonth()+1) + '/' + currentdate.getDate() + '/' + currentdate.getFullYear();
-										$('.validate-datepicker').datetimepicker({
-											timepicker:false,
-											minDate:datetime,
-											format:'m/d/Y',
-											formatDate:'m/d/Y',
-											closeOnDateSelect: true,
-											lang: 'en'
-										});
-									}
+								chataction.loading = false;
+								chataction.layout = jsonObj(result);
+								_.templateSettings.variable = 'rc';
+								var template = _.template($('#atp').html());
+								$('#postarea').html(template(chataction.layout));
+								var aname = $('#palist .fa-spinner').closest('a').attr('name');
+								$('#palist .fa-spinner').removeClass('fa-spinner fa-pulse').addClass(aname);
+								initValidator();
+								//datetime
+								if($('.validate-datetimepicker')) {
+									var currentdate = new Date(); 
+									var datetime = (currentdate.getMonth()+1) + '/' + currentdate.getDate() + '/' + currentdate.getFullYear() + ' ' + currentdate.getHours() + ":"  + currentdate.getMinutes();
+									$('.validate-datetimepicker').datetimepicker({
+										minDate:datetime,
+										format:'m/d/Y h:i A',
+										formatTime:'h:i A',
+										formatDate:'m/d/Y',
+										step:30,
+										closeOnTimeSelect: true,
+										lang: 'en'
+									});
 								}
-								else {
-									showFeedError(event.message);
+								//date
+								if(jQuery('.validate-datepicker')) {
+									var currentdate = new Date(); 
+									var datetime = (currentdate.getMonth()+1) + '/' + currentdate.getDate() + '/' + currentdate.getFullYear();
+									$('.validate-datepicker').datetimepicker({
+										timepicker:false,
+										minDate:datetime,
+										format:'m/d/Y',
+										formatDate:'m/d/Y',
+										closeOnDateSelect: true,
+										lang: 'en'
+									});
 								}
 							}
 						);
@@ -1020,7 +1008,7 @@
 					}
 				}
 				
-				function vote(t) {
+				function vote (t) {
 					var t_el = $(t);
 					var choice = t_el.parent().find('input[type=radio]:checked');
 					if (choice) {
@@ -1028,7 +1016,6 @@
 						var pollId = cName.substring(cName.indexOf('__')+2, cName.length);
 						t_el.parent().find('input[type=radio]:checked');
 						t_el.attr('disabled', true);
-						hideFeedError();
 						Visualforce.remoting.Manager.invokeAction(
 							'{!$RemoteAction.CommunityFeedController.voteOnPoll}',
 							pollId,
@@ -1036,43 +1023,38 @@
 							'{!parentId}',
 							'{!feedType}',
 							function(result, event) {
-								if (event.result) {
-									_.templateSettings.variable = 'rc';
-									changeVoteId = null;
-									var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
-									var tt = jsonObj(result);
-									$('#cfcmp').empty();
-									$('#cfcmp').prepend(template(tt));
-									t_el.removeAttr('disabled');
-								}
-								else {
-									showFeedError(event.message);
-								}
+								_.templateSettings.variable = 'rc';
+								changeVoteId = null;
+								var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
+								var tt = jsonObj(result);
+								$('#cfcmp').empty();
+								$('#cfcmp').prepend(template(tt));
+								t_el.removeAttr('disabled');
+							
 							}
 						);
 					}
 					setActiveli();
 				}
+
 				function refreshFeed() {
-					hideFeedError();
 					Visualforce.remoting.Manager.invokeAction(
 						'{!$RemoteAction.CommunityFeedController.feeds}',
 						'{!parentId}',
 						'{!feedType}',
 						'',
 						function(result, event) {
-							if (event.result) {
+							if (event.status) {
 								_.templateSettings.variable = 'rc';
 								var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
 								var tt = jsonObj(result);
 								$('#cfcmp').empty();
 								$('#cfcmp').prepend(template(tt));
 							}
-							else {
-								showFeedError(event.message);
-							}
 						}
 					);
+					
+					
 				}
 				function changeVote(voteId){
 					_.templateSettings.variable = 'rc';
@@ -1142,9 +1124,12 @@
 			</script>
 		</apex:outputPanel>
 	</div>
+
 	<script>
 		function parseFeedBody(o,t){
 			var outString = "";
+			// o.text = _.unescape(o.text);
+			// console.log(o.text);
 			_.each(o.messageSegments,function(item){
 				if(item.record != null){
 					if(item.record.id.indexOf("005") == 0){
@@ -1169,6 +1154,7 @@
 			});
 			return outString;
 		}
+
 		function wrapnl(intext) {
 			return intext ? intext.replace(/\r\n/g, '<br />').replace(/[\r\n]/g, '<br />') : '';
 		}
@@ -1186,12 +1172,16 @@
 			}
 			
 			return outString;
+							 
 		}
+		/*sforce.connection.sessionId = '{!$Api.Session_ID}';*/
 		$(document).ready(function() {
 			if($("form[name='postform']")[0]) {
 				initValidator();
 				setActiveli();
 			}
+			
+			
 		});
 	</script>
 </apex:component>

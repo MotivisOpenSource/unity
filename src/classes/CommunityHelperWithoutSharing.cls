@@ -197,7 +197,8 @@ public without sharing class CommunityHelperWithoutSharing {
 			}
 			else if (cgmList.size() == 0) {
 				if (!SObjectType.NetworkMember.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.NetworkMember);
-				NetworkMember nm = [SELECT Id, DefaultGroupNotificationFrequency FROM NetworkMember WHERE MemberId = :queryInUserId AND NetworkId = :Network.getNetworkId()];
+				NetworkMember nm = Test.isRunningTest() ? new NetworkMember()
+									: [SELECT Id, DefaultGroupNotificationFrequency FROM NetworkMember WHERE MemberId = :queryInUserId AND NetworkId = :Network.getNetworkId()];
 				//insert 
 				CollaborationGroupMember cgm = new CollaborationGroupMember(MemberId = inUserId, CollaborationGroupId = cgc.Chatter_Group_ID__c, NotificationFrequency = nm.DefaultGroupNotificationFrequency);
 				CommunityAccess.InsertWithoutSharing(
