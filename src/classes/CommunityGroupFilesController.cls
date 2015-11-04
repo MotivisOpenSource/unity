@@ -58,11 +58,11 @@ public with sharing class CommunityGroupFilesController {
 	private String p;
 
 	public CommunityGroupFilesController() {
-		f = ApexPages.currentPage().getParameters().get('f');
-		fi = ApexPages.currentPage().getParameters().get('fi');
-		gc = ApexPages.currentPage().getParameters().get('gc');
-		gr = ApexPages.currentPage().getParameters().get('gr');
-		p = ApexPages.currentPage().getParameters().get('p');
+		f = CommunityUtils.validateId(ApexPages.currentPage().getParameters().get('f'));
+		fi = CommunityUtils.validateId(ApexPages.currentPage().getParameters().get('fi'));
+		gc = CommunityUtils.validateId(ApexPages.currentPage().getParameters().get('gc'));
+		gr = CommunityUtils.validateId(ApexPages.currentPage().getParameters().get('gr'));
+		p = CommunityUtils.validateId(ApexPages.currentPage().getParameters().get('p'));
 	}
 
 	public void initFromPage() {
@@ -75,7 +75,7 @@ public with sharing class CommunityGroupFilesController {
 			parentId = String.isNotBlank(gr) ? gr : gc;
 		}
 		if (String.isBlank(parentId) && String.isNotBlank(fi)) {
-			String queryFeedId = String.escapeSingleQuotes(fi);
+			String queryFeedId = CommunityUtils.validateId(fi);
 			List<FeedItem> fItems = [SELECT Id, ParentId FROM FeedItem WHERE Id = :queryFeedId];
 			parentId = fItems[0].ParentId;
 		}
@@ -87,7 +87,7 @@ public with sharing class CommunityGroupFilesController {
 		String parentObjectType = String.isNotBlank(parentId) ? keys.get(String.valueOf(parentId).substring(0,3)) : '';
 		String pp = CommunityUtils.getPackagePrefix();
 		parentObjectType = String.isNotBlank(pp) ? parentObjectType.replace(pp,'') : parentObjectType;
-		String queryParentId = String.escapeSingleQuotes(parentId);
+		String queryParentId = CommunityUtils.validateId(parentId);
 		if (String.isNotBlank(parentObjectType)) {
 			if (parentObjectType.equalsIgnoreCase('CollaborationGroup') || parentObjectType.equalsIgnoreCase('Community_Group_Control__c')) {
 				gr = String.isBlank(gr) && parentObjectType.equalsIgnoreCase('CollaborationGroup') ? parentId : gr;
@@ -221,7 +221,7 @@ public with sharing class CommunityGroupFilesController {
 		cvRecord = NULL;
 		if (modal == 'update') {
 			if (!SObjectType.ContentVersion.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.ContentVersion);
-			String queryStack = String.escapeSingleQuotes(stack);
+			String queryStack = CommunityUtils.validateId(stack);
 			cvRecord = [SELECT Id, Title, Description FROM ContentVersion WHERE Id = :queryStack];
 		}
 	}
@@ -234,7 +234,7 @@ public with sharing class CommunityGroupFilesController {
 		String result;
 		if (modal == 'newversion') {
 			if (!SObjectType.ContentVersion.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.ContentVersion);
-			String queryStack = String.escapeSingleQuotes(stack);
+			String queryStack = CommunityUtils.validateId(stack);
 			result = [SELECT ContentDocumentId FROM ContentVersion WHERE Id = :queryStack].ContentDocumentId;
 		}
 		return result;
@@ -266,7 +266,7 @@ public with sharing class CommunityGroupFilesController {
 	public void shareAction() {
 		List<ConnectApi.BatchInput> feedElements = new List<ConnectApi.BatchInput>();
 		if (!SObjectType.ContentVersion.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.ContentVersion);
-		String queryStack = String.escapeSingleQuotes(stack);
+		String queryStack = CommunityUtils.validateId(stack);
 		String documentIdToShare = [SELECT ContentDocumentId FROM ContentVersion WHERE Id = :queryStack].ContentDocumentId;
 		for (String sId : shareChoice.split(',')) {
 			if (String.isNotBlank(sId)) {
@@ -312,7 +312,7 @@ public with sharing class CommunityGroupFilesController {
 	public PageReference deleteAction() {
 		if (!SObjectType.ContentDocument.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.ContentDocument);
 		if (!SObjectType.ContentVersion.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.ContentVersion);
-		String queryStack = String.escapeSingleQuotes(stack);
+		String queryStack = CommunityUtils.validateId(stack);
 		List<ContentVersion> cVerDelete = [SELECT Id, ContentDocument.Id FROM ContentVersion WHERE Id = :queryStack];
 		//List<ContentDocument> cDocDelete = [SELECT Id FROM ContentDocument WHERE Id IN (SELECT ContentDocumentId FROM ContentVersion WHERE Id = :queryStack)];
 		if (!cVerDelete.isEmpty()){
@@ -363,7 +363,7 @@ public with sharing class CommunityGroupFilesController {
 	@RemoteAction
 	public static String subscriberAction(String versionId, Boolean inf) {
 		if (!SObjectType.ContentVersion.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.ContentVersion);
-		String queryVersionId = String.escapeSingleQuotes(versionId);
+		String queryVersionId = CommunityUtils.validateId(versionId);
 		String cdId = [SELECT ContentDocumentId FROM ContentVersion WHERE Id = :queryVersionId].ContentDocumentId;
 		CommunityUtils.subscriberUser(cdId, !inf);
 		return '';
