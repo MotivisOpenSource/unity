@@ -68,7 +68,7 @@ public with sharing class CommunityFeed_MyMessagesController {
 		//ApexPages.currentPage().getHeaders().put('X-Frame-Options', 'GOFORIT');
 		this.Conversations = new List<ChatterConversation>();
 		if(ApexPages.currentPage() != null && ApexPages.currentPage().getParameters().get('c') != null){
-			SelectedConversationId = ApexPages.currentPage().getParameters().get('c');
+			SelectedConversationId = CommunityUtils.validateId(ApexPages.currentPage().getParameters().get('c'));
 			goToConversation();
 		}else{
 			if (!String.isBlank(this.SearchQueryUrlParam)) {
