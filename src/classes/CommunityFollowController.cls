@@ -35,7 +35,7 @@ public with sharing class CommunityFollowController {
 		set {
 			if (subscriptionParentId == NULL) {
 				subscriptionParentId = value;
-				String querySubscrParentId = String.escapeSingleQuotes(subscriptionParentId);
+				String querySubscrParentId = CommunityUtils.validateId(subscriptionParentId);
 				List<EntitySubscription> subscriptionForEventList = [SELECT Id FROM EntitySubscription 
 					WHERE ParentId = :querySubscrParentId
 					AND SubscriberId = :UserInfo.getUserId() 
