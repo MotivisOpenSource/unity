@@ -48,7 +48,7 @@ public without sharing class CommunityHelperWithoutSharing {
 		List<User> uList = new List<User>();
 		try {
 			Set<Id> setNetworkMemberGroupId= new Set<Id>();
-			if (!SObjectType.NetworkMemberGroup.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.NetworkMemberGroup);
+			//if (!SObjectType.NetworkMemberGroup.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.NetworkMemberGroup);
 			for(NetworkMemberGroup item : [SELECT ParentId From NetworkMemberGroup Where NetworkId = :Network.getNetworkId() ]) {
 				setNetworkMemberGroupId.add(item.ParentId);
 			}
@@ -107,7 +107,7 @@ public without sharing class CommunityHelperWithoutSharing {
 
 // used for CommunityHomeNotificationController
 	public static List<FeedItem> getFeeds(Set<Id> controlsIds, String userId){
-		String queryUserId = String.escapeSingleQuotes(userId);
+		String queryUserId = CommunityUtils.validateId(userId);
 		return [SELECT Id, ParentId, Type, CommentCount, LinkUrl, LastModifiedDate, CreatedById, Visibility 
 				FROM FeedItem
 				WHERE ParentId IN :controlsIds 
@@ -118,23 +118,23 @@ public without sharing class CommunityHelperWithoutSharing {
 
 // used for CommunityGroupManageController
 	public static Integer getOverallActivity(String chatterGroupId){
-		String queryChatterGroupId = String.escapeSingleQuotes(chatterGroupId);
+		String queryChatterGroupId = CommunityUtils.validateId(chatterGroupId);
 		return [SELECT COUNT() FROM FeedItem WHERE ParentId = :queryChatterGroupId];
 	}
 
 	public static Integer getPostsThisWeek(String chatterGroupId){
-		String queryChatterGroupId = String.escapeSingleQuotes(chatterGroupId);
+		String queryChatterGroupId = CommunityUtils.validateId(chatterGroupId);
 		return [SELECT COUNT() FROM FeedItem WHERE ParentId = :queryChatterGroupId AND CreatedDate = THIS_WEEK];
 	}
 
 	public static Integer getPostThisMonth(String chatterGroupId){
-		String queryChatterGroupId = String.escapeSingleQuotes(chatterGroupId);
+		String queryChatterGroupId = CommunityUtils.validateId(chatterGroupId);
 		return [SELECT COUNT() FROM FeedItem WHERE ParentId = :queryChatterGroupId AND CreatedDate = THIS_MONTH];
 	}
 
 // used for CommunityGroupFilesController
 	public static List<FeedItem> getFeeds(String chatterGroupId){
-		String queryChatterGroupId = String.escapeSingleQuotes(chatterGroupId);
+		String queryChatterGroupId = CommunityUtils.validateId(chatterGroupId);
 		String fQuery = 'SELECT Id, CreatedById, CreatedBy.Name, ContentFileName, LastModifiedDate FROM FeedItem';
 		fQuery += ' WHERE Type = \'ContentPost\' AND ParentId = :queryChatterGroupId LIMIT 500';
 		return Database.query(fQuery);
@@ -143,7 +143,7 @@ public without sharing class CommunityHelperWithoutSharing {
 // used for CommunityFeedController
 	public static Attachment getAttachment(String attachId){
 		if (!SObjectType.Attachment.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Attachment);
-		String queryAttachId = String.escapeSingleQuotes(attachId);
+		String queryAttachId = CommunityUtils.validateId(attachId);
 		return [SELECT Id, Name, ContentType, Body, Description FROM Attachment WHERE Id = :queryAttachId LIMIT 1];
 	}
 
@@ -152,8 +152,8 @@ public without sharing class CommunityHelperWithoutSharing {
 		Integer inmm = Integer.valueOf(inMode);
 		if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
 		if (!SObjectType.CollaborationGroupMember.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.CollaborationGroupMember);
-		String queryInGroupContolId = String.escapeSingleQuotes(inGroupContolId);
-		String queryInUserId = String.escapeSingleQuotes(inUserId);
+		String queryInGroupContolId = CommunityUtils.validateId(inGroupContolId);
+		String queryInUserId = CommunityUtils.validateId(inUserId);
 		Community_Group_Control__c cgc = [SELECT Id, Chatter_Group_ID__c FROM Community_Group_Control__c WHERE Id = :queryInGroupContolId];
 		List<CollaborationGroupMember> cgmList = [SELECT Id, CollaborationRole FROM CollaborationGroupMember WHERE MemberId =:queryInUserId AND CollaborationGroupId =:cgc.Chatter_Group_ID__c];
 		// 1 - Create Chatter Group Member
@@ -197,7 +197,8 @@ public without sharing class CommunityHelperWithoutSharing {
 			}
 			else if (cgmList.size() == 0) {
 				if (!SObjectType.NetworkMember.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.NetworkMember);
-				NetworkMember nm = [SELECT Id, DefaultGroupNotificationFrequency FROM NetworkMember WHERE MemberId = :queryInUserId AND NetworkId = :Network.getNetworkId()];
+				NetworkMember nm = Test.isRunningTest() ? new NetworkMember()
+									: [SELECT Id, DefaultGroupNotificationFrequency FROM NetworkMember WHERE MemberId = :queryInUserId AND NetworkId = :Network.getNetworkId()];
 				//insert 
 				CollaborationGroupMember cgm = new CollaborationGroupMember(MemberId = inUserId, CollaborationGroupId = cgc.Chatter_Group_ID__c, NotificationFrequency = nm.DefaultGroupNotificationFrequency);
 				CommunityAccess.InsertWithoutSharing(
