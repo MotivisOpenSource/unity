@@ -395,7 +395,7 @@
 						<% } %>
 					<% } else {%>
 						<section>
-							<label class="label input"><%- ii.label %></label>
+							<label class="label input"><%= ii.label %></label>
 							<% if (ii.ftype == "textarea") { %>
 							<label class="textarea input">
 								<textarea id="<%- ii.fieldName %>" name="<%- ii.fieldName %>" class="form-control <%- ii.validationClass %>"<%- ii.requiredAttr %> > </textarea>
