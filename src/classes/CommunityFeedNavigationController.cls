@@ -50,7 +50,7 @@ public with sharing class CommunityFeedNavigationController {
 		Boolean result = false;
 		if (String.isNotBlank(chatterGroupId)) {
 			if (!SObjectType.Community_Group_Manager__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Manager__c);
-			String queryChatterGroupId = String.escapeSingleQuotes(chatterGroupId);
+			String queryChatterGroupId = CommunityUtils.validateId(chatterGroupId);
 			List<Community_Group_Manager__c> cgmList = [SELECT Id FROM Community_Group_Manager__c WHERE Group_Manager_User__c = :UserInfo.getUserId() AND Group_Control__r.Chatter_Group_ID__c = :queryChatterGroupId];
 			result = cgmList.size() > 0 || CommunityUtils.isModifyAllData();
 		}
@@ -100,8 +100,8 @@ public with sharing class CommunityFeedNavigationController {
 		set;
 	}
 	
-	private String grID = ApexPages.currentPage().getParameters().get('gr');
-	private String gcID = ApexPages.currentPage().getParameters().get('gc');
+	private String grID = CommunityUtils.validateId(ApexPages.currentPage().getParameters().get('gr'));
+	private String gcID = CommunityUtils.validateId(ApexPages.currentPage().getParameters().get('gc'));
 	
 	private String getGroupId { 
 		get {
@@ -110,7 +110,7 @@ public with sharing class CommunityFeedNavigationController {
 			}	
 			else if (gcID!= null) {
 				if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
-				String queryGroupControlId = String.escapeSingleQuotes(gcID);
+				String queryGroupControlId = CommunityUtils.validateId(gcID);
 				List<Community_Group_Control__c> ls = [SELECT Id, Chatter_Group_ID__c FROM Community_Group_Control__c WHERE Id =: queryGroupControlId LIMIT 1];
 				return ls[0].Chatter_Group_ID__c;
 			}

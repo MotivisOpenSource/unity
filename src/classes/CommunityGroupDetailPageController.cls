@@ -55,10 +55,9 @@ public with sharing class CommunityGroupDetailPageController {
 		initMembers();
 		// check for single request
 		try {
-			String uids = ApexPages.currentPage().getParameters().get('u');
-			if (String.isNotBlank(uids)) {
+			String queryUserId = CommunityUtils.validateId(ApexPages.currentPage().getParameters().get('u'));
+			if (String.isNotBlank(queryUserId)) {
 				if (!SObjectType.User.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.User);
-				String queryUserId = String.escapeSingleQuotes(Id.valueOf(uids));
 				initialRequestMember = [SELECT Name FROM User WHERE Id = :queryUserId].Name;
 			}
 		}
@@ -117,7 +116,7 @@ public with sharing class CommunityGroupDetailPageController {
 	public static String toggleSubscriber(String memberId) {
 		String resultIcon = 'fa-check:' + Label.BTN_Following;
 		if (!SObjectType.EntitySubscription.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.EntitySubscription);
-		String queryMemberId = String.escapeSingleQuotes(memberId);
+		String queryMemberId = CommunityUtils.validateId(memberId);
 		List<EntitySubscription> followings = [SELECT Id FROM EntitySubscription WHERE SubscriberId =:Userinfo.getUserId() AND ParentId = :queryMemberId LIMIT 1];
 		if (!followings.isEmpty()) {
 			ConnectApi.Chatter.deleteSubscription(Network.getNetworkId(), followings[0].Id);

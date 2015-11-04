@@ -216,8 +216,8 @@ public with sharing class CommunityGroupManageController {
 
 	public String urlForGroupReturn {
 		get {
-			String chatterGroupId2 = ApexPages.currentPage().getParameters().get('gr');
-			String groupControlId2 = ApexPages.currentPage().getParameters().get('gc');
+			String chatterGroupId2 = CommunityUtils.validateId(ApexPages.currentPage().getParameters().get('gr'));
+			String groupControlId2 = CommunityUtils.validateId(ApexPages.currentPage().getParameters().get('gc'));
 			String resultUrl = prepareUrl(Page.CommunityGroupDetailPage.getUrl());
 			if (String.isNotBlank(chatterGroupId2)) {
 				resultUrl += '?gr=' + chatterGroupId2;
@@ -312,8 +312,8 @@ public with sharing class CommunityGroupManageController {
 
 			List<User> allUsers;
 			
-			String queryGIdChatter = String.escapeSingleQuotes(gIdChatter);
-			String queryGIdControl = String.escapeSingleQuotes(gIdControl);
+			String queryGIdChatter = CommunityUtils.validateId(gIdChatter);
+			String queryGIdControl = CommunityUtils.validateId(gIdControl);
 			if (allMode) { 
 				List<String> orderList = new List<String> {'','Name'};
 				String columnSortStr = (columnSort > 0)?orderList[columnSort]:'';

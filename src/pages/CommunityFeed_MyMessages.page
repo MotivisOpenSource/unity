@@ -388,7 +388,7 @@
 				var REPLY_ERROR_MESSAGE_ELEMENT = '#replyErrorMessage';
 				var MESSAGE_CONTAINER_ELEMENT = '#messageContainer';
 				var MESSAGES_QUICK_FIND_INPUT = '#messageSearchInput';
-				var MESSAGES_PER_PAGE = {!MessagesPerPage};
+				var MESSAGES_PER_PAGE = {!JSENCODE(MessagesPerPage)};
 				var RECIPIENT_INPUT_BOX = '#recipientInputBox';
 				var RECIPIENTS_CONTAINER = '#recipientsContainer .search-field';
 

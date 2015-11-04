@@ -43,7 +43,7 @@ public with sharing class CommunityObjectController {
 	public void init() {
 		try {
 			String fieldSetName = ApexPages.currentPage().getParameters().get('fieldSetName');
-			Id soId = ApexPages.currentPage().getParameters().get('objectId');
+			Id soId = CommunityUtils.validateId(ApexPages.currentPage().getParameters().get('objectId'));
 			String soName = ApexPages.currentPage().getParameters().get('objectName');
 			List<String> fieldList = new List<String> { 'Id', 'Name' };
 			Map<String, Schema.SObjectType> GlobalDescribeMap = Schema.getGlobalDescribe();
@@ -69,7 +69,7 @@ public with sharing class CommunityObjectController {
 				haveAccessToEditObject = true;
 				Id cpId = (Id)so.get('Id');
 				if (!SObjectType.Community_Profile__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Profile__c);
-				String queryCpId = String.escapeSingleQuotes(cpId);
+				String queryCpId = CommunityUtils.validateId(cpId);
 				Community_Profile__c cpItem = [SELECT Contact__c FROM Community_Profile__c WHERE Id = :queryCpId];
 				CommunityProfilePageController cppc = new CommunityProfilePageController();
 				haveAccessToEditObject = (cppc.currentProfile.Contact__c == cpItem.Contact__c) && SObjectType.Community_Profile__c.isUpdateable();
