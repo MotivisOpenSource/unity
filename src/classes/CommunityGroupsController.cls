@@ -219,7 +219,7 @@ public with sharing class CommunityGroupsController {
 			String currentContactId = currentUser.ContactId == NULL ? currentUser.Community_Contact_ID__c : currentUser.ContactId;
 			Set<Id> userTags = new Set<Id>();
 			if (String.isNotBlank(currentContactId)) {
-				String queryContactId = String.escapeSingleQuotes(currentContactId);
+				String queryContactId = CommunityUtils.validateId(currentContactId);
 				for (Community_Profile_Tag__c cpt : [SELECT Community_Tag__c FROM Community_Profile_Tag__c WHERE Active__c = true AND Contact__c = :queryContactId]) {
 					userTags.add(cpt.Community_Tag__c);
 				}
