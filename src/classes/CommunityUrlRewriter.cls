@@ -29,13 +29,13 @@
 
 global without sharing class CommunityUrlRewriter implements Site.UrlRewriter {
 
-	private final String STANDARD_CHATTER_PAGE = '/chatter/';
-	private final String STANDARD_GROUP_DETAIL_PAGE = '/groups/';
-	private final String STANDARD_USER_DETAIL_PAGE = '/userprofile/';
-	private final String CHATTER_COMMENT_NOTIFICATION = 'chatterCommentNotification';
-	private final String CHATTER_POST_NOTIFICATION = 'chatterPostNotification';
-	private final String CHATTER_PRIVATE_MESSAGE_NOTIFICATION = 'chatterPrivateMessageNotification';
-	private final String CHATTER_LIKE_NOTIFICATION = 'chatterLikeNotification';
+	public final String STANDARD_CHATTER_PAGE = '/chatter/';
+	public final String STANDARD_GROUP_DETAIL_PAGE = '/groups/';
+	public final String STANDARD_USER_DETAIL_PAGE = '/userprofile/';
+	public final String CHATTER_COMMENT_NOTIFICATION = 'chatterCommentNotification';
+	public final String CHATTER_POST_NOTIFICATION = 'chatterPostNotification';
+	public final String CHATTER_PRIVATE_MESSAGE_NOTIFICATION = 'chatterPrivateMessageNotification';
+	public final String CHATTER_LIKE_NOTIFICATION = 'chatterLikeNotification';
 
 	global PageReference mapRequestUrl(PageReference myFriendlyUrl) {
 		String url = myFriendlyUrl.getUrl();
