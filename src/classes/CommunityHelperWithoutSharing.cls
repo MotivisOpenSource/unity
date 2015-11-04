@@ -48,7 +48,7 @@ public without sharing class CommunityHelperWithoutSharing {
 		List<User> uList = new List<User>();
 		try {
 			Set<Id> setNetworkMemberGroupId= new Set<Id>();
-			if (!SObjectType.NetworkMemberGroup.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.NetworkMemberGroup);
+			//if (!SObjectType.NetworkMemberGroup.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.NetworkMemberGroup);
 			for(NetworkMemberGroup item : [SELECT ParentId From NetworkMemberGroup Where NetworkId = :Network.getNetworkId() ]) {
 				setNetworkMemberGroupId.add(item.ParentId);
 			}
