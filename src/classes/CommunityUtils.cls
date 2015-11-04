@@ -146,7 +146,7 @@ public with sharing class CommunityUtils {
 		Integer result = 0;
 		if (chatterGroupId != NULL) {
 			if (!SObjectType.CollaborationGroupMemberRequest.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.CollaborationGroupMemberRequest);
-			String queryChatterGroupId = String.escapeSingleQuotes(chatterGroupId);
+			String queryChatterGroupId = CommunityUtils.validateId(chatterGroupId);
 			List<CollaborationGroupMemberRequest> cgmrList = [SELECT Id FROM CollaborationGroupMemberRequest WHERE CollaborationGroupId =:queryChatterGroupId AND Status = 'Pending'];
 			result = cgmrList.size();
 		}
@@ -160,7 +160,7 @@ public with sharing class CommunityUtils {
 	public static void subscriberUser(Id memberId, Boolean isSubscribe) {
 		if (!isSubscribe) {
 			if (!SObjectType.EntitySubscription.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.EntitySubscription);
-			String queryMemberId = String.escapeSingleQuotes(memberId);
+			String queryMemberId = CommunityUtils.validateId(memberId);
 			List<EntitySubscription> followings = [
 				SELECT SubscriberId, ParentId, IsDeleted, Id, CreatedDate, CreatedById
 				FROM EntitySubscription
@@ -518,8 +518,11 @@ public with sharing class CommunityUtils {
 	}
 
 	static public Boolean isValidId(String paramId) {
-		String checkId = String.escapeSingleQuotes(paramId);
+		String checkId = String.isNotBlank(paramId) ? String.escapeSingleQuotes(paramId) : '';
 		return String.isNotBlank(checkId) && (checkId.length() == 15 || checkId.length() == 18) && Pattern.matches('^[a-zA-Z0-9]*$', checkId);
+	}
+	static public String validateId(String paramId) {
+		return isValidId(paramId) ? String.escapeSingleQuotes(paramId) : NULL;
 	}
 
 	static public Community_Resource__c getHtmlField(String value) {

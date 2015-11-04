@@ -294,7 +294,7 @@ public with sharing class CommunityEventController {
 		}
 		else if (ApexPages.currentPage().getParameters().get('cloneId') != NULL) {
 			try {
-				String queryCloneId = String.escapeSingleQuotes(Id.valueOf(ApexPages.currentPage().getParameters().get('cloneId')));
+				String queryCloneId = CommunityUtils.validateId(ApexPages.currentPage().getParameters().get('cloneId'));
 				String cquery = '';
 				if (!SObjectType.Community_Events__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Events__c);
 				String csep = 'SELECT ';
@@ -312,7 +312,7 @@ public with sharing class CommunityEventController {
 				ApexPages.addMessages(e);
 			}
 		}
-		String groupId = ApexPages.currentPage().getParameters().get('gr');
+		String groupId = CommunityUtils.validateId(ApexPages.currentPage().getParameters().get('gr'));
 		if(String.isBlank(groupId)) {
 			if (!SObjectType.Community_Event_Tag__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Event_Tag__c);
 			List<Community_Event_Tag__c> cet = [SELECT Community_Group_Control__r.Chatter_Group_ID__c FROM Community_Event_Tag__c WHERE Community_Event__c = :event.Id AND Community_Group_Control__c != NULL];
@@ -321,7 +321,7 @@ public with sharing class CommunityEventController {
 		connectedGroupStr = '';
 		if(String.isNotBlank(groupId)) {
 			if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
-			String queryGroupId = String.escapeSingleQuotes(groupId);
+			String queryGroupId = CommunityUtils.validateId(groupId);
 			List<Community_Group_Control__c> cgc = [SELECT Id, Name FROM Community_Group_Control__c WHERE Chatter_Group_ID__c = :queryGroupId];
 			connectedGroupStr = cgc.isEmpty() ? '' : cgc[0].Name;
 			relatedToEventGroup = cgc.isEmpty() ? NULL :cgc[0];
