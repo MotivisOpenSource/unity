@@ -28,7 +28,7 @@
  */
 
 @isTest
-private class CommunityTest3 {
+public class CommunityTest3 {
 /*Triggers Tests*/
 
 	static testMethod void test_CommunityNewsTrigger() {
@@ -74,19 +74,19 @@ private class CommunityTest3 {
 		update comAd[0];
 	}
 
-	static testMethod void test_UserTrigger() {		
-      	UserRole ur = [Select Id, Name From UserRole where Name = 'CEO'];
-        Profile profile = [SELECT Id FROM Profile WHERE Name = 'System Administrator'];
-        User u = new User(alias='alias', email='email@email.com', emailencodingkey='UTF-8', lastname='lastname', firstname = 'firstName', languagelocalekey='en_US',
-            localesidkey='en_US', profileid = profile.Id, timezonesidkey='America/Los_Angeles', username='ttsde.tedf2@testmail.com',
-            FederationIdentifier='TestContactName.TestContactLastname2', UserRoleId = ur.Id);
-        insert u;
-       System.runAs(u){
-       		Account acc = new Account(Name='testAccount');
-	        insert acc;
-	        Contact con = new Contact(LastName='TCLN', MailingPostalCode='99013', email='testc@testdomain.com', AccountId=acc.Id, Primary_Role__c='Student');
-	        insert con;
-	        Profile p = [select Id, Name from Profile where Name = 'Customer Community User']; 
+	static testMethod void test_UserTrigger() {
+	  	UserRole ur = [Select Id, Name From UserRole where Name = 'CEO'];
+		Profile profile = [SELECT Id FROM Profile WHERE Name = 'System Administrator'];
+		User u = new User(alias='alias', email='email@email.com', emailencodingkey='UTF-8', lastname='lastname', firstname = 'firstName', languagelocalekey='en_US',
+			localesidkey='en_US', profileid = profile.Id, timezonesidkey='America/Los_Angeles', username='ttsde.tedf2@testmail.com',
+			FederationIdentifier='TestContactName.TestContactLastname2', UserRoleId = ur.Id);
+		insert u;
+		System.runAs(u){
+			Account acc = new Account(Name='testAccount');
+			insert acc;
+			Contact con = new Contact(LastName='TCLN', MailingPostalCode='99013', email='testc@testdomain.com', AccountId=acc.Id, Primary_Role__c='Student');
+			insert con;
+			Profile p = [select Id, Name from Profile where Name = 'Customer Community User']; 
 			User newUser = new User(
 			profileId = p.id,
 			username = 'newUser@yahoo.com',
@@ -101,10 +101,10 @@ private class CommunityTest3 {
 			);
 			insert newUser;
 			System.assert( [SELECT Id,Name FROM USER WHERE username = 'newUser@yahoo.com' LIMIT 10].size()>0 );
-       }
-    }
+		}
+	}
 
-    static testMethod void test_CommunityResourceTrigger() {
+	static testMethod void test_CommunityResourceTrigger() {
 		Community_Theme__c cth = new Community_Theme__c(Name='t',Theme_Type__c='Resource');
 		insert cth;
 		Community_Tag__c ct = new Community_Tag__c(Name='t',Community_Theme__c=cth.Id);
@@ -132,5 +132,147 @@ private class CommunityTest3 {
 			insert cr_4;
 		}catch(Exception ex){}
 		System.assert( [SELECT Id,Name FROM Community_Resource__c LIMIT 10].size()>0 );
+	}
+
+	/* Data Factory class */
+	@TestVisible private class testDataFactory {
+		public User communityUser;
+		public User secondCommunityUser;
+		public Community_Group_Control__c groupControl;
+
+		public testDataFactory(Set<String> params) {
+			if (params.contains('createGroupControl')) {
+				System.runAs(new User(Id = UserInfo.getUserId())) {
+					this.groupControl = new Community_Group_Control__c(
+						Name = generateRandomString(8),
+						Type__c = params.contains('privateGroup') ? 'Private' : 'Public',
+						Description__c = 'd',
+						Discoverable__c = true,
+						Status__c = params.contains('makeApprovedGroup') ? 'Approved' : 'Pending'
+					);
+					insert this.groupControl;
+				}
+			}
+			Profile p = [SELECT Id FROM Profile WHERE Name='System Administrator' LIMIT 1];
+			UserRole role = [SELECT Id FROM UserRole WHERE DeveloperName = 'CEO' LIMIT 1];
+			String randomName = generateRandomString(10);
+			User userWithRole = new User(
+				Email = randomName + '@testmail.com',
+				ProfileId = p.Id,
+				UserName = randomName + '@testmail.com',
+				Alias = generateRandomString(6),
+				CommunityNickName = generateRandomString(6),
+				TimeZoneSidKey = 'America/New_York',
+				LocaleSidKey = 'en_US',
+				EmailEncodingKey = 'ISO-8859-1',
+				LanguageLocaleKey = 'en_US',
+				FirstName = generateRandomString(10),
+				LastName = randomName,
+				UserRoleId = role.Id
+			);
+			insert userWithRole;
+			System.runAs(userWithRole) {
+				if (params.contains('communityUser')) {
+					Account acc = new Account(Name='testAccount');
+					insert acc;
+					String contactRandomName = generateRandomString(10);
+					Contact c = new Contact(
+						LastName = contactRandomName,
+						MailingPostalCode = '99013',
+						Email = contactRandomName + '@email.com',
+						AccountId = acc.Id
+					);
+					if (params.contains('addRoleToContact')) {
+						c.Primary_Role__c='Student';
+					}
+					insert c;
+					Profile profile = [SELECT Id FROM Profile Where Name = 'Unity Standard User' LIMIT 1];
+					this.communityUser = new User(
+						Alias = generateRandomString(6),
+						Email = c.Email,
+						EmailEncodingKey = 'UTF-8',
+						Lastname = c.LastName,
+						Firstname = generateRandomString(6),
+						LanguageLocaleKey = 'en_US',
+						LocaleSidKey = 'en_US',
+						ProfileId = profile.Id,
+						TimezoneSidKey = 'America/Los_Angeles',
+						Username = c.LastName + '@testmail.com',
+						FederationIdentifier = (generateRandomString(15) + '.' + generateRandomString(15)),
+						ContactId = c.Id
+					);
+					insert this.communityUser;
+				}
+				else if (params.contains('internalUser')) {
+					this.communityUser = userWithRole;
+				}
+				if (params.contains('secondCommunityUser')) {
+					Account acc = new Account(Name='testAccount');
+					insert acc;
+					String contactRandomName = generateRandomString(10);
+					Contact c = new Contact(
+						LastName = contactRandomName,
+						MailingPostalCode = '99013',
+						Email = contactRandomName + '@email.com',
+						AccountId = acc.Id
+					);
+					if (params.contains('addRoleToContact')) {
+						c.Primary_Role__c='Student';
+					}
+					insert c;
+					Profile profile = [SELECT Id FROM Profile Where Name = 'Unity Standard User' LIMIT 1];
+					this.secondCommunityUser = new User(
+						Alias = generateRandomString(6),
+						Email = c.Email,
+						EmailEncodingKey = 'UTF-8',
+						Lastname = c.LastName,
+						Firstname = generateRandomString(6),
+						LanguageLocaleKey = 'en_US',
+						LocaleSidKey = 'en_US',
+						ProfileId = profile.Id,
+						TimezoneSidKey = 'America/Los_Angeles',
+						Username = c.LastName + '@testmail.com',
+						FederationIdentifier = (generateRandomString(15) + '.' + generateRandomString(15)),
+						ContactId = c.Id
+					);
+					insert this.secondCommunityUser;
+				}
+				else if (params.contains('secondInternalUser')) {
+					randomName = generateRandomString(10);
+					this.secondCommunityUser = new User(
+						Email = randomName + '@testmail.com',
+						ProfileId = p.Id,
+						UserName = randomName + '@testmail.com',
+						Alias = generateRandomString(6),
+						CommunityNickName = generateRandomString(6),
+						TimeZoneSidKey = 'America/New_York',
+						LocaleSidKey = 'en_US',
+						EmailEncodingKey = 'ISO-8859-1',
+						LanguageLocaleKey = 'en_US',
+						FirstName = generateRandomString(10),
+						LastName = randomName,
+						UserRoleId = role.Id
+					);
+					insert this.secondCommunityUser;
+				}
+			}
+			if (params.contains('communitySuperUser') && communityUser != NULL) {
+				PermissionSet sups = [SELECT Id, Name FROM PermissionSet WHERE Name = 'Unity_Super_User' LIMIT 1];
+				insert new PermissionSetAssignment(
+					PermissionSetId = sups.Id,
+					AssigneeId = communityUser.Id
+				);
+			}
+		}
+
+		private String generateRandomString(Integer len) {
+			String chars = 'abcdefghijklmnopqrstuvwxyz';
+			String randStr = '';
+			while (randStr.length() < len) {
+				Integer idx = Math.mod(Math.abs(Crypto.getRandomInteger()), chars.length());
+				randStr += chars.substring(idx, idx+1);
+			}
+			return randStr;
+		}
 	}
 }
