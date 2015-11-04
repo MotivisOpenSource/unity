@@ -250,7 +250,8 @@ trigger CommunityGroupControl on Community_Group_Control__c (before insert, afte
 				if (!groupSubscriptionUniqueId.contains('' + cgcItem.Id + cgcItem.OwnerId)) {
 					subscriptionsListToInsert.add(new EntitySubscription(
 						SubscriberId = cgcItem.OwnerId,
-						ParentId = cgcItem.Id
+						ParentId = cgcItem.Id,
+						NetworkId = Network.getNetworkId()
 					));
 				}
 				CollaborationGroupMember tCgm = chatterMemberUniqueIdMap.get('' + cgcItem.Chatter_Group_ID__c + cgcItem.OwnerId);
