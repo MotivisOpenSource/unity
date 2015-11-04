@@ -271,7 +271,7 @@
                         var deferred = $q.defer();
                         if ($rootScope.getDataStatus != 'InProgress') {
                             $rootScope.getDataStatus = 'InProgress';
-							var params = {'topicId' : '{!topicId}' };
+							var params = {'topicId' : '{!JSENCODE(topicId)}' };
                             Visualforce.remoting.Manager.invokeAction(
                                 '{!$RemoteAction.CommunityTopicController.getTopics}',
 								params,
@@ -508,15 +508,15 @@
                                     if ($scope.inProgress == true) {
                                         $scope.updateTopicsScope();
                                     }
-                                    if('{!topicId}' != null){
+                                    if('{!JSENCODE(topicId)}' != null){
                                         for(var i = 0; i < result.length; i++){
-                                            if(result[i].Id == '{!topicId}'){
+                                            if(result[i].Id == '{!JSENCODE(topicId)}'){
                                                 $scope.topic = result[i];
                                             }
                                         }
                                     }
                                     
-                                    $scope.isFeedTraking = {!isFeedTraking};
+                                    $scope.isFeedTraking = {!JSENCODE(isFeedTraking)};
                                     $(".preloader__container").hide();
                                     if({!showTopics} && {!!topicExists}){
                                         $(".profile-body").hide();
@@ -534,7 +534,7 @@
 
                     $scope.updateTopic = function(name, descr){
                         
-                        var tid = '{!topicId}';
+                        var tid = '{!JSENCODE(topicId)}';
                         var Jname = $('#nameInput').val();
                         var Jdescr = $('#descrInput').val();
                         Visualforce.remoting.Manager.invokeAction(
@@ -549,7 +549,7 @@
                     }
 
                     $scope.deleteTopic = function(){
-                        var tid = '{!topicId}';
+                        var tid = '{!JSENCODE(topicId)}';
                         if(confirm('{!$Label.LBL_Shue_To_Delete_Topic}')){
                             $scope.deleteAction = true;
                             $(".dropdown__button").attr('disabled','disabled')
@@ -571,7 +571,7 @@
                     }
 
                     $scope.addToFavorites = function(){
-                        var tid = '{!topicId}';
+                        var tid = '{!JSENCODE(topicId)}';
                         Visualforce.remoting.Manager.invokeAction(
                                 '{!$RemoteAction.CommunityTopicController.addToFavorites}',
                                 tid,
@@ -589,7 +589,7 @@
                     };
 
                     $scope.removeFromFavorites = function(){
-                        var tid = '{!topicId}';
+                        var tid = '{!JSENCODE(topicId)}';
                         Visualforce.remoting.Manager.invokeAction(
                                 '{!$RemoteAction.CommunityTopicController.removeFromFavorites}',
                                 tid,
