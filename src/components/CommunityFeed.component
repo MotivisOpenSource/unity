@@ -437,17 +437,18 @@
 
 			<script>
 				function showFeedError(msg) {
-					$('#postform-error').text(msg).show();
+					//$('#postform-error').text(msg).show();
+					alert(_.unescape(msg));
 				}
 				function hideFeedError() {
-					$('#postform-error').hide();
+					//$('#postform-error').hide();
 				}
 				
 		 		function inputFileOnchange(elm) {
-	    			    console.log(elm);
-	    			    if (elm.files.length>0) elm.parentNode.nextSibling.value = elm.files[0].name;
-	    			    else elm.parentNode.nextSibling.value = '';
-	    			}
+						console.log(elm);
+						if (elm.files.length>0) elm.parentNode.nextSibling.value = elm.files[0].name;
+						else elm.parentNode.nextSibling.value = '';
+					}
 				var chekFlagOnPage = function(type){
 					if(!(_.contains(['News','Events','Manager'], type)) ) {
 						listPages = ['CommunityNewsDetail', 'CommunityEventDetail', 'CommunityGroupManager'];
@@ -537,12 +538,17 @@
 								'{!$RemoteAction.CommunityFeedController.postFeeds}',
 								params,
 								function(result, event) {
-									_.templateSettings.variable = 'rc';
-									var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
-									var tt = jsonObj(result);
-									$('#cfcmp').prepend(template(tt));
+									if (event.result) {
+										_.templateSettings.variable = 'rc';
+										var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
+										var tt = jsonObj(result);
+										$('#cfcmp').prepend(template(tt));
+										$('#message').val('');
+									}
+									else {
+										showFeedError(event.message);
+									}
 									enableBtn('mesbtn');
-									$('#message').val('');
 								}
 							);
 						});
@@ -586,7 +592,6 @@
 								else {
 									postFile = false;
 									enableBtn('mesbtn');
-									enableBtn('mesbtn');
 									showFeedError(result[0].errors.message);
 								}
 							},
@@ -619,6 +624,7 @@
 							}
 							if(item.ftype == 'inputfile') {
 								postFile = true;
+								sendFile = true;
 								var inputfile = $("[name='" + item.fieldName + "']")[0].files[0];
 								if(inputfile != undefined) {
 									fType = inputfile.type;
@@ -656,7 +662,7 @@
 											var length = bytes.byteLength;
 											for (var i = 0; i < length; i++)
 											{
-											    binary += String.fromCharCode(bytes[i]);
+												binary += String.fromCharCode(bytes[i]);
 											}
 											uploadAttachment(new sforce.Base64Binary(binary).toString(),fName,fType);
 									};
@@ -728,6 +734,7 @@
 									else {
 										showFeedError(result.substring(3,result.length));
 									}
+									err = true;
 								}
 								else {
 									_.templateSettings.variable = 'rc';
@@ -738,15 +745,17 @@
 										$("[name='" + item.fieldName + "']").val('');
 									});
 								}
-								if(postEvent && !err) setActiveli();
 							}
 							else {
 								showFeedError(event.message);
+								err = true;
 							}
-							if(!postFile) enableBtn('mesbtn');
+							if(!postFile) {
+								enableBtn('mesbtn');
+								if (!err) { setActiveli(); }
+							}
 						}
 					);
-					if(!postFile && !postEvent) setActiveli();
 					if (typeof(switchToMemberMode) == 'function') switchToMemberMode();
 				}
 				function getComments(feedid, token) {
