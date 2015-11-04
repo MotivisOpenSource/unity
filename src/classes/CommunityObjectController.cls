@@ -32,6 +32,10 @@ public with sharing class CommunityObjectController {
 	public sObject so { get; set; }
 	public CommunityFieldLayout flayout { get; set; }
 	public List<String> tagSection { get; set; }
+
+	public Boolean tagRequired { get; set; }
+	public Integer tagLimit { get; set; }
+
 	public CommunityObjectController() {
 		init();
 	}
@@ -80,6 +84,10 @@ public with sharing class CommunityObjectController {
 				tagSection = (String.isNotBlank(tn) && String.isNotBlank(tfn))
 					? new List<String> { String.escapeSingleQuotes(tn), String.escapeSingleQuotes(tfn) }
 					: NULL;
+				String tLimStr = ApexPages.currentPage().getParameters().get('tlim');
+				String tReqStr = ApexPages.currentPage().getParameters().get('treq');
+				tagLimit = (String.isNotBlank(tLimStr)) ? Integer.valueOf(tLimStr) : -1;
+				tagRequired = (String.isNotBlank(tReqStr)) ? tReqStr.equalsIgnoreCase('true') : false;
 			}
 		}
 		catch(Exception e) {

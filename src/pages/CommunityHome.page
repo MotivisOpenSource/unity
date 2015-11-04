@@ -91,13 +91,32 @@
 			</div>
 			<!-- End Content -->
 
-			<!-- Begin Sidebar -->
-			<div class="col-md-3" >
-				<!--<div class="profile">
-				<div class="headline"><h2><i class="fa fa-bell-o"></i> Notifications</h2></div>-->
-				<c:CommunityHomeNotifications />
-				<!--<ul id="scrollbar5" class="list-unstyled contentHolder margin-bottom-20 ps-container">
-					
+            <!-- Begin Sidebar -->
+            <div class="col-md-3" >
+                <!--<div class="profile">
+                <div class="headline"><h2><i class="fa fa-bell-o"></i> Notifications</h2></div>-->
+                <c:CommunityHomeNotifications />
+
+                <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK($Setup.Community_Settings__c.Twitter_Handle__c)) && NOT(ISBLANK($Setup.Community_Settings__c.Twitter_Data_Widget_ID__c))}">
+                    <div class="profile CommunityHomeTwiter">
+                        <div class="headline"><h2><i class="fa fa-twitter"></i> {!$Label.LBL_Latest_Tweets}</h2></div>
+                        
+                        <a class="twitter-timeline" 
+                        href="https://twitter.com/{!$Setup.Community_Settings__c.Twitter_Handle__c}" 
+                        data-widget-id="{!$Setup.Community_Settings__c.Twitter_Data_Widget_ID__c}"
+                        data-chrome="noborders"
+                        >
+                            Tweets by @{!$Setup.Community_Settings__c.Twitter_Handle__c}
+                        </a>
+                        <script>
+                        !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");
+                        </script>
+
+                    </div>
+                </apex:outputPanel>
+
+                <!--<ul id="scrollbar5" class="list-unstyled contentHolder margin-bottom-20 ps-container">
+                    
 
 					<c:CommunityHomeNotifications />
 					

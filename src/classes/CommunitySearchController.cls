@@ -381,7 +381,7 @@ public with sharing class CommunitySearchController {
 			tunePagination(inPageNumber, pageSize);
 		}
 
-		private void tunePagination(Integer currentPageNumber, Integer pageSize) {
+		@TestVisible private void tunePagination(Integer currentPageNumber, Integer pageSize) {
 			showPagination = totalRecords > pageSize;
 			if (showPagination) {
 				// use List<String> { LABEL, PAGE_NUM, ACTIVE_FLAG}

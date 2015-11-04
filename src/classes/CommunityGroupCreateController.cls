@@ -38,6 +38,8 @@ public with sharing class CommunityGroupCreateController {
 	public CommunityFieldLayout flayout { get;set; }
 
 	// photo positions vars
+	public String photoContentType { get; set; }
+	public String blobImageData { get; set; }
 	public String cropXCr { get; set; }
 	public String cropYCr { get; set; }
 	public String cropSizeCr { get; set; }
@@ -123,18 +125,19 @@ public with sharing class CommunityGroupCreateController {
 				pr.getParameters().put('step', String.isBlank(currentGroup.Chatter_Group_ID__c) ? '3' : '2');
 			}
 			else if (step == 2) {
-				if (imageBody != NULL) {
-					ConnectApi.PhotoInput pi = new ConnectApi.PhotoInput();
-					pi.cropX = Integer.valueOf(cropXCr);
-					pi.cropY = Integer.valueOf(cropYCr);
-					pi.cropSize = Integer.valueOf(cropSizeCr)-1;
+				if (String.isNotBlank(blobImageData)) {
+					Blob bl;				
+					bl = EncodingUtil.base64Decode(blobImageData);
+				    ConnectApi.PhotoInput pi = new ConnectApi.PhotoInput();
+				    pi.cropX = Integer.valueOf(cropXCr);
+				    pi.cropY = Integer.valueOf(cropYCr);
+				    pi.cropSize = Integer.valueOf(cropSizeCr)-1;
 					ConnectApi.Photo groupPhoto = ConnectApi.ChatterGroups.setPhotoWithAttributes(
-
-						Network.getNetworkId(), 
-						currentGroup.Chatter_Group_ID__c,
-						pi,
-						new ConnectApi.BinaryInput(imageBody, imageContentType, imageFileName)
-					);
+					    Network.getNetworkId(), 
+					    currentGroup.Chatter_Group_ID__c,
+					    pi,
+					    new ConnectApi.BinaryInput(bl, photoContentType, 'image.jpg')
+					    );
 					//update currentGroup;
 					CommunityAccess.UpdateWithoutSharing(
 						currentGroup,
@@ -231,7 +234,7 @@ public with sharing class CommunityGroupCreateController {
 
 	public Integer getTagsCount() {
 		Community_Settings__c cs = Community_Settings__c.getInstance();
-		return (step == 3 && cs != NULL && cs.Create_Group_Require_Tags__c == true && cs.Create_Group_Max_Tags__c != NULL)
+		return (step == 3 && cs != NULL && cs.Create_Group_Max_Tags__c != NULL)
 				? Integer.valueOf(cs.Create_Group_Max_Tags__c)
 				: -1;
 	}

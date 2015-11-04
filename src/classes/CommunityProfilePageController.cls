@@ -31,6 +31,7 @@ global with sharing class CommunityProfilePageController {
 
 	public Boolean allOk { get;set; }
 	public Boolean current { get;set; }
+	public Boolean isAvailableUser { get;set; }
 	public String currentProfileId { get;set; }
 	public Community_Profile__c currentProfile { get;set; }
 	public List<CommunityFieldLayout> overviewTab { get;set; }
@@ -62,6 +63,7 @@ global with sharing class CommunityProfilePageController {
 				List<User> currentUserList2 = CommunityHelperWithoutSharing.getCommunityUsers(null,100,new List<String>{'ContactId','FullPhotoUrl'},'Name',true);
 				Boolean userFound = currentUserList2.size() > 0;
 				currentUserId = userFound ? currentUserList2[0].Id : NULL;
+				isAvailableUser = currentUserList2[0].IsActive == true;
 				FullPhotoUrl = userFound ? currentUserList2[0].FullPhotoUrl : '/profilephoto/005/F';
 			}
 			else {
@@ -69,11 +71,16 @@ global with sharing class CommunityProfilePageController {
 				if (!SObjectType.User.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.User);
 				String queryCurrentUserId = String.escapeSingleQuotes(currentUserId);
 				User currentUserLocal2 = [SELECT ContactId, Community_Contact_ID__c, FullPhotoUrl FROM User WHERE Id = :queryCurrentUserId];
+				isAvailableUser = currentUserLocal2.IsActive == true;
 				contactId = currentUserLocal2.ContactId != NULL ? currentUserLocal2.ContactId : currentUserLocal2.Community_Contact_ID__c;
 				FullPhotoUrl = currentUserLocal2.FullPhotoUrl;
 			}
 			allOk = contactId != NULL;
 			current = (String.isNotBlank(currentUserId) && currentUserId == UserInfo.getUserId());
+			if (isAvailableUser) {
+				List<NetworkMember> userNetworkMember = [SELECT Id, MemberId FROM NetworkMember WHERE MemberId = :currentUserId AND NetworkId = :Network.getNetworkId()];
+				isAvailableUser = !userNetworkMember.isEmpty();
+			}
 		}
 		catch(Exception e) {
 			allOk = false;
@@ -187,13 +194,13 @@ global with sharing class CommunityProfilePageController {
 	}
 
 	public String getStudentName() {
-		return currentProfile.Contact__r.Name;
+		return currentProfile == NULL ? '' : currentProfile.Contact__r.Name;
 	}
 
 	public void initInterests() {
 		Set<Id> activeTags = new Set<Id>();
 		if (!SObjectType.Community_Profile_Tag__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Profile_Tag__c);
-		String queryContactId = String.escapeSingleQuotes(contactId);
+		String queryContactId = String.isNotBlank(contactId) ? String.escapeSingleQuotes(contactId) : '';
 		for (Community_Profile_Tag__c cptItem : [SELECT Community_Tag__c FROM Community_Profile_Tag__c WHERE Contact__c =:queryContactId AND Active__c = true]) {
 			activeTags.add(cptItem.Community_Tag__c);
 		}

@@ -66,6 +66,10 @@
 									ds = confirm("{!$Label.LBL_CreateGroup_NoTagsMessage}");
 								}
 								if (ds) {
+									if({!step == 2}) {
+										if (pt!== undefined)
+										savePhoto();
+									}
 									dosubmit();
 								}
 							}
@@ -140,17 +144,20 @@
 						   
 						</div>
 						<div class="col-sm-8 sky-form">
+					<div id="sectionnote" class="alert alert-danger fade in" style="display:none;"> {!$Label.ERR_Group_Picture_FileError}</div>
 							<section id="filesection">
 								<label class="label">{!$Label.LBL_PictureUploadModal_SizeWarning}</label>
 								<label for="file" class="input input-file">
 									<div class="button">
-										<apex:inputFile value="{!imageBody}" fileName="{!imageFileName}" contentType="{!imageContentType}" accept="image/*" onchange="preview(this);"/>
-										{!$Label.BTN_ChooseFile}
-										<!-- hidden -->
-										<apex:inputText id="cropXIdCr" value="{!cropXCr}" style="display:none" />
-										<apex:inputText id="cropYIdCr" value="{!cropYCr}" style="display:none"/>
-										<apex:inputText id="cropSizeIdCr" value="{!cropSizeCr}" style="display:none"/>
-									</div><input type="text"/>
+								<input id="photoPathId1" type="file" onchange="pathChange(this);" accept="image/*"/>
+								{!$Label.BTN_ChooseFile}
+								<!-- hidden -->
+								<apex:inputText id="cropXIdCr" value="{!cropXCr}" style="display:none" />
+								<apex:inputText id="cropYIdCr" value="{!cropYCr}" style="display:none"/>
+								<apex:inputText id="cropSizeIdCr" value="{!cropSizeCr}" style="display:none"/>
+								<apex:inputText id="outputImageResizedBlobId" value="{!blobImageData}" style="display:none" />
+								<apex:inputText id="photoContentTypeId" value="{!photoContentType}" style="display:none" />
+							</div><input id="pathText" type="text"/>
 								</label>
 								<div class="pad">
 									<br/>
@@ -162,97 +169,44 @@
 							</section>
 						</div>
 						<script>
-							var scaleCr = 1;
-							function imageIsLoadedCr(e) {
-								img2.src = e.target.result;
-							}
-							function preview(input) {
-								// destroy jcrop
-								var JcropAPI =jQuery('#preview_image').data('Jcrop');
-								if(typeof JcropAPI !== 'undefined'){
-									JcropAPI.destroy();
-								};
-								jQuery('#previewImgCreateGroup').attr('src', "#");
-							
-							
-								if (input.files && input.files[0]) {
-									$('#sectionnote').remove();
-									$('#filesection .input').removeClass('state-error');
-									$('[id$=sbtbtn]').css('opacity','0.65').attr('disabled','disabled');
-									input.parentNode.nextSibling.value = input.files[0].name;
-									if (input.files[0].type.indexOf('image/') != 0 || input.files[0].size > 8388608) {
-										$('#filesection .input').addClass('state-error');
-										$('#filesection').prepend('<div id="sectionnote" class="alert alert-danger fade in">{!$Label.ERR_Group_Picture_FileError}</div>');
+							var pt;
+							function pathChange (elm){
+								if (elm.files.length > 0) {
+									pt = new photoUpload({
+										imgId: '#preview_image',
+										previewImgId: '#previewImgCreateGroup',
+										uploadToChatterWidth: 200,
+										previewSize: 100
+									});
+									if(pt.uploadFile(elm)==="File is too big") {
+										jQuery('[id$=pathText]').val('');
+										$('#sectionnote').show();
+										$('#preview_image').attr('src','{!EmptyGroupPhotoUrl}');
+										$('#preview_image').css('height','auto');
+										$('#previewImgCreateGroup').hide();
+										$('#photoPathId1').val('');
+										$('#pathText').val('');
 									}
 									else {
-										var reader = new FileReader();
-										reader.onload = imageIsLoadedCr;
-										reader.readAsDataURL(input.files[0]);
+										jQuery('[id$=pathText]').val(elm.files[0].name);
+										$('#sectionnote').hide();
 									}
 								}
 							}
-							function showPreview(coords) {
-								rx = 100 / coords.w;
-								ry = 100 / coords.h;
-								imgX = coords.x;
-								imgY = coords.y;
-								imgSize = coords.w;
-								jQuery('#previewImgCreateGroup').css({
-									width: Math.round(rx *jQuery('#preview_image').width()) + 'px',
-									height: Math.round(ry *jQuery('#preview_image').height()) + 'px',
-									marginLeft: '-' + Math.round(100 / coords.w * coords.x) + 'px',
-									marginTop: '-' + Math.round(100 / coords.h * coords.y) + 'px'
-								});		 
-								jQuery('[id$=cropXIdCr]').val(Math.round(coords.x*scaleCr));
-								jQuery('[id$=cropYIdCr]').val(Math.round(coords.y*scaleCr));
-								jQuery('[id$=cropSizeIdCr]').val(Math.round(coords.w*scaleCr));
+							function savePhoto () {
+								jQuery('[id$=cropXIdCr]').val(pt.getCroppedX());
+								jQuery('[id$=cropYIdCr]').val(pt.getCroppedY());
+								jQuery('[id$=cropSizeIdCr]').val(pt.getCroppedSize());
+								jQuery('[id$=outputImageResizedBlobId]').attr('value', pt.getImageToUpload ); 
+								jQuery('[id$=photoContentTypeId]').attr('value', pt.getImageTypeToUpload());
 							}
-							
-								
-							var imgRealHeightCr;
-							var imgRealWidthCr;
-							var img2 = new Image();
-							img2.onload = function() {
-								// calculate real width and height
-								imgRealWidth = this.width;
-								imgRealHeight = this.height;
-								
-								// remove styles
-								jQuery('#preview_image').removeAttr("width").removeAttr("height").css({ width: "auto" , height: "auto" });
-								// set image and preview image
-								jQuery('#preview_image').attr('src', img2.src);
-								jQuery('#previewImgCreateGroup').attr('src',  img2.src);
-								// add bootstrap class
-								//jQuery('#preview_image').addClass('img-responsive imgsizeStyle');
-								
-								 // start cropping with params
-								var imgWidth =jQuery('#preview_image').width();
-								var imgHeight =jQuery('#preview_image').height();
-								scaleCr = imgRealWidth/$('#preview_image').width();
-								var rectSide = (imgWidth >= imgHeight)?imgHeight/3:imgWidth/3;
-								jQuery('#preview_image').Jcrop({
-									onChange: showPreview, onSelect: showPreview, aspectRatio: 1,
-									setSelect: [ imgWidth/2-rectSide, imgHeight/2-rectSide, imgWidth/2+rectSide, imgHeight/2+rectSide ]
-								});
-								jQuery('#previewImgCreateGroup').show();
-								$('[id$=sbtbtn]').css('opacity','1').removeAttr('disabled');
-							
-							
-							/*  
-								$('#previewImgCreateGroup').attr('src', img2.src);
-								$('[id$=sbtbtn]').css('opacity','1').removeAttr('disabled');
-								jQuery('#preview_image').Jcrop({ onChange: showPreview, onSelect: showPreview, aspectRatio: 1 });
-								$('[id$=previewImgCreateGroup]').show(); */
-								
-							}
-							
 						</script>
 				</apex:outputPanel>
 				<apex:outputPanel layout="block" styleClass="row u-page-block" rendered="{!step == 3}">
 					<div class="col-sm-12 sky-form">
 						<section>
 							<label class="input">
-								<c:CommunityTagSelector oId="{!CurrentGroup.Id}" oType="{!$ObjectType.Community_Group_Control_Tag__c.Name}" fName="{!$ObjectType.Community_Group_Control_Tag__c.Fields.Group_Control__c.Name}" mt="{!tagsCount}"/>
+								<c:CommunityTagSelector oId="{!CurrentGroup.Id}" oType="{!$ObjectType.Community_Group_Control_Tag__c.Name}" fName="{!$ObjectType.Community_Group_Control_Tag__c.Fields.Group_Control__c.Name}" tlim="{!tagsCount}" treq="{!disabledNext}"/>
 							</label>
 						</section>
 					</div>

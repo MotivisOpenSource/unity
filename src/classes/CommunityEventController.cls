@@ -210,8 +210,8 @@ public with sharing class CommunityEventController {
 		if (pr == NULL || Test.isRunningTest()) {
 			mode = 'view';
 			init();
+			generateDownloadIcsLink();
 		}
-		generateDownloadIcsLink();
 		return pr;
 	}
 
@@ -645,13 +645,14 @@ public with sharing class CommunityEventController {
 		List<String> groupIds = new List<String>();
 		if (!SObjectType.CollaborationGroup.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.CollaborationGroup);
 		if (!SObjectType.CollaborationGroupMember.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.CollaborationGroupMember);
-		for (CollaborationGroup cgItem : [
-											SELECT Id, Name FROM CollaborationGroup Where NetworkId = :Network.getNetworkId() AND ID in :chatterGroups AND
-												ID in (SELECT CollaborationGroupId FROM CollaborationGroupMember WHERE
-														 MemberId = :UserInfo.getUserId() ) ] ) {
+		String gueryNetworkId = !Test.isRunningTest() ? String.escapeSingleQuotes(Network.getNetworkId()) : '';
+		String cgQuery = 'SELECT Id, Name FROM CollaborationGroup WHERE NetworkId = \'' + gueryNetworkId + '\' AND Id IN :chatterGroups';
+		cgQuery += CommunityUtils.isModifyAllData() ? '' : ' AND Id IN (SELECT CollaborationGroupId FROM CollaborationGroupMember WHERE MemberId = \'' + String.escapeSingleQuotes(UserInfo.getUserId()) + '\')';
+		List<CollaborationGroup> cgList = Database.query(cgQuery);
+		for (CollaborationGroup cgItem : cgList) {
 			groupIds.add(cgItem.Id);
 			groupsNames.Add(cgItem.Name);
-		}		
+		}
 		return groupsNames;
 	}
 }

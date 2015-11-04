@@ -38,7 +38,6 @@
 	
 	<!-- <script type="text/javascript" src="{!$Resource.CommunityResources}/js/Typeahead/typeahead.bundle.custom.js" ></script> -->
 	<script type="text/javascript" src="{!$Resource.CommunityResources}/js/underscore/underscore-min.js" ></script>
-	
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/jquery/jquery-migrate.min.js"></script>
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/bootstrap/js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/back-to-top.js"></script>
@@ -52,6 +51,9 @@
 	<!-- JS Customization -->
 	<script type="text/javascript" src="{!$Resource.assets}/js/custom.js"></script>
 	<!-- JS Implementing Plugins -->
+	<script type="text/javascript" src="{!$Resource.assets}/plugins/ImageLoad/load-image.all.min.js"></script>
+	<script type="text/javascript" src="{!$Resource.assets}/plugins/photoCrop/photoCrop.js"></script>
+
 	<script>
 			// remove bad styles from apex:pageMessages
 			

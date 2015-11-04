@@ -227,37 +227,39 @@ private class CommunityTest4 {
 		//deprecated
 	}
 
-	static testMethod void test_CommunityObjectController() {
-		Account acc = new Account(Name='testAccount');
-		insert acc;
-		Contact con = new Contact(LastName='TCLN', MailingPostalCode='99013', email='testc@testdomain.com', AccountId=acc.Id, Primary_Role__c='Student');
-		insert con;
-		Profile profile = [SELECT Id FROM Profile WHERE Name = 'System Administrator'];
-		User u = new User(alias='alias', email='email@email.com', emailencodingkey='UTF-8', lastname='lastname', firstname = 'firstName', languagelocalekey='en_US',
-			localesidkey='en_US', profileid = profile.Id, timezonesidkey='America/Los_Angeles', username='ttsde.tedf2@testmail.com',
-			FederationIdentifier='TestContactName.TestContactLastname2', Community_Contact_ID__c=con.Id);
-		insert u;
-		Community_Group_Control__c cgc =  new Community_Group_Control__c(Name='ts',Discoverable__c=true,Type__c='Public',Network__c='Internal');
-		insert cgc;
-		ApexPages.currentPage().getParameters().put('fieldSetName','EditGroup');
-		ApexPages.currentPage().getParameters().put('objectId',cgc.Id);
-		ApexPages.currentPage().getParameters().put('objectName','Community_Group_Control__c');
-		System.runAs(u) {
+	@IsTest(SeeAllData=true)
+	static void test_CommunityObjectController() {
+		CommunityTest3.testDataFactory df = new CommunityTest3.testDataFactory(
+			new Set<String> {
+				'internalUser',
+				'communitySuperUser',
+				'createGroupControl',
+				'makeApprovedGroup'
+			}
+		);
+		System.runAs(df.communityUser) {
+			ApexPages.currentPage().getParameters().put('fieldSetName','EditGroup');
+			ApexPages.currentPage().getParameters().put('objectId',df.groupControl.Id);
+			ApexPages.currentPage().getParameters().put('objectName','Community_Group_Control__c');
 			CommunityObjectController coc3 = new CommunityObjectController();
-			coc3.saveAction();
+			System.assert(coc3 != NULL);
 		}
-		Community_Profile__c cp = [SELECT Id FROM Community_Profile__c WHERE Contact__c = :con.Id LIMIT 1];
-		System.Debug(cp);
-		ApexPages.currentPage().getParameters().put('fieldSetName',CommunityUtils.getPackagePrefix()+'Student_About_Me_1');
-		ApexPages.currentPage().getParameters().put('objectId',cp.Id);
-		ApexPages.currentPage().getParameters().put('objectName',CommunityUtils.getPackagePrefix()+'Community_Profile__c');
-		ApexPages.currentPage().getParameters().put('tn','wrong');
-		ApexPages.currentPage().getParameters().put('tfn','wrong');
-		CommunityObjectController coc = new CommunityObjectController();
-		System.Debug(coc.so);
-		System.runAs(u) {
+		CommunityTest3.testDataFactory df2 = new CommunityTest3.testDataFactory(
+			new Set<String> {
+				'communityUser',
+				'communitySuperUser',
+				'addRoleToContact'
+			}
+		);
+		System.runAs(df2.communityUser) {
+			Community_Profile__c cp = [SELECT Id FROM Community_Profile__c WHERE Contact__c = :df2.communityUser.ContactId LIMIT 1];
+			ApexPages.currentPage().getParameters().put('fieldSetName',CommunityUtils.getPackagePrefix()+'Student_About_Me_1');
+			ApexPages.currentPage().getParameters().put('objectId',cp.Id);
+			ApexPages.currentPage().getParameters().put('objectName',CommunityUtils.getPackagePrefix()+'Community_Profile__c');
+			ApexPages.currentPage().getParameters().put('tn','wrong');
+			ApexPages.currentPage().getParameters().put('tfn','wrong');
 			CommunityObjectController coc2 = new CommunityObjectController();
-			System.assert(coc2.so != NULL);
+			System.assert(coc2 != NULL);
 			coc2.saveAction();
 		}
 	}

@@ -37,6 +37,8 @@
 	<apex:attribute name="mdl" type="Boolean" required="false" default="false" description="display as modal"/>
 	<apex:attribute name="edt" type="Boolean" required="false" default="false" description="is editable"/>
 	<apex:attribute name="son" type="String" required="false" description="name of the object"/>
+	<apex:attribute name="tlim" type="Integer" required="false" default="-1" description="tag select limit"/>
+	<apex:attribute name="treq" type="Boolean" required="false" default="false" description="tag is required"/>
 
 	<apex:variable var="uniqueid" value="{!LOWER(IF(ISBLANK(efsc),fsc.Name,efsc))}"/>
 	<apex:outputPanel layout="none" rendered="{!mdl}">
@@ -99,7 +101,7 @@
 				$('#{!uniqueid}fieldsarea').hide();
 				$('[id^=btnupme]').hide();
 				var itxt = '<iframe id="meframe{!uniqueid}" frameborder="0" src="{!$Page.CommunityShowEditObject}?objectId={!so["Id"]}';
-				itxt += '&fieldSetName={!IF(ISBLANK(efsc),fsc.Name,efsc)}&objectName={!fsc.SObjectType}&tn={!tn}&tfn={!tfn}" width="100%" height="auto"/>';
+				itxt += '&fieldSetName={!IF(ISBLANK(efsc),fsc.Name,efsc)}&objectName={!fsc.SObjectType}&tn={!tn}&tfn={!tfn}&tlim={!tlim}&treq={!treq}" width="100%" height="auto"/>';
 				$('#{!uniqueid}fieldsarea').before(itxt);
 				$('#action{!uniqueid}').show();
 			}

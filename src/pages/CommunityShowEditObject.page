@@ -52,7 +52,7 @@
 			<apex:outputPanel layout="none" rendered="{!!ISBLANK(TagSection)}">
 				<fieldset><section>
 					<apex:outputLabel value="{!$Label.LBL_Select_Tags}" styleClass="label"/>
-					<c:CommunityTagSelector oId="{!so['Id']}" oType="{!tagSection[0]}" fName="{!tagSection[1]}"/>
+					<c:CommunityTagSelector oId="{!so['Id']}" oType="{!tagSection[0]}" fName="{!tagSection[1]}" treq="{!tagRequired}" tlim="{!tagLimit}"/>
 				</section></fieldset>
 			</apex:outputPanel>
 			<footer class="text-right">
