@@ -113,16 +113,18 @@ public with sharing class CommunityGroupCreateController {
 			}
 			else if (step == 2) {
 				if (imageBody != NULL) {
-				    ConnectApi.PhotoInput pi = new ConnectApi.PhotoInput();
-				    pi.cropX = Integer.valueOf(cropXCr);
-				    pi.cropY = Integer.valueOf(cropYCr);
-				    pi.cropSize = Integer.valueOf(cropSizeCr)-1;
-					ConnectApi.Photo groupPhoto = ConnectApi.ChatterGroups.setPhotoWithAttributes(
-					    Network.getNetworkId(), 
-					    currentGroup.Chatter_Group_ID__c,
-					    pi,
-					    new ConnectApi.BinaryInput(imageBody, imageContentType, imageFileName)
-					    );
+					if (!Test.isRunningTest()) {
+						ConnectApi.PhotoInput pi = new ConnectApi.PhotoInput();
+						pi.cropX = Integer.valueOf(cropXCr);
+						pi.cropY = Integer.valueOf(cropYCr);
+						pi.cropSize = Integer.valueOf(cropSizeCr)-1;
+						ConnectApi.Photo groupPhoto = ConnectApi.ChatterGroups.setPhotoWithAttributes(
+							Network.getNetworkId(), 
+							currentGroup.Chatter_Group_ID__c,
+							pi,
+							new ConnectApi.BinaryInput(imageBody, imageContentType, imageFileName)
+						);
+					}
 					//update currentGroup;
 					CommunityAccess.UpdateWithoutSharing(
 						currentGroup,
