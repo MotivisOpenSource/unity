@@ -127,7 +127,7 @@ public with sharing class CommunitySearchController {
 		}
 		else if (mode == 'discover' || mode == 'resource') {
 			try {
-				String queryTagId = CommunityUtils.validateId((mode == 'discover' ? pageParams.get('t') : pageParams.get('tr'));
+				String queryTagId = CommunityUtils.validateId(mode == 'discover' ? pageParams.get('t') : pageParams.get('tr'));
 				if (!SObjectType.Community_Tag__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Tag__c);
 				resultStr = [SELECT Name FROM Community_Tag__c WHERE Id = :queryTagId LIMIT 1].Name;
 			}
