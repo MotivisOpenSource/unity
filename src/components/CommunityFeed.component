@@ -587,25 +587,19 @@
 									else {
 										insertAttIntoFeed(result[0].id, null);
 									}
-									postFile = false;
 								}
 								else {
-									postFile = false;
 									enableBtn('mesbtn');
 									showFeedError(result[0].errors.message);
 								}
 							},
 							onFailure : function(error, source) {
-								postFile = false;
 								enableBtn('mesbtn');
 								showFeedError(result[0].errors.message);
 							}
 					});
 					// end sending
 				}
-
-				var postFile = false;
-				var postEvent = false;
 
 				function postAction(text) {
 					if( checkTopicsCount(text) == -1 ) return ;
@@ -617,13 +611,11 @@
 					var fName = null;
 					var sendFile = false;
 					if($("form[name='postform']").data('validator').checkForm()) {
-						postEvent = chataction.layout.name == 'Create_Event';
 						_.each(chataction.layout.items, function(item) {
 							if(item.fieldName == 'message') {
 								messageItemIndex = chataction.layout.items.indexOf(item);
 							}
 							if(item.ftype == 'inputfile') {
-								postFile = true;
 								sendFile = true;
 								var inputfile = $("[name='" + item.fieldName + "']")[0].files[0];
 								if(inputfile != undefined) {
@@ -671,7 +663,7 @@
 							}
 							}
 							item.value = $("[name='" + item.fieldName + "']").val();
-						});	
+						});
 						if(sendFile == false) {
 							if($("[name='message']").val()) {
 								$('#message').mentionsInput('val', function(text) {
@@ -727,33 +719,19 @@
 						params,
 						function(result, event) {
 							if (event.result) {
-								if (result.substring(0, 3) == "ERR") {
-									if(result.indexOf('{!$Label.LBL_File_Upload_Size_Limit}') > -1) {
-										showFeedError('{!JSINHTMLENCODE($Label.LBL_File_Upload_Size_Limit)}');
-									}
-									else {
-										showFeedError(result.substring(3,result.length));
-									}
-									err = true;
-								}
-								else {
-									_.templateSettings.variable = 'rc';
-									var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
-									var tt = jsonObj(result);
-									$('#cfcmp').prepend(template(tt));
-									_.each(chataction.layout.items, function(item) {
-										$("[name='" + item.fieldName + "']").val('');
-									});
-								}
+								_.templateSettings.variable = 'rc';
+								var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
+								var tt = jsonObj(result);
+								$('#cfcmp').prepend(template(tt));
+								_.each(chataction.layout.items, function(item) {
+									$("[name='" + item.fieldName + "']").val('');
+								});
+								setActiveli();
 							}
 							else {
 								showFeedError(event.message);
-								err = true;
 							}
-							if(!postFile) {
-								enableBtn('mesbtn');
-								if (!err) { setActiveli(); }
-							}
+							enableBtn('mesbtn');
 						}
 					);
 					if (typeof(switchToMemberMode) == 'function') switchToMemberMode();
@@ -959,10 +937,8 @@
 							invokeActionParam,
 							function(result, event) {
 								if (event.result) {
-									var div = document.createElement('div');
-									div.innerHTML = result;
 									chataction.loading = false;
-									chataction.layout = JSON.parse(div.firstChild.nodeValue);
+									chataction.layout = jsonObj(result);
 									_.templateSettings.variable = 'rc';
 									var template = _.template($('#atp').html());
 									$('#postarea').html(template(chataction.layout));
