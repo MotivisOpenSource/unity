@@ -236,7 +236,10 @@ global with sharing class CommunityFeedController {
 		String keyPrefix = r.getKeyPrefix();
 		do {
 			FeedElementPage fep = pullFeedsConnectApi(inParentId2, inFeedType2, inPageToken2);
-			if(parentManagerId == NULL 
+			if (fep.elements.isEmpty()) {
+				break;
+			}
+			if( parentManagerId == NULL 
 				|| parentManagerId.substring(0, 3) != keyPrefix 
 				|| (parentManagerId.substring(0, 3) == keyPrefix && groupManagerMap.get(parentManagerId) != NULL)){
 				fepResult.elements.add(fep.elements[0]);
