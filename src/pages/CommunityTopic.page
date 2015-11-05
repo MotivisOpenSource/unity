@@ -516,7 +516,7 @@
                                         }
                                     }
                                     
-                                    $scope.isFeedTraking = {!JSENCODE(isFeedTraking)};
+                                    $scope.isFeedTraking = {!isFeedTraking};
                                     $(".preloader__container").hide();
                                     if({!showTopics} && {!!topicExists}){
                                         $(".profile-body").hide();
