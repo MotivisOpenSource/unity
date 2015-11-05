@@ -30,6 +30,60 @@
 @isTest
 private class CommunityTest4 {
 /*Utility Class Tests*/
+	private static final String testUrl = 'testUrl';
+	private static final String messageTypeParam = 'emkind';
+	private static final String testId = '123456789';
+
+	private static String prepareFeedItemData() {
+		FeedItem testFeedItem = new FeedItem(
+			ParentId = UserInfo.getUserId(),
+			Body = 'testBody'
+		);
+		insert testFeedItem;
+
+		return testFeedItem.Id;
+	}
+
+	static testMethod void commonRewriterTest() {
+		String feedItemId = prepareFeedItemData();
+		CommunityUrlRewriter testRewriter = new CommunityUrlRewriter();
+
+		PageReference testPageRef = new PageReference(testRewriter.STANDARD_USER_DETAIL_PAGE + testUrl);
+		testPageRef.getParameters().put('u', testId);
+		testPageRef.getParameters().put('fi', testId);
+		testRewriter.mapRequestUrl(testPageRef);
+
+		testPageRef = new PageReference(testRewriter.STANDARD_CHATTER_PAGE + testUrl);
+		testRewriter.mapRequestUrl(testPageRef);
+
+		testPageRef = new PageReference(testRewriter.STANDARD_GROUP_DETAIL_PAGE + testUrl);
+		testPageRef.getParameters().put('u', testId);
+		testPageRef.getParameters().put('g', UserInfo.getUserId());
+		testRewriter.mapRequestUrl(testPageRef);
+
+		testPageRef = new PageReference(testUrl);
+		testPageRef.getParameters().put(messageTypeParam, testRewriter.CHATTER_PRIVATE_MESSAGE_NOTIFICATION);
+		testRewriter.mapRequestUrl(testPageRef);
+
+		testPageRef = new PageReference(testUrl);
+		testPageRef.getParameters().put(messageTypeParam, testRewriter.CHATTER_POST_NOTIFICATION);
+		testPageRef.getParameters().put('fid', testId);
+		testRewriter.mapRequestUrl(testPageRef);
+
+		testPageRef = new PageReference(testUrl);
+		testPageRef.getParameters().put(messageTypeParam, testRewriter.CHATTER_COMMENT_NOTIFICATION);
+		testPageRef.getParameters().put('fId', feedItemId);
+		testPageRef.getParameters().put('s1uid', Userinfo.getUserId());
+		testRewriter.mapRequestUrl(testPageRef);
+
+		testPageRef = new PageReference(testUrl);
+		testPageRef.getParameters().put(messageTypeParam, testRewriter.CHATTER_COMMENT_NOTIFICATION);
+		testPageRef.getParameters().put('fId', feedItemId);
+		testPageRef.getParameters().put('s1uid', testId);
+		testRewriter.mapRequestUrl(testPageRef);
+
+		System.assertEquals(testRewriter.generateUrlFor(new List<PageReference>()), null);
+	}
 
 	static testMethod void test_CommunityUrlRewriter() {
 		CommunityUrlRewriter rewriter = new CommunityUrlRewriter();

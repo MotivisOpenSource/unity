@@ -54,6 +54,17 @@ public with sharing class CommunityGroupCreateController {
 		}
 		set;
 	}
+
+	public PageReference initFromView() {
+		PageReference pageRef = CommunityUtils.checkRedirectToStandardView(currentGroup.Id);
+		if (pageRef == NULL) {
+			currentGroup = [SELECT Id, Chatter_Group_Id__c FROM Community_Group_Control__c WHERE Id = :currentGroup.Id LIMIT 1];
+			pageRef = Page.CommunityGroupManager;
+			pageRef.getParameters().put('gr', currentGroup.Chatter_Group_ID__c);
+		}
+		return pageRef;
+	}
+
 	public void initFromCreate() {
 		Set<String> availableSteps = new Set<String> {'2','3','4'};
 		//Map<String, String> pageParams = ApexPages.currentPage().getParameters();
