@@ -141,7 +141,7 @@ public with sharing class CommunityGroupsController {
 
 					Boolean statusJoin = (collaborationGroupMap.get(Item.Chatter_Group_ID__c).CollaborationType == 'Public')
 						|| (collaborationGroupMap.get(Item.Chatter_Group_ID__c).CollaborationType == 'Private'
-							&& ModifyAllData == true && ViewAllData == true);
+							&& ModifyAllData == true);
 
 					Boolean statusRequested = (collaborationGroupMap.get(Item.Chatter_Group_ID__c).CollaborationType == 'Private'
 						&& item.Discoverable__c == true
@@ -151,7 +151,6 @@ public with sharing class CommunityGroupsController {
 					Boolean statusRequestToJoin = (collaborationGroupMap.get(Item.Chatter_Group_ID__c).CollaborationType == 'Private'
 						&& item.Discoverable__c == true
 						&& ModifyAllData == false
-						&& ViewAllData == false
 						&& GroupMemberRequestMap.get(Item.Chatter_Group_ID__c) == NULL);
 
 					if (statusJoin) {
@@ -210,7 +209,8 @@ public with sharing class CommunityGroupsController {
 			for (CollaborationGroup cgItem : [SELECT Id FROM CollaborationGroup WHERE NetworkId = :Network.getNetworkId()]) {
 				filtredChatterGroups.add(cgItem.Id);
 			}
-			gQuery += ' WHERE Chatter_Group_ID__c IN :filtredChatterGroups AND Discoverable__c = true';
+			gQuery += ' WHERE Chatter_Group_ID__c IN :filtredChatterGroups';
+			gQuery += CommunityUtils.isModifyAllData() ? '' : ' AND Discoverable__c = true';
 			foundData = filtredChatterGroups.size() > 0;
 		}
 

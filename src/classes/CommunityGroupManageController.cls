@@ -66,7 +66,7 @@ public with sharing class CommunityGroupManageController {
 
 	public static Community_Group_Control__c pullGroupControlRecord(Boolean useFieldSet, String chatterGroupId, String groupControlId) {
 		if (String.isNotBlank(chatterGroupId) || String.isNotBlank(groupControlId)) {
-			Set<String> collectedFields = new Set<String> {'Id', 'Name', 'Chatter_Group_ID__c', 'Type__c', 'OwnerId', 'UserRecordAccess.HasEditAccess'};
+			Set<String> collectedFields = new Set<String> {'Id', 'Name', 'Chatter_Group_ID__c', 'Type__c', 'OwnerId', 'UserRecordAccess.HasEditAccess', 'UserRecordAccess.HasAllAccess'};
 			if (useFieldSet) {
 				String pp = CommunityUtils.getPackagePrefix();
 				Boolean isPP = String.isNotBlank(pp);
@@ -139,9 +139,7 @@ public with sharing class CommunityGroupManageController {
 	}
 
 	public Boolean getUserCanAccess() {
-		if (!SObjectType.Community_Group_Manager__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Manager__c);
-		Integer userHasCGM = [SELECT COUNT() FROM Community_Group_Manager__c WHERE Group_Manager_User__c =:UserInfo.getUserId() AND Group_Control__c =:control.Id];
-		return userHasCGM > 0;
+		return CommunityUtils.isShowGroupManagerUser(control.Chatter_Group_ID__c, true);
 	}
 
 	//ADD/REMOVE MEMBERS/MANAGERS
@@ -261,7 +259,7 @@ public with sharing class CommunityGroupManageController {
 	}
 
 	public Boolean getShowChangeOwnerLink() {
-		return (managerMode && !changeOwnerMode && control.OwnerId == UserInfo.getUserId() && control.UserRecordAccess.HasEditAccess == true) || CommunityUtils.isModifyAllData();
+		return managerMode && !changeOwnerMode && (control.UserRecordAccess.HasAllAccess == true || (control.OwnerId == UserInfo.getUserId() && control.UserRecordAccess.HasEditAccess == true) || CommunityUtils.isModifyAllData());
 	}
 
 	// MEMBER HANDLER CLASS

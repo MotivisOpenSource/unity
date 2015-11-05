@@ -47,14 +47,7 @@ public with sharing class CommunityFeedNavigationController {
 
 	public String chatterGroupId { get; set; }
 	public Boolean getShowGroupManager() {
-		Boolean result = false;
-		if (String.isNotBlank(chatterGroupId)) {
-			if (!SObjectType.Community_Group_Manager__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Manager__c);
-			String queryChatterGroupId = CommunityUtils.validateId(chatterGroupId);
-			List<Community_Group_Manager__c> cgmList = [SELECT Id FROM Community_Group_Manager__c WHERE Group_Manager_User__c = :UserInfo.getUserId() AND Group_Control__r.Chatter_Group_ID__c = :queryChatterGroupId];
-			result = cgmList.size() > 0;
-		}
-		return result;
+		return CommunityUtils.isShowGroupManagerUser(chatterGroupId, true);
 	}
 
 
@@ -135,20 +128,19 @@ public with sharing class CommunityFeedNavigationController {
 	}
 	
 	// set permitions
-	public String groupRole  { get; set; }
+	public String groupRole { get; set; }
 	
-	public String permitions {	 
-		get { 
-	        if (getGroupId != null) {
-	            return (CommunityUtils.isModerateChatter() == true || CommunityUtils.isModifyAllData() == true || (groupRole == 'Owner' || groupRole == 'Manager'))?'true':'false';	/////////////////////////					
-	        }
-	        else {
-	            return (currentUser==true)?'true':'false';		
-	        }
+	public String permitions {
+		get {
+			if (getGroupId != null) {
+				return groupRole == 'Manager' || groupRole == 'Owner' || CommunityUtils.isModerateChatter() || CommunityUtils.isModifyAllData() ? 'true' : 'false';
+			}
+			else {
+				return (currentUser == true) ? 'true' : 'false';
+			}
 		}
-		set; 
+		set;
 	}
-	
 	
 	
 	public PageReference photoaction() {
