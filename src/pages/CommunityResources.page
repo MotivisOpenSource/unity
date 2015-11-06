@@ -32,7 +32,7 @@
 		<apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
 		<apex:define name="body">
 			<!--=== Content ===-->
-			<div class="container content paddingCategories">
+			<div class="container content paddingCategories CommunityResources">
 				<apex:outputPanel layout="block" styleClass="row text-center margin-bottom-20" rendered="{!$ObjectType.Community_Resource__c.createable}" >
 					<apex:outputLink value="{!$Page.CommunityResourceEdit}" styleClass="btn-u">{!$Label.BTN_Create_Resource}</apex:outputLink>
 				</apex:outputPanel>
