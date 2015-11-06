@@ -65,7 +65,7 @@ public with sharing class CommunityGroupDetailPageController {
 	}
 
 	public Boolean getGroupEditable() {
-		return CommunityUtils.isModifyAllData() == true || groupRole == ConnectApi.GroupMembershipType.GroupOwner || groupRole == ConnectApi.GroupMembershipType.GroupManager;
+		return groupRole == ConnectApi.GroupMembershipType.GroupOwner || groupRole == ConnectApi.GroupMembershipType.GroupManager || CommunityUtils.isShowGroupManagerUser(control.Chatter_Group_ID__c, true);
 	}
 
 	public Boolean memberMode { get { return memberMode == NULL ? false : memberMode; } set; }
@@ -95,7 +95,8 @@ public with sharing class CommunityGroupDetailPageController {
 	}
 
 	public Boolean getHideFeedComponent() {
-		return control.Type__c == 'Private' && (groupRole == ConnectApi.GroupMembershipType.NotAMember || groupRole == ConnectApi.GroupMembershipType.NotAMemberPrivateRequested);
+		return control.Type__c == 'Private' && (groupRole == ConnectApi.GroupMembershipType.NotAMember || groupRole == ConnectApi.GroupMembershipType.NotAMemberPrivateRequested) && 
+				CommunityUtils.isViewAllData() == false && CommunityUtils.isModifyAllData() == false;
 	}
 
 	public String groupMode { get; set; }
@@ -140,7 +141,8 @@ public with sharing class CommunityGroupDetailPageController {
 	}
 
 	public CommunityUtils.GroupAction getActionButton() {
-		return CommunityUtils.getActionButton(groupRole, chatterGroup.CollaborationType == 'Public');
+		Boolean hasDirectJoinBtn = chatterGroup.CollaborationType == 'Public' || CommunityUtils.isModifyAllData();
+		return CommunityUtils.getActionButton(groupRole, hasDirectJoinBtn);
 	}
 
 	public Schema.FieldSet getFieldset() {
@@ -172,7 +174,7 @@ public with sharing class CommunityGroupDetailPageController {
 					&& SObjectType.Community_Events__c.isCreateable()
 						&& SObjectType.Community_Event_Tag__c.isCreateable()
 						&& ((groupRole == ConnectApi.GroupMembershipType.GroupOwner || groupRole == ConnectApi.GroupMembershipType.GroupManager || groupRole == ConnectApi.GroupMembershipType.StandardMember)
-							|| (control.Type__c != 'Private' && CommunityUtils.isModifyAllData()));
+							|| CommunityUtils.isModifyAllData());
 		}
 	}
 
@@ -208,7 +210,9 @@ public with sharing class CommunityGroupDetailPageController {
 	}
 	public Boolean showFilesSection {
 		get {
-			return getHideFeedComponent() != true && Community_Settings__c.getInstance().Chatter_Action_Disable_Group_Files__c != true;
+			return Community_Settings__c.getInstance().Chatter_Action_Disable_Group_Files__c != true && !(control.Type__c == 'Private' && 
+				(groupRole == ConnectApi.GroupMembershipType.NotAMember || groupRole == ConnectApi.GroupMembershipType.NotAMemberPrivateRequested) || 
+				CommunityUtils.isViewAllData() == true || CommunityUtils.isModifyAllData() == true);
 		}
 	}
 

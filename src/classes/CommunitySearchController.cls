@@ -275,7 +275,8 @@ public with sharing class CommunitySearchController {
 		List<Community_Group_Control__c> cgcList = [SELECT Id, Type__c FROM Community_Group_Control__c WHERE Chatter_Group_ID__c = :queryGrId];
 		if (action != '3' && cgcList.size() > 0) {
 			ConnectApi.GroupMembershipType ngr = CommunityUtils.membership(UserInfo.getUserId(), cgcList[0].Id, action);
-			resultAction = CommunityUtils.getActionButton(ngr, cgcList[0].Type__c == 'Public');
+			Boolean hasDirectJoinBtn = cgcList[0].Type__c == 'Public' || CommunityUtils.isModifyAllData();
+			resultAction = CommunityUtils.getActionButton(ngr, hasDirectJoinBtn);
 			resultAction.groupId = grId;
 			Integer gi = Integer.valueOf(mc);
 			resultAction.memberCount = String.valueOf(

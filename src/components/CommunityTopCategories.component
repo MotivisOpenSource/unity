@@ -158,8 +158,6 @@
 			$('[id$=countCol]').val('3');
 			setColumns();
 		}
-
 	}
-
 </script>
 </apex:component>

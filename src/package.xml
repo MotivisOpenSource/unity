@@ -77,7 +77,7 @@
         <members>CommunityGroupManager</members>
         <members>CommunityGroups</members>
         <members>CommunityHome</members>
-		<members>CommunityNavigator</members>
+        <members>CommunityNavigator</members>
         <members>CommunityNews</members>
         <members>CommunityNewsDetail</members>
         <members>CommunityNewsEdit</members>
@@ -89,6 +89,7 @@
         <members>CommunitySearch</members>
         <members>CommunityShowEditObject</members>
         <members>CommunityTopic</members>
+        <members>SiteTemplate</members>
         <members>UnityAdmin</members>
         <members>UnitySiteTemplate</members>
         <name>ApexPage</name>
@@ -240,6 +241,7 @@
         <members>Community_Settings__c.Create_Group_Max_Tags__c</members>
         <members>Community_Settings__c.Create_Group_Require_Tags__c</members>
         <members>Community_Settings__c.Disable_Change_Password__c</members>
+        <members>Community_Settings__c.Disable_Files_On_Community_Feed__c</members>
         <members>Community_Settings__c.Disable_Share__c</members>
         <members>Community_Settings__c.Disable_Topic_Menu__c</members>
         <members>Community_Settings__c.Image_Library_Folder__c</members>
@@ -311,6 +313,7 @@
         <members>ERR_1_Breaking_News</members>
         <members>ERR_3_Alerts</members>
         <members>ERR_Can_not_found_Topic</members>
+        <members>ERR_Choice_To_Long</members>
         <members>ERR_Create_Event_Dates</members>
         <members>ERR_Dup_Group_Name</members>
         <members>ERR_Group_Picture_FileError</members>
@@ -318,7 +321,6 @@
         <members>ERR_Group_Tags_Required</members>
         <members>ERR_Maximum_number_topics</members>
         <members>ERR_MissingImageLibrary</members>
-		<members>ERR_Set_Up_Community_Profile</members>
         <members>ERR_MissingPermission</members>
         <members>ERR_Name_is_too_long</members>
         <members>ERR_News_Too_Many_Sticky</members>
@@ -330,10 +332,10 @@
         <members>ERR_Pole_SameValueWarning</members>
         <members>ERR_Primary_Profile</members>
         <members>ERR_Profile_RecordType</members>
+        <members>ERR_Set_Up_Community_Profile</members>
         <members>ERR_Topic_Not_Available</members>
         <members>ERR_Topic_Not_Available_Message</members>
         <members>ERR_You_do_not_have_access_to_this_user</members>
-        <members>ERR_Profile_Not_Available</members>
         <members>Feed_Nav_People</members>
         <members>LBL_About_Me</members>
         <members>LBL_About_this_group</members>
@@ -341,8 +343,8 @@
         <members>LBL_AddToCalendar</members>
         <members>LBL_Add_Photo</members>
         <members>LBL_Add_Remove_Members</members>
-        <members>LBL_Admin_Page_Group_Tag_Setting_Error</members>
         <members>LBL_Add_To_Favorites</members>
+        <members>LBL_Admin_Page_Group_Tag_Setting_Error</members>
         <members>LBL_AgreeToTerms</members>
         <members>LBL_AllGroups</members>
         <members>LBL_Assign_New_Owner</members>
@@ -367,12 +369,6 @@
         <members>LBL_CreateGroup_PictureUpload</members>
         <members>LBL_CreateGroup_Tags</members>
         <members>LBL_Current_Events_Title</members>
-        <members>LBL_All</members>
-        <members>LBL_Topics_I_Use</members>
-        <members>LBL_Shue_To_Delete_Topic</members>
-        <members>LBL_TalkingAbout</members>
-        <members>LBL_My_Favorites</members>
-        <members>LBL_People_Talking_About_This</members>
         <members>LBL_Current_News_Title</members>
         <members>LBL_Current_Owner</members>
         <members>LBL_Delete</members>
@@ -384,7 +380,6 @@
         <members>LBL_Digest_Group</members>
         <members>LBL_Digest_Never</members>
         <members>LBL_Digest_Weekly</members>
-        <members>LBL_DiscoverTitle</members>
         <members>LBL_Done</members>
         <members>LBL_ERR_Help_Link</members>
         <members>LBL_ERR_Quick_Link</members>
@@ -476,7 +471,6 @@
         <members>LBL_Notifications</members>
         <members>LBL_Notifications_Message</members>
         <members>LBL_Notifications_Post</members>
-        <members>LBL_Oh_Snap</members>
         <members>LBL_OldPassword</members>
         <members>LBL_Other</members>
         <members>LBL_Owner</members>

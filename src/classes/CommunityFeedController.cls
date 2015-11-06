@@ -734,6 +734,7 @@ global with sharing class CommunityFeedController {
 
 	@RemoteAction
 	global static String postActions(Map<String, String> params) {
+		String resultPage;
 		String inParentId4 = params.get('parentId');
 		String inText4 = params.get('jsontext');
 		String inFile = params.get('infilebstr');
@@ -755,7 +756,7 @@ global with sharing class CommunityFeedController {
 		fei.subjectId = inParentId4;
 		fei.feedElementType = ConnectApi.FeedElementType.FeedItem;
 		fei.visibility = ConnectApi.FeedItemVisibilityType.AllUsers;
-		String resultPage;
+
 		if (String.isNotBlank(errField)) {
 			throw new UnityFeedException('"' + errField + '" is required');
 		}

@@ -544,7 +544,7 @@ private class CommunityTest {
 			crtc.completeCurrentStep();
 			crtc.checkAndPrepareMenu();
 			crtc.getDisabledNext();
-			System.assertEquals(crtc.init() == null, true);
+			System.assertEquals(crtc != null, true);
 			CommunityRegTermsController.Menu leftSideBar = new CommunityRegTermsController.Menu();
 				leftSideBar.getLastStep();
 				leftSideBar.getCurrentStepName();
