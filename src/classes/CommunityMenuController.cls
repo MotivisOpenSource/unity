@@ -59,16 +59,15 @@ public with sharing class CommunityMenuController {
 	public static Boolean getIsRegTermsPage() {
 		return currentPage(Page.CommunityRegTerms.getUrl());
 	}
-
+/*
 	public PageReference getRedirectToLogin() {
 		PageReference pr;
 		if (UserInfo.getUserType() == 'Guest') {
 			pr = Network.forwardToAuthPage(NULL);
-			
 		}
 		return pr;
 	}
-
+*/
 	public String getAlert() {
 		DateTime Now = DateTime.now();
 		if (!SObjectType.Community_News__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_News__c);

@@ -39,8 +39,7 @@
 	</script>
 </apex:outputPanel>
 <!-- End For Background Image -->
-
-<apex:outputPanel rendered="{!!ISBLANK(RedirectToLogin)}">
+<!--apex:outputPanel rendered="{!!ISBLANK(RedirectToLogin)}">
 	<script type="text/javascript">
 		(function() {
 			console.log('Registration RedirectToLogin}');
@@ -48,7 +47,7 @@
 			jQuery('body').hide();
 		})();
 	</script>
-</apex:outputPanel>
+</apex:outputPanel-->
 <apex:outputPanel rendered="{!Registration == 'true'}">
 	<script type="text/javascript">
 		(function() {
