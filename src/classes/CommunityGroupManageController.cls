@@ -183,7 +183,6 @@ public with sharing class CommunityGroupManageController {
 		else {
 			changeOwnerMode = NULL;
 			control.OwnerId = Id.valueOf(ownerString);
-			update control;
 			CommunityAccess.UpdateWithoutSharing(
 				control,
 				'CommunityGroupManageController.cls [changeOwner]',
