@@ -1,26 +1,26 @@
-<!--  
+<!--
  * Unity - Communities
- * 
- * Community is critical to the student experience--but building community is 
- * just plain hard. Built on Communities and designed specifically for higher ed, 
- * Unity is a powerful networking tool to help you generate engagement and 
+ *
+ * Community is critical to the student experience--but building community is
+ * just plain hard. Built on Communities and designed specifically for higher ed,
+ * Unity is a powerful networking tool to help you generate engagement and
  * connect your campus.
- * 
+ *
  * Copyright (C) 2015 Motivis Learning Systems Inc.
- * 
- * This program is free software: you can redistribute it and/or modify 
+ *
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * To contact Motivis Learning Systems Inc.
  * 25 Pelham Road
  * Salem, NH 03790
@@ -34,12 +34,12 @@
 <apex:outputPanel rendered="{!compRendered}">
 	<apex:repeat value="{!WrappedThemes}" var="theme">
 		<div class="headline"><h2>{!theme.themeName}</h2> &nbsp;<span id="tagsArrow{!JSENCODE(theme.themeId)}" class="glyphicon glyphicon-chevron-down" onclick="diplayHideTagsList('{!JSENCODE(theme.themeId)}')"></span></div>
-
-		<div id="tagsList{!theme.themeId}" class="row category margin-bottom-20">
-			<apex:repeat value="{!theme.tagColumns}" var="tagColumn">
-				<div class="col-md-4 col-sm-6">
-					<apex:repeat value="{!tagColumn}" var="tag">
-						<div class="content-boxes-v3 margin-bottom-10 md-margin-bottom-20">
+		<div id="tagsList{!theme.themeId}">
+		<apex:repeat value="{!theme.tagColumns}" var="tagColumn">
+			<div class="row category">
+				<apex:repeat value="{!tagColumn}" var="tag">
+					<div class="col-xs-12 col-sm-6 col-md-4">
+						<div class="content-boxes-v3 margin-bottom-20">
 							<i class="icon-custom icon-sm rounded-x {!theme.themeIconColor} {!tag.iconStyle}"></i>
 							<div class="content-boxes-in-v3 padding-top-10">
 								<h3>
@@ -52,11 +52,12 @@
 								</h3>
 							</div>
 						</div>
-					</apex:repeat>
-				</div>
-			</apex:repeat>
+					</div>
+				</apex:repeat>
+			</div>
+		</apex:repeat>
 		</div>
-	</apex:repeat> 
+	</apex:repeat>
 </apex:outputPanel>
 </apex:outputPanel>
 <apex:form >
@@ -138,11 +139,11 @@
 
 		setColumns();
 	}
-	
+
 	var t = -1;
 	$(window).resize(function() {
-    clearTimeout(t);
-    t = setTimeout(resizeWindow, 100);
+		clearTimeout(t);
+		t = setTimeout(resizeWindow, 100);
 	});
 
 	function resizeWindow(){

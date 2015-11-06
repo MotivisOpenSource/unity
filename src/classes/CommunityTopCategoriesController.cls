@@ -121,6 +121,22 @@ public with sharing class CommunityTopCategoriesController {
 						tagCount++;
 					}
 				}
+				List<List<themeTagItem>> tempTagColumns = new List<List<themeTagItem>>();
+				for (Integer colCount = 0; colCount <= breakpoint; colCount++) {
+					tempTagColumns.add(new List<themeTagItem>());
+				}
+
+				for (Integer i = 0; i <= breakpoint; i++) {
+					for (Integer j = 0; j < countCol; j++) {
+						if (tagColumns.get(j) != null && tagColumns.get(j).size() >= (i + 1) && tagColumns.get(j).get(i) != null) {
+							tempTagColumns.get(i).add(tagColumns.get(j).get(i));
+						}
+						else {
+							break;
+						}
+					}
+				}
+				tagColumns = tempTagColumns;
 			}
 		}
 	}
