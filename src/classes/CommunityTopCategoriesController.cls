@@ -1,26 +1,26 @@
-/* 
+/*
  * Unity - Communities
- * 
- * Community is critical to the student experience--but building community is 
- * just plain hard. Built on Communities and designed specifically for higher ed, 
- * Unity is a powerful networking tool to help you generate engagement and 
+ *
+ * Community is critical to the student experience--but building community is
+ * just plain hard. Built on Communities and designed specifically for higher ed,
+ * Unity is a powerful networking tool to help you generate engagement and
  * connect your campus.
- * 
+ *
  * Copyright (C) 2015 Motivis Learning Systems Inc.
- * 
- * This program is free software: you can redistribute it and/or modify 
+ *
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * To contact Motivis Learning Systems Inc.
  * 25 Pelham Road
  * Salem, NH 03790
@@ -60,7 +60,7 @@ public with sharing class CommunityTopCategoriesController {
 		Map<Id,List<Community_Tag__c>> themeTagsMap = new Map<Id,List<Community_Tag__c>>();
 		for (Community_Tag__c tag : allTags) {
 			if (resourceOnly != true || tag.Resource_Tagged_w_Primary__r.size() > 0) {
-				if(!themeTagsMap.containsKey(tag.Community_Theme__c)) {
+				if (!themeTagsMap.containsKey(tag.Community_Theme__c)) {
 					themeTagsMap.put(tag.Community_Theme__c, new List<Community_Tag__c>());
 				}
 				themeTagsMap.get(tag.Community_Theme__c).add(tag);
@@ -75,7 +75,7 @@ public with sharing class CommunityTopCategoriesController {
 		}
 		queryString += ' ORDER BY Name';
 		if (resourceOnly != true || themeTagsMap.size() > 0) {
-			for(Community_Theme__c theme : Database.query(queryString)) {
+			for (Community_Theme__c theme : Database.query(queryString)) {
 				resultList.add(new themeTagWapper(theme, themeTagsMap.get(theme.Id), resourceOnly == true));
 			}
 		}
@@ -96,8 +96,9 @@ public with sharing class CommunityTopCategoriesController {
 			themeIconColor = t.Icon_Color__c;
 			tagColumns = new List<List<themeTagItem>>();
 			if (tags != NULL && tags.size() > 0) {
-				Integer breakpoint = tags.isEmpty() ? 0 : tags.size()/countCol;
-				for(Integer colCount = 0; colCount < countCol; colCount++) {
+				Integer breakpoint = tags.isEmpty() ? 0 : (tags.size() / countCol);
+				Integer remainder = Math.mod(tags.size(), countCol);
+				for (Integer colCount = 0; colCount < countCol; colCount++) {
 					tagColumns.add(new List<themeTagItem>());
 				}
 				Integer tagCount = 0;
@@ -110,16 +111,33 @@ public with sharing class CommunityTopCategoriesController {
 					for (Community_Resource__c cr : tag.Resource_Tagged_w_Primary__r) {
 						calculateResources.add(cr.Id);
 					}
-					Integer accumulateTags = inRO ? calculateResources.size(): (tag.Community_EventItems_Tagged__r.size() + tag.Community_GroupItems_Tagged__r.size() + tag.Community_NewItems_Tagged__r.size());
+					Integer accumulateTags = inRO ? calculateResources.size() : (tag.Community_EventItems_Tagged__r.size() + tag.Community_GroupItems_Tagged__r.size() + tag.Community_NewItems_Tagged__r.size());
 					tagColumns[currentColumn].add(new themeTagItem(tag, accumulateTags, inRO));
-					if(tagCount == breakpoint) {
+					if (tagCount == breakpoint || ((breakpoint - tagCount == 1) && remainder == 0)) {
 						currentColumn++;
 						tagCount = 0;
+						remainder = (remainder == 0 ? 0 : (remainder - 1));
 					}
 					else {
 						tagCount++;
 					}
 				}
+				List<List<themeTagItem>> tempTagColumns = new List<List<themeTagItem>>();
+				for (Integer colCount = 0; colCount <= breakpoint; colCount++) {
+					tempTagColumns.add(new List<themeTagItem>());
+				}
+
+				for (Integer i = 0; i <= breakpoint; i++) {
+					for (Integer j = 0; j < countCol; j++) {
+						if (tagColumns.get(j) != null && tagColumns.get(j).size() >= (i + 1) && tagColumns.get(j).get(i) != null) {
+							tempTagColumns.get(i).add(tagColumns.get(j).get(i));
+						}
+						else {
+							break;
+						}
+					}
+				}
+				tagColumns = tempTagColumns;
 			}
 		}
 	}
