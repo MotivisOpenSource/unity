@@ -35,27 +35,27 @@
 	<apex:repeat value="{!WrappedThemes}" var="theme">
 		<div class="headline"><h2>{!theme.themeName}</h2> &nbsp;<span id="tagsArrow{!JSENCODE(theme.themeId)}" class="glyphicon glyphicon-chevron-down" onclick="diplayHideTagsList('{!JSENCODE(theme.themeId)}')"></span></div>
 		<div id="tagsList{!theme.themeId}">
-		<apex:repeat value="{!theme.tagColumns}" var="tagColumn">
-			<div class="row category">
-				<apex:repeat value="{!tagColumn}" var="tag">
-					<div class="col-xs-12 col-sm-6 col-md-4">
-						<div class="content-boxes-v3 margin-bottom-20">
-							<i class="icon-custom icon-sm rounded-x {!theme.themeIconColor} {!tag.iconStyle}"></i>
-							<div class="content-boxes-in-v3 padding-top-10">
-								<h3>
-									<apex:outputLink value="{!$Page.CommunitySearch}?{!tag.Parameter}">
-										{!tag.name}
-									</apex:outputLink>
-									<small>
-										({!tag.total})
-									</small>
-								</h3>
+			<apex:repeat value="{!theme.tagColumns}" var="tagColumn">
+				<div class="row category">
+					<apex:repeat value="{!tagColumn}" var="tag">
+						<div class="col-xs-12 col-sm-6 col-md-4">
+							<div class="content-boxes-v3 margin-top-5">
+								<i class="icon-custom icon-sm rounded-x {!theme.themeIconColor} {!tag.iconStyle}"></i>
+								<div class="content-boxes-in-v3 padding-top-10">
+									<h3>
+										<apex:outputLink value="{!$Page.CommunitySearch}?{!tag.Parameter}">
+											{!tag.name}
+										</apex:outputLink>
+										<small>
+											({!tag.total})
+										</small>
+									</h3>
+								</div>
 							</div>
 						</div>
-					</div>
-				</apex:repeat>
-			</div>
-		</apex:repeat>
+					</apex:repeat>
+				</div>
+			</apex:repeat>
 		</div>
 	</apex:repeat>
 </apex:outputPanel>
