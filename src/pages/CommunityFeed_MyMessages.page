@@ -479,9 +479,19 @@
 					}
 					messageValidationHandler('#newConversationMessageBody', '#messageMaxErrorMessage', disabled_cls, btn, REPLY_TEXT_LIMIT);
 				}
+				
+				function checkRecipients() {
+					var recipients = [];
+					$.each($('li.search-choice'), function(i, item) {
+						recipients.push(item);
+					})
+					if(recipients.length > 0) return true;
+					return false;
+				}
+
 				function messageValidationHandler (el, err_el, disabled_cls, btn, txt_lim) {
 					var replyText = $(el).val();
-					if (replyText && replyText.length < txt_lim) {
+					if (replyText && replyText.length < txt_lim && checkRecipients()) {
 						if ($(err_el).is(':visible')) {
 							$(err_el).hide();
 						}
