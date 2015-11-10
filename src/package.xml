@@ -547,6 +547,9 @@
         <members>NAV_MyFeed</members>
         <members>NAV_News</members>
         <members>NAV_Resources</members>
+		<members>ERR_Choice_To_Long</members>
+		<members>ERR_Post_Too_Large</members>
+		<members>ERR_Comment_Too_Large</members>
         <name>CustomLabel</name>
     </types>
     <types>
