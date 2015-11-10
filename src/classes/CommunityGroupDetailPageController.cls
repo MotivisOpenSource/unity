@@ -210,8 +210,7 @@ public with sharing class CommunityGroupDetailPageController {
 	public Boolean showFilesSection {
 		get {
 			return Community_Settings__c.getInstance().Chatter_Action_Disable_Group_Files__c != true && !(control.Type__c == 'Private' && 
-				(groupRole == ConnectApi.GroupMembershipType.NotAMember || groupRole == ConnectApi.GroupMembershipType.NotAMemberPrivateRequested) || 
-				CommunityUtils.isModifyAllData() || CommunityUtils.isViewAllData());
+				(groupRole == ConnectApi.GroupMembershipType.NotAMember || groupRole == ConnectApi.GroupMembershipType.NotAMemberPrivateRequested));
 		}
 	}
 
