@@ -623,6 +623,7 @@
 									fName = inputfile.name;
 									if(inputfile.size>26214400) {
 										enableBtn('mesbtn');
+								 		showFeedError('{!JSINHTMLENCODE($Label.LBL_File_Upload_Size_Limit)}');  // change - need label
 								 		return null;
 									}
 									// my code
@@ -767,7 +768,7 @@
 					}
 					while (foundPos!=-1);
 					if(numbertopics>10) {
-						alert("{!$Label.ERR_Maximum_number_topics}");
+						showFeedError("{!$Label.ERR_Maximum_number_topics}");
 						numbertopics = 0;
 						return -1;
 					}

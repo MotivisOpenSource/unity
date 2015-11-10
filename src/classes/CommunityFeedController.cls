@@ -766,7 +766,13 @@ global with sharing class CommunityFeedController {
 			params1.put('parentId', inParentId4);
 			params1.put('inText', layout.items[0].value);
 			params1.put('topicId', topId);
+			try{
 			resultPage = postFeeds(params1);
+			}catch(ConnectApi.ConnectApiException ex){
+				System.debug('ex Code = '+ex.getErrorCode());
+				System.debug('ex Message = '+ex.getMessage());
+				throw new UnityFeedException(Label.ERR_Post_Too_Large);
+			}	
 		}
 		else if (layout.name == 'FeedItem.ContentPost') {
 			if(Test.isRunningTest()) layout.items[1].value = 'test';
@@ -899,7 +905,15 @@ global with sharing class CommunityFeedController {
 			}
 		}
 		if (String.isBlank(resultPage) && fei.body != NULL) {
-			String newFeedInsert = json.serialize(ConnectApi.ChatterFeeds.postFeedElement(Network.getNetworkId(),fei,null));
+				String newFeedInsert;
+				try{
+					newFeedInsert = json.serialize(ConnectApi.ChatterFeeds.postFeedElement(Network.getNetworkId(),fei,null));
+				}catch(ConnectApi.ConnectApiException caException){
+					if(caException.getErrorCode() == 'STRING_TOO_LONG'){
+						throw new UnityFeedException(Label.ERR_Post_Too_Large);
+					}
+					throw new UnityFeedException(caException.getMessage());
+				}
 			FeedElementPage fepResult = new FeedElementPage();
 			fepResult.elements = new List<FeedElement> { (FeedElement)JSON.deserialize(newFeedInsert,FeedElement.class) };
 			fepResult = initialRoles(fepResult);
@@ -918,7 +932,13 @@ global with sharing class CommunityFeedController {
 	global static String postComment(String inFeedId, String inCommentText) {
 		ConnectApi.CommentInput ci = new ConnectApi.CommentInput();
 		ci.body = werewolfText(inCommentText);
-		String newComment = json.serialize(ConnectApi.ChatterFeeds.postCommentToFeedElement(Network.getNetworkId(), inFeedId, ci, NULL));
+		String newComment;
+		try{
+			newComment = json.serialize(ConnectApi.ChatterFeeds.postCommentToFeedElement(Network.getNetworkId(), inFeedId, ci, NULL));
+		}catch(ConnectApi.ConnectApiException ex){
+			throw new UnityFeedException(Label.ERR_Comment_Too_Large);
+		}	
+		//String newComment = json.serialize(ConnectApi.ChatterFeeds.postCommentToFeedElement(Network.getNetworkId(), inFeedId, ci, NULL));
 		Page2 commentPage = new Page2();
 		commentPage.feedId = inFeedId;
 		commentPage.items = new List<FeedElementComment> { (FeedElementComment)JSON.deserialize(newComment,FeedElementComment.class) };
