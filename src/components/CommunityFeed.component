@@ -426,10 +426,11 @@
 
 			<script>
 				function showFeedError(msg) {
-					$('#postform-error').text(msg).show();
+					//$('#postform-error').text(msg).show();
+					alert(_.unescape(msg));
 				}
 				function hideFeedError() {
-					$('#postform-error').hide();
+					//$('#postform-error').hide();
 				}
 				
 		 		function inputFileOnchange(elm) {
@@ -526,12 +527,17 @@
 								'{!$RemoteAction.CommunityFeedController.postFeeds}',
 								params,
 								function(result, event) {
+									if (event.result) {
 									_.templateSettings.variable = 'rc';
 									var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
 									var tt = jsonObj(result);
 									$('#cfcmp').prepend(template(tt));
-									enableBtn('mesbtn');
 									$('#message').val('');
+								}
+									else {
+										showFeedError(event.message);
+									}
+									enableBtn('mesbtn');
 								}
 							);
 						});
@@ -570,26 +576,19 @@
 									else {
 										insertAttIntoFeed(result[0].id, null);
 									}
-									postFile = false;
 								}
 								else {
-									postFile = false;
-									enableBtn('mesbtn');
 									enableBtn('mesbtn');
 									showFeedError(result[0].errors.message);
 								}
 							},
 							onFailure : function(error, source) {
-								postFile = false;
 								enableBtn('mesbtn');
 								showFeedError(result[0].errors.message);
 							}
 					});
 					// end sending
 				}
-
-				var postFile = false;
-				var postEvent = false;
 
 				function postAction(text) {
 					if( checkTopicsCount(text) == -1 ) return ;
@@ -601,19 +600,19 @@
 					var fName = null;
 					var sendFile = false;
 					if($("form[name='postform']").data('validator').checkForm()) {
-						postEvent = chataction.layout.name == 'Create_Event';
 						_.each(chataction.layout.items, function(item) {
 							if(item.fieldName == 'message') {
 								messageItemIndex = chataction.layout.items.indexOf(item);
 							}
 							if(item.ftype == 'inputfile') {
-								postFile = true;
+								sendFile = true;
 								var inputfile = $("[name='" + item.fieldName + "']")[0].files[0];
 								if(inputfile != undefined) {
 									fType = inputfile.type;
 									fName = inputfile.name;
 									if(inputfile.size>26214400) {
 										enableBtn('mesbtn');
+								 		showFeedError('{!JSINHTMLENCODE($Label.LBL_File_Upload_Size_Limit)}');  // change - need label
 								 		return null;
 									}
 									// my code
@@ -710,17 +709,6 @@
 						params,
 						function(result, event) {
 							if (event.result) {
-								if(result != undefined) {
-									if (result.substring(0, 3) == "ERR") {
-										if( (result.indexOf('{!$Label.LBL_File_Upload_Size_Limit}') > -1) {
-											showFeedError('{!JSINHTMLENCODE($Label.LBL_File_Upload_Size_Limit)}');
-										}
-										else {
-											showFeedError(result.substring(3,result.length));
-										}
-										err = true;	
-									}
-									else {
 										_.templateSettings.variable = 'rc';
 										var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
 										var tt = jsonObj(result);
@@ -728,17 +716,14 @@
 										_.each(chataction.layout.items, function(item) {
 											$("[name='" + item.fieldName + "']").val('');
 										});
+								setActiveli();
 									}
-									if(postEvent && !err) setActiveli();
-								}
-								if(!postFile) enableBtn('mesbtn');
 							else {
 								showFeedError(event.message);
 							}
-							if(!postFile) enableBtn('mesbtn');
+							enableBtn('mesbtn');
 						}
 					);
-					if(!postFile && !postEvent) setActiveli();
 					if (typeof(switchToMemberMode) == 'function') switchToMemberMode();
 				}
 				function getComments(feedid, token) {
@@ -772,7 +757,7 @@
 					}
 					while (foundPos!=-1);
 					if(numbertopics>10) {
-						alert("{!$Label.ERR_Maximum_number_topics}");
+						showFeedError("{!$Label.ERR_Maximum_number_topics}");
 						numbertopics = 0;
 						return -1;
 					}

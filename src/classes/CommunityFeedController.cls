@@ -45,7 +45,7 @@ global with sharing class CommunityFeedController {
 	public String packagePrefix { get{ return CommunityUtils.getPackagePrefix();} }
 	public Boolean isTopicCreateable { get{ return CommunityUtils.checkCRUDforObject('Topic').get('isCreateable');} }
 	public Boolean isTopicAssignmentCreateable { get{ return CommunityUtils.checkCRUDforObject('TopicAssignment').get('isCreateable');} }
-	public class appException extends Exception { }
+	public class UnityFeedException extends Exception {}
 	public String parentIdForAtt {
 		get {
 			try {
@@ -748,14 +748,19 @@ global with sharing class CommunityFeedController {
 		fei.visibility = ConnectApi.FeedItemVisibilityType.AllUsers;
 		String resultPage;
 		if (String.isNotBlank(errField)) {
-			resultPage = 'ERR"' + errField + '" is required';
-		} else if (layout.name == 'FeedItem.TextPost') {
+			throw new UnityFeedException('"' + errField + '" is required');
+		}
+		else if (layout.name == 'FeedItem.TextPost') {
 			if(Test.isRunningTest()) layout.items[0].value = 'test';
 			Map<String, String> params1 = new Map<String, String>();
 			params1.put('parentId', inParentId4);
 			params1.put('inText', layout.items[0].value);
 			params1.put('topicId', topId);
+			try{
 			resultPage = postFeeds(params1);
+			}catch(ConnectApi.ConnectApiException ex){
+				throw new UnityFeedException(Label.ERR_Post_Too_Large);
+			}	
 		}
 		else if (layout.name == 'FeedItem.ContentPost') {
 			if(Test.isRunningTest()) layout.items[1].value = 'test';
@@ -788,10 +793,14 @@ global with sharing class CommunityFeedController {
 			Set<String> choisesInd = new Set<String>();
 			for(String chois : choices){
 				choisesInd.add(chois.toLowerCase());
+				if (chois.length() > 99) {
+					throw new UnityFeedException(Label.ERR_Choice_To_Long);
+				}
 			}
 			if(choisesInd.size() != choices.size()){
-				resultPage = 'ERR'+label.ERR_Pole_SameValueWarning;
-			}else{
+				throw new UnityFeedException(Label.ERR_Pole_SameValueWarning);
+			}
+			else {
 				fei.capabilities.poll.choices = choices;
 				fei.body = werewolfText(layout.items[0].value);
 			}
@@ -804,14 +813,14 @@ global with sharing class CommunityFeedController {
 			// Define a record for the quick action to create
 			Schema.SObjectType targetType = Schema.getGlobalDescribe().get(layout.objectName);
 			if(targetType == null){ 
-				targetType = Schema.getGlobalDescribe().get('motivisu__' + layout.objectName);
+				targetType = Schema.getGlobalDescribe().get(CommunityUtils.getPackagePrefix() + layout.objectName);
 			}
 			sObject sObj = targetType.newSObject();
 			String namespacePrefix = layout.objectName.split('__').size() > 2 ? layout.objectName.split('__')[0]+'__' : '';
 
 			Map<String, Schema.DescribeFieldResult> sObjectFields = getSobjectFieldsDescribe(new List<String> { layout.objectName }).get(layout.objectName);
 			if(sObjectFields == null){
-				sObjectFields = getSobjectFieldsDescribe(new List<String> { layout.objectName }).get('motivisu__' + layout.objectName);
+				sObjectFields = getSobjectFieldsDescribe(new List<String> { layout.objectName }).get(CommunityUtils.getPackagePrefix() + layout.objectName);
 			}
 			for (ChatterActionLayoutItem item : layout.items) {
 				if (sObjectFields.containsKey(item.fieldName)) {
@@ -830,8 +839,7 @@ global with sharing class CommunityFeedController {
 			}
 			if(layout.name == 'Create_Event'){
 				if(((DateTime)sObj.get(namespacePrefix + 'Start__c')) >= ((DateTime)sObj.get(namespacePrefix + 'End__c'))){
-					resultPage = 'ERR'+Label.ERR_Create_Event_Dates;
-					return resultPage;
+					throw new UnityFeedException(Label.ERR_Create_Event_Dates);
 				}
 			}
 			//req.record = sObj; 
@@ -882,32 +890,21 @@ global with sharing class CommunityFeedController {
 				}
 			}
 			else{
-				resultPage = 'ERR"' + res.getErrors() + '"';
+				throw new UnityFeedException(String.valueOf(res.getErrors()));
 			}
 
 
 		}
 		if (String.isBlank(resultPage) && fei.body != NULL) {
-			//Blob inFileBlob = Blob.valueOf(inFile);
-			ConnectApi.BinaryInput bi = null;
-			
+				String newFeedInsert;
 			try {
-				bi = (inFile != NULL) ? new ConnectApi.BinaryInput(EncodingUtil.base64Decode(inFile), inFileType, inFileName) : NULL;
+					newFeedInsert = json.serialize(ConnectApi.ChatterFeeds.postFeedElement(Network.getNetworkId(),fei,null));
+				}catch(ConnectApi.ConnectApiException caException){
+					if(caException.getErrorCode() == 'STRING_TOO_LONG'){
+						throw new UnityFeedException(Label.ERR_Post_Too_Large);
 			}
-			catch (Exception e) {
-				resultPage = 'ERR"' + e.getMessage() + '"';
+					throw new UnityFeedException(caException.getMessage());
 			}
-	
-			if(bi != null) {
-				String newFeed2 = json.serialize(ConnectApi.ChatterFeeds.postFeedElement(Network.getNetworkId(), fei, bi));
-				FeedElementPage fepResult2 = new FeedElementPage();
-				fepResult2.elements = new List<FeedElement> { (FeedElement)JSON.deserialize(newFeed2,FeedElement.class) };
-				fepResult2 = initialRoles(fepResult2);
-				fepResult2 = initialTopics(fepResult2);
-				resultPage = json.serialize(fepResult2);
-			
-			}else{
-				String newFeedInsert = json.serialize(ConnectApi.ChatterFeeds.postFeedElement(Network.getNetworkId(),fei,null));
 				FeedElementPage fepResult = new FeedElementPage();
 				fepResult.elements = new List<FeedElement> { (FeedElement)JSON.deserialize(newFeedInsert,FeedElement.class) };
 				fepResult = initialRoles(fepResult);
@@ -915,7 +912,6 @@ global with sharing class CommunityFeedController {
 				fepResult = initialTopics(fepResult);
 				resultPage = json.serialize(fepResult);
 			}
-		}
 		return resultPage;
 	}
 
@@ -927,7 +923,13 @@ global with sharing class CommunityFeedController {
 	global static String postComment(String inFeedId, String inCommentText) {
 		ConnectApi.CommentInput ci = new ConnectApi.CommentInput();
 		ci.body = werewolfText(inCommentText);
-		String newComment = json.serialize(ConnectApi.ChatterFeeds.postCommentToFeedElement(Network.getNetworkId(), inFeedId, ci, NULL));
+		String newComment;
+		try{
+			newComment = json.serialize(ConnectApi.ChatterFeeds.postCommentToFeedElement(Network.getNetworkId(), inFeedId, ci, NULL));
+		}catch(ConnectApi.ConnectApiException ex){
+			throw new UnityFeedException(Label.ERR_Comment_Too_Large);
+		}	
+		//String newComment = json.serialize(ConnectApi.ChatterFeeds.postCommentToFeedElement(Network.getNetworkId(), inFeedId, ci, NULL));
 		Page2 commentPage = new Page2();
 		commentPage.feedId = inFeedId;
 		commentPage.items = new List<FeedElementComment> { (FeedElementComment)JSON.deserialize(newComment,FeedElementComment.class) };
@@ -1798,7 +1800,7 @@ global with sharing class CommunityFeedController {
 			
 			SObjectType objectType = Schema.getGlobalDescribe().get(objName);
 			if(objectType == null){ 
-				objectType = Schema.getGlobalDescribe().get('motivisu__' + objName);
+				objectType = Schema.getGlobalDescribe().get(CommunityUtils.getPackagePrefix() + objName);
 			}
 			Map<String,Schema.SObjectField> mfields = objectType.getDescribe().fields.getMap();
 			List<ChatterActionLayoutItem> chatActionLI = new List<ChatterActionLayoutItem>();

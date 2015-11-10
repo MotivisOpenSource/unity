@@ -246,6 +246,14 @@
         <value>Error : Can&apos;t found Topic</value>
     </labels>
     <labels>
+        <fullName>ERR_Choice_To_Long</fullName>
+        <categories>Unity Feed</categories>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>ERR Choice To Long</shortDescription>
+        <value>Poll choices can&apos;t have more than 100 characters</value>
+    </labels>
+    <labels>
         <fullName>ERR_Create_Event_Dates</fullName>
         <language>en_US</language>
         <protected>true</protected>
