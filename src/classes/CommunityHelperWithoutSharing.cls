@@ -56,7 +56,7 @@ public without sharing class CommunityHelperWithoutSharing {
 			for(PermissionSetAssignment item : [SELECT AssigneeId From PermissionSetAssignment Where PermissionSetID in :setNetworkMemberGroupId]) {
 				setPermissionSetAssignmentID.add(item.AssigneeId);
 			}
-			querySearchName = querySearchName != null ? String.escapeSingleQuotes(querySearchName) : '%%';
+			querySearchName = String.isNotBlank(querySearchName) ? String.escapeSingleQuotes(querySearchName) : '%%';
 			String UserId = (String) UserInfo.getUserId();
 			String requiedFields = 'Id, Name';
 			String requestedFields = ' ';
