@@ -1085,7 +1085,7 @@ global with sharing class CommunityFeedController {
 		fei.capabilities = new ConnectApi.FeedElementCapabilitiesInput();
 		fei.capabilities.content = new ConnectApi.ContentCapabilityInput();
 		fei.capabilities.content.title = att.Name;
-		fei.capabilities.content.description = layoutItemsValue;
+		fei.capabilities.content.description = layoutItemsValue.length() > 1000 ? layoutItemsValue.substring(0, 1000) : layoutItemsValue;
 		fei.body = werewolfText(layoutItemsValue);
 		String newFeed = json.serialize(ConnectApi.ChatterFeeds.postFeedElement(Network.getNetworkId(), fei, new ConnectApi.BinaryInput(att.Body, att.ContentType, att.Name)));
 		FeedElementPage fepResult = new FeedElementPage();
