@@ -393,7 +393,7 @@
 													<button class="btn btn-default" type="button">
 														<i class="fa fa-star" ></i>&nbsp;{!$Label.LBL_Owner}
 													</button>
-													<apex:outputLink value="javascript:;" onclick="changeowner('start');" rendered="{!managerMode && !changeOwnerMode && (us.id == $User.Id || showChangeOwnerLink)}">
+													<apex:outputLink value="javascript:;" onclick="changeowner('start');" rendered="{!showChangeOwnerLink}">
 														<br/><small><i class="fa fa-key" ></i>&nbsp;{!$Label.LBL_Change_Owner}</small>
 													</apex:outputLink>
 													<apex:outputPanel rendered="{!changeOwnerMode}">

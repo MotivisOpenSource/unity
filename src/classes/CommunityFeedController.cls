@@ -769,8 +769,6 @@ global with sharing class CommunityFeedController {
 			try{
 			resultPage = postFeeds(params1);
 			}catch(ConnectApi.ConnectApiException ex){
-				System.debug('ex Code = '+ex.getErrorCode());
-				System.debug('ex Message = '+ex.getMessage());
 				throw new UnityFeedException(Label.ERR_Post_Too_Large);
 			}	
 		}
@@ -1094,9 +1092,14 @@ global with sharing class CommunityFeedController {
 		fei.capabilities = new ConnectApi.FeedElementCapabilitiesInput();
 		fei.capabilities.content = new ConnectApi.ContentCapabilityInput();
 		fei.capabilities.content.title = att.Name;
-		fei.capabilities.content.description = layoutItemsValue;
+		fei.capabilities.content.description = layoutItemsValue.length() > 1000 ? layoutItemsValue.substring(0, 1000) : layoutItemsValue;
 		fei.body = werewolfText(layoutItemsValue);
-		String newFeed = json.serialize(ConnectApi.ChatterFeeds.postFeedElement(Network.getNetworkId(), fei, new ConnectApi.BinaryInput(att.Body, att.ContentType, att.Name)));
+		String newFeed;
+		try{
+			newFeed = json.serialize(ConnectApi.ChatterFeeds.postFeedElement(Network.getNetworkId(), fei, new ConnectApi.BinaryInput(att.Body, att.ContentType, att.Name)));
+		}catch(ConnectApi.ConnectApiException ex){
+			throw new UnityFeedException(Label.ERR_Post_Too_Large);
+		}	
 		FeedElementPage fepResult = new FeedElementPage();
 		fepResult.elements = new List<FeedElement> { (FeedElement)JSON.deserialize(newFeed,FeedElement.class) };
 		fepResult = initialRoles(fepResult);

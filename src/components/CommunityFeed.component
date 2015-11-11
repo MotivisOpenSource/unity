@@ -62,7 +62,7 @@
 				$(document).ready(function() {
 					Visualforce.remoting.Manager.invokeAction(
 						'{!$RemoteAction.CommunityFeedController.feeds}',
-						'{!parentId}',
+						'{!JSENCODE(parentId)}',
 						'{!feedType}',
 						'',
 						function(result, event) {
@@ -459,7 +459,7 @@
 				}
 				var changeVoteId = null;
 				$(document).ready(function() {
-					var top = '{!topicId}';
+					var top = '{!JSENCODE(topicId)}';
 					if(!top){
 						loadFeeds(null);
 					}
@@ -477,7 +477,7 @@
 					disableBtn('shmbtn',true);
 					Visualforce.remoting.Manager.invokeAction(
 						'{!$RemoteAction.CommunityFeedController.feeds}',
-						'{!parentId}',
+						'{!JSENCODE(parentId)}',
 						'{!feedType}',
 						inpt,
 						function(result, event) {
@@ -501,10 +501,10 @@
 				function loadFeedsForTopic(inpt) {
 					$('a.curr i.fa-comment').removeClass('fa-comment').addClass('fa-spinner fa-pulse');
 					disableBtn('shmbtn',true);
-					var params = {'parentId' : '{!parentId}',
+					var params = {'parentId' : '{!JSENCODE(parentId)}',
 								'feedType' 	 : '{!feedType}',
 								'inpt'		 : inpt,
-								'topicId' 	 : '{!topicId}'};
+								'topicId' 	 : '{!JSENCODE(topicId)}'};
 					Visualforce.remoting.Manager.invokeAction(
 						'{!$RemoteAction.CommunityFeedController.feedsForTopics}',
 						params,
@@ -528,9 +528,9 @@
 
 				function postFeed(text) {
 					disableBtn('mesbtn');
-					var params = {'parentId' : '{!parentId}', 
+					var params = {'parentId' : '{!JSENCODE(parentId)}', 
 								'inText' 	 : text, 
-								'topicId' 	 : '{!topicId}'};
+								'topicId' 	 : '{!JSENCODE(topicId)}'};
 
 					if($("form[name='postform']").data('validator').checkForm()) {
 						$('#message').mentionsInput('val', function(text) {
@@ -686,7 +686,7 @@
 					hideFeedError();
 					Visualforce.remoting.Manager.invokeAction(
 						'{!$RemoteAction.CommunityFeedController.insertAttacmentIntoFeed}',
-						'{!parentId}',
+						'{!JSENCODE(parentId)}',
 						attId,
 						jsontext,
 						function(result, event){
@@ -699,6 +699,7 @@
 							else {
 								showFeedError(event.message);
 							}
+							enableBtn('mesbtn');
 						}
 					);
 					
@@ -707,12 +708,12 @@
 					Visualforce.remoting.timeout = 120000;
 					var err = false;
 					var params = {
-						'parentId'	 : '{!parentId}',
+						'parentId'	 : '{!JSENCODE(parentId)}',
 						'jsontext'	 : jsontext,
 						'infilebstr' : infilebstr,
 						'infiletype' : infiletype,
 						'infilename' : infilename,
-						'topicId' 	 : '{!topicId}'
+						'topicId' 	 : '{!JSENCODE(topicId)}'
 					};
 					hideFeedError();
 					Visualforce.remoting.Manager.invokeAction(
@@ -1014,7 +1015,7 @@
 							'{!$RemoteAction.CommunityFeedController.voteOnPoll}',
 							pollId,
 							choice.attr('id'),
-							'{!parentId}',
+							'{!JSENCODE(parentId)}',
 							'{!feedType}',
 							function(result, event) {
 								if (event.result) {
@@ -1038,7 +1039,7 @@
 					hideFeedError();
 					Visualforce.remoting.Manager.invokeAction(
 						'{!$RemoteAction.CommunityFeedController.feeds}',
-						'{!parentId}',
+						'{!JSENCODE(parentId)}',
 						'{!feedType}',
 						'',
 						function(result, event) {
@@ -1145,7 +1146,7 @@
 					itemText = _.unescape(itemText);
 					itemText = itemText.replace(/&#39;/g,"'");
 					itemText = itemText.replace(/&#92;/g,"\\");
-					outString += '<a href="{!$Page.CommunityTopic}?id='+_.invert(topicObj)[itemText]+'&pid={!parentId}">'+item.text+'</a>';
+					outString += '<a href="{!$Page.CommunityTopic}?id='+_.invert(topicObj)[itemText]+'&pid={!JSENCODE(parentId)}">'+item.text+'</a>';
 				}
 			});
 			return outString;
@@ -1159,7 +1160,7 @@
 			var count = 1;
 			_.each(inObj, function(top){
 				if(top.entityId != null){ 
-					outString += '<a href="{!$Page.CommunityTopic}?id='+top.id+'&pid={!parentId}">'+top.name.replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</a>, ';
+					outString += '<a href="{!$Page.CommunityTopic}?id='+top.id+'&pid={!JSENCODE(parentId)}">'+top.name.replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</a>, ';
 				}
 			});
 			if(outString.lastIndexOf(',') == outString.length-2){

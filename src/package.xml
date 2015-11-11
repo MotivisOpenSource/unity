@@ -313,6 +313,7 @@
         <members>ERR_3_Alerts</members>
         <members>ERR_Can_not_found_Topic</members>
         <members>ERR_Choice_To_Long</members>
+        <members>ERR_Comment_Too_Large</members>
         <members>ERR_Create_Event_Dates</members>
         <members>ERR_Dup_Group_Name</members>
         <members>ERR_Group_Picture_FileError</members>
@@ -329,6 +330,7 @@
         <members>ERR_Please_Enter_Value</members>
         <members>ERR_Please_Select_Group</members>
         <members>ERR_Pole_SameValueWarning</members>
+        <members>ERR_Post_Too_Large</members>
         <members>ERR_Primary_Profile</members>
         <members>ERR_Profile_RecordType</members>
         <members>ERR_Set_Up_Community_Profile</members>
@@ -693,5 +695,5 @@
         <members>User.Update Community Contact ID on User</members>
         <name>WorkflowRule</name>
     </types>
-    <version>34.0</version>
+    <version>31.0</version>
 </Package>
