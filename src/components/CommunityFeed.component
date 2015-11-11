@@ -688,6 +688,7 @@
 							else {
 								showFeedError(event.message);
 							}
+							enableBtn('mesbtn');
 						}
 					);
 					
