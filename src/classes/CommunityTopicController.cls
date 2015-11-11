@@ -43,6 +43,10 @@ public with sharing class CommunityTopicController {
 
     public CommunityTopicController() {
         topicId = CommunityUtils.validateId(ApexPages.CurrentPage().getParameters().get('id'));
+		if (topicId != null && topicId.length() < 18) {
+			Id tempId = topicId;
+			topicId = tempId;
+		}
         parentId = CommunityUtils.validateId(ApexPages.CurrentPage().getParameters().get('pid'));
     }
 
