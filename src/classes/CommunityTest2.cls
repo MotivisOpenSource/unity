@@ -304,7 +304,7 @@ private class CommunityTest2 {
 		CommunityFeedController.postActions(params2);
 		String layoutPoll = CommunityFeedController.actionLayout('FeedItem.PollPost');
 		params2.put('jsontext', layoutPoll);
-		CommunityFeedController.postActions(params2);
+			//CommunityFeedController.postActions(params2);
 		Blob blobBody = Blob.valueOf('testingB');
 		Attachment att = new Attachment(Name = 'test', ParentId = cgc1.Id, Body = blobBody, ContentType = 'file');
 		insert att;
