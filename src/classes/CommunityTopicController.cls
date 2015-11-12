@@ -42,8 +42,12 @@ public with sharing class CommunityTopicController {
     public Boolean topicExists { get{ return [SELECT Count() FROM Topic WHERE Id =:topicId AND NetworkId =: Network.getNetworkId()] > 0 ? true : false;}}
 
     public CommunityTopicController() {
-        topicId = CommunityUtils.validateId(ApexPages.CurrentPage().getParameters().get('id'));
-        parentId = CommunityUtils.validateId(ApexPages.CurrentPage().getParameters().get('pid'));
+		topicId = CommunityUtils.validateId(ApexPages.CurrentPage().getParameters().get('id'));
+		if (topicId != null && topicId.length() < 18) {
+			Id tempId = topicId;
+			topicId = tempId;
+		}
+		parentId = CommunityUtils.validateId(ApexPages.CurrentPage().getParameters().get('pid'));
     }
 
     @RemoteAction

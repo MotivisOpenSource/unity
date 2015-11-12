@@ -32,6 +32,7 @@ global without sharing class CommunityUrlRewriter implements Site.UrlRewriter {
 	public final String STANDARD_CHATTER_PAGE = '/chatter/';
 	public final String STANDARD_GROUP_DETAIL_PAGE = '/groups/';
 	public final String STANDARD_USER_DETAIL_PAGE = '/userprofile/';
+	public final String STANDARD_TOPIC_PAGE = '/topics/';
 	public final String CHATTER_COMMENT_NOTIFICATION = 'chatterCommentNotification';
 	public final String CHATTER_POST_NOTIFICATION = 'chatterPostNotification';
 	public final String CHATTER_PRIVATE_MESSAGE_NOTIFICATION = 'chatterPrivateMessageNotification';
@@ -91,6 +92,11 @@ global without sharing class CommunityUrlRewriter implements Site.UrlRewriter {
 					redirect.getParameters().put('f', '2');
 				}
 			}
+		}
+		
+		if (url.contains(STANDARD_TOPIC_PAGE)) {
+			redirect = Page.CommunityTopic;            
+			redirect.getParameters().put('id', myFriendlyUrl.getParameters().get('id'));
 		}
 
 		return redirect;
