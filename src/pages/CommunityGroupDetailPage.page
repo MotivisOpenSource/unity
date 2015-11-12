@@ -61,6 +61,8 @@
                         mdl="true"
                         edt="{!GroupEditable}"
                         son="Community_Group_Control__c"
+                        tlim="{!tagsCount}"
+                        treq="{!requiredTags}"
                     />
                     <c:CommunityFeedNavigation currentGroupId="{!chatterGroup.Id}" pn="5"/>
                 </div>
