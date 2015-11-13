@@ -65,7 +65,7 @@ public with sharing class CommunityGroupDetailPageController {
 	}
 
 	public Boolean getGroupEditable() {
-		return CommunityUtils.isModifyAllData() == true || groupRole == ConnectApi.GroupMembershipType.GroupOwner || groupRole == ConnectApi.GroupMembershipType.GroupManager;
+		return groupRole == ConnectApi.GroupMembershipType.GroupOwner || groupRole == ConnectApi.GroupMembershipType.GroupManager || CommunityUtils.isShowGroupManagerUser(control.Chatter_Group_ID__c, true);
 	}
 
 	public Boolean memberMode { get { return memberMode == NULL ? false : memberMode; } set; }
@@ -95,7 +95,8 @@ public with sharing class CommunityGroupDetailPageController {
 	}
 
 	public Boolean getHideFeedComponent() {
-		return control.Type__c == 'Private' && (groupRole == ConnectApi.GroupMembershipType.NotAMember || groupRole == ConnectApi.GroupMembershipType.NotAMemberPrivateRequested);
+		return control.Type__c == 'Private' && (groupRole == ConnectApi.GroupMembershipType.NotAMember || groupRole == ConnectApi.GroupMembershipType.NotAMemberPrivateRequested) && 
+				CommunityUtils.isViewAllData() == false && CommunityUtils.isModifyAllData() == false;
 	}
 
 	public String groupMode { get; set; }
@@ -140,7 +141,8 @@ public with sharing class CommunityGroupDetailPageController {
 	}
 
 	public CommunityUtils.GroupAction getActionButton() {
-		return CommunityUtils.getActionButton(groupRole, chatterGroup.CollaborationType == 'Public');
+		Boolean hasDirectJoinBtn = chatterGroup.CollaborationType == 'Public' || CommunityUtils.isModifyAllData();
+		return CommunityUtils.getActionButton(groupRole, hasDirectJoinBtn);
 	}
 
 	public Schema.FieldSet getFieldset() {
@@ -170,8 +172,8 @@ public with sharing class CommunityGroupDetailPageController {
 		get {
 			return chatterGroup != NULL
 					&& SObjectType.Community_Events__c.isCreateable()
-					&& SObjectType.Community_Event_Tag__c.isCreateable()
-					&& (groupRole == ConnectApi.GroupMembershipType.GroupOwner || groupRole == ConnectApi.GroupMembershipType.GroupManager || groupRole == ConnectApi.GroupMembershipType.StandardMember);
+						&& SObjectType.Community_Event_Tag__c.isCreateable()
+						&& ((groupRole == ConnectApi.GroupMembershipType.StandardMember || groupRole == ConnectApi.GroupMembershipType.GroupManager || groupRole == ConnectApi.GroupMembershipType.GroupOwner) || CommunityUtils.isModifyAllData());
 		}
 	}
 
@@ -194,9 +196,21 @@ public with sharing class CommunityGroupDetailPageController {
 		return ApexPages.currentPage().getParameters().containsKey('pending');
 	}
 
+	public Boolean getRequiredTags() {
+		Community_Settings__c cs = Community_Settings__c.getInstance();
+		return cs != NULL && cs.Create_Group_Require_Tags__c == true;
+	}
+
+	public Integer getTagsCount() {
+		Community_Settings__c cs = Community_Settings__c.getInstance();
+		return (cs != NULL && cs.Create_Group_Max_Tags__c != NULL)
+				? Integer.valueOf(cs.Create_Group_Max_Tags__c)
+				: -1;
+	}
 	public Boolean showFilesSection {
 		get {
-			return getHideFeedComponent() != true && Community_Settings__c.getInstance().Chatter_Action_Disable_Group_Files__c != true;
+			return Community_Settings__c.getInstance().Chatter_Action_Disable_Group_Files__c != true && !(control.Type__c == 'Private' && 
+				(groupRole == ConnectApi.GroupMembershipType.NotAMember || groupRole == ConnectApi.GroupMembershipType.NotAMemberPrivateRequested));
 		}
 	}
 

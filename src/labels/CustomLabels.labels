@@ -267,6 +267,20 @@
         <value>You have exceeded the file size of 8mb or used incorrect file type.</value>
     </labels>
     <labels>
+        <fullName>ERR_Group_Tags_Limit</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>ERR Group Tags Limit</shortDescription>
+        <value>You have reached maximum of {0} Tag(s) for this group.</value>
+    </labels>
+    <labels>
+        <fullName>ERR_Group_Tags_Required</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>ERR Group Tags Required</shortDescription>
+        <value>At least one tag should be added to the group.</value>
+    </labels>
+    <labels>
         <fullName>ERR_Maximum_number_topics</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -386,6 +400,13 @@
         <value>You don`t have access to this user.</value>
     </labels>
     <labels>
+        <fullName>ERR_Profile_Not_Available</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>ERR Profile Not Available</shortDescription>
+        <value>This profile is no longer available</value>
+    </labels>
+    <labels>
         <fullName>Feed_Nav_People</fullName>
         <language>en_US</language>
         <protected>false</protected>
@@ -434,6 +455,13 @@
         <shortDescription>LBL Add Remove Members</shortDescription>
         <value>Add/Remove Members</value>
     </labels>
+    <labels>
+        <fullName>LBL_Admin_Page_Group_Tag_Setting_Error</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Admin Page Group Tag Setting Error</shortDescription>
+        <value>If Max Group Tags = 0, then Create Group Require Tags must be FALSE</value>
+	</labels>
     <labels>
         <fullName>LBL_Add_To_Favorites</fullName>
         <language>en_US</language>
@@ -1007,6 +1035,13 @@
         <protected>true</protected>
         <shortDescription>LBL Last</shortDescription>
         <value>Last</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Latest_Tweets</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Latest Tweets</shortDescription>
+        <value>Latest Tweets</value>
     </labels>
     <labels>
         <fullName>LBL_LeaveGroup_Message</fullName>
@@ -1846,6 +1881,13 @@
         <protected>true</protected>
         <shortDescription>LBL Upload Profile Photo</shortDescription>
         <value>Upload Profile Photo</value>
+    </labels>
+    <labels>
+        <fullName>LBL_User_Not_Available</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL User Not Available</shortDescription>
+        <value>Not Available</value>
     </labels>
     <labels>
         <fullName>LBL_Username</fullName>

@@ -217,11 +217,15 @@ global with sharing class CommunityFeedController {
 
 		//FeedElementPage fepResult = pullFeedsConnectApi(inParentId2, inFeedType2, inPageToken2);
 		
+		Boolean hasShowManagerFeed = CommunityUtils.isViewAllData() || CommunityUtils.isModifyAllData();
 		Map<String, String>	groupManagerMap = new Map<String, String>();
-		if (!SObjectType.Community_Group_Manager__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Manager__c);
-		for(Community_Group_Manager__c cgm : [SELECT Id, Group_Control__c, Group_Manager_User__c, Manager_Role__c 
-												FROM Community_Group_Manager__c
-												WHERE Group_Manager_User__c =: UserInfo.getUserId()]){
+		List<Community_Group_Manager__c> cgmList = new List<Community_Group_Manager__c>();
+		if (hasShowManagerFeed == false) {
+			if (SObjectType.Community_Group_Manager__c.isAccessible()) {
+				cgmList = [SELECT Id, Group_Control__c, Manager_Role__c FROM Community_Group_Manager__c WHERE Group_Manager_User__c =: UserInfo.getUserId()];
+			}
+		}
+		for(Community_Group_Manager__c cgm : cgmList){
 			groupManagerMap.put(cgm.Group_Control__c, cgm.Manager_Role__c);
 		}
 		Schema.DescribeSObjectResult r = Community_Group_Control__c.sObjectType.getDescribe();
@@ -230,7 +234,7 @@ global with sharing class CommunityFeedController {
 			FeedElementPage fep = pullFeedsConnectApi(inParentId2, inFeedType2, inPageToken2);
 			if(parentManagerId == NULL 
 				|| parentManagerId.substring(0, 3) != keyPrefix 
-				|| (parentManagerId.substring(0, 3) == keyPrefix && groupManagerMap.get(parentManagerId) != NULL)){
+				|| (parentManagerId.substring(0, 3) == keyPrefix && (hasShowManagerFeed || groupManagerMap.get(parentManagerId) != NULL || CommunityUtils.isShowGroupManagerUser(parentManagerId, true)))){
 				fepResult.elements.add(fep.elements[0]);
 			}
 			fepResult.nextPageToken = fep.nextPageToken;
@@ -308,6 +312,9 @@ global with sharing class CommunityFeedController {
 		}
 		
 		for(FeedElement fe : currentFeedPage.elements){
+			if(feedIdParentId.containsKey(fe.Id)){
+				fe.parentId = feedIdParentId.get(fe.Id);
+			}
 			if(feedIdParentNameId.get(fe.Id) != null ){
 				fe.parentType = feedIdParentNameId.get(fe.Id)[0];
 				fe.parentName = feedIdParentNameId.get(fe.Id)[1];

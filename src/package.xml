@@ -77,6 +77,7 @@
         <members>CommunityGroupManager</members>
         <members>CommunityGroups</members>
         <members>CommunityHome</members>
+		<members>CommunityNavigator</members>
         <members>CommunityNews</members>
         <members>CommunityNewsDetail</members>
         <members>CommunityNewsEdit</members>
@@ -100,6 +101,7 @@
         <members>CommunityProfile</members>
         <members>CommunityResource</members>
         <members>Contact</members>
+        <members>NetworkMember</members>
         <members>User</members>
         <name>ApexTrigger</name>
     </types>
@@ -244,6 +246,8 @@
         <members>Community_Settings__c.News_Accepted_Image_Types__c</members>
         <members>Community_Settings__c.News_Max_Sticky__c</members>
         <members>Community_Settings__c.News_Photo_Max_Size__c</members>
+        <members>Community_Settings__c.Twitter_Data_Widget_ID__c</members>
+        <members>Community_Settings__c.Twitter_Handle__c</members>
         <members>Community_Tag__c.Community_Theme__c</members>
         <members>Community_Tag__c.Icon_Style__c</members>
         <members>Community_Tag__c.Tag_SF_ID__c</members>
@@ -310,6 +314,8 @@
         <members>ERR_Create_Event_Dates</members>
         <members>ERR_Dup_Group_Name</members>
         <members>ERR_Group_Picture_FileError</members>
+        <members>ERR_Group_Tags_Limit</members>
+        <members>ERR_Group_Tags_Required</members>
         <members>ERR_Maximum_number_topics</members>
         <members>ERR_MissingImageLibrary</members>
 		<members>ERR_Set_Up_Community_Profile</members>
@@ -327,7 +333,7 @@
         <members>ERR_Topic_Not_Available</members>
         <members>ERR_Topic_Not_Available_Message</members>
         <members>ERR_You_do_not_have_access_to_this_user</members>
-		<members>ERR_Set_Up_Community_Profile</members>
+        <members>ERR_Profile_Not_Available</members>
         <members>Feed_Nav_People</members>
         <members>LBL_About_Me</members>
         <members>LBL_About_this_group</members>
@@ -335,6 +341,7 @@
         <members>LBL_AddToCalendar</members>
         <members>LBL_Add_Photo</members>
         <members>LBL_Add_Remove_Members</members>
+        <members>LBL_Admin_Page_Group_Tag_Setting_Error</members>
         <members>LBL_Add_To_Favorites</members>
         <members>LBL_AgreeToTerms</members>
         <members>LBL_AllGroups</members>
@@ -422,6 +429,7 @@
         <members>LBL_Home</members>
         <members>LBL_Interests</members>
         <members>LBL_Last</members>
+        <members>LBL_Latest_Tweets</members>
         <members>LBL_LeaveGroup_Message</members>
         <members>LBL_LeavePage_Message</members>
         <members>LBL_Leave_Group</members>
@@ -536,6 +544,7 @@
         <members>LBL_Upload_File</members>
         <members>LBL_Upload_Group_Photo</members>
         <members>LBL_Upload_Profile_Photo</members>
+        <members>LBL_User_Not_Available</members>
         <members>LBL_Username</members>
         <members>LBL_VerifyNewPassword</members>
         <members>LBL_When</members>
