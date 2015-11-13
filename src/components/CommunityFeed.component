@@ -38,14 +38,12 @@
 	<apex:attribute name="gID" type="Boolean" assignTo="{!grID}" required="false" default="false" description="ID for Group" />
 	<apex:attribute name="he" type="Boolean" assignTo="{!hideEventBtn}" required="false" default="false" description="hide create event button" />
 	<script src="{!$Resource.CommunityResources}/js/underscore/underscore-min.js"></script>
-	<!--<script type="text/javascript" src="{!$Resource.assets}/plugins/mentions/jquery.mentionsInput.js" ></script>-->
+	<script type="text/javascript" src="{!$Resource.assets}/plugins/mentions/jquery.mentionsInput.js" ></script>
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/mentions/jquery.events.input.js" ></script>
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/sky-forms/version-2.0.1/js/jquery-ui.min.js"></script>
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/sky-forms/version-2.0.1/js/jquery.validate.min.js"></script> <!--  path contains old version -->
 	<script type="text/javascript" src="/soap/ajax/33.0/connection.js"></script>
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/ImageLoad/load-image.all.min.js"></script>
-	<script type="text/javascript" src="{!$Resource.assets}/plugins/hashtagsinput/jquery_hashtagsinput.js" ></script>
-	
 
 	<apex:stylesheet value="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.css" />
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.js"></script>
@@ -81,10 +79,10 @@
 			</script>
 			<script id="tto" type="text/template">
 				<% _.each(rc.elements, function(p){ %>
-				<div class="comment">
-					<img src="<%- p.actor.photo.smallPhotoUrl %>" alt=""/>
-					<div class="overflow-h">
-						<strong><%- p.actor.displayName %> <%- p.actor.role !== null ?  '(' + p.actor.role + ')': '' %> <small class="pull-right"><%- p.dateStr %></small></strong>
+				<div class="comment media-body">
+					<img src="<%- p.actor.photo.smallPhotoUrl %>" alt="<%- p.actor.displayName %>"/>
+					<div class="overflow-h" onclick="window.location.href = '<%- p.parentLink !== null ? ''+p.parentLink : (p.parentId == '{!$User.Id}' ? '{!$Page.CommunityFeed_MyFeed}' : '{!$Page.CommunityProfilePage}?id='+p.parentId+'&f=2') %>';">
+						<div class="profilename"><strong><a href="<%- p.actor.id == '{!$User.Id}' ? '{!$Page.CommunityFeed_MyFeed}' : '{!$Page.CommunityProfilePage}?id='+p.actor.id+'&f=2' %>" alt="<%- p.actor.displayName %>"><%- p.actor.displayName %> <%- p.actor.role !== null ?  '(' + p.actor.role + ')': '' %> <small class="pull-right"><%- p.dateStr %></small></a></strong></div>
 						<% if(p.parentType != null && {!tf}){ %>
 							<p><strong><a class="<%- p.parentIcon %> font-weight-bold" href="<%- p.parentLink %>"> <%- p.parentType %> - <%- p.parentName %> <% if(p.parentAcssesType != null){ %> (<%- p.parentAcssesType %>) <% } %></a>
 							</strong></p>
@@ -92,6 +90,17 @@
 						<p><% 	var pp = parseFeedBody(p.body,p.topicsUser);
 								print(wrapnl(pp)); %>
 						</p>
+
+						<% if (p.showLink) { %>
+						<div class="d-link">
+						<a href="<%- p.linkHref %>" target="_blank" >
+							<i class="fa fa-link"></i>
+							<%- p.linkName %><br>
+						</a>
+						<% print(wrapnl(p.linkHref)); %>
+						</div>
+						<% } %>
+
 						<ul class="list-inline comment-list">
 							<li><i class="fa fa-comments"></i> <a href="#"><%- p.total %></a></li>
 						</ul>
@@ -163,6 +172,7 @@
 						</a>
 						<% print(wrapnl(p2.linkHref)); %>
 						</div>
+							</p>
 						<% } %>
 						<% if (p2.showContent) { %>
 							<p>	<% var p2p = parseFeedBody(p2.body,p2.topicsUser);
@@ -952,7 +962,9 @@
 										format:'m/d/Y h:i A',
 										formatTime:'h:i A',
 										formatDate:'m/d/Y',
-										step:30
+										step:30,
+										closeOnTimeSelect: true,
+										lang: 'en'
 									});
 								}
 								//date
@@ -964,6 +976,8 @@
 										minDate:datetime,
 										format:'m/d/Y',
 										formatDate:'m/d/Y',
+										closeOnDateSelect: true,
+										lang: 'en'
 									});
 								}
 							}

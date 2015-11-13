@@ -34,123 +34,98 @@
     <!-- JCROP -->
     <link rel="stylesheet" href="{!$Resource.assets}/plugins/jcrop/css/jquery.Jcrop.min.css" type="text/css"/>
     <script>
-        var imgX;
-        var imgY;
-        var imgSize;
-        var rx; // width for thumbnail
-        var ry;    // height for thumbnail
-        var scale;
-        var stepUpload = 0; // step of add photo
+        var pt1;
+        function photoPathId1Change (elm){
+            console.log(elm);
+            pt1 = new photoUpload({
+                imgId:'[id$=croppingImageId]',
+                previewImgId:'#previewImg',
+                uploadToChatterWidth:200,
+                previewSize:100
+            });
+            jQuery('[id$=pathText]').val(elm);
+            if(pt1.uploadFile(elm)==="File is too big") {
+                console.log("this file is too big");
+                stepUpload = 2;
+                stepping(stepUpload);
+            }
+            else {
+                stepUpload = 3;
+                stepping(stepUpload);
+            }
+        }
         // start modal
         function cancelBtnPhoto(){
             stepUpload = 0;    
-            jQuery('#cropper-example-2-modal').modal('hide');
-            jQuery('[id$=photoPathIdText]').val(null);
-            jQuery('[id$=photoPathId]').val(null);
-            jQuery('#step1Id').show();
-            jQuery('#saveBtnId').hide();
-            jQuery('#step2Id').hide();
-            
-            // destroy jcrop
-            var JcropAPI =jQuery('[id$=croppingImageId]').data('Jcrop');
-            if(typeof JcropAPI !== 'undefined'){
-                JcropAPI.destroy();
-            };
-            jQuery('#errorMsgId').hide();
-            jQuery('[id$=croppingImageId]').attr('src', "#");
+            stepping(stepUpload);
         }
-        
         function showModal() {
-        
             stepUpload = 1;
-            jQuery('#cropper-example-2-modal').modal('show');
+            stepping(stepUpload);
         };
-
-        // read file
-        $(function () {
-            jQuery('[id$=photoPathId]').change(function () {
-                stepUpload = 2;
-                if (this.files && this.files[0]) {
-                    if (this.files[0].type.indexOf('image/') != 0 || this.files[0].size > 8388608) {
-                        //error
-                        jQuery('#errorMsgId').show();
-                    }
-                    else { 
-                        //read file
-                        var reader = new FileReader();
-                        reader.onload = imageIsLoaded;
-                        reader.readAsDataURL(this.files[0]);
-                    }
-                }
+		var showHideEl = function(elShow, elHide){
+            if(elHide!=null)
+			elHide.forEach(function(item, i, arr) {
+				jQuery(item).hide();
             });
+            if(elShow!=null)
+			elShow.forEach(function(item, i, arr) {
+				jQuery(item).show();
         });    
-            
-        var imgRealHeight;
-        var imgRealWidth;
-        var img1 = new Image();
-        img1.onload = function() {
-            stepUpload = 3;
-            // show hide el
-            jQuery('#step1Id').hide();
-            jQuery('#saveBtnId').show();
-            jQuery('#step2Id').show();
-            
-            // calculate real width and height
-            imgRealWidth = this.width;
-            imgRealHeight = this.height;
-            // remove styles
-            jQuery('[id$=croppingImageId]').removeAttr("width").removeAttr("height").css({ width: "auto" , height: "auto" });
-            // set image and preview image
-            jQuery('[id$=croppingImageId]').attr('src', img1.src);
-            jQuery('#previewImg').attr('src',  img1.src);
-            // add bootstrap class
-            jQuery('[id$=croppingImageId]').addClass('img-responsive imgsizeStyle'); 
-            
-            // start cropping with params
-            var imgWidth =jQuery('[id$=croppingImageId]').width();
-            var imgHeight =jQuery('[id$=croppingImageId]').height();
-            scale = imgRealWidth/$('[id$=croppingImageId]').width();
-            var rectSide = (imgWidth >= imgHeight)?imgHeight/3:imgWidth/3;
-            jQuery('[id$=croppingImageId]').Jcrop({
-                onChange: showPreview, onSelect: showPreview, aspectRatio: 1,
-                setSelect: [ imgWidth/2-rectSide, imgHeight/2-rectSide, imgWidth/2+rectSide, imgHeight/2+rectSide ]
-            });
+		}
+		var stepping = function(nextStep ){
+            // jQuery('#photoPathId1').val('');
+			switch(nextStep){
+				case 0:
+                    jQuery('#cropper-2-modal').modal('hide');
+                    jQuery('#previewImg').attr('src','#');
+                    jQuery('[id$=croppingImageId]').attr('src','#');
+                    showHideEl(['#step1Id'],['#saveBtnId','#step2Id','#errorMsgId']);
+				break;
+				case 1:
+					jQuery('#cropper-2-modal').modal('show');
+				break;
+				case 2:
+                    showHideEl(['#step1Id','#errorMsgId'],['#saveBtnId','#step2Id']);
+					// showHideEl(['#errorMsgId'],null);
+				break;
+				case 3:
+                // show hide el
+					showHideEl(['#saveBtnId','#step2Id'],['#step1Id','#errorMsgId']);
+				break;
+            }
         }
-        
-        // show img and crop it
-        function imageIsLoaded(e) {
-            img1.src =  e.target.result;
-        };
-        
-        function showPreview(coords) {
-            rx = 100 / coords.w;
-            ry = 100 / coords.h;
-            imgX = coords.x;
-            imgY = coords.y;
-            imgSize = coords.w;
-            jQuery('#previewImg').css({
-                width: Math.round(rx *jQuery('[id$=croppingImageId]').width()) + 'px',
-                height: Math.round(ry *jQuery('[id$=croppingImageId]').height()) + 'px',
-                marginLeft: '-' + Math.round(100 / coords.w * coords.x) + 'px',
-                marginTop: '-' + Math.round(100 / coords.h * coords.y) + 'px'
-            });
-        }
-        
         // save photo
         function saveBtn() {
+            disableBtn('saveBtnId');
             stepUpload = 4;
-            jQuery('[id$=cropXId]').val(Math.round(imgX*scale));
-            jQuery('[id$=cropYId]').val(Math.round(imgY*scale));
-            jQuery('[id$=cropSizeId]').val(Math.round(imgSize*scale));
+            jQuery('[id$=outputImageResizedBlobId]').attr('value', pt1.getImageToUpload ); 
+			jQuery('[id$=cropXId]').val(pt1.getCroppedX());
+			jQuery('[id$=cropYId]').val(pt1.getCroppedY());
+			jQuery('[id$=cropSizeId]').val(pt1.getCroppedSize());	
+            jQuery('[id$=photoContentTypeId]').attr('value', pt1.getImageTypeToUpload());
             // call action function and save img and crop it
             photoaction();
         }
+        function disableBtn(inid,inm) {
+            $('#'+inid).attr('disabled','disabled').css('opacity','0.75');
+            if (inm==undefined) {
+                $('#'+inid).css('min-width',$('#'+inid).css('width'))
+            }
+            $('#'+inid+' span').hide();
+            $('#'+inid+' i').show();
+        }
+        function enableBtn(inid) {
+            $('#'+inid).removeAttr('disabled').css('opacity','1');;
+            $('#'+inid+' i').hide();
+            $('#'+inid+' span').show();
+        }
     </script>
-    
     <!-- Show img -->
     <div class="CommunityUserPhoto">
         <div class="user-photo margin-bottom-10">
-            <apex:image value="{!controllerPhotoUrl}" styleclass="img-responsive img-bordered" width="100%" /><!-- rendered="{!!current}" -->
+			<apex:image value="{!controllerPhotoUrl}" styleclass="img-responsive img-bordered imgsizeStyle" width="100%" />
+			<!-- rendered="{!!current}" -->
             <apex:outputPanel rendered="{!permitions}">    
                 <a href="" class="user-photo-link">
                     <div class="user-photo-inner" onClick="showModal();">
@@ -160,7 +135,7 @@
             </apex:outputPanel>
         </div>    
         <!-- modal window -->
-        <div class="modal fade" id="cropper-example-2-modal" aria-live="assertive" role="dialog" tabindex="-1" aria-labelledby="stfol" aria-hidden="true">
+        <div class="modal fade" id="cropper-2-modal" aria-live="assertive" role="dialog" tabindex="-1" aria-labelledby="stfol" aria-hidden="true">
             <!-- <i class="fa fa-spinner fa-pulse m-status"></i>  -->
             <div id="stfomd" class="modal-dialog">
                 <div class="modal-content">
@@ -175,21 +150,24 @@
                             <apex:outputPanel id="modalPanelId">
                                 <div id="step1Id" class="row sky-form">
                                     <label class="info">{!$Label.LBL_PictureUploadModal_SizeWarning}</label>
-                                    
                                     <label for="file" class="input input-file">
                                         <div class="button">
-                                            <apex:inputFile id="photoPathId" value="{!photoBody}" filename="{!photoName}" contentType="{!photoContentType}" accept="image/*" onchange="this.parentNode.nextSibling.value = this.value"/>
+											<input id="photoPathId1" onchange="photoPathId1Change(this);" type="file" accept="image/*"/>
                                             {!$Label.BTN_Browse}
                                         </div>
-                                        <input id="photoPathIdText" type="text" readonly=""/>
+                                        <input id="photoPathId1Text" type="text" readonly=""/>
                                     </label>
                                     <apex:inputText id="cropXId" value="{!cropX}" style="display:none" />
                                     <apex:inputText id="cropYId" value="{!cropY}" style="display:none"/>
                                     <apex:inputText id="cropSizeId" value="{!cropSize}" style="display:none"/>
+									<apex:inputText id="outputImageResizedBlobId" value="{!blobImageData}" style="display:none" />
+									<apex:inputText id="photoContentTypeId" value="{!photoContentType}" style="display:none" />
                                 </div>
                                 <div id="step2Id" class="row sky-form" style="display:none;">
-                                    <div id="cropper-example-2">
-                                        <apex:image id="croppingImageId" value="#" alt="Group image"/>
+                                    <div id="cropper-2">
+                                        <div>
+                                            <apex:image styleClass="img-responsive img-bordered imgUpldStyle" id="croppingImageId" value="#" alt="Photo"/>
+                                        </div>
                                     </div>
                                     <div class="pad">
                                         <hr/>
@@ -204,9 +182,12 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn-u btn-u-default margin-right-10" onClick="cancelBtnPhoto();return false;">{!$Label.BTN_Cancel}</button>
-                            <button id="saveBtnId" type="button" class="btn-u btn-u-primary" onClick="saveBtn();return false;" style="display:none;">{!$Label.BTN_Save}</button>
+                            <button id="saveBtnId" type="button" class="btn-u btn-u-primary" onClick="saveBtn();return false;" style="display:none;">
+                                <i class="fa fa-spinner fa-pulse" style="display:none;"></i>
+                                <span>{!$Label.BTN_Save}</span>
+                            </button>
                         </div>
-                        <apex:actionFunction action="{!photoaction}" name="photoaction"/>
+                        <apex:actionFunction action="{!photoaction}" name="photoaction" oncomplete="window.location.href = window.location.href;"/>
                     </apex:form>
                 </div>
             </div>

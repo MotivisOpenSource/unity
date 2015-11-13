@@ -139,7 +139,7 @@
 
 							<!-- FEED -->
 							<div id="feed" class="profile-edit tab-pane fade in active">
-								<c:CommunityFeed pid="{!control.Id}"/>
+								<c:CommunityFeed pid="{!control.Id}" fu="{!$Setup.Community_Settings__c.Chatter_Action_Disable_Group_Files__c != true}"/>
 							</div>
 							<!-- END FEED -->
 
@@ -182,7 +182,7 @@
 													<apex:param name="col" assignTo="{!members.columnSort}" value=""/>
 												</apex:actionFunction>
 												<apex:repeat value="{!members.users}" var="mms">
-													<tr>
+													<tr class="{!IF(mms.available == false,'unavailable','')}">
 														<td>
 															<a href="{!$Page.CommunityProfilePage}?id={!mms.id}">
 																<apex:image styleClass="rounded-x margin-top-0 margin-bottom-0" url="{!mms.photourl}" width="50px" height="50px"/>
@@ -190,7 +190,7 @@
 														</td>
 														<td>
 															<div onclick="window.open('{!$Page.CommunityProfilePage}?id={!mms.id}','_self');" class="cursor-pointer">
-																<div><strong>{!mms.name}</strong></div>
+																<div><strong>{!mms.name}{!IF(mms.available == false,' ('+$Label.LBL_User_Not_Available+')','')}</strong></div>
 																<apex:outputPanel layout="block" rendered="{!!ISBLANK(mms.city) || !ISBLANK(mms.country)}">
 																	<i class="fa fa-map-marker"></i>&nbsp;{!mms.city}{!IF(mms.city!=null && mms.country!=null, ', ' ,'')}{!mms.country}
 																</apex:outputPanel>
@@ -262,7 +262,7 @@
 													<apex:param name="col" assignTo="{!managers.columnSort}" value=""/>
 												</apex:actionFunction>
 												<apex:repeat value="{!managers.users}" var="mms">
-													<tr>
+													<tr class="{!IF(mms.available == false,'unavailable','')}">
 														<td>
 															<a href="{!$Page.CommunityProfilePage}?id={!mms.id}">
 																<apex:image styleClass="rounded-x margin-top-0 margin-bottom-0" url="{!mms.photourl}" width="50px" height="50px"/>
@@ -270,7 +270,7 @@
 														</td>
 														<td>
 															<div onclick="window.open('{!$Page.CommunityProfilePage}?id={!mms.id}','_self');" class="cursor-pointer">
-																<div><strong>{!mms.name}</strong></div>
+																<div><strong>{!mms.name}{!IF(mms.available == false,' ('+$Label.LBL_User_Not_Available+')','')}</strong></div>
 																<apex:outputPanel layout="block" rendered="{!!ISBLANK(mms.city) || !ISBLANK(mms.country)}">
 																	<i class="fa fa-map-marker"></i>&nbsp;{!mms.city}{!IF(mms.city!=null && mms.country!=null, ', ' ,'')}{!mms.country}
 																</apex:outputPanel>
@@ -319,7 +319,8 @@
 									mdl="false"
 									edt="true"
 									son="Community_Group_Control__c"
-								/>
+									tlim="{!tagsCount}"
+									treq="{!requiredTags}"/>
 							</div>
 							<!-- END EDIT GROUP-->
 
@@ -379,12 +380,12 @@
 								</apex:outputPanel>
 								<table class="table table-hover" id="groupmembertable">
 									<apex:repeat value="{!allusers.users}" var="us">
-										<tr>
+										<tr class="{!IF(us.available == false,'unavailable','')}">
 											<td onclick="window.open('{!$Page.CommunityProfilePage}?id={!us.id}','_self');" class="cursor-pointer width-80">
 												<apex:image styleClass="media-object rounded-x" url="{!us.photourl}"/>
 											</td>
 											<td onclick="window.open('{!$Page.CommunityProfilePage}?id={!us.id}','_self');" class="cursor-pointer">
-												<div><strong>{!us.name}</strong></div>
+												<div><strong>{!us.name}{!IF(us.available == false,' ('+$Label.LBL_User_Not_Available+')','')}</strong></div>
 												<div>{!us.role}</div>
 											</td>
 											<td id="cell{!us.id}" class="text-right">
@@ -416,7 +417,7 @@
 														</button>
 													</apex:outputPanel>
 													<apex:outputPanel layout="none" rendered="{!us.manager}">
-														<button class="btn-u" onclick="msproc(4,'{!us.id}');return false;" type="button">
+														<button class="btn-u" onclick="msproc(4,'{!us.id}');updateDlg('{!!us.available}');return false;" type="button">
 															<i class="fa fa-star-half-o" ></i>&nbsp;{!$Label.LBL_Manager}
 														</button>
 													</apex:outputPanel>
@@ -432,7 +433,7 @@
 											</td>
 											<apex:outputPanel layout="none" rendered="{!managerMode && changeOwnerMode}">
 												<td class="width-20">
-													<apex:outputPanel layout="none" rendered="{!!us.owner}">
+													<apex:outputPanel layout="none" rendered="{!!us.owner && us.available}">
 														<label class="radio">
 															<input type="radio" name="{!us.id}" onclick="radiogaga(this);"/>
 															<i class="rounded-x"></i>
@@ -470,6 +471,7 @@
 								<apex:param name="accepted" assignTo="{!accepted}" value=""/>
 								<apex:param name="requesterId" assignTo="{!requesterId}" value=""/>
 							</apex:actionFunction>
+							<apex:actionFunction action="{!msShow}" name="updMsShow" rerender="memback" status="statusLoad"/>
 						</apex:form>
 						<script>
 							var searchAction = _.debounce(function(inthis) {
@@ -500,6 +502,12 @@
 									}
 								}
 							}
+							function updateDlg(flag) {
+								if(flag.toLowerCase() == 'true') {
+									updMsShow();
+								}
+							}
+							
 						</script>
 					</apex:outputPanel>
 				</div>

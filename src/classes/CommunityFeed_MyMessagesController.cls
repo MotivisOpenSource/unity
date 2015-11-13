@@ -34,23 +34,23 @@ public with sharing class CommunityFeed_MyMessagesController {
 	private final Integer MESSAGES_PER_PAGE = 10;
 	public Integer MessagesPerPage { get {return this.MESSAGES_PER_PAGE;} private set;}
 
-	public final String SearchQueryUrlParam =  ApexPages.currentPage() != null ? ApexPages.currentPage().getParameters().get(this.SEARCH_STRING) : null;
+	public final String SearchQueryUrlParam = ApexPages.currentPage() != null ? ApexPages.currentPage().getParameters().get(this.SEARCH_STRING) : null;
 	public final String ConversationIdUrlParam = ApexPages.currentPage() != null ? ApexPages.currentPage().getParameters().get(this.CONVERSATION_ID) : null;
 
 	public List<ChatterConversation> Conversations { get; set; }
 	public ChatterConversation CurrentConversation { get; set; }
 
 	public String SelectedConversationId { get { if (String.isBlank(this.SelectedConversationId)) { this.SelectedConversationId = NULL;} return this.SelectedConversationId; } set; }
-	public String SelectedPageToken { 
-		get { 
-			if (String.isBlank(this.SelectedPageToken)) { 
+	public String SelectedPageToken {
+		get {
+			if (String.isBlank(this.SelectedPageToken)) {
 				this.SelectedPageToken = NULL;
 			}
 			return this.SelectedPageToken;
-		} 
+		}
 		set;
 	}
-	public String NextPageToken { 
+	public String NextPageToken {
 		get {
 			if (!this.Conversations.isEmpty()) {
 				ChatterConversation lastConversation = this.Conversations[this.Conversations.size()-1];
@@ -190,12 +190,11 @@ public with sharing class CommunityFeed_MyMessagesController {
 		private String getRecipientsString(List<ChatterGroupMember> recipients) {
 			List<String> recipientsNames = new List<String>();
 			List<String> recipientsNamesCutted = new List<String>();
-			
 			List<String> recipientsIds = new List<String>();
 			Map<String, String> recipientsMap = new Map<String, String>();
 			for (ChatterGroupMember member : recipients) {
 				if (member.MemberId != UserInfo.getUserId()) {
-					recipientsMap.put(member.MemberId, member.MemberName);					
+					recipientsMap.put(member.MemberId, member.MemberName);
 					recipientsNames.add(member.MemberName);
 					if (recipientsNamesCutted.size() <= 3) {
 						recipientsNamesCutted.add(member.MemberName);
@@ -205,21 +204,20 @@ public with sharing class CommunityFeed_MyMessagesController {
 			String result = '';
 			recipientsIds.addAll(recipientsMap.keySet());
 			Map<Id, String> memberRoleMap = CommunityFeedController.getUserRoles(recipientsIds);
-				for(String key : recipientsMap.keySet()){
-					String memberName = recipientsMap.get(key);
-					for(String recipientsName : recipientsNamesCutted){
-						if(recipientsName.contains(memberName)){
-							if(memberRoleMap.get(key) != null){
-								result +=  memberName + ' ('+memberRoleMap.get(key)+'), ';
-							}else{
-								result +=  memberName + ', ';
-							}
+			for (String key : recipientsMap.keySet()) {
+				String memberName = recipientsMap.get(key);
+				for (String recipientsName : recipientsNamesCutted) {
+					if (recipientsName.contains(memberName)) {
+						if (memberRoleMap.get(key) != null) {
+							result += memberName + ' ('+memberRoleMap.get(key)+'), ';
+						}
+						else {
+							result += memberName + ', ';
 						}
 					}
 				}
-
-			result = result.substring(0, result.lastIndexOf(','));
-			//String result = String.join(recipientsNamesCutted, ', ');
+			}
+			result = result.contains(',') ? result.substring(0, result.lastIndexOf(',')) : result;
 			if (recipientsNames.size() > recipientsNamesCutted.size()) {
 				result += String.format(' and {0} others', new List<String> { String.valueOf(recipientsNames.size()-recipientsNamesCutted.size()) });
 			}
@@ -229,7 +227,7 @@ public with sharing class CommunityFeed_MyMessagesController {
 		public ChatterConversation(String cPageToken, String nPageToken,ConnectApi.ChatterConversationSummary summary) {
 			this.ConversationId = summary.Id;
 			this.IsRead = summary.Read;
-			this.LatestMessage =  new ChatterMessage(summary.LatestMessage);
+			this.LatestMessage = new ChatterMessage(summary.LatestMessage);
 			this.CurrentPageToken = cPageToken;
 			this.NextPageToken = nPageToken;
 		}
@@ -237,7 +235,7 @@ public with sharing class CommunityFeed_MyMessagesController {
 			this.ConversationId = summary.conversationId;
 			this.IsRead = summary.Read;
 			this.ConversationRecipients = getRecipientsString(summary.Members);
-			//this.LatestMessage =  new ChatterMessage(summary.LatestMessage);
+			//this.LatestMessage = new ChatterMessage(summary.LatestMessage);
 			this.CurrentPageToken = summary.Messages.CurrentPageToken;
 			this.NextPageToken = summary.Messages.NextPageToken;
 
@@ -430,7 +428,7 @@ public with sharing class CommunityFeed_MyMessagesController {
 				}
 			);
 			this.MemberRole = member.CollaborationRole;
-			this.MemberPhotoUrl =  member.Member.SmallPhotoUrl;
+			this.MemberPhotoUrl = member.Member.SmallPhotoUrl;
 		}
 	}
 
@@ -443,6 +441,10 @@ public with sharing class CommunityFeed_MyMessagesController {
 	@RemoteAction
 	public static List<ChatterGroupMember> searchUsers(String query) {
 		List<ChatterGroupMember> result = new List<ChatterGroupMember>();
+		Set<Id> memberNetworkIds = new Set<Id>();
+		for (NetworkMember nm : [SELECT Id, MemberId FROM NetworkMember WHERE MemberId != :UserInfo.getUserId() AND NetworkId = :Network.getNetworkId()]) {
+			memberNetworkIds.add(nm.MemberId);
+		}
 		query = String.format('%{0}%', new List<String> { !String.isBlank(query) ? query : '' });
 		List<User> users = CommunityHelperWithoutSharing.getCommunityUsers(query,10,new List<String>{'FirstName','LastName','SmallPhotoUrl'},'Name',true);
 		for (User summary : users) {

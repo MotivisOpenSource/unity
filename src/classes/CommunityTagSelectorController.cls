@@ -31,6 +31,8 @@ global with sharing class CommunityTagSelectorController {
 	public String objectId { get; set; }
 	public String objectType { get; set; }
 	public String filterName { get; set; }
+	public Integer tagLimit { get; set; }
+	public Boolean tagRequired { get; set; }
 
 
 	public void saveTags(String tagsIdsString) {

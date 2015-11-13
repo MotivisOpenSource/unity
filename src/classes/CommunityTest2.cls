@@ -62,24 +62,24 @@ private class CommunityTest2 {
 			System.assert(cfnc.actionPhotoLabel != null);
 			System.assert(cfnc.permitions != null);
 /*
-			cfnc.photoBody = Blob.valueOf('body');
-			cfnc.cropSize = '4';
-			cfnc.cropX = '2';
-			cfnc.cropY = '2';
-			cfnc.photoName = 'test Name';
-			cfnc.photoContentType = 'image/jpg';
+			//cfnc.photoBody = Blob.valueOf('body');
+			//cfnc.cropSize = '4';
+			//cfnc.cropX = '2';
+			//cfnc.cropY = '2';
+			//cfnc.photoName = 'test Name';
+			//cfnc.photoContentType = 'image/jpg';
 			//Boolean uploadM = cfnc.uploadMode;
 			//System.assertEquals(false, uploadM);
 
 			//cfnc.uploadmode();
 			//System.assertEquals(true, cfnc.uploadMode);
 
-			String photoURL = cfnc.getPhotoUrl();
+			//String photoURL = cfnc.getPhotoUrl();
 
 			//Test.setCurrentPage(Page.CommunityFeedNavigation);
-			cfnc.photoaction();
-			PageReference pr = cfnc.photoaction();
-			System.assertEquals(true, pr != null);*/
+			//cfnc.photoaction();
+			//PageReference pr = cfnc.photoaction();
+			//System.assertEquals(true, pr != null);*/
 		}
 	}
 

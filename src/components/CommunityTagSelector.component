@@ -31,7 +31,9 @@
 	<apex:attribute name="oId" description="" type="string" required="false" assignTo="{!objectId}"/>
 	<apex:attribute name="oType" description="" type="string" required="false" assignTo="{!objectType}"/>
 	<apex:attribute name="fName" description="" type="string" required="false" assignTo="{!filterName}"/>
-	<apex:attribute name="mt" type="integer" required="false" default="-1" description="Max Tags Count"/>
+	<apex:attribute name="tlim" type="integer" required="false" default="-1" description="Max Tags Count" assignTo="{!tagLimit}"/>
+	<apex:attribute name="treq" type="Boolean" required="false" default="false" description="Required tags" assignTo="{!tagRequired}"/>
+
 
 	<!-- <apex:includeScript value="{!$Resource.CommunityResources}/js/jquery-1.11.2.min.js"/>  -->  
 	<!-- <apex:includeScript value="{!$Resource.CommunityResources}/js/Typeahead/bootstrap3-typeahead.min.js"/> -->
@@ -79,6 +81,16 @@
 	</div>
 
 	<script>
+		if (!String.prototype.format) {
+			String.prototype.format = function() {
+				var args = arguments;
+				return this.replace(/{(\d+)}/g, function(match, number) { 
+					return typeof args[number] != 'undefined' ? args[number] : match;
+				});
+			};
+		}
+		var tagMax = parseInt("{!tagLimit}");
+		var selectedTag = 0;
  		//var $jc = jQuery.noConflict();
  		//var $ = jQuery.noConflict();
 		var searchTags = _.debounce(function(query, process) {
@@ -106,6 +118,9 @@
 				'{!filterName}',
 				function(result, event) {
 					var mdata = jsonObj(result);
+					selectedTag += mdata.length;
+					//first check for submit button
+					checkTagsCount();
 					_.each(mdata, function (tag, ix, list) {
 						var span = '<span id="'+tag.id+'" class="item guestItem"><span>'+tag.fullname+'</span><a href="javascript:void(0);" onclick="removeTag(\''+tag.id+'\')" class="remove"><img src="/s.gif"></a></span>';
 						jQuery('#tagsInput').before(span);
@@ -130,13 +145,8 @@
 		function removeTag(inp) {
 			jQuery('#tagsContainer #'+inp).remove();
 			jQuery('#tags').val(jQuery('#tags').val().replace(inp+',' ,''));
-			if ({!mt} >= 0 && jQuery('#tagsContainer span.item').length <= {!mt} && jQuery('#sectionnote').length > 0) {
-				jQuery('#sectionnote').remove();
-				jQuery('[id$=sbtbtn]').css('opacity','1').removeAttr('disabled');
-			}
-			if ({!mt} != -1 && jQuery('#tagsContainer span.item').length == 0) {
-				jQuery('[id$=sbtbtn]').css('opacity','0.65').attr('disabled','disabled');
-			}
+			selectedTag -= 1;
+			checkTagsCount();
 		}
 		function toggleTagSection(el) {
 			var par = jQuery(el).parent();
@@ -153,21 +163,45 @@
 		}
 		function addtti(tid,fn) {
 			if (jQuery('span[id='+tid+']').length == 0) {
-				var span = '<span id="'+tid+'" class="item guestItem"><span>'+fn+'</span><a href="javascript:void(0);" onclick="removeTag(\''+tid+'\')" class="remove"><img src="/s.gif"></a></span>';
-				jQuery('#tagsInput').before(span);
-				jQuery('#tags').val(jQuery('#tags').val() + tid + ',');
-				if ({!mt} >= 0) {
-					if (jQuery('#tagsContainer span.item').length > {!mt}) {
-						if (jQuery('#sectionnote').length == 0) {
-							var txt = 'You are reached maximum of '+'{!mt}'+' Tag(s) for this group. You must remove a tag in order to add a tag.';
-							jQuery('.div-like-input').after('<div id="sectionnote" class="alert alert-danger fade in">'+txt+'</div>');
-							jQuery('[id$=sbtbtn]').css('opacity','0.65').attr('disabled','disabled');
-						}
-					}
-					else {
-						jQuery('[id$=sbtbtn]').css('opacity','1').removeAttr('disabled');
-					}
+				if (selectedTag > tagMax - 1 && tagMax > 0) {
+					showTagError(true);
 				}
+				else {
+					var span = '<span id="'+tid+'" class="item guestItem"><span>'+fn+'</span><a href="javascript:void(0);" onclick="removeTag(\''+tid+'\')" class="remove"><img src="/s.gif"></a></span>';
+					jQuery('#tagsInput').before(span);
+					jQuery('#tags').val(jQuery('#tags').val() + tid + ',');
+					selectedTag += 1;
+					checkTagsCount();
+				}
+			}
+		}
+		function checkTagsCount() {
+			var maxReached = tagMax > 0 && selectedTag > tagMax;
+			var needTag = {!tagRequired} && selectedTag < 1;
+			showTagError(maxReached, needTag);
+			enableSbmBtn(!maxReached && !needTag);
+		}
+		function enableSbmBtn(enbl) {
+			if (enbl) {
+				jQuery('[id$=sbtbtn]').css('opacity','1').removeAttr('disabled');
+				if (self!=top) {
+					jQuery('button[id$=svbtn]').css('opacity','1').removeAttr('disabled');
+				}
+			}
+			else {
+				jQuery('[id$=sbtbtn]').css('opacity','0.65').attr('disabled','disabled');
+				if (self!=top) {
+					jQuery('button[id$=svbtn]').css('opacity','0.65').attr('disabled','disabled');
+				}
+			}
+		}
+		function showTagError(lim, req) {
+			if (jQuery('#sectionnote').length > 0) {
+				jQuery('#sectionnote').remove();
+			}
+			if (lim || req && jQuery('#sectionnote').length == 0) {
+				var txt = lim ? "{!$Label.ERR_Group_Tags_Limit}".format(tagMax) : "{!$Label.ERR_Group_Tags_Required}";
+				jQuery('.div-like-input').after('<div id="sectionnote" class="alert alert-danger fade in">'+txt+'</div>');
 			}
 		}
 	</script>

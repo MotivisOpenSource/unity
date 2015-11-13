@@ -33,7 +33,8 @@
 <apex:define name="body">
 	<!--=== Profile ===-->	
 	<div class="profile CommunityProfilePage">
-		<apex:outputPanel styleClass="container content" rendered="{!isCommunityUser}" layout="block">
+		<apex:outputPanel styleClass="container content" rendered="{!isCommunityUser}"  layout="block">
+			<apex:variable var="pft" value="{!IF(ISBLANK($CurrentPage.parameters.f),'1',JSENCODE($CurrentPage.parameters.f))}"/>
 			<div class="row">
 				<!--Left Sidebar-->
 				<div class="col-md-3 md-margin-bottom-40">
@@ -49,7 +50,7 @@
 								<h2 class="heading-md"><strong>{!StudentName}</strong></h2>
 							</div>
 							<div class="col-md-6">
-								<apex:form id="btnaction" > 
+								<apex:form id="btnaction">
 								<!-- <apex:commandLink id="btnactionLink" action="{!subscribeUser}" styleClass="btn-u {!IF(isSubscribe,'btn-u-blue','')} pull-right margin-right-5" rerender="btnaction" onclick="$(this).find('i').attr('class','fa fa-spinner fa-pulse'); $('[id$=btnactionLink]').addClass('disabled');'" onComplete="$('[id$=btnactionLink]').removeClass('disabled');"> -->
 									<apex:commandLink id="btnactionLink"  
 										action="{!subscribeUser}" 
@@ -75,8 +76,10 @@
 							</apex:outputPanel>
 							<apex:outputPanel layout="none" rendered="{!!current}">
 								<ul class="nav nav-justified nav-tabs">
-									<li class="active"><a data-toggle="tab" href="#profile">{!$Label.LBL_Profile}</a></li>
-									<li><a data-toggle="tab" href="#feed">{!$Label.LBL_Feed}</a></li>
+									<li class="{!IF(pft == '1','active','')}"><a data-toggle="tab" href="#profile">{!$Label.LBL_Profile}</a></li>
+									<apex:outputPanel layout="none">
+										<li class="{!IF(pft == '2','active','')}"><a data-toggle="tab" href="#feed">{!$Label.LBL_Feed}</a></li>
+									</apex:outputPanel>
 								</ul>
 							</apex:outputPanel>
 							
@@ -84,7 +87,7 @@
 								<div class="calert">
 									<apex:pageMessages id="pageMessages"/>
 								</div>
-								<div id="profile" class="profile-edit tab-pane fade in active">
+								<div id="profile" class="profile-edit tab-pane fade {!IF(pft == '1','active in','')}">
 									<div class="row margin-bottom-20">
 										<div class="col-md-6 text-left">
 											<h2 class="heading-md">
@@ -402,7 +405,7 @@
 								</div>
 								</apex:outputPanel>
 								<apex:outputPanel layout="none" rendered="{!!current}">
-									<div id="feed" class="profile-edit tab-pane fade">
+									<div id="feed" class="profile-edit tab-pane fade {!IF(pft == '2','active in','')}">
 										<c:CommunityFeed pid="{!currentUserId}" tf="true"/>
 									</div>
 								</apex:outputPanel>
