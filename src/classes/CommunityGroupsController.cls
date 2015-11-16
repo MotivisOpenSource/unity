@@ -210,7 +210,7 @@ public with sharing class CommunityGroupsController {
 				filtredChatterGroups.add(cgItem.Id);
 			}
 			gQuery += ' WHERE Chatter_Group_ID__c IN :filtredChatterGroups';
-			gQuery += CommunityUtils.isModifyAllData() ? '' : ' AND Discoverable__c = true';
+			gQuery += CommunityUtils.isModifyAllData() || CommunityUtils.isViewAllData() ? '' : ' AND Discoverable__c = true';
 			foundData = filtredChatterGroups.size() > 0;
 		}
 
