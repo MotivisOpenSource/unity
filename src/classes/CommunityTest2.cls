@@ -49,6 +49,10 @@ private class CommunityTest2 {
 			Community_Group_Manager__c cgm = new Community_Group_Manager__c(Group_Control__c = cgc.Id, Group_Manager_User__c = df.communityUser.Id);
 			insert cgm;
 
+			CommunityFeedNavigationController.getHasTwitterFeed();
+			CommunityFeedNavigationController.getTwitterHandle();
+			CommunityFeedNavigationController.getTwitterDataWidgetId();
+
 			CommunityFeedNavigationController cfnc = new CommunityFeedNavigationController();
 			cfnc.MessageUnreadCount = 1;
 			Boolean sMessage = cfnc.showMessages;
