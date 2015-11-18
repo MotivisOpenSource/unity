@@ -58,18 +58,17 @@ public with sharing class CommunityFeedNavigationController {
 	
 	
 	public String controllerPhotoUrl { 
-	    get {
-	        if(groupRole!=null){
-	            return controllerPhotoUrl;
-	        }
-	        else {
-	        	if (!SObjectType.User.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.User);
-        	    if (controllerPhotoUrl == null) return [SELECT FullPhotoUrl FROM User WHERE Id = :UserInfo.getUserId()].FullPhotoUrl;
-        	    else return controllerPhotoUrl;
-            }
-	    }
-	    set; 
-	    
+		get {
+			if(groupRole!=null){
+				return controllerPhotoUrl;
+			}
+			else {
+				if (!SObjectType.User.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.User);
+				if (controllerPhotoUrl == null) return [SELECT FullPhotoUrl FROM User WHERE Id = :UserInfo.getUserId()].FullPhotoUrl;
+				else return controllerPhotoUrl;
+			}
+		}
+		set;
 	}
 	// photo vars
 	public String blobImageData { get; set; }
@@ -96,7 +95,7 @@ public with sharing class CommunityFeedNavigationController {
 	private String grID = CommunityUtils.validateId(ApexPages.currentPage().getParameters().get('gr'));
 	private String gcID = CommunityUtils.validateId(ApexPages.currentPage().getParameters().get('gc'));
 	
-	private String getGroupId { 
+	private String getGroupId {
 		get {
 			if( grID != null) {
 				return grID;
@@ -112,19 +111,18 @@ public with sharing class CommunityFeedNavigationController {
 		set;
 	}
 	
-	
-	public String actionPhotoLabel { 
+	public String actionPhotoLabel {
 		get {
-		        if (getGroupId != null) {
-				    ConnectApi.Photo photoGroup = ConnectApi.ChatterGroups.getPhoto(Network.getNetworkId(), getGroupId);
-				    return (String.valueOf(photoGroup).contains('default')||(photoGroup==null))?Label.LBL_Add_Photo:Label.BTN_Update;						
-		        }
-		        else {
-				    ConnectApi.Photo photoUser = ConnectApi.ChatterUsers.getPhoto(Network.getNetworkId(), UserInfo.getUserId());
-				    return (String.valueOf(photoUser).contains('default')||(photoUser==null))?Label.LBL_Add_Photo:Label.BTN_Update;						
-		        }
+			if (getGroupId != null) {
+				ConnectApi.Photo photoGroup = ConnectApi.ChatterGroups.getPhoto(Network.getNetworkId(), getGroupId);
+				return (String.valueOf(photoGroup).contains('default') || (photoGroup == null)) ? Label.LBL_Add_Photo : Label.BTN_Update;
+			}
+			else {
+				ConnectApi.Photo photoUser = ConnectApi.ChatterUsers.getPhoto(Network.getNetworkId(), UserInfo.getUserId());
+				return (String.valueOf(photoUser).contains('default') || (photoUser == null)) ? Label.LBL_Add_Photo : Label.BTN_Update;
+			}
 		}
-		set; 
+		set;
 	}
 	
 	// set permitions
@@ -141,9 +139,7 @@ public with sharing class CommunityFeedNavigationController {
 		}
 		set;
 	}
-	
-	
-	
+
 	public void photoaction() {
 		try {
 			if (blobImageData != NULL) {
@@ -183,5 +179,18 @@ public with sharing class CommunityFeedNavigationController {
 
 	public Community_Resource__c getBannerTextLabel() {
 		return CommunityUtils.getHtmlField(Label.LBL_Banner_Text);
+	}
+
+	public static Boolean getHasTwitterFeed() {
+		Community_Settings__c cs = Community_Settings__c.getInstance();
+		return String.isNotBlank(cs.Twitter_Handle__c) && String.isNotBlank(cs.Twitter_Data_Widget_ID__c);
+	}
+
+	public static String getTwitterHandle() {
+		return Community_Settings__c.getInstance().Twitter_Handle__c;
+	}
+
+	public static String getTwitterDataWidgetId() {
+		return Community_Settings__c.getInstance().Twitter_Data_Widget_ID__c;
 	}
 }
