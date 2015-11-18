@@ -69,12 +69,12 @@
         </availableFields>
         <description>Alumni Community Profile (when RecordType = &apos;Alumni&apos;)</description>
         <displayedFields>
-            <field>Email__c</field>
+            <field>Contact__c</field>
             <isFieldManaged>false</isFieldManaged>
             <isRequired>false</isRequired>
         </displayedFields>
         <displayedFields>
-            <field>Primary__c</field>
+            <field>Email__c</field>
             <isFieldManaged>false</isFieldManaged>
             <isRequired>false</isRequired>
         </displayedFields>
@@ -103,12 +103,22 @@
             <isFieldManaged>false</isFieldManaged>
             <isRequired>false</isRequired>
         </displayedFields>
+        <displayedFields>
+            <field>Contact__c</field>
+            <isFieldManaged>false</isFieldManaged>
+            <isRequired>false</isRequired>
+        </displayedFields>
         <label>FacultyStaff:LBL_About_Me:1</label>
     </fieldSets>
     <fieldSets>
         <fullName>Student_About_Me_1</fullName>
         <availableFields>
             <field>Contact__c</field>
+            <isFieldManaged>false</isFieldManaged>
+            <isRequired>false</isRequired>
+        </availableFields>
+        <availableFields>
+            <field>CreatedDate</field>
             <isFieldManaged>false</isFieldManaged>
             <isRequired>false</isRequired>
         </availableFields>

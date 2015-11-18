@@ -44,6 +44,64 @@ private class CommunityTest4 {
 		return testFeedItem.Id;
 	}
 
+	static testMethod void test_CommunityHelperWithoutSharing() {
+		CommunityTest3.testDataFactory df = new CommunityTest3.testDataFactory(
+			new Set<String> {
+				'internalUser',
+				'secondInternalUser',
+				'communitySuperUser',
+				'addRoleToContact'
+			}
+		);
+		Id currentUserId = UserInfo.getUserId();
+		
+
+		System.runAs(df.communityUser) {
+			CommunityHelperWithoutSharing testHelper = new CommunityHelperWithoutSharing();
+			CollaborationGroup cg = new CollaborationGroup();
+			cg.Name = 'newgroup';
+			cg.CollaborationType = 'Public' ;
+			insert cg;
+			
+			Community_Group_Control__c testControl = new Community_Group_Control__c(
+				Name = 'testName',
+				Discoverable__c = true,
+				Type__c = 'Public',
+				Network__c = 'Internal',
+				Chatter_Group_ID__c = cg.Id
+			);
+			insert testControl;
+
+			Community_Group_Manager__c testManager = new Community_Group_Manager__c(
+				Group_Manager_User__c = currentUserId,
+				Group_Control__c = testControl.Id
+			);
+			insert testManager;
+
+			CollaborationGroupMember cgmem = new CollaborationGroupMember(
+				CollaborationGroupId = cg.id,
+				CollaborationRole = 'Admin',
+				MemberId = currentUserId,
+				NotificationFrequency = 'P'
+			);
+			insert cgmem;
+
+			System.assertNotEquals(null, CommunityHelperWithoutSharing.getCommunityGroupControl(cg.Id));
+			CommunityHelperWithoutSharing.getFeeds(new Set<Id>(), null);
+			Community_News__c testNews = new Community_News__c();
+			testNews.Title__c = 'Test Title';
+			insert testNews;
+			Attachment testAttach = new Attachment(
+				Name = 'TEMPORARY_UPDATE',
+				ParentId = testNews.Id,
+				Body = Blob.valueOf(JSON.serialize(testNews))
+			);
+			insert testAttach;
+			CommunityHelperWithoutSharing.getAttachment(testAttach.Id);
+			CommunityHelperWithoutSharing.membershipWOSH(currentUserId, testControl.Id, '2');
+		}
+	}
+
 	static testMethod void commonRewriterTest() {
 		String feedItemId = prepareFeedItemData();
 		CommunityUrlRewriter testRewriter = new CommunityUrlRewriter();
@@ -126,6 +184,8 @@ private class CommunityTest4 {
 			FederationIdentifier='TestCon3456tactName.TestContactLastname2', Community_Contact_ID__c=con2.Id);
 		insert u2;
 		System.runAs(u2) {
+			CommunityUtils.systemTagFilter('testString', 'testString');
+			CommunityUtils.getHtmlField('testValue');
 			CommunityUtils.isModifyAllData();
 			CommunityUtils.isViewAllData();
 			CommunityUtils.canCreateGroup();
@@ -243,6 +303,36 @@ private class CommunityTest4 {
 		}
 	}
 
+	static testMethod void test_CommunityUtils2() {
+		CommunityTest3.testDataFactory df = new CommunityTest3.testDataFactory(
+			new Set<String> {
+			'internalUser',
+			'secondInternalUser',
+			'communitySuperUser',
+			'addRoleToContact'
+			}
+		);
+
+		System.runAs(df.communityUser) {
+			CollaborationGroup cg = new CollaborationGroup(
+				Name = 'testName',
+				CollaborationType = 'Public',
+				OwnerId = df.secondCommunityUser.Id
+			);
+			insert cg;
+			CollaborationGroupMember cgmem = new CollaborationGroupMember(
+				CollaborationGroupId = cg.id,
+				CollaborationRole = 'Admin',
+				MemberId = df.communityUser.Id,
+				NotificationFrequency = 'P'
+			);
+			insert cgmem;
+			Test.startTest();
+			CommunityUtils.changeManagerRoleToStandard(new Set<Id>{cgmem.Id});
+			Test.stopTest();
+		}
+	}
+
 	static testMethod void test_UnityAdminController() {
 		UnityAdminController ua = new UnityAdminController();
 		ua.getFieldsCR();
@@ -264,6 +354,7 @@ private class CommunityTest4 {
 		ua.saveCS();
 		ua.cts = null;
 		ua.saveCTS();
+		ua.getColorSchemeItems();
 	}
 
 	static testMethod void test_AddLabelToPackage() {
@@ -279,6 +370,23 @@ private class CommunityTest4 {
 	static testMethod void test_AboutGroupComponentController() {
 		System.assert(true);
 		//deprecated
+	}
+
+	static testMethod void test_CommunityAccessException() {
+		Contact nc = new Contact();
+		CommunityAccessException exc = new CommunityAccessException(
+			CommunityAccess.AccessViolationException,
+			CommunityAccessException.ExceptionType.OBJECT_ACCESS_VIOLATION,
+			CommunityAccessException.ExceptionReason.NO_DELETE,
+			nc.getSObjectType().getDescribe().getName(),
+			''
+		);
+		exc.getExceptionType();
+		exc.getExceptionReason();
+		exc.getExceptionObject();
+		exc.getExceptionField();
+		exc.getText();
+		System.assert(exc.ExceptionMessage != null);
 	}
 
 	@IsTest(SeeAllData=true)
