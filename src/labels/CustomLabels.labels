@@ -246,6 +246,49 @@
         <value>Error : Can&apos;t found Topic</value>
     </labels>
     <labels>
+        <fullName>ERR_Cant_Found_Group</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>ERR Cant Found Group</shortDescription>
+        <value>Can`t found group:</value>
+    </labels>
+    <labels>
+        <fullName>ERR_Cant_Found_People</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>ERR Cant Found People</shortDescription>
+        <value>Can`t Found People</value>
+    </labels>
+    <labels>
+        <fullName>ERR_Choice_To_Long</fullName>
+        <categories>Unity Feed</categories>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>ERR Choice To Long</shortDescription>
+        <value>Poll choices can&apos;t have more than 100 characters</value>
+    </labels>
+    <labels>
+        <fullName>ERR_Comment_Too_Large</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>ERR_Comment_Too_Large</shortDescription>
+        <value>Your comment can&apos;t have more than 10000 characters.</value>
+    </labels>
+    <labels>
+        <fullName>ERR_Community_Profile</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Error: Community Profile</shortDescription>
+        <value>This contact must have a Community Profile before they can be enabled for the Community</value>
+    </labels>
+    <labels>
+        <fullName>ERR_CreateGroup_MaxTagMessage</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>ERR CreateGroup MaxTagMessage</shortDescription>
+        <value>You have reached the Maximum of &lt;setting number&gt; for this group.  You must remove a tag in order to add a tag.</value>
+    </labels>
+    <labels>
         <fullName>ERR_Create_Event_Dates</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -356,6 +399,13 @@
         <protected>true</protected>
         <shortDescription>ERR_Pole_SameValueWarning</shortDescription>
         <value>It looks as though you have entered the same Choice in more than one location. Please review your choices and make the required changes before sharing your post.</value>
+    </labels>
+    <labels>
+        <fullName>ERR_Post_Too_Large</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>ERR_Post_Too_Large</shortDescription>
+        <value>Your post is too long.</value>
     </labels>
     <labels>
         <fullName>ERR_Primary_Profile</fullName>

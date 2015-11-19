@@ -96,7 +96,8 @@ public with sharing class CommunityTopCategoriesController {
 			themeIconColor = t.Icon_Color__c;
 			tagColumns = new List<List<themeTagItem>>();
 			if (tags != NULL && tags.size() > 0) {
-				Integer breakpoint = tags.isEmpty() ? 0 : tags.size()/countCol;
+                Integer breakpoint = tags.isEmpty() ? 0 : (tags.size() / countCol);
+                Integer remainder = Math.mod(tags.size(), countCol);
 				for(Integer colCount = 0; colCount < countCol; colCount++) {
 					tagColumns.add(new List<themeTagItem>());
 				}
@@ -112,14 +113,31 @@ public with sharing class CommunityTopCategoriesController {
 					}
 					Integer accumulateTags = inRO ? calculateResources.size(): (tag.Community_EventItems_Tagged__r.size() + tag.Community_GroupItems_Tagged__r.size() + tag.Community_NewItems_Tagged__r.size());
 					tagColumns[currentColumn].add(new themeTagItem(tag, accumulateTags, inRO));
-					if(tagCount == breakpoint) {
+                    if (tagCount == breakpoint || ((breakpoint - tagCount == 1) && remainder == 0)) {
 						currentColumn++;
 						tagCount = 0;
+                        remainder = (remainder == 0 ? 0 : (remainder - 1));
 					}
 					else {
 						tagCount++;
 					}
 				}
+                List<List<themeTagItem>> tempTagColumns = new List<List<themeTagItem>>();
+                for (Integer colCount = 0; colCount <= breakpoint; colCount++) {
+                    tempTagColumns.add(new List<themeTagItem>());
+                }
+
+                for (Integer i = 0; i <= breakpoint; i++) {
+                    for (Integer j = 0; j < countCol; j++) {
+                        if (tagColumns.get(j) != null && tagColumns.get(j).size() >= (i + 1) && tagColumns.get(j).get(i) != null) {
+                            tempTagColumns.get(i).add(tagColumns.get(j).get(i));
+                        }
+                        else {
+                            break;
+                        }
+                    }
+                }
+                tagColumns = tempTagColumns;
 			}
 		}
 	}

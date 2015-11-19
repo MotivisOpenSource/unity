@@ -192,6 +192,7 @@ public with sharing class CommunityGroupManageController {
 				}
 			);
 			allusers.newOwner(control.OwnerId);
+			msShow();
 		}
 		allusers.init();
 	}

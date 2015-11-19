@@ -94,6 +94,7 @@ trigger CommunityGroupControl on Community_Group_Control__c (before insert, afte
 
 	if (Trigger.isAfter && Trigger.isInsert) {
 		Map<Id, Community_Group_Control__c> GroupControlIdByChatterGroupId = new Map<Id, Community_Group_Control__c>();
+        List<EntitySubscription> subscriptionsListToInsert = new List<EntitySubscription>();
 		for (Community_Group_Control__c cgcItem : Trigger.new) {
 			if (cgcItem.Chatter_Group_ID__c != NULL) {
 				GroupControlIdByChatterGroupId.put(Id.valueOf(cgcItem.Chatter_Group_ID__c), cgcItem);
@@ -114,9 +115,15 @@ trigger CommunityGroupControl on Community_Group_Control__c (before insert, afte
 						Manager_Role__c = (cgmItem.CollaborationGroup.OwnerId == cgmItem.MemberId ? 'Owner' : 'Manager')
 					)
 				);
+                subscriptionsListToInsert.add(new EntitySubscription(
+                    SubscriberId = cgcFromMap.OwnerId,
+                    ParentId = cgcFromMap.Id,
+                    NetworkId = Network.getNetworkId()
+                ));
 			}
 			if (membersCommunityGroup.size() > 0) {
 				insert membersCommunityGroup;
+                insert subscriptionsListToInsert;
 			}
 		}
 	}
@@ -243,7 +250,8 @@ trigger CommunityGroupControl on Community_Group_Control__c (before insert, afte
 				if (!groupSubscriptionUniqueId.contains('' + cgcItem.Id + cgcItem.OwnerId)) {
 					subscriptionsListToInsert.add(new EntitySubscription(
 						SubscriberId = cgcItem.OwnerId,
-						ParentId = cgcItem.Id
+                        ParentId = cgcItem.Id,
+                        NetworkId = Network.getNetworkId()
 					));
 				}
 				CollaborationGroupMember tCgm = chatterMemberUniqueIdMap.get('' + cgcItem.Chatter_Group_ID__c + cgcItem.OwnerId);
@@ -308,9 +316,9 @@ trigger CommunityGroupControl on Community_Group_Control__c (before insert, afte
 					update cgListForUpdate;
 				}
 				catch(Exception e){
-					System.Debug(e);
-				}
+                    System.debug(e);
 			}
 		}
 	}
+}
 }
