@@ -398,6 +398,29 @@ public with sharing class CommunityGroupFilesController {
 		return String.isNotBlank(Site.getPathPrefix()) ? inUncouthUrl.replace('/apex/', Site.getPathPrefix() + '/') : inUncouthUrl;
 	}
 
+	private static String wrapDescription(ConnectApi.FeedBody body){
+		Description descr = new Description();
+		if(body != NULL){
+			descr = (Description)JSON.deserialize(JSON.serialize(body), Description.class);
+		}
+		return JSON.serialize(descr);
+	}
+
+	private static String wrapTopicsUser(ConnectApi.FeedBody body){
+		Description descr = (Description)JSON.deserialize(JSON.serialize(body), Description.class);
+		List<String> topicsNames = new List<String>();
+		List<TopicCL> topicsUser = new List<TopicCL>();
+		for(MessageSegments ms : descr.messageSegments){
+			if(ms.type.equalsIgnoreCase('Hashtag')){
+				topicsNames.add(ms.text.remove('#'));
+			}
+		}
+		for(Topic top : [SELECT Id, Name FROM Topic WHERE Name IN :topicsNames]){
+			topicsUser.add(new TopicCL(top.Id, top.Name));
+		}
+		return JSON.serialize(topicsUser);		
+	}
+
 	public class FileWrapper {
 		public String name { get { return name == NULL ? 'undefined' : name; } set; }
 		public String lastModified { get { return lastModified == NULL ? '' : lastModified; } set; }
@@ -411,6 +434,7 @@ public with sharing class CommunityGroupFilesController {
 		public String description { get; set; }
 		public Boolean following { get; set; }
 		public Boolean modifiable { get; set; }
+		public String topicsUser { get; set; }
 
 		public String getShortName() {
 			return name.abbreviate(20);
@@ -428,7 +452,8 @@ public with sharing class CommunityGroupFilesController {
 				ownerId = incd.OwnerId;
 				ownerName = incd.Owner.Name;
 				lastModified = CommunityFeedController.convertTimeDiff(incd.LastModifiedDate);
-				description = incd.Description;
+				description = wrapDescription(inchf.body);
+				topicsUser = wrapTopicsUser(inchf.body);
 				documentId = incd.Id;
 			}
 		}
@@ -441,6 +466,33 @@ public with sharing class CommunityGroupFilesController {
 		public BlockWrapper(String inid, String inname) {
 			id = inid;
 			name = inname;
+		}
+	}
+
+	public class Description {
+		public String text { get; set; }
+		public List<MessageSegments> messageSegments {get; set;}
+	}
+
+	public class MessageSegments {
+		public Record record { get; set; }
+		public String text { get; set; }
+		public String type { get; set; }
+		public String name { get; set; }
+	}
+	public class Record {
+		public String id { get; set; }
+		
+	}
+
+	public class TopicCL{
+		public String entityId { get; set; }
+		public String id { get; set; }
+		public String name { get; set; }
+
+		public TopicCL(String Id, String Name){
+			this.id = Id;
+			this.name = Name;
 		}
 	}
 

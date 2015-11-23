@@ -208,7 +208,7 @@ private class CommunityTest2 {
 				3, 
 				ConnectApi.FeedDensity.FewerUpdates, 
 				null, 
-				1, 
+				8, 
 				ConnectApi.FeedSortOrder.LastModifiedDateDesc,
 				testPage
 			);
@@ -224,15 +224,21 @@ private class CommunityTest2 {
 				3,
 				ConnectApi.FeedDensity.FewerUpdates,
 				null, 
-				1, 
+				8, 
 				ConnectApi.FeedSortOrder.LastModifiedDateDesc,
 				testPage1);
 			Map<String, String> params1 = new Map<String, String>();
+			Map<String, String> params2 = new Map<String, String>();
 			params1.put('parentId', parentId);
 			params1.put('inFeedType', '1');
 			params1.put('inpt', null);
 			params1.put('topicId', topicTest.Id);
+			params2.put('parentId', parentId);
+			params2.put('inFeedType', '1');
+			params2.put('inpt', null);
+			params2.put('feedId', feedItemTop.Id);
 			String feedForTopic = CommunityFeedController.feedsForTopics(params1);
+			String feedFromEmail = CommunityFeedController.feedFromEmail(params2);
 		}
 
 		System.runAs(df.communityUser) {
