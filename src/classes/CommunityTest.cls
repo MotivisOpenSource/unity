@@ -327,7 +327,7 @@ private class CommunityTest {
 			System.assertEquals('', CommunityProfilePageController.toggleUserDigest(cg.Id, 'D'));
 			Test.stopTest();
 		}
-	}
+		}
 
 	static testMethod void test_CommunityProfileThird() {
 		CommunityTest3.testDataFactory df = new CommunityTest3.testDataFactory(
@@ -335,7 +335,7 @@ private class CommunityTest {
 				'communityUser',
 				'communitySuperUser',
 				'addRoleToContact'
-			}
+	}
 		);
 
 		System.runAs(df.communityUser) {

@@ -38,6 +38,7 @@ global without sharing class CommunityUrlRewriter implements Site.UrlRewriter {
 	public final String CHATTER_PRIVATE_MESSAGE_NOTIFICATION = 'chatterPrivateMessageNotification';
 	public final String CHATTER_LIKE_NOTIFICATION = 'chatterLikeNotification';
 
+
 	global PageReference mapRequestUrl(PageReference myFriendlyUrl) {
 		String url = myFriendlyUrl.getUrl();
 		String messageType = myFriendlyUrl.getParameters().get('emkind');

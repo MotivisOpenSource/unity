@@ -99,7 +99,7 @@ private class CommunityTest2 {
 			PageReference ref = new PageReference('/apex/CommunityFeedNavigation'); 
 			Test.setCurrentPage(ref);*/
 			cfnc.currentUser = false;
-				
+
 		}
 	}
 

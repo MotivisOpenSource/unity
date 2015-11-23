@@ -246,6 +246,20 @@
         <value>Error : Can&apos;t found Topic</value>
     </labels>
     <labels>
+        <fullName>ERR_Cant_Found_Group</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>ERR Cant Found Group</shortDescription>
+        <value>Can`t found group:</value>
+    </labels>
+    <labels>
+        <fullName>ERR_Cant_Found_People</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>ERR Cant Found People</shortDescription>
+        <value>Can`t Found People</value>
+    </labels>
+    <labels>
         <fullName>ERR_Choice_To_Long</fullName>
         <categories>Unity Feed</categories>
         <language>en_US</language>
@@ -254,13 +268,27 @@
         <value>Poll choices can&apos;t have more than 100 characters</value>
     </labels>
     <labels>
-	<labels>
         <fullName>ERR_Comment_Too_Large</fullName>
         <language>en_US</language>
         <protected>true</protected>
         <shortDescription>ERR_Comment_Too_Large</shortDescription>
         <value>Your comment can&apos;t have more than 10000 characters.</value>
     </labels>
+    <labels>
+        <fullName>ERR_Community_Profile</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>Error: Community Profile</shortDescription>
+        <value>This contact must have a Community Profile before they can be enabled for the Community</value>
+    </labels>
+    <labels>
+        <fullName>ERR_CreateGroup_MaxTagMessage</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>ERR CreateGroup MaxTagMessage</shortDescription>
+        <value>You have reached the Maximum of &lt;setting number&gt; for this group.  You must remove a tag in order to add a tag.</value>
+    </labels>
+    <labels>
         <fullName>ERR_Create_Event_Dates</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -422,6 +450,13 @@
         <value>You don`t have access to this user.</value>
     </labels>
     <labels>
+        <fullName>ERR_Profile_Not_Available</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>ERR Profile Not Available</shortDescription>
+        <value>This profile is no longer available</value>
+    </labels>
+    <labels>
         <fullName>Feed_Nav_People</fullName>
         <language>en_US</language>
         <protected>false</protected>
@@ -471,6 +506,13 @@
         <value>Add/Remove Members</value>
     </labels>
     <labels>
+        <fullName>LBL_Admin_Page_Group_Tag_Setting_Error</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Admin Page Group Tag Setting Error</shortDescription>
+        <value>If Max Group Tags = 0, then Create Group Require Tags must be FALSE</value>
+	</labels>
+    <labels>
         <fullName>LBL_Add_To_Favorites</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -478,18 +520,18 @@
         <value>Add to favorites</value>
     </labels>
     <labels>
-        <fullName>LBL_Admin_Page_Group_Tag_Setting_Error</fullName>
-        <language>en_US</language>
-        <protected>true</protected>
-        <shortDescription>LBL Admin Page Group Tag Setting Error</shortDescription>
-        <value>If Max Group Tags = 0, then Create Group Require Tags must be FALSE</value>
-    </labels>
-    <labels>
         <fullName>LBL_AgreeToTerms</fullName>
         <language>en_US</language>
         <protected>true</protected>
         <shortDescription>LBL AgreeToTerms</shortDescription>
         <value>I agree to these Terms and Conditions.</value>
+    </labels>
+    <labels>
+        <fullName>LBL_All</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL All</shortDescription>
+        <value>All</value>
     </labels>
     <labels>
         <fullName>LBL_AllGroups</fullName>
@@ -728,6 +770,13 @@
         <protected>true</protected>
         <shortDescription>Label Weekly Digest</shortDescription>
         <value>Weekly Digest</value>
+    </labels>
+    <labels>
+        <fullName>LBL_DiscoverTitle</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL DiscoverTitle</shortDescription>
+        <value>Discover &lt;span class=&quot;color-green&quot;&gt;new&lt;/span&gt; things</value>
     </labels>
     <labels>
         <fullName>LBL_Done</fullName>
@@ -1247,6 +1296,13 @@
         <shortDescription>LBL My Discussions</shortDescription>
         <value>My Discussions</value>
     </labels>
+ 	  <labels>
+        <fullName>LBL_My_Favorites</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL My Favorites</shortDescription>
+        <value>My Favorites</value>
+    </labels>
     <labels>
         <fullName>LBL_My_News</fullName>
         <language>en_US</language>
@@ -1367,6 +1423,13 @@
         <value>commented in the {0} manager feed.</value>
     </labels>
     <labels>
+        <fullName>LBL_Oh_Snap</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Oh Snap</shortDescription>
+        <value>Oh snap! Change a few things up and try submitting again.</value>
+    </labels>
+    <labels>
         <fullName>LBL_OldPassword</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -1435,6 +1498,13 @@
         <protected>true</protected>
         <shortDescription>LBL People Talking</shortDescription>
         <value>people talking</value>
+    </labels>
+    <labels>
+        <fullName>LBL_People_Talking_About_This</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL People Talking About This</shortDescription>
+        <value>People Talking About This</value>
     </labels>
     <labels>
         <fullName>LBL_Person_Talking</fullName>
@@ -1751,6 +1821,13 @@
         <value>Show All</value>
     </labels>
     <labels>
+        <fullName>LBL_Shue_To_Delete_Topic</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Shue To Delete Topic</shortDescription>
+        <value>Are you sure you want to delete this topic ?</value>
+    </labels>
+    <labels>
         <fullName>LBL_Sorted_By</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -1763,6 +1840,13 @@
         <protected>true</protected>
         <shortDescription>LBL TagHelper Link</shortDescription>
         <value>What tags can I use?</value>
+    </labels>
+    <labels>
+        <fullName>LBL_TalkingAbout</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL_TalkingAbout</shortDescription>
+        <value>TalkingAbout</value>
     </labels>
     <labels>
         <fullName>LBL_TermsAndConditions</fullName>
@@ -1807,6 +1891,13 @@
         <value>Topics</value>
     </labels>
     <labels>
+    	<fullName>LBL_Topics_I_Use</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Topics I Use</shortDescription>
+        <value>Topics I Use</value>
+    </labels>
+	<labels>
         <fullName>LBL_Upcoming_Events</fullName>
         <language>en_US</language>
         <protected>true</protected>
