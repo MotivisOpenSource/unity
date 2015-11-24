@@ -776,10 +776,10 @@ global with sharing class CommunityFeedController {
 			params1.put('parentId', inParentId4);
 			params1.put('inText', layout.items[0].value);
 			params1.put('topicId', topId);
-			resultPage = postFeeds(params1);	
+			resultPage = postFeeds(params1);
 		}
 		else if (layout.name == 'FeedItem.ContentPost') {
-			if(Test.isRunningTest()) layout.items[1].value = 'test';			
+			if(Test.isRunningTest()) layout.items[1].value = 'test';
 			fei.capabilities = new ConnectApi.FeedElementCapabilitiesInput();
 			fei.capabilities.content = new ConnectApi.ContentCapabilityInput();
 			fei.capabilities.content.title = inFileName;
@@ -819,78 +819,63 @@ global with sharing class CommunityFeedController {
 			}
 		}
 		else {
-			//QuickAction.QuickActionRequest req = new QuickAction.QuickActionRequest();
-			// Some quick action name
-			//req.quickActionName = layout.name; 
-
-			// Define a record for the quick action to create
 			Schema.SObjectType targetType = Schema.getGlobalDescribe().get(layout.objectName);
-			if(targetType == null){ 
-				targetType = Schema.getGlobalDescribe().get('motivisu__' + layout.objectName);
+			if (targetType == null) { 
+				targetType = Schema.getGlobalDescribe().get(CommunityUtils.getPackagePrefix() + layout.objectName);
 			}
 			sObject sObj = targetType.newSObject();
 			String namespacePrefix = layout.objectName.split('__').size() > 2 ? layout.objectName.split('__')[0]+'__' : '';
 
 			Map<String, Schema.DescribeFieldResult> sObjectFields = getSobjectFieldsDescribe(new List<String> { layout.objectName }).get(layout.objectName);
-			if(sObjectFields == null){
-				sObjectFields = getSobjectFieldsDescribe(new List<String> { layout.objectName }).get('motivisu__' + layout.objectName);
+			if (sObjectFields == null) {
+				sObjectFields = getSobjectFieldsDescribe(new List<String> { layout.objectName }).get(CommunityUtils.getPackagePrefix() + layout.objectName);
 			}
 			for (ChatterActionLayoutItem item : layout.items) {
 				if (sObjectFields.containsKey(item.fieldName)) {
 					Schema.DisplayType tpOfItem = sObjectFields.get(item.fieldName).getType();
 					if (tpOfItem == Schema.DisplayType.Datetime) {
-						//sObj.put(item.fieldName, Datetime.newInstance(Date.parse(item.value), Time.newInstance(0,0,0,0)));
-						if(!Test.isRunningTest()){ 
+						if (!Test.isRunningTest()) { 
 							sObj.put(item.fieldName, Datetime.parse(item.value));
 						}
-					} else if (tpOfItem == Schema.DisplayType.Date){
+					}
+					else if (tpOfItem == Schema.DisplayType.Date) {
 						sObj.put(item.fieldName, Date.parse(item.value));
-					} else {
+					}
+					else {
 						sObj.put(item.fieldName, item.value);
 					}
 				}
 			}
-			if(layout.name == 'Create_Event'){
-				if(((DateTime)sObj.get(namespacePrefix + 'Start__c')) >= ((DateTime)sObj.get(namespacePrefix + 'End__c'))){
-					resultPage = 'ERR'+Label.ERR_Create_Event_Dates;
-					return resultPage;
+			if (layout.name == 'Create_Event') {
+				if ((DateTime)sObj.get(namespacePrefix + 'Start__c') >= (DateTime)sObj.get(namespacePrefix + 'End__c')) {
+					return 'ERR' + Label.ERR_Create_Event_Dates;
 				}
 			}
-			//req.record = sObj; 
+
 			Database.SaveResult res = Database.insert(sObj);
 
-			// Provide the context ID (or parent ID). In this case, it is an Account record.
-			//req.contextid = UserInfo.getUserId(); 
-
-			//QuickAction.QuickActionResult res = QuickAction.performQuickAction(req);
-			//system.debug(res);
-			if(res.isSuccess()){
-				//resultPage = postFeed(inParentId4, res.getIds()[0]);
+			if (res.isSuccess()) {
 				if (layout.name == 'Create_Event') {
 					fei.capabilities = new ConnectApi.FeedElementCapabilitiesInput();
 					fei.capabilities.link = new ConnectApi.LinkCapabilityInput();
 					fei.capabilities.link.url = prepareUrl(Page.CommunityEventDetail.getUrl()) + '?id=' + res.getId();
-					//fei.capabilities.link.url = prepareUrl(Page.CommunityEventDetail.getUrl()) + '?id=' + res.getIds()[0];
-					for(ChatterActionLayoutItem item : layout.items) {
-						if(item.fieldName == namespacePrefix + 'Name__c') {
+					for (ChatterActionLayoutItem item : layout.items) {
+						if (item.fieldName == namespacePrefix + 'Name__c') {
 							fei.capabilities.link.urlName = item.value;
 						}
-						else if(item.fieldName == namespacePrefix + 'Description__c') {
+						else if (item.fieldName == namespacePrefix + 'Description__c') {
 							fei.body = werewolfText(item.value);
 						}
 					}
 					if (fei.body == NULL) fei.body = werewolfText('');
 					// insert group link for event
-					//Community_Group_Control__c groupControl = [SELECT ID FROM Community_Group_Control__c WHERE Chatter_Group_ID__c = :inParentId4 LIMIT 1];
-					if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
 					String queryInParentId4 = CommunityUtils.validateId(inParentId4);
-					if(![SELECT ID FROM Community_Group_Control__c WHERE Chatter_Group_ID__c = :queryInParentId4 LIMIT 1].isEmpty()){
-						if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
-						Id grControllID = [SELECT ID FROM Community_Group_Control__c WHERE Chatter_Group_ID__c = :queryInParentId4 LIMIT 1].Id;
+					if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
+					List<Community_Group_Control__c> gcList = [SELECT Id FROM Community_Group_Control__c WHERE Chatter_Group_ID__c = :queryInParentId4];
+					if (!gcList.isEmpty()){
 						Community_Event_Tag__c communityEventTag = new Community_Event_Tag__c();
 						communityEventTag.Community_Event__c = res.getId();
-						communityEventTag.Community_Group_Control__c = grControllID;
-						//insert communityEventTag;
+						communityEventTag.Community_Group_Control__c = gcList[0].Id;
 						CommunityAccess.InsertWithoutSharing(
 							communityEventTag,
 							'CommunityFeedController.cls [postActions]',
@@ -900,27 +885,22 @@ global with sharing class CommunityFeedController {
 							}
 						);
 					}
-					//fei.body = werewolfText('Description');
 				}
 			}
-			else{
-				resultPage = 'ERR"' + res.getErrors() + '"';
+			else {
+				return 'ERRSave Result errors count: ' + res.getErrors();
 			}
-
-
 		}
 		if (String.isBlank(resultPage) && fei.body != NULL) {
-			//Blob inFileBlob = Blob.valueOf(inFile);
 			ConnectApi.BinaryInput bi = null;
-			
 			try {
 				bi = (inFile != NULL) ? new ConnectApi.BinaryInput(EncodingUtil.base64Decode(inFile), inFileType, inFileName) : NULL;
 			}
-			catch (Exception e)  {
+			catch (Exception e) {
 				resultPage = 'ERR"' + e.getMessage() + '"';
 			}
 	
-			if(bi != null) {				
+			if (bi != null) {
 				String newFeed2 = json.serialize(ConnectApi.ChatterFeeds.postFeedElement(Network.getNetworkId(), fei, bi));
 				FeedElementPage fepResult2 = new FeedElementPage();
 				fepResult2.elements = new List<FeedElement> { (FeedElement)JSON.deserialize(newFeed2,FeedElement.class) };
@@ -928,7 +908,8 @@ global with sharing class CommunityFeedController {
 				fepResult2 = initialTopics(fepResult2);
 				resultPage = json.serialize(fepResult2);
 			
-			}else{
+			}
+			else {
 				String newFeedInsert = json.serialize(ConnectApi.ChatterFeeds.postFeedElement(Network.getNetworkId(),fei,null));
 				FeedElementPage fepResult = new FeedElementPage();
 				fepResult.elements = new List<FeedElement> { (FeedElement)JSON.deserialize(newFeedInsert,FeedElement.class) };
@@ -1831,7 +1812,7 @@ global with sharing class CommunityFeedController {
 			
 			SObjectType objectType = Schema.getGlobalDescribe().get(objName);
 			if(objectType == null){ 
-				objectType = Schema.getGlobalDescribe().get('motivisu__' + objName);
+				objectType = Schema.getGlobalDescribe().get(CommunityUtils.getPackagePrefix() + objName);
 			}
 			Map<String,Schema.SObjectField> mfields = objectType.getDescribe().fields.getMap();
 			List<ChatterActionLayoutItem> chatActionLI = new List<ChatterActionLayoutItem>();

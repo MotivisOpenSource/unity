@@ -580,7 +580,9 @@
 										        {
 										        	postFile = false;
 													enableBtn('mesbtn');
-										            $('#postform-error').html(_.template('<strong>Error!</strong> <%- msg %> ', { msg: result[0].errors.message}));
+													_.templateSettings.variable = 'rc';
+										            var error_msg = _.template('<strong>Error!</strong> <%- rc.msg %> ');
+													$('#postform-error').html(error_msg({msg: result[0].errors.message}));
 													$('#postform-error').show();	
 										        }
 										    },
@@ -588,7 +590,9 @@
 										    {
 										    	postFile = false;
 												enableBtn('mesbtn');
-												$('#postform-error').html(_.template('<strong>Error!</strong> <%- msg %> ', { msg: result[0].errors.message}));
+												_.templateSettings.variable = 'rc';
+												var error_msg = _.template('<strong>Error!</strong> <%- rc.msg %> ');
+												$('#postform-error').html(error_msg({msg: result[0].errors.message}));
 												$('#postform-error').show();	
 					    }
 					});
@@ -723,7 +727,9 @@
 										    $('#postform-error').show();
 									    }
 									    else {
-											$('#postform-error').html(_.template('<strong>Error!</strong> <%- msg %> ', { msg: result.substring(3, result.length)}));
+									    	_.templateSettings.variable = 'rc';
+									    	var error_msg = _.template('<strong>Error!</strong> <%- rc.msg %> ');
+											$('#postform-error').html(error_msg({msg: result.substring(3, result.length)}));
 											$('#postform-error').show();
 									    }
 										err = true;	
