@@ -56,7 +56,7 @@ public without sharing class CommunityHelperWithoutSharing {
 			for(PermissionSetAssignment item : [SELECT AssigneeId From PermissionSetAssignment Where PermissionSetID in :setNetworkMemberGroupId]) {
 				setPermissionSetAssignmentID.add(item.AssigneeId);
 			}
-			querySearchName = querySearchName != null ? String.escapeSingleQuotes(querySearchName) : '%%';
+			querySearchName = String.isNotBlank(querySearchName) ? String.escapeSingleQuotes(querySearchName) : '%%';
 			String UserId = (String) UserInfo.getUserId();
 			String requiedFields = 'Id, Name';
 			String requestedFields = ' ';
@@ -135,7 +135,7 @@ public without sharing class CommunityHelperWithoutSharing {
 // used for CommunityGroupFilesController
 	public static List<FeedItem> getFeeds(String chatterGroupId){
 		String queryChatterGroupId = CommunityUtils.validateId(chatterGroupId);
-		String fQuery = 'SELECT Id, CreatedById, CreatedBy.Name, ContentFileName, LastModifiedDate FROM FeedItem';
+		String fQuery = 'SELECT Id, CreatedById, CreatedBy.Name, ContentFileName, LastModifiedDate, RelatedRecordId FROM FeedItem';
 		fQuery += ' WHERE Type = \'ContentPost\' AND ParentId = :queryChatterGroupId LIMIT 500';
 		return Database.query(fQuery);
 	}
