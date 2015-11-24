@@ -710,11 +710,11 @@
 					var err = false;
 					var params = {
 						'parentId'	 : '{!JSENCODE(parentId)}',
-								'jsontext' 	 : jsontext, 
-								'infilebstr' : infilebstr, 
-								'infiletype' : infiletype, 
-								'infilename' : infilename,
-						'topicId' 	 : '{!JSENCODE(topicId)}'
+								'jsontext': jsontext, 
+								'infilebstr': infilebstr, 
+								'infiletype': infiletype, 
+								'infilename': infilename,
+								'topicId': '{!JSENCODE(topicId)}'
 					};
 					hideFeedError();
 					Visualforce.remoting.Manager.invokeAction(

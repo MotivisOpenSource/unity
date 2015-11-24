@@ -194,7 +194,8 @@
 				shareOnProfile,
 				function(result, event) {
 					if(result.split('ERR').length > 1){
-						var template = _.template('<div id="messageAreaIn" layout="block" class="alert alert-danger fade in"><strong>Error!</strong> <%- msg %></div>');
+						_.templateSettings.variable = 'rc';
+						var template = _.template('<div id="messageAreaIn" layout="block" class="alert alert-danger fade in"><strong>Error!</strong> <%- rc.msg %></div>');
 						jQuery('[id *= "messageArea"]').html(template({ msg: result.substring(3, result.length) }));
 						jQuery('[id *= "messageArea"]').show();
 					}else{
