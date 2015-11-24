@@ -125,7 +125,7 @@
 					<span class="fa fa-bars"></span>
 				</button>
 				<apex:outputText id="ldcid" value="{!$Setup.Community_Template_Settings__c.Header_Logo_ImageID__c}" style="display:none;"/>
-				<apex:outputLink value="{!IF(isRegTermsPage == true, $Page.CommunityHome, '')}" rendered="{!!ISBLANK($Setup.Community_Template_Settings__c.Header_Logo_ImageID__c)}" styleClass="navbar-brand">
+				<apex:outputLink value="{!IF(isRegTermsPage == false, $Page.CommunityHome, '')}" rendered="{!!ISBLANK($Setup.Community_Template_Settings__c.Header_Logo_ImageID__c)}" styleClass="navbar-brand">
 					<img id="imgLOGOID" class="img-responsive" alt="Logo" src="{!$Site.Prefix}/servlet/servlet.ImageServer?oid={!$Organization.Id}&id={!$Setup.Community_Template_Settings__c.Header_Logo_ImageID__c}"/>
 				</apex:outputLink>
 			</div>
