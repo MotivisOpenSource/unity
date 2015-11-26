@@ -282,7 +282,7 @@
 														<div class="pull-right">
 															<div class="pull-right">
 																<span>&nbsp;</span>
-																<button  class="button state-disabled" type="button" onclick="replyButtonHandler('{!CurrentConversation.ConversationId}', '{!IF(CurrentConversation.Messages.size>0, CurrentConversation.Messages[CurrentConversation.Messages.size-1].MessageId+'', '')}')" id="sendReplyButton"  title="Reply" disabled="disabled" >
+																<button class="button state-disabled" type="button" onclick="replyButtonHandler('{!CurrentConversation.ConversationId}', '{!IF(CurrentConversation.Messages.size>0, CurrentConversation.Messages[CurrentConversation.Messages.size-1].MessageId+'', '')}')" id="sendReplyButton"  title="Reply" disabled="disabled" >
 																	Reply
 																</button>
 															</div>
@@ -479,9 +479,18 @@
 					}
 					messageValidationHandler('#newConversationMessageBody', '#messageMaxErrorMessage', disabled_cls, btn, REPLY_TEXT_LIMIT);
 				}
+
+				function checkRecipients() {
+					var recipients = [];
+					$.each($('li.search-choice'), function(i, item) {
+						recipients.push(item);
+					})
+					return $(RECIPIENT_INPUT_BOX).is(':visible') == false || recipients.length > 0;
+				}
+
 				function messageValidationHandler (el, err_el, disabled_cls, btn, txt_lim) {
 					var replyText = $(el).val();
-					if (replyText && replyText.length < txt_lim) {
+					if (replyText && replyText.length < txt_lim && checkRecipients()) {
 						if ($(err_el).is(':visible')) {
 							$(err_el).hide();
 						}
