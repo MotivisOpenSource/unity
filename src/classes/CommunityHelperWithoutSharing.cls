@@ -339,7 +339,7 @@ public without sharing class CommunityHelperWithoutSharing {
 			if (inmm == 8) {
 				if (!cgmrList.isEmpty()) {
 					cgmrList[0].Status = 'Declined';
-					update cgmrList;
+					//update cgmrList;
 					CommunityAccess.UpdateWithoutSharing(
 						cgmrList,
 						'CommunityHelperWithoutSharing.cls [membershipWOSH]',
