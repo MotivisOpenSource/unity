@@ -1217,7 +1217,13 @@
 				}
 				if(item.text != null && (item.type == "Text" || item.type == "Link")){
 					if(item.type == "Link"){
+						if(item.text.indexOf('@') != -1){
+							outString += '<a href="mailto:'+item.text+'">'+item.text+'</a>';
+						}else if(item.text.indexOf('http') == 0) {
 						outString += '<a href="'+item.text+'">'+item.text+'</a>';
+					}else{
+							outString += '<a href="http://'+item.text+'">'+item.text+'</a>';
+						}
 					}else{
 					outString += item.text;
 				}
