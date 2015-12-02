@@ -1283,7 +1283,7 @@ global with sharing class CommunityFeedController {
 		public Integer total { get { return (capabilities.comments != NULL) ? capabilities.comments.page.total : 0; }}
 		public Boolean showCommentsCount { get {return total > 0;}}
 		public Boolean showComments { get { return (capabilities.comments != NULL) ? capabilities.comments.page.items.size() > 0 : false; } }
-		public Boolean isDeleteRestricted { get { return (checkBool() != true) ? actor.id == UserInfo.getUserId() : true;} set;  }
+		public Boolean isDeleteRestricted { get { return (checkBool() != true) ? actor.id == UserInfo.getUserId() || parentId == UserInfo.getUserId() : true;} set;  }
 		public String countLikes { get { return (capabilities.chatterLikes != NULL) ? String.valueOf(capabilities.chatterLikes.page.total) : '0'; } }
 		public String likeStyle { get { return (capabilities.chatterLikes != NULL && capabilities.chatterLikes.isLikedByCurrentUser) ? ' active' : ''; } }
 		public String bookmarkStyle { get { return (capabilities.bookmarks != NULL && capabilities.bookmarks.isBookmarkedByCurrentUser) ? ' active' : ''; } }
@@ -1421,6 +1421,10 @@ global with sharing class CommunityFeedController {
 		public Boolean isBookmarkedByCurrentUser { get; set; }
 	}
 
+	public class Parent {
+		public Id id { get; set; }
+	}
+
 	public class Page2 {
 		public List<FeedElementComment> items { get; set; }
 		public String nextPageToken { get; set; }
@@ -1435,7 +1439,7 @@ global with sharing class CommunityFeedController {
 		public Actor user { get; set; }
 		public Datetime createdDate { get; set; }
 		public String dateStr { get { return convertTimeDiff(createdDate);} }
-		public Boolean isDeleteRestricted { get { return (checkBool() != true) ? user.id == UserInfo.getUserId() : true;} set;  }
+		public Boolean isDeleteRestricted { get { return (checkBool() != true) ? user.id == UserInfo.getUserId() || parent.id == UserInfo.getUserId() : true;} set;  }
 		public Page3 likes { get; set; }
 		public Link myLike { get; set; }
 		public ModerationFlags moderationFlags { get; set; }
@@ -1446,7 +1450,7 @@ global with sharing class CommunityFeedController {
 		public String countLikes { get { return String.valueOf(likes.total); } }
 		public String likeStyle { get { return myLike != NULL ? ' active' : ''; } }
 		public String likeId { get { return myLike != NULL ? myLike.id : ''; } }
-
+		public Parent parent { get; set; }
 		public List<TopicCL> topicsUser { get; set; }
 	}
 
