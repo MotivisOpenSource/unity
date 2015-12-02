@@ -395,6 +395,11 @@
         <members>LBL_Event_Group</members>
         <members>LBL_Events</members>
         <members>LBL_Feed</members>
+	<members>LBL_Feed_Bookmark</members>
+        <members>LBL_Feed_Delete</members>
+        <members>LBL_Feed_Flag</members>
+        <members>LBL_Feed_Like</members>
+        <members>LBL_Feed_Reply</members>
         <members>LBL_FeedsTime</members>
         <members>LBL_File</members>
         <members>LBL_File_InputBox</members>
