@@ -42,10 +42,7 @@ public with sharing class CommunityMenuController {
 
 	public static String getRegistration() {
 		String result = 'false';
-		if (UserInfo.getUserType() != 'Guest'
-			&& !currentPage(Page.CommunityRegTerms.getUrl())
-			&& !currentPage(Page.Community404.getUrl())
-		) {
+		if (!currentPage(Page.CommunityRegTerms.getUrl()) && !currentPage(Page.Community404.getUrl())) {
 			CommunityRegTermsController crtc = new CommunityRegTermsController();
 			result = crtc.checkAndPrepareMenu();
 		}
@@ -62,15 +59,7 @@ public with sharing class CommunityMenuController {
 	public static Boolean getIsRegTermsPage() {
 		return currentPage(Page.CommunityRegTerms.getUrl());
 	}
-/*
-	public PageReference getRedirectToLogin() {
-		PageReference pr;
-		if (UserInfo.getUserType() == 'Guest') {
-			pr = Network.forwardToAuthPage(NULL);
-		}
-		return pr;
-	}
-*/
+
 	public String getAlert() {
 		DateTime Now = DateTime.now();
 		if (!SObjectType.Community_News__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_News__c);
