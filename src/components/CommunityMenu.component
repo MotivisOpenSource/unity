@@ -41,15 +41,6 @@
 	</script>
 </apex:outputPanel>
 <!-- End For Background Image -->
-<!--apex:outputPanel rendered="{!!ISBLANK(RedirectToLogin)}">
-	<script type="text/javascript">
-		(function() {
-			console.log('Registration RedirectToLogin}');
-			window.location.href = '{!RedirectToLogin}?startURL={!URLENCODE($CurrentPage.URL)}';
-			jQuery('body').hide();
-		})();
-	</script>
-</apex:outputPanel-->
 <apex:outputPanel rendered="{!Registration == 'true'}">
 	<script type="text/javascript">
 		(function() {
