@@ -369,6 +369,9 @@
         <members>LBL_Comments_Title</members>
         <members>LBL_Confirm_Remove_Manager</members>
         <members>LBL_Contact</members>
+		<members>LBL_This_Update</members>
+		<members>LBL_All_Updates</members>
+		<members>LBL_There_Are_No_Updates</members>
         <members>LBL_CreateGroup_Details</members>
         <members>LBL_CreateGroup_NoTagsMessage</members>
         <members>LBL_CreateGroup_PictureUpload</members>
@@ -602,6 +605,7 @@
     <types>
         <members>Motivis_Unity</members>
         <members>Motivis_Unity/motivis_unity_logo_png.png</members>
+		<members>Motivis_Unity/Unity_branding_header</members>
         <name>Document</name>
     </types>
     <types>

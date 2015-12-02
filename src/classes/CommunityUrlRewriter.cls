@@ -102,10 +102,13 @@ global without sharing class CommunityUrlRewriter implements Site.UrlRewriter {
 		else if (messageType == CHATTER_POST_NOTIFICATION && myFriendlyUrl.getParameters().get('fId') != null) {
 			//redirect = Page.CommunityFeed_MyFeed;
 			String feedItemId = myFriendlyUrl.getParameters().get('fId');
-			String parentId = [SELECT Id, ParentId FROM FeedItem WHERE Id = :feedItemId LIMIT 1].ParentId;
+			String parentId;
+			if([SELECT COUNT() FROM FeedItem WHERE Id = :feedItemId] > 0){
+				parentId = [SELECT Id, ParentId FROM FeedItem WHERE Id = :feedItemId LIMIT 1].ParentId;
+			}
 			String currentId = myFriendlyUrl.getParameters().get('s1uid');
 						
-			if(myFriendlyUrl.getParameters().get('id') == NULL && parentId.substring(0, currentId.length()) != currentId){
+			if(myFriendlyUrl.getParameters().get('id') == NULL && parentId != NULL && parentId.substring(0, currentId.length()) != currentId){
 				redirect = Page.CommunityProfilePage;
 				redirect.getparameters().put('oid',myFriendlyUrl.getParameters().get('u'));
 				redirect.getparameters().put('id',myFriendlyUrl.getParameters().get('u'));

@@ -105,6 +105,21 @@ public without sharing class CommunityHelperWithoutSharing {
 	}
 	
 
+// used for CommunityGroupFilesController
+	public static FeedItem getFeedParentId(String contentTitle, String contentOwner){
+		return [SELECT Id, Type, ParentId, Title, CreatedById FROM FeedItem WHERE Type = 'ContentPost' AND Title = :contentTitle AND CreatedById = :contentOwner LIMIT 1];
+	}
+
+// used for CommunityFeedController
+	public static List<User> getUsers(Set<String> usersIds){
+		return [SELECT Id, Name FROM User WHERE Id IN :usersIds];
+	}
+
+// used for CommunityFeedController
+	public static List<Community_Group_Control__c> getGroups(Set<String> groupsIds){
+		return [SELECT Chatter_Group_ID__c, Name FROM Community_Group_Control__c WHERE Chatter_Group_ID__c IN :groupsIds];
+	}
+
 // used for CommunityHomeNotificationController
 	public static List<FeedItem> getFeeds(Set<Id> controlsIds, String userId){
 		String queryUserId = CommunityUtils.validateId(userId);

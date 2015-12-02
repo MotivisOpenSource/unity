@@ -7,6 +7,13 @@
         <shortDescription>BTN Accept</shortDescription>
         <value>Accept</value>
     </labels>
+	 <labels>
+        <fullName>LBL_TermsAndConditions</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL TermsAndConditions</shortDescription>
+        <value>Terms &amp; Conditions</value>
+    </labels>
     <labels>
         <fullName>BTN_Back</fullName>
         <language>en_US</language>
@@ -539,6 +546,13 @@
         <protected>true</protected>
         <shortDescription>Label All Groups</shortDescription>
         <value>All Groups</value>
+    </labels>
+	<labels>
+        <fullName>LBL_All_Updates</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL All Updates</shortDescription>
+        <value>All Updates</value>
     </labels>
     <labels>
         <fullName>LBL_Assign_New_Owner</fullName>
@@ -1849,13 +1863,21 @@
         <value>TalkingAbout</value>
     </labels>
     <labels>
-        <fullName>LBL_TermsAndConditions</fullName>
+        <fullName>LBL_There_Are_No_Updates</fullName>
         <language>en_US</language>
         <protected>true</protected>
-        <shortDescription>LBL TermsAndConditions</shortDescription>
-        <value>Terms &amp; Conditions</value>
+        <shortDescription>LBL There Are No Updates</shortDescription>
+        <value>There are no updates</value>
     </labels>
     <labels>
+        <fullName>LBL_This_Update</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL This Update</shortDescription>
+        <value>This Update</value>
+    </labels>
+    <labels>
+
         <fullName>LBL_Thumbnail</fullName>
         <language>en_US</language>
         <protected>true</protected>

@@ -405,8 +405,10 @@
 								</div>
 								</apex:outputPanel>
 								<apex:outputPanel layout="none" rendered="{!!current}">
+									<apex:variable var="pfe" value="{!IF(ISBLANK($CurrentPage.parameters.fromEmail),false, true)}"/>
+									<apex:variable var="pffe" value="{!IF(ISBLANK($CurrentPage.parameters.fId),'',JSENCODE($CurrentPage.parameters.fId))}"/>
 									<div id="feed" class="profile-edit tab-pane fade {!IF(pft == '2','active in','')}">
-										<c:CommunityFeed pid="{!currentUserId}" tf="true"/>
+										<c:CommunityFeed pid="{!currentUserId}" fe="{!pfe}" ffe="{!pffe}" tf="true"/>
 									</div>
 								</apex:outputPanel>
 							</div>
