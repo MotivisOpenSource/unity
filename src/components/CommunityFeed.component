@@ -328,14 +328,14 @@
 							<li><a href="javascript:void(0);"><span><%- p2.countLikes %></span> Likes</a></li>
 						</ul>
 						<ul class="list-inline pull-right margin-top-5" id="ul<%- p2.id %>">
-							<li><a href="javascript:void(0);"><i onclick="focusComment('<%- p2.id %>');" class="expand-list rounded-x fa fa-reply"></i></a></li>
-							<li><a href="javascript:void(0);"><i onclick="inlAct('<%- p2.id %>','fa-thumbs-up','<%- p2.likeId %>');" class="expand-list rounded-x fa fa-thumbs-up<%- p2.likeStyle %>"></i></a></li>
+							<li><a href="javascript:void(0);" data-toggle="tooltip" title={!$Label.LBL_Feed_Reply}><i onclick="focusComment('<%- p2.id %>');" class="expand-list rounded-x fa fa-reply"></i></a></li>
+							<li><a href="javascript:void(0);" data-toggle="tooltip" title={!$Label.LBL_Feed_Like}><i onclick="inlAct('<%- p2.id %>','fa-thumbs-up','<%- p2.likeId %>');" class="expand-list rounded-x fa fa-thumbs-up<%- p2.likeStyle %>"></i></a></li>
 							<% if ( (p2.showFlag)&&chekFlagOnPage(p2.parentType) ) { %>
-							<li><a href="javascript:void(0);"><i onclick="inlAct('<%- p2.id %>','fa-flag','<%- p2.flagStatus %>');" class="expand-list rounded-x fa fa-flag<%- p2.flagStyle %>"></i></a></li>
+							<li><a href="javascript:void(0);" data-toggle="tooltip" title={!$Label.LBL_Feed_Flag}><i onclick="inlAct('<%- p2.id %>','fa-flag','<%- p2.flagStatus %>');" class="expand-list rounded-x fa fa-flag<%- p2.flagStyle %>"></i></a></li>
 							<% } %>
-							<li><a href="javascript:void(0);"><i onclick="inlAct('<%- p2.id %>','fa-bookmark','<%- p2.bookmarkStatus %>');" class="expand-list rounded-x fa fa-bookmark<%- p2.bookmarkStyle %>"></i></a></li>
+							<li><a href="javascript:void(0);" data-toggle="tooltip" title={!$Label.LBL_Feed_Bookmark}><i onclick="inlAct('<%- p2.id %>','fa-bookmark','<%- p2.bookmarkStatus %>');" class="expand-list rounded-x fa fa-bookmark<%- p2.bookmarkStyle %>"></i></a></li>
 							<% if (p2.isDeleteRestricted) { %>
-							<li><a href="javascript:void(0);"><i onclick="inlAct('<%- p2.id %>','fa-times','');" class="expand-list rounded-x fa fa-times"></i></a></li>
+							<li><a href="javascript:void(0);" data-toggle="tooltip" title={!$Label.LBL_Feed_Delete}><i onclick="inlAct('<%- p2.id %>','fa-times','');" class="expand-list rounded-x fa fa-times"></i></a></li>
 							<% } %>
 						</ul>
 						<div class="clearfix"></div>
@@ -475,14 +475,13 @@
 				function hideFeedError() {
 					//$('#postform-error').hide();
 				}
-			
-    			function inputFileOnchange(elm) {
-    			    console.log(elm);
-    			    if (elm.files.length>0) elm.parentNode.nextSibling.value = elm.files[0].name;
-    			    else elm.parentNode.nextSibling.value = '';
-    			}
+				
+		 		function inputFileOnchange(elm) {
+						console.log(elm);
+						if (elm.files.length>0) elm.parentNode.nextSibling.value = elm.files[0].name;
+						else elm.parentNode.nextSibling.value = '';
+					}
 				var chekFlagOnPage = function(type){
-
 					if(!(_.contains(['News','Events','Manager'], type)) ) {
 						listPages = ['CommunityNewsDetail', 'CommunityEventDetail', 'CommunityGroupManager'];
 						_.each(listPages, function(value, key, obj){ obj[key] = '{!packagePrefix}'+ value.toLowerCase(); });
@@ -545,21 +544,21 @@
 					disableBtn('shmbtn',true);
 					var params = {'parentId' : '{!JSENCODE(parentId)}',
 								'feedType' 	 : '{!feedType}',
-								'inpt'		 : inpt, 
+								'inpt'		 : inpt,
 								'topicId' 	 : '{!JSENCODE(topicId)}'};
 					Visualforce.remoting.Manager.invokeAction(
 						'{!$RemoteAction.CommunityFeedController.feedsForTopics}',
 						params,
 						function(result, event) {
 							if (event.result) {
-							_.templateSettings.variable = 'rc';
-							var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
-							var tt = jsonObj(result);
-							$('#cfcmp').append(template(tt));
-							enableBtn('shmbtn');
-							$('#shmbtn').css('display',tt.showMore?'block':'none').attr('onclick','loadFeedsForTopic(\'' + tt.nextPageToken + '\');return false;');
+								_.templateSettings.variable = 'rc';
+								var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
+								var tt = jsonObj(result);
+								$('#cfcmp').append(template(tt));
+								enableBtn('shmbtn');
+								$('#shmbtn').css('display',tt.showMore?'block':'none').attr('onclick','loadFeedsForTopic(\'' + tt.nextPageToken + '\');return false;');
 								$('.preloader__container').hide();
-						}
+							}
 							else {
 								showFeedError(event.message);
 								$('.preloader__container').hide();
@@ -611,10 +610,10 @@
 								params,
 								function(result, event) {
 									if (event.result) {
-									_.templateSettings.variable = 'rc';
-									var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
-									var tt = jsonObj(result);
-									$('#cfcmp').prepend(template(tt));
+										_.templateSettings.variable = 'rc';
+										var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
+										var tt = jsonObj(result);
+										$('#cfcmp').prepend(template(tt));
 										$('#message').val('');
 									}
 									else {
@@ -633,42 +632,42 @@
 					
 				uploadAttachment = function(binary,fName,fType) {
 					// send attacment
-										var __sfdcSessionId = '{!GETSESSIONID()}';
+					var __sfdcSessionId = '{!GETSESSIONID()}';
 					if('{!JSENCODE(parentIdForAtt)}'.length == 0) {
-											enableBtn('mesbtn');
+							enableBtn('mesbtn');
 							showFeedError('{!JSINHTMLENCODE($Label.ERR_Set_Up_Community_Profile)}');
-											return null;
-										}
-										sforce.connection.serverUrl = '{!$Site.Prefix}/services/Soap/u/33.0';
-										sforce.connection.sessionId = __sfdcSessionId;
-										var Attachment = new sforce.SObject('Attachment');
-										Attachment.Name = fName;
-										Attachment.ContentType = fType;
-										Attachment.Body  = binary;
-										Attachment.ParentId = '{!JSENCODE(parentIdForAtt)}';
-										sforce.connection.create([Attachment],
-					{
+							return null;
+						}
+						sforce.connection.serverUrl = '{!$Site.Prefix}/services/Soap/u/33.0';
+						sforce.connection.sessionId = __sfdcSessionId;
+						var Attachment = new sforce.SObject('Attachment');
+						Attachment.Name = fName;
+						Attachment.ContentType = fType;
+						Attachment.Body  = binary;
+						Attachment.ParentId = '{!JSENCODE(parentIdForAtt)}';
+						sforce.connection.create([Attachment],
+						{
 							onSuccess : function(result, source) {
 								if (result[0].getBoolean("success")) {
-										            if($("[name='message']").val()) {
-														$('#message').mentionsInput('val', function(text) {
-															chataction.layout.items[messageItemIndex].value = text;
-															insertAttIntoFeed(result[0].id, JSON.stringify(chataction.layout));
-														});
+								if($("[name='message']").val()) {
+										$('#message').mentionsInput('val', function(text) {
+											chataction.layout.items[messageItemIndex].value = text;
+											insertAttIntoFeed(result[0].id, JSON.stringify(chataction.layout));
+										});
 									}
 									else {
-														insertAttIntoFeed(result[0].id, null);
-													}
-											    }
+										insertAttIntoFeed(result[0].id, null);
+									}
+								}
 								else {
-													enableBtn('mesbtn');
+									enableBtn('mesbtn');
 									showFeedError(result[0].errors.message);
-										        }
-										    },
+								}
+							},
 							onFailure : function(error, source) {
-												enableBtn('mesbtn');
+								enableBtn('mesbtn');
 								showFeedError(result[0].errors.message);
-					    }
+							}
 					});
 					// end sending
 				}
@@ -727,7 +726,7 @@
 											var length = bytes.byteLength;
 											for (var i = 0; i < length; i++)
 											{
-											    binary += String.fromCharCode(bytes[i]);
+												binary += String.fromCharCode(bytes[i]);
 											}
 											uploadAttachment(new sforce.Base64Binary(binary).toString(),fName,fType);
 									};
@@ -736,8 +735,8 @@
 							}
 							}
 							item.value = $("[name='" + item.fieldName + "']").val();
-						});	
-						if(sendFile == false) {					
+						});
+						if(sendFile == false) {
 							if($("[name='message']").val()) {
 								$('#message').mentionsInput('val', function(text) {
 									chataction.layout.items[messageItemIndex].value = text;
@@ -754,7 +753,7 @@
 						enableBtn('mesbtn');
 					}
 				}
-				function insertAttIntoFeed(attId, jsontext){
+				function insertAttIntoFeed(attId, jsontext) {
 					hideFeedError();
 					Visualforce.remoting.Manager.invokeAction(
 						'{!$RemoteAction.CommunityFeedController.insertAttacmentIntoFeed}',
@@ -781,11 +780,11 @@
 					var err = false;
 					var params = {
 						'parentId'	 : '{!JSENCODE(parentId)}',
-								'jsontext': jsontext, 
-								'infilebstr': infilebstr, 
-								'infiletype': infiletype, 
-								'infilename': infilename,
-								'topicId': '{!JSENCODE(topicId)}'
+						'jsontext'	 : jsontext,
+						'infilebstr' : infilebstr,
+						'infiletype' : infiletype,
+						'infilename' : infilename,
+						'topicId' 	 : '{!JSENCODE(topicId)}'
 					};
 					hideFeedError();
 					Visualforce.remoting.Manager.invokeAction(
@@ -793,21 +792,21 @@
 						params,
 						function(result, event) {
 							if (event.result) {
-										_.templateSettings.variable = 'rc';
-										var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
-										var tt = jsonObj(result);
-										$('#cfcmp').prepend(template(tt));
-										_.each(chataction.layout.items, function(item) {
-											$("[name='" + item.fieldName + "']").val('');
-										});
+								_.templateSettings.variable = 'rc';
+								var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
+								var tt = jsonObj(result);
+								$('#cfcmp').prepend(template(tt));
+								_.each(chataction.layout.items, function(item) {
+									$("[name='" + item.fieldName + "']").val('');
+								});
 								setActiveli();
-								}	
+							}
 							else {
 								showFeedError(event.message);
 							}
 							enableBtn('mesbtn');
 						}
-					);					
+					);
 					if (typeof(switchToMemberMode) == 'function') switchToMemberMode();
 				}
 				function getComments(feedid, token) {
@@ -818,12 +817,12 @@
 						token,
 						function(result, event) {
 							if (event.result) {
-							_.templateSettings.variable = 'rc';
-							var template = _.template($('#ttp21').html() + $('#ttp2').html());
-							var tt = jsonObj(result);
-							$('#c'+tt.feedId).prepend(template(tt));
-							$('#l'+tt.feedId).css('display',tt.showNextComments?'block':'none').attr('onclick','getComments(\'' + tt.feedId + '\',\'' + tt.nextPageToken + '\');return false;');
-						}
+								_.templateSettings.variable = 'rc';
+								var template = _.template($('#ttp21').html() + $('#ttp2').html());
+								var tt = jsonObj(result);
+								$('#c'+tt.feedId).prepend(template(tt));
+								$('#l'+tt.feedId).css('display',tt.showNextComments?'block':'none').attr('onclick','getComments(\'' + tt.feedId + '\',\'' + tt.nextPageToken + '\');return false;');
+							}
 							else {
 								showFeedError(event.message);
 							}
@@ -834,8 +833,8 @@
 					if({!!isTopicAssignmentCreateable}) return 1;
 					var pos = 0;
 					var numbertopics = 0;
-					do{					  
-						var foundPos = text.indexOf('#[', pos);	
+					do {
+						var foundPos = text.indexOf('#[', pos);
 						numbertopics = foundPos!=-1? numbertopics+1:numbertopics;
 						pos = foundPos + 1;
 					}
@@ -857,10 +856,10 @@
 							text,
 							function(result, event) {
 								if (event.result) {
-								_.templateSettings.variable = 'rc';
-								var template = _.template($('#ttp21').html() + $('#ttp2').html());
-								var tt = jsonObj(result);
-								$('#d'+tt.feedId).before(template(tt));
+									_.templateSettings.variable = 'rc';
+									var template = _.template($('#ttp21').html() + $('#ttp2').html());
+									var tt = jsonObj(result);
+									$('#d'+tt.feedId).before(template(tt));
 									$('#a'+tt.feedId).val('');
 								}
 								else {
@@ -900,19 +899,19 @@
 						ini,
 						function(result, event) {
 							if (event.result) {
-							var tt = jsonObj(result);
-							if (tt.cname=='fa-times') {
-								$('#m'+tt.pid).remove();
-								if (typeof(switchToMemberMode) == 'function') switchToMemberMode();
-							}
-							else {
-								var nocl = 'inlAct(\''+tt.pid+'\',\''+tt.cname+'\',\''+tt.oid+'\');';
-								$('#ul'+tt.pid+' [name="'+tt.cname+'"]').removeClass('fa-spinner fa-pulse').addClass(tt.cname+tt.stl).attr('onclick',nocl);
-								if (tt.cname=='fa-thumbs-up') {
-									var dti = parseInt($('#m'+tt.pid+' .pull-left span').first().text());
-									$('#m'+tt.pid+' .pull-left span').first().text(tt.oid==''?(dti-1):(dti+1));
+								var tt = jsonObj(result);
+								if (tt.cname=='fa-times') {
+									$('#m'+tt.pid).remove();
+									if (typeof(switchToMemberMode) == 'function') switchToMemberMode();
 								}
-							}
+								else {
+									var nocl = 'inlAct(\''+tt.pid+'\',\''+tt.cname+'\',\''+tt.oid+'\');';
+									$('#ul'+tt.pid+' [name="'+tt.cname+'"]').removeClass('fa-spinner fa-pulse').addClass(tt.cname+tt.stl).attr('onclick',nocl);
+									if (tt.cname=='fa-thumbs-up') {
+										var dti = parseInt($('#m'+tt.pid+' .pull-left span').first().text());
+										$('#m'+tt.pid+' .pull-left span').first().text(tt.oid==''?(dti-1):(dti+1));
+									}
+								}
 						}
 							else {
 								showFeedError(event.message);
@@ -934,10 +933,10 @@
 						elastic: false
 					}).focus();
 				}
-				function initTextarea(element) {					
-					$(element).mentionsInput({					
+				function initTextarea(element) {
+					$(element).mentionsInput({
 						onDataRequest:function (mode, charValue, query, callback) {
-							if(charValue == '@'){					
+							if(charValue == '@') {
 								Visualforce.remoting.Manager.invokeAction(
 									'{!$RemoteAction.CommunityFeedController.getUsers}',
 									query,
@@ -955,7 +954,6 @@
 									}
 								);
 							}
-
 						},
 						elastic: false
 					}).css('height','78px').focus();
@@ -1012,36 +1010,36 @@
 							invokeActionParam,
 							function(result, event) {
 								if (event.result) {
-								chataction.loading = false;
-								chataction.layout = jsonObj(result);
-								_.templateSettings.variable = 'rc';
-								var template = _.template($('#atp').html());
-								$('#postarea').html(template(chataction.layout));
-								var aname = $('#palist .fa-spinner').closest('a').attr('name');
-								$('#palist .fa-spinner').removeClass('fa-spinner fa-pulse').addClass(aname);
-								initValidator();
-								//datetime
-								if($('.validate-datetimepicker')) {
-									var currentdate = new Date(); 
-									var datetime = (currentdate.getMonth()+1) + '/' + currentdate.getDate() + '/' + currentdate.getFullYear() + ' ' + currentdate.getHours() + ":"  + currentdate.getMinutes();
-									$('.validate-datetimepicker').datetimepicker({
-										minDate:datetime,
-										format:'m/d/Y h:i A',
-										formatTime:'h:i A',
-										formatDate:'m/d/Y',
+									chataction.loading = false;
+									chataction.layout = jsonObj(result);
+									_.templateSettings.variable = 'rc';
+									var template = _.template($('#atp').html());
+									$('#postarea').html(template(chataction.layout));
+									var aname = $('#palist .fa-spinner').closest('a').attr('name');
+									$('#palist .fa-spinner').removeClass('fa-spinner fa-pulse').addClass(aname);
+									initValidator();
+									//datetime
+									if($('.validate-datetimepicker')) {
+										var currentdate = new Date(); 
+										var datetime = (currentdate.getMonth()+1) + '/' + currentdate.getDate() + '/' + currentdate.getFullYear() + ' ' + currentdate.getHours() + ":"  + currentdate.getMinutes();
+										$('.validate-datetimepicker').datetimepicker({
+											minDate:datetime,
+											format:'m/d/Y h:i A',
+											formatTime:'h:i A',
+											formatDate:'m/d/Y',
 											step:30
-									});
-								}
-								//date
-								if(jQuery('.validate-datepicker')) {
-									var currentdate = new Date(); 
-									var datetime = (currentdate.getMonth()+1) + '/' + currentdate.getDate() + '/' + currentdate.getFullYear();
-									$('.validate-datepicker').datetimepicker({
-										timepicker:false,
-										minDate:datetime,
-										format:'m/d/Y',
-										formatDate:'m/d/Y',
-									});
+										});
+									}
+									//date
+									if(jQuery('.validate-datepicker')) {
+										var currentdate = new Date(); 
+										var datetime = (currentdate.getMonth()+1) + '/' + currentdate.getDate() + '/' + currentdate.getFullYear();
+										$('.validate-datepicker').datetimepicker({
+											timepicker:false,
+											minDate:datetime,
+											format:'m/d/Y',
+											formatDate:'m/d/Y',
+										});
 								}
 							}
 								else {
@@ -1075,7 +1073,7 @@
 					}
 				}
 				
-				function vote (t) {
+				function vote(t) {
 					var t_el = $(t);
 					var choice = t_el.parent().find('input[type=radio]:checked');
 					if (choice) {
@@ -1092,13 +1090,13 @@
 							'{!feedType}',
 							function(result, event) {
 								if (event.result) {
-								_.templateSettings.variable = 'rc';
-								changeVoteId = null;
-								var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
-								var tt = jsonObj(result);
-								$('#cfcmp').empty();
-								$('#cfcmp').prepend(template(tt));
-								t_el.removeAttr('disabled');
+									_.templateSettings.variable = 'rc';
+									changeVoteId = null;
+									var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
+									var tt = jsonObj(result);
+									$('#cfcmp').empty();
+									$('#cfcmp').prepend(template(tt));
+									t_el.removeAttr('disabled');
 								}
 								else {
 									showFeedError(event.message);
@@ -1108,7 +1106,6 @@
 					}
 					setActiveli();
 				}
-
 				function refreshFeed() {
 					hideFeedError();
 					Visualforce.remoting.Manager.invokeAction(
@@ -1203,7 +1200,6 @@
 			</script>
 		</apex:outputPanel>
 	</div>
-
 	<script>
 		function parseFeedBody(o,t){
 			var outString = "";
@@ -1217,13 +1213,7 @@
 				}
 				if(item.text != null && (item.type == "Text" || item.type == "Link")){
 					if(item.type == "Link"){
-						if(item.text.indexOf('@') != -1){
-							outString += '<a href="mailto:'+item.text+'">'+item.text+'</a>';
-						}else if(item.text.indexOf('http') == 0) {
 						outString += '<a href="'+item.text+'">'+item.text+'</a>';
-					}else{
-							outString += '<a href="http://'+item.text+'">'+item.text+'</a>';
-						}
 					}else{
 					outString += item.text;
 				}
@@ -1241,7 +1231,6 @@
 			});
 			return outString;
 		}
-
 		function wrapnl(intext) {
 			return intext ? intext.replace(/\r\n/g, '<br />').replace(/[\r\n]/g, '<br />') : '';
 		}
