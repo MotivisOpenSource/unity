@@ -863,13 +863,12 @@ global with sharing class CommunityFeedController {
 				if (sObjectFields.containsKey(item.fieldName)) {
 					Schema.DisplayType tpOfItem = sObjectFields.get(item.fieldName).getType();
 					if (tpOfItem == Schema.DisplayType.Datetime) {
-						//sObj.put(item.fieldName, Datetime.newInstance(Date.parse(item.value), Time.newInstance(0,0,0,0)));
-						if (!Test.isRunningTest()) { 
-							sObj.put(item.fieldName, Datetime.parse(item.value));
-						}
-					} else if (tpOfItem == Schema.DisplayType.Date){
-						sObj.put(item.fieldName, Date.parse(item.value));
-					} else {
+						sObj.put(item.fieldName, String.isBlank(item.value) ? null : Datetime.parse(item.value));
+					}
+					else if (tpOfItem == Schema.DisplayType.Date){
+						sObj.put(item.fieldName, String.isBlank(item.value) ? null : Date.parse(item.value));
+					}
+					else {
 						sObj.put(item.fieldName, item.value);
 					}
 				}
