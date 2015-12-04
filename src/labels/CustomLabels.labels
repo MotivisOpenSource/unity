@@ -50,6 +50,34 @@
         <value>Clone</value>
     </labels>
     <labels>
+        <fullName>LBL_Make_Vote</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Make Vote</shortDescription>
+        <value>Make Vote</value>
+    </labels>
+	<labels>
+        <fullName>LBL_View_Results</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL View Results</shortDescription>
+        <value>View Results</value>
+    </labels>
+	 <labels>
+        <fullName>LBL_Change_Vote</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Change Vote</shortDescription>
+        <value>Change Vote</value>
+    </labels>
+	 <labels>
+        <fullName>LBL_Refresh</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Refresh</shortDescription>
+        <value>Refresh</value>
+    </labels>
+	<labels>
         <fullName>BTN_Create_Event</fullName>
         <language>en_US</language>
         <protected>true</protected>

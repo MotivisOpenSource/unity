@@ -1565,11 +1565,11 @@ global with sharing class CommunityFeedController {
 	}
 	
 	private static List<List<String>> CHATTER_ACTIONS = new List<List<String>> {
-		new List<String> { label.LBL_Post, 'FeedItem.TextPost', 'fa-comment', 'Post'},
-		new List<String> { label.LBL_File, 'FeedItem.ContentPost', 'fa-file-o', 'File'},
-		new List<String> { label.LBL_Link, 'FeedItem.LinkPost', 'fa-link', 'Link'},
-		new List<String> { Label.LBL_Poll, 'FeedItem.PollPost', 'fa-bar-chart', 'Poll'},
-		new List<String> { 'Create Event', 'Create_Event', 'fa-calendar', 'Create Event'}
+		new List<String> { label.LBL_Post, 'FeedItem.TextPost', 'fa-comment', 'TextPost'},
+		new List<String> { label.LBL_File, 'FeedItem.ContentPost', 'fa-file-o', 'ContentPost'},
+		new List<String> { label.LBL_Link, 'FeedItem.LinkPost', 'fa-link', 'LinkPost'},
+		new List<String> { Label.LBL_Poll, 'FeedItem.PollPost', 'fa-bar-chart', 'PollPost'},
+		new List<String> { 'Create Event', 'Create_Event', 'fa-calendar', 'Create_Event'}
 	};
 
 	private static Map<String, ChatterActionLayout> ACTION_LAYOUT = new Map<String, ChatterActionLayout> {
@@ -1728,15 +1728,16 @@ global with sharing class CommunityFeedController {
 		showFileUpload = showFileUpload == true && Community_Settings__c.getInstance().Chatter_Action_Disable_Group_Files__c != true;
 		
 		for (List<String> caa : CHATTER_ACTIONS) {
-			if (
-				actionAvailable.containsKey(caa[3])
-				&& ( (caa[3] != 'File' && caa[3] != 'Create Event')
-					|| (caa[3] == 'File' && showFileUpload && CommunityUtils.checkAPIEnable())
-					|| (caa[3] == 'Create Event' && hideEventBtn != true && CommunityUtils.checkCRUDforObject(CommunityUtils.getPackagePrefix()+'Community_Events__c').get('isCreateable') && CommunityUtils.checkAPIEnable())
+			for(String key : actionAvailable.keySet()){
+				if (actionAvailable.get(key).contains(caa[3])
+					&& ( (caa[3] != 'ContentPost' && caa[3] != 'Create_Event')
+					|| (caa[3] == 'ContentPost' && showFileUpload && CommunityUtils.checkAPIEnable())
+					|| (caa[3] == 'Create_Event' && hideEventBtn != true && CommunityUtils.checkCRUDforObject(CommunityUtils.getPackagePrefix()+'Community_Events__c').get('isCreateable') && CommunityUtils.checkAPIEnable())
 				)
 			) {
 				resultList.add(new ChatterActionItem(caa[0],caa[1],caa[2]));
 			}
+		}
 		}
 		return resultList;
 	}

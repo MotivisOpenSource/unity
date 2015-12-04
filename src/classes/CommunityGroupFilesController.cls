@@ -150,13 +150,11 @@ public with sharing class CommunityGroupFilesController {
 			feedElementsIds.add(feed.Id);
 			fromEmail = true;
 		}
-		
 		if (String.isNotBlank(parentId) && !fromEmail) {
 			for (FeedItem fi : CommunityHelperWithoutSharing.getFeeds(parentId)) {
 				feedElementsIds.add(fi.Id);
 			}
 		}
-		
 		List<ConnectApi.FeedElement> elements = new List<ConnectApi.FeedElement>();
 		Set<String> subscribedToContent = new Set<String>();
 		Map<String, String> contentDocumentToVersionMap = new Map<String, String>();
@@ -168,9 +166,11 @@ public with sharing class CommunityGroupFilesController {
 				if (fe.capabilities != NULL && fe.capabilities.content != NULL && fe.capabilities.content.versionId != NULL) {
 					collectedVersionIds.add(fe.capabilities.content.versionId);
 					elements.add(fe);
+					if(mode != 'detail'){
 					contentDocumentToVersionMap.put(fe.capabilities.content.id, fe.capabilities.content.versionId);
 				}
 			}
+		}
 		}
 		if (cvList.isEmpty()) {
 			if (!SObjectType.ContentVersion.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.ContentVersion);
@@ -186,6 +186,9 @@ public with sharing class CommunityGroupFilesController {
 			cvList = Database.query(cvQuery);
 		}
 		for (ContentVersion cvItem : cvList) {
+			if(mode == 'detail'){
+				contentDocumentToVersionMap.put(cvItem.ContentDocumentId, cvItem.Id);
+			}
 			cdMap.put(cvItem.Id, cvItem.ContentDocument);
 		}
 		if (!SObjectType.EntitySubscription.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.EntitySubscription);
@@ -444,8 +447,8 @@ public with sharing class CommunityGroupFilesController {
 				ownerId = incd != null ? incd.OwnerId : null;
 				ownerName = incd != null ? incd.Owner.Name : null;
 				lastModified = incd != null ? CommunityFeedController.convertTimeDiff(incd.LastModifiedDate) : null;
-				description = incd.Description;
-				documentId = incd.Id;
+				description = incd != null ? incd.Description : null;
+				documentId = incd != null ? incd.Id : null;
 			}
 		}
 	}

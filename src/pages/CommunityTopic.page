@@ -473,10 +473,14 @@
 
                     $scope.followAction = function(t) {
                         t.TopicIsFollowing = true;
+                        $('.media__table__td__buttons .btn-u').attr('disabled','disabled');
+                        $('.media__table__td__buttons .btn-u').css('opacity','0.5');
                         $scope.followUnfollow(t.Id, t.TopicIsFollowing);
                     }
                     $scope.unFollowAction = function(t) {
                         t.TopicIsFollowing = false;
+                        $('.media__table__td__buttons .btn-u').attr('disabled','disabled');
+                        $('.media__table__td__buttons .btn-u').css('opacity','0.5');
                         $scope.followUnfollow(t.Id, t.TopicIsFollowing);
                     }
                     $scope.followUnfollow = function(tId, isFollow) {
@@ -486,6 +490,9 @@
                             def.then(function(result) {
                                     if ($scope.inProgress == true) {
                                         $scope.followUnfollow();
+                                    }else{
+                                        $('.media__table__td__buttons .btn-u').removeAttr('disabled');
+                                        $('.media__table__td__buttons .btn-u').css('opacity','1');
                                     }
                                 },
                                 function(error){
@@ -495,6 +502,7 @@
                         } else {
                             $scope.inProgress = true;
                         }
+                        
                     };
                     $scope.updateTopicsScope = function () {
                         var def = getTopics();
