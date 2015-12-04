@@ -46,7 +46,9 @@ global without sharing class CommunityUrlRewriter implements Site.UrlRewriter {
 		PageReference redirect;
 		if(url.contains(COMMUNITY_HEADER_REWRITING_PAGE)){
 			Id objId = (Id)myFriendlyUrl.getParameters().get('id');
-			if(objId.getSObjectType().getDescribe().getName().contains('ContentDocument')){
+			if(objId == NULL){
+                redirect = Page.CommunityHome;
+            }else if(objId.getSObjectType().getDescribe().getName().contains('ContentDocument')){
 				redirect = Page.CommunityGroupFiles;
 				redirect.getParameters().put('f',objId);
 			}else{
