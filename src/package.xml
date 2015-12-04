@@ -389,7 +389,7 @@
         <members>LBL_Event_Group</members>
         <members>LBL_Events</members>
         <members>LBL_Feed</members>
-	<members>LBL_Feed_Bookmark</members>
+		<members>LBL_Feed_Bookmark</members>
         <members>LBL_Feed_Delete</members>
         <members>LBL_Feed_Flag</members>
         <members>LBL_Feed_Like</members>
@@ -547,6 +547,10 @@
         <members>LBL_VerifyNewPassword</members>
         <members>LBL_When</members>
         <members>LBL_of</members>
+		<members>LBL_Make_Vote</members>
+		<members>LBL_View_Results</members>
+		<members>LBL_Change_Vote</members>
+		<members>LBL_Refresh</members>
         <members>MSG_Group_Name_Available</members>
         <members>NAV_Discover</members>
         <members>NAV_Events</members>
