@@ -298,14 +298,14 @@
 							<li><a href="javascript:void(0);"><span><%- p2.countLikes %></span> Likes</a></li>
 						</ul>
 						<ul class="list-inline pull-right margin-top-5" id="ul<%- p2.id %>">
-							<li><a href="javascript:void(0);" data-toggle="tooltip" title="{!$Label.LBL_Feed_Reply}"><i onclick="focusComment('<%- p2.id %>');" class="expand-list rounded-x fa fa-reply"></i></a></li>
-							<li><a href="javascript:void(0);" data-toggle="tooltip" title="{!$Label.LBL_Feed_Like}"><i onclick="inlAct('<%- p2.id %>','fa-thumbs-up','<%- p2.likeId %>');" class="expand-list rounded-x fa fa-thumbs-up<%- p2.likeStyle %>"></i></a></li>
+							<li><a href="javascript:void(0);"><i onclick="focusComment('<%- p2.id %>');" class="expand-list rounded-x fa fa-reply"></i></a></li>
+							<li><a href="javascript:void(0);"><i onclick="inlAct('<%- p2.id %>','fa-thumbs-up','<%- p2.likeId %>');" class="expand-list rounded-x fa fa-thumbs-up<%- p2.likeStyle %>"></i></a></li>
 							<% if ( (p2.showFlag)&&chekFlagOnPage(p2.parentType) ) { %>
-							<li><a href="javascript:void(0);" data-toggle="tooltip" title="{!$Label.LBL_Feed_Flag}"><i onclick="inlAct('<%- p2.id %>','fa-flag','<%- p2.flagStatus %>');" class="expand-list rounded-x fa fa-flag<%- p2.flagStyle %>"></i></a></li>
+							<li><a href="javascript:void(0);"><i onclick="inlAct('<%- p2.id %>','fa-flag','<%- p2.flagStatus %>');" class="expand-list rounded-x fa fa-flag<%- p2.flagStyle %>"></i></a></li>
 							<% } %>
-							<li><a href="javascript:void(0);" data-toggle="tooltip" title="{!$Label.LBL_Feed_Bookmark}"><i onclick="inlAct('<%- p2.id %>','fa-bookmark','<%- p2.bookmarkStatus %>');" class="expand-list rounded-x fa fa-bookmark<%- p2.bookmarkStyle %>"></i></a></li>
+							<li><a href="javascript:void(0);"><i onclick="inlAct('<%- p2.id %>','fa-bookmark','<%- p2.bookmarkStatus %>');" class="expand-list rounded-x fa fa-bookmark<%- p2.bookmarkStyle %>"></i></a></li>
 							<% if (p2.isDeleteRestricted) { %>
-							<li><a href="javascript:void(0);" data-toggle="tooltip" title="{!$Label.LBL_Feed_Delete}"><i onclick="inlAct('<%- p2.id %>','fa-times','');" class="expand-list rounded-x fa fa-times"></i></a></li>
+							<li><a href="javascript:void(0);"><i onclick="inlAct('<%- p2.id %>','fa-times','');" class="expand-list rounded-x fa fa-times"></i></a></li>
 							<% } %>
 						</ul>
 						<div class="clearfix"></div>
