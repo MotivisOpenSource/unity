@@ -156,7 +156,7 @@ public with sharing class CommunityGroupFilesController {
 				}
 			}
 		}
-		if (cvList.isEmpty()) {
+		if (mode == 'list' || !collectedVersionIds.isEmpty()) {
 			if (!SObjectType.ContentVersion.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.ContentVersion);
 			String cvQuery = 'SELECT Id, ContentDocumentId, ContentDocument.Id, ContentDocument.OwnerId, ContentDocument.Owner.Name, ContentDocument.LastModifiedDate, ContentDocument.Description FROM ContentVersion';
 			String whQuery = !collectedVersionIds.isEmpty() ? ' Id IN :collectedVersionIds' : '';
@@ -174,8 +174,10 @@ public with sharing class CommunityGroupFilesController {
 			cdMap.put(cvItem.Id, cvItem.ContentDocument);
 		}
 		if (!SObjectType.EntitySubscription.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.EntitySubscription);
-		for (EntitySubscription esItem : [SELECT ParentId FROM EntitySubscription WHERE SubscriberId =:Userinfo.getUserId() AND ParentId IN :contentDocumentToVersionMap.keySet() LIMIT 1000]) {
-			subscribedToContent.add(contentDocumentToVersionMap.get(esItem.ParentId));
+		if (contentDocumentToVersionMap.size() > 0) {
+			for (EntitySubscription esItem : [SELECT ParentId FROM EntitySubscription WHERE SubscriberId =:Userinfo.getUserId() AND ParentId IN :contentDocumentToVersionMap.keySet() LIMIT 1000]) {
+				subscribedToContent.add(contentDocumentToVersionMap.get(esItem.ParentId));
+			}
 		}
 
 		Set<String> filtredContentVersionsId = new Set<String>();
