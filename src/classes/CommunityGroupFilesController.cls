@@ -44,7 +44,6 @@ public with sharing class CommunityGroupFilesController {
 	public String fileQuery { get; set; }
 	private Integer FILES_PAGE_SIZE { get { return mode == 'initial' ? 5 : 10; } }
 	public Boolean allOk { get; set; }
-	public static Boolean fromEmail { get; set; }
 	public Boolean enableShare { get; set; }
 
 	public String parentId { get; set; }
@@ -101,8 +100,7 @@ public with sharing class CommunityGroupFilesController {
 					allOk = chatterGroup.Id != NULL && Community_Settings__c.getInstance().Chatter_Action_Disable_Group_Files__c != true;
 					if (allOk) {
 						ConnectApi.GroupMembershipType groupRole = ConnectApi.ChatterGroups.getGroup(Network.getNetworkId(), chatterGroup.Id).MyRole;
-						allOk = control.Type__c == 'Public' || (groupRole != ConnectApi.GroupMembershipType.NotAMember && groupRole != ConnectApi.GroupMembershipType.NotAMemberPrivateRequested) ||
-								CommunityUtils.isModifyAllData() || CommunityUtils.isViewAllData();
+						allOk = control.Type__c == 'Public' || (groupRole != ConnectApi.GroupMembershipType.NotAMember && groupRole != ConnectApi.GroupMembershipType.NotAMemberPrivateRequested);
 						enableShare = chatterGroup != NULL && chatterGroup.CollaborationType == 'Public';
 					}
 				}
@@ -133,24 +131,13 @@ public with sharing class CommunityGroupFilesController {
 
 	public void init() {
 		fileList = new List<FileWrapper>();
-		fromEmail = false;
 		
 		List<String> feedElementsIds = new List<String>();
 		List<ContentVersion> cvList = new List<ContentVersion>();
 		Set<String> collectedVersionIds = new Set<String>();
 
 		parentId = String.isBlank(parentId) && parent != NULL && String.isNotBlank(parent.id) ? parent.id : parentId;
-
-		if(String.isBlank(parentId)){
-			ContentDocument contentDoc = [SELECT Id, Title, OwnerId FROM ContentDocument WHERE Id =: contentDetailId LIMIT 1];
-			String contentTitle = contentDoc.Title;
-			String contentOwner = contentDoc.OwnerId;
-			FeedItem feed = CommunityHelperWithoutSharing.getFeedParentId(contentTitle, contentOwner);
-			parentId = feed.parentId;
-			feedElementsIds.add(feed.Id);
-			fromEmail = true;
-		}
-		if (String.isNotBlank(parentId) && !fromEmail) {
+		if (String.isNotBlank(parentId)) {
 			for (FeedItem fi : CommunityHelperWithoutSharing.getFeeds(parentId)) {
 				feedElementsIds.add(fi.Id);
 			}
@@ -166,18 +153,15 @@ public with sharing class CommunityGroupFilesController {
 				if (fe.capabilities != NULL && fe.capabilities.content != NULL && fe.capabilities.content.versionId != NULL) {
 					collectedVersionIds.add(fe.capabilities.content.versionId);
 					elements.add(fe);
-					if(mode != 'detail'){
-					contentDocumentToVersionMap.put(fe.capabilities.content.id, fe.capabilities.content.versionId);
 				}
 			}
 		}
-		}
-		if (cvList.isEmpty()) {
+		if (mode == 'list' || !collectedVersionIds.isEmpty()) {
 			if (!SObjectType.ContentVersion.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.ContentVersion);
 			String cvQuery = 'SELECT Id, ContentDocumentId, ContentDocument.Id, ContentDocument.OwnerId, ContentDocument.Owner.Name, ContentDocument.LastModifiedDate, ContentDocument.Description FROM ContentVersion';
 			String whQuery = !collectedVersionIds.isEmpty() ? ' Id IN :collectedVersionIds' : '';
-			if (mode == 'detail' && String.isNotBlank(contentDetailId)) {
-				whQuery += (String.isNotBlank(whQuery) ? ' AND' : '') + ' ContentDocumentId = \'' + CommunityUtils.validateId(contentDetailId) + '\'';
+			if (mode == 'detail') {
+				whQuery += (String.isNotBlank(whQuery) ? ' AND' : '') + ' ContentDocumentId = \'' + String.escapeSingleQuotes(contentDetailId) + '\'';
 			}
 			if (mode == 'list' && String.isNotBlank(fileQuery)) {
 				whQuery += (String.isNotBlank(whQuery) ? ' AND' : '') + ' ContentDocument.Title LIKE \'%' + String.escapeSingleQuotes(fileQuery) + '%\'';
@@ -185,19 +169,37 @@ public with sharing class CommunityGroupFilesController {
 			cvQuery += String.isNotBlank(whQuery) ? ' WHERE' + whQuery : '';
 			cvList = Database.query(cvQuery);
 		}
+
+        	if (!SObjectType.EntitySubscription.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.EntitySubscription);
+		Set<String> filtredContentVersionsId = new Set<String>();
+		for(Integer i=0; i<cvList.size(); i++){
+			filtredContentVersionsId.add(cvList.get(i).id);
+    			cdMap.put(cvList.get(i).Id, cvList.get(i).ContentDocument);
+    			contentDocumentToVersionMap.put(cvList.get(i).ContentDocumentId, cvList.get(i).id);
+    			if((math.mod(i, 204)==0 & i>0) || i==cvList.size()-1){
+       				for (EntitySubscription esItem : [SELECT ParentId FROM EntitySubscription WHERE SubscriberId =:Userinfo.getUserId() AND ParentId IN :contentDocumentToVersionMap.keySet() LIMIT 1000]) {
+					subscribedToContent.add(contentDocumentToVersionMap.get(esItem.ParentId));
+				}
+        			contentDocumentToVersionMap.clear();
+    			}
+		}
+
+/*		
 		for (ContentVersion cvItem : cvList) {
-			if(mode == 'detail'){
 				contentDocumentToVersionMap.put(cvItem.ContentDocumentId, cvItem.Id);
-			}
 			cdMap.put(cvItem.Id, cvItem.ContentDocument);
 		}
 		if (!SObjectType.EntitySubscription.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.EntitySubscription);
-		for (EntitySubscription esItem : [SELECT ParentId FROM EntitySubscription WHERE SubscriberId =:Userinfo.getUserId() AND ParentId IN :contentDocumentToVersionMap.keySet() LIMIT 1000]) {
-			subscribedToContent.add(contentDocumentToVersionMap.get(esItem.ParentId));
+		if (contentDocumentToVersionMap.size() > 0) {
+			for (EntitySubscription esItem : [SELECT ParentId FROM EntitySubscription WHERE SubscriberId =:Userinfo.getUserId() AND ParentId IN :contentDocumentToVersionMap.keySet() LIMIT 1000]) {
+				subscribedToContent.add(contentDocumentToVersionMap.get(esItem.ParentId));
+			}
 		}
 
 		Set<String> filtredContentVersionsId = new Set<String>();
 		filtredContentVersionsId.addAll(contentDocumentToVersionMap.values());
+*/		
+		
 		Set<String> checkForDuplicatingSet = new Set<String>();
 		List<ConnectApi.FeedElement> filteredElements = new List<ConnectApi.FeedElement>();
 		for (ConnectApi.FeedElement fe3 : elements) {
@@ -218,9 +220,8 @@ public with sharing class CommunityGroupFilesController {
 		for (Integer ii = startCopyInterval; ii < endCopyInterval; ii++) {
 			String vId = filteredElements[ii].capabilities.content.versionId;
 			Boolean subscribed = subscribedToContent.contains(vId);
-			Boolean hasDocInfo = cdMap.containsKey(vId);
-			ContentDocument cdItem = hasDocInfo ? cdMap.get(vId) : null;
-			Boolean modifiable = modifyAllDataAccess || (hasDocInfo && (cdItem.OwnerId == UserInfo.getUserId()));
+			ContentDocument cdItem = cdMap.get(vId);
+			Boolean modifiable = modifyAllDataAccess || cdItem.OwnerId == UserInfo.getUserId();
 			fileList.add(new FileWrapper(filteredElements[ii], subscribed, modifiable, cdItem));
 		}
 	}
@@ -444,11 +445,11 @@ public with sharing class CommunityGroupFilesController {
 				versionId = cc.versionId;
 				following = inf;
 				modifiable = inm && String.isNotBlank(cc.versionId);
-				ownerId = incd != null ? incd.OwnerId : null;
-				ownerName = incd != null ? incd.Owner.Name : null;
-				lastModified = incd != null ? CommunityFeedController.convertTimeDiff(incd.LastModifiedDate) : null;
-				description = incd != null ? incd.Description : null;
-				documentId = incd != null ? incd.Id : null;
+				ownerId = incd.OwnerId;
+				ownerName = incd.Owner.Name;
+				lastModified = CommunityFeedController.convertTimeDiff(incd.LastModifiedDate);
+				description = incd.Description;
+				documentId = incd.Id;
 			}
 		}
 	}
