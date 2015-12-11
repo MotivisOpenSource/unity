@@ -53,6 +53,7 @@ public with sharing class CommunityGroupsController {
 		List<CollaborationGroupMember> CollaborationGroupMemberList = new List<CollaborationGroupMember>();
 		List<CollaborationGroupMemberRequest> GroupMemberRequestList = new List<CollaborationGroupMemberRequest>();
 		Map<Id, CollaborationGroupMemberRequest> GroupMemberRequestMap = new Map<Id, CollaborationGroupMemberRequest>();
+		Map<Id, Integer> mapMemberCount = new Map<Id, Integer>();
 		Set<Id> ChatterGroupIdSet = new Set<Id>();
 		Set<Id> GroupControlSet = new Set<Id>();
 		Boolean ModifyAllData = CommunityUtils.isModifyAllData();
@@ -76,14 +77,14 @@ public with sharing class CommunityGroupsController {
 					CollaborationGroup.Owner.LastName, CollaborationGroup.Owner.SmallPhotoUrl, CollaborationGroup.Owner.Contact.Primary_role__c
 				FROM CollaborationGroup
 				WHERE Id IN: ChatterGroupIdSet
-				AND NetworkId =: Network.getNetworkId()
+					AND NetworkId =: Network.getNetworkId()
 				ORDER BY Name
 			]);
 		}
 
 		if (!collaborationGroupMap.isEmpty()) {
 			CollaborationGroupMemberList = [
-				SELECT MemberId, Id, CollaborationRole,CollaborationGroupId,
+				SELECT MemberId, Id, CollaborationRole, CollaborationGroupId, Member.ContactId, Member.Community_Contact_ID__c,
 					CollaborationGroup.Id, CollaborationGroup.Name, CollaborationGroup.Description,
 					CollaborationGroup.InformationTitle, CollaborationGroup.InformationBody,
 					CollaborationGroup.SmallPhotoUrl, CollaborationGroup.FullPhotoUrl, CollaborationGroup.MemberCount,
@@ -94,23 +95,29 @@ public with sharing class CommunityGroupsController {
 					CollaborationGroup.Owner.LastName, CollaborationGroup.Owner.SmallPhotoUrl
 				FROM CollaborationGroupMember
 				WHERE CollaborationGroup.NetworkId =: Network.getNetworkId()
-				AND MemberId =: UserInfo.getUserId()
-				AND CollaborationGroup.id IN: collaborationGroupMap.keySet()
+					AND CollaborationGroup.Id IN: collaborationGroupMap.keySet()
 				ORDER BY CollaborationGroup.Name
-			];
+			]; 
 
 			GroupMemberRequestList = [
 				SELECT Id, CollaborationGroupID, RequesterID, Status
 				FROM CollaborationGroupMemberRequest
 				WHERE CollaborationGroupID IN: collaborationGroupMap.keySet()
-				AND RequesterID =: UserInfo.getUserId()
-				AND Status = 'Pending'
+					AND RequesterID =: UserInfo.getUserId()
+					AND Status = 'Pending'
 			];
 		}
 
 		if (!CollaborationGroupMemberList.isEmpty()) {
+			Integer tmpCount = 0;
 			for (CollaborationGroupMember Item : CollaborationGroupMemberList) {
-				CollaborationGroupMemberMap.put(Item.CollaborationGroup.id, Item);
+				if (Item.MemberId == UserInfo.getUserId()) {
+					CollaborationGroupMemberMap.put(Item.CollaborationGroup.Id, Item);
+				}
+				if (Item.Member.ContactId != null || Item.Member.Community_Contact_ID__c != null) {
+					tmpCount = mapMemberCount.containsKey(Item.CollaborationGroupId) ? mapMemberCount.get(Item.CollaborationGroupId) + 1 : 1;
+					mapMemberCount.put(Item.CollaborationGroupId, tmpCount);
+				}
 			}
 		}
 
@@ -123,7 +130,7 @@ public with sharing class CommunityGroupsController {
 		for (Community_Group_Control__c Item : GroupControlList) {
 			if (collaborationGroupMap.get(Item.Chatter_Group_ID__c) != NULL) {
 				ChatterGroupDetail groupDetail = new ChatterGroupDetail(Item);
-				groupDetail.GroupMembersCount = collaborationGroupMap.get(Item.Chatter_Group_ID__c).MemberCount;
+				groupDetail.GroupMembersCount = mapMemberCount.containsKey(Item.Chatter_Group_ID__c) ? mapMemberCount.get(Item.Chatter_Group_ID__c) : 0;
 				groupDetail.GroupLastActivityDate = collaborationGroupMap.get(Item.Chatter_Group_ID__c).LastFeedModifiedDate;
 				groupDetail.GroupId = Item.Chatter_Group_ID__c;
 				if (collaborationGroupMap.get(Item.Chatter_Group_ID__c).SmallPhotoUrl != NULL) {
