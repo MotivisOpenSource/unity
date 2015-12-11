@@ -169,6 +169,22 @@ public with sharing class CommunityGroupFilesController {
 			cvQuery += String.isNotBlank(whQuery) ? ' WHERE' + whQuery : '';
 			cvList = Database.query(cvQuery);
 		}
+
+        	if (!SObjectType.EntitySubscription.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.EntitySubscription);
+		Set<String> filtredContentVersionsId = new Set<String>();
+		for(Integer i=0; i<cvList.size(); i++){
+			filtredContentVersionsId.add(cvList.get(i).id);
+    			cdMap.put(cvList.get(i).Id, cvList.get(i).ContentDocument);
+    			contentDocumentToVersionMap.put(cvList.get(i).ContentDocumentId, cvList.get(i).id);
+    			if((math.mod(i, 204)==0 & i>0) || i==cvList.size()-1){
+       				for (EntitySubscription esItem : [SELECT ParentId FROM EntitySubscription WHERE SubscriberId =:Userinfo.getUserId() AND ParentId IN :contentDocumentToVersionMap.keySet() LIMIT 1000]) {
+					subscribedToContent.add(contentDocumentToVersionMap.get(esItem.ParentId));
+				}
+        			contentDocumentToVersionMap.clear();
+    			}
+		}
+
+/*		
 		for (ContentVersion cvItem : cvList) {
 			contentDocumentToVersionMap.put(cvItem.ContentDocumentId, cvItem.Id);
 			cdMap.put(cvItem.Id, cvItem.ContentDocument);
@@ -182,6 +198,8 @@ public with sharing class CommunityGroupFilesController {
 
 		Set<String> filtredContentVersionsId = new Set<String>();
 		filtredContentVersionsId.addAll(contentDocumentToVersionMap.values());
+*/		
+		
 		Set<String> checkForDuplicatingSet = new Set<String>();
 		List<ConnectApi.FeedElement> filteredElements = new List<ConnectApi.FeedElement>();
 		for (ConnectApi.FeedElement fe3 : elements) {
