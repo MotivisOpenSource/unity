@@ -978,15 +978,9 @@ global with sharing class CommunityFeedController {
 		Map<String, Community_Group_Control__c> groupsMap = new Map<String, Community_Group_Control__c>();
 		Map<String, String> groupsMapPhoto = new Map<String, String>();
 		query = '%' + String.escapeSingleQuotes(query) + '%';
-		for (User u : CommunityHelperWithoutSharing.getCommunityUsers(query,10,new List<String>{'FirstName', 'LastName', 'SmallPhotoUrl', 'Contact.Primary_Role__c'},'Name',true))
-				
-				 {
+		for (User u : CommunityHelperWithoutSharing.getCommunityUsers(query, 10, new List<String>{'FirstName', 'LastName', 'SmallPhotoUrl', 'Contact.Primary_Role__c'}, 'Name', true)) {
 			result.add(new MentionUser(u));
 		}
-		/*[
-				SELECT Id, Name, SmallPhotoUrl, Contact.Primary_Role__c
-				FROM User WHERE (ContactId != NULL OR Community_Contact_ID__c != NULL) AND isActive = true 
-				AND (FirstName LIKE :query OR LastName LIKE :query)])*/
 		if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
 		List<Community_Group_Control__c> cgcList = [
 													SELECT Chatter_Group_ID__c, Name
