@@ -90,6 +90,7 @@ public with sharing class CommunityGroupFilesController {
         parentObjectType = String.isNotBlank(pp) ? parentObjectType.replace(pp,'') : parentObjectType;
         String queryParentId = CommunityUtils.validateId(parentId);
         if (String.isNotBlank(parentObjectType)) {
+            Boolean hasModifyAll = CommunityUtils.isModifyAllData();
             if (parentObjectType.equalsIgnoreCase('CollaborationGroup') || parentObjectType.equalsIgnoreCase('Community_Group_Control__c')) {
                 gr = String.isBlank(gr) && parentObjectType.equalsIgnoreCase('CollaborationGroup') ? parentId : gr;
                 gc = String.isBlank(gr) && String.isBlank(gc) && parentObjectType.equalsIgnoreCase('Community_Group_Control__c') ? parentId : gc;
@@ -102,8 +103,8 @@ public with sharing class CommunityGroupFilesController {
                     if (allOk) {
                         ConnectApi.GroupMembershipType groupRole = ConnectApi.ChatterGroups.getGroup(Network.getNetworkId(), chatterGroup.Id).MyRole;
                         allOk = control.Type__c == 'Public' || (groupRole != ConnectApi.GroupMembershipType.NotAMember && groupRole != ConnectApi.GroupMembershipType.NotAMemberPrivateRequested) ||
-                                CommunityUtils.isModifyAllData() || CommunityUtils.isViewAllData();
-                        enableShare = chatterGroup != NULL && chatterGroup.CollaborationType == 'Public';
+                                hasModifyAll || CommunityUtils.isViewAllData();
+                        enableShare = chatterGroup != NULL && (chatterGroup.CollaborationType == 'Public' || hasModifyAll);
                     }
                 }
                 feedNavNumber = '5';
@@ -408,16 +409,17 @@ public with sharing class CommunityGroupFilesController {
     private static List<BlockWrapper> pullGroups(String inQuery) {
         List<BlockWrapper> resultList = new List<BlockWrapper>();
         Set<String> filtredChatterGroups = new Set<String>();
+        Boolean hasModifyAll = CommunityUtils.isModifyAllData();
         if (!SObjectType.CollaborationGroupMember.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.CollaborationGroupMember);
-        for (CollaborationGroupMember cgmItem : [SELECT CollaborationGroupId FROM CollaborationGroupMember WHERE CollaborationGroup.NetworkId = :Network.getNetworkId() AND MemberId = :UserInfo.getUserId()]) {
+        List<CollaborationGroupMember> cgmList = hasModifyAll ? new List<CollaborationGroupMember>() : [SELECT CollaborationGroupId FROM CollaborationGroupMember WHERE CollaborationGroup.NetworkId = :Network.getNetworkId() AND MemberId = :UserInfo.getUserId()];
+        for (CollaborationGroupMember cgmItem : cgmList) {
             filtredChatterGroups.add(cgmItem.CollaborationGroupId);
         }
-        if (filtredChatterGroups.size() > 0) {
+        if (hasModifyAll || !filtredChatterGroups.isEmpty()) {
             if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
-            String queryString = 'SELECT Id, Name, Chatter_Group_ID__c FROM Community_Group_Control__c WHERE Chatter_Group_ID__c IN :filtredChatterGroups AND Status__c = \'Approved\'';
-            if (String.isNotBlank(inQuery)) {
-                queryString += ' AND Name LIKE \'' + String.escapeSingleQuotes(inQuery) + '%\'';
-            }
+            String queryString = 'SELECT Id, Name, Chatter_Group_ID__c FROM Community_Group_Control__c WHERE Status__c = \'Approved\'';
+            queryString += hasModifyAll ? '' : ' AND Chatter_Group_ID__c IN :filtredChatterGroups';
+            queryString += String.isNotBlank(inQuery) ? ' AND Name LIKE \'' + String.escapeSingleQuotes(inQuery) + '%\'' : '';
             queryString += ' ORDER BY Name';
             for (Community_Group_Control__c cgcItem : Database.query(queryString)) {
                 resultList.add(new BlockWrapper(cgcItem.Chatter_Group_ID__c, cgcItem.Name));

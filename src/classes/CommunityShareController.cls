@@ -263,22 +263,22 @@ global with sharing class CommunityShareController {
 	public static List<String> getNamesOfAvailableGroups(List<String> groupIds){
 
 		List<String> groupsNames = new List<String>();
-		try{
+		try {
+			Boolean hasShareAllGroups = CommunityUtils.isModifyAllData();
 			List<ConnectApi.BatchResult> batchResults = ConnectApi.ChatterGroups.getGroupBatch(Network.getNetworkId(), groupIds);
-			for(ConnectApi.BatchResult batchResult : batchResults){
+			for (ConnectApi.BatchResult batchResult : batchResults) {
 				if (batchResult.isSuccess()) {
 					ConnectApi.ChatterGroup aGroup = (ConnectApi.ChatterGroup) batchResult.getResult();
-					if(String.valueOf(aGroup.myRole) != 'NotAMember' && String.valueOf(aGroup.myRole) != 'NotAMemberPrivateRequested'){
+					if (hasShareAllGroups || (String.valueOf(aGroup.myRole) != 'NotAMember' && String.valueOf(aGroup.myRole) != 'NotAMemberPrivateRequested')) {
 						groupsNames.add(aGroup.name);
 					}
 				}
 				else {
-					// Operation failed. Print errors.
 					System.debug('FAILURE');
 					System.debug(batchResult.getErrorMessage());
 				}
 			}
-		}catch(Exception e){
+		} catch (Exception e){
 			System.debug('FAILURE: '+e.getMessage());
 		}
 		return groupsNames;
@@ -296,18 +296,18 @@ global with sharing class CommunityShareController {
 		List<String> groupIdList = new List<String>();
 		if (!SObjectType.CollaborationGroup.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.CollaborationGroup);
 		if (!SObjectType.CollaborationGroupMember.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.CollaborationGroupMember);
-		for (CollaborationGroup cgItem : [
-											SELECT Id, Name FROM CollaborationGroup Where NetworkId = :Network.getNetworkId() AND ID in :chatterGroups AND
-												ID in (SELECT CollaborationGroupId FROM CollaborationGroupMember WHERE
-												MemberId = :UserInfo.getUserId()) LIMIT 100 ] ) {
+		Boolean hasShareAllGroups = CommunityUtils.isModifyAllData();
+
+		List<CollaborationGroup> cgList = hasShareAllGroups ? [SELECT Id, Name FROM CollaborationGroup WHERE NetworkId = :Network.getNetworkId() AND Id IN :chatterGroups LIMIT 100] : [SELECT Id, Name FROM CollaborationGroup WHERE NetworkId = :Network.getNetworkId() AND Id IN :chatterGroups AND Id IN (SELECT CollaborationGroupId FROM CollaborationGroupMember WHERE MemberId = :UserInfo.getUserId()) LIMIT 100];
+
+		for (CollaborationGroup cgItem : cgList) {
 			groupIdList.add(cgItem.Id);
-			groupsNames.add(new GroupFinderWrapper(cgItem.Name,cgItem.Id));
+			groupsNames.add(new GroupFinderWrapper(cgItem.Name, cgItem.Id));
 		}
 		return groupsNames;
 	}
-	
-	
-	
+
+
 	//remote actions
 	@RemoteAction
 	global static String getGroups(String query) {
@@ -325,7 +325,7 @@ global with sharing class CommunityShareController {
 	}
 
 	@RemoteAction
-	global static String getGroupsSelector(String getGroupsSelector){		
+	global static String getGroupsSelector(String getGroupsSelector) {
 		return JSON.serialize(getMyGroupsInGroupFinderWrapper(getGroupsSelector));
 	}
 
@@ -341,8 +341,7 @@ global with sharing class CommunityShareController {
 		global Integer compareTo(Object compareTo) {
 			TagsForGroup compareToEmp = (TagsForGroup)compareTo;
 			if (this.TagName == compareToEmp.TagName) return 0;
-			if (this.TagName > compareToEmp.TagName) return 1;
-			return -1;   
+			return (this.TagName > compareToEmp.TagName) ? 1 : -1;
 		}
 		
 	}
@@ -359,8 +358,7 @@ global with sharing class CommunityShareController {
 		global Integer compareTo(Object compareTo) {
 			GroupFinderWrapper compareToEmp = (GroupFinderWrapper)compareTo;
 			if (this.name == compareToEmp.name) return 0;
-			if (this.name > compareToEmp.name) return 1;
-			return -1;
+			return (this.name > compareToEmp.name) ? 1 : -1;
 		}
 
 	}

@@ -188,7 +188,7 @@ public with sharing class CommunityGroupDetailPageController {
 	}
 
 	public Integer getRequestCount() {
-		return (groupRole == ConnectApi.GroupMembershipType.GroupOwner || groupRole == ConnectApi.GroupMembershipType.GroupManager)
+		return (groupRole == ConnectApi.GroupMembershipType.GroupOwner || groupRole == ConnectApi.GroupMembershipType.GroupManager) || CommunityUtils.isModifyAllData()
 				? CommunityUtils.getRequestJoinGroupCount(chatterGroup.Id) : 0;
 	}
 
