@@ -31,6 +31,7 @@ public with sharing class CommunityHomeComponentController {
 	/* -- Campus Section Component -- */
 	public List<News> getCampusNews() {
 		List<News> resultList = new List<News>();
+		if (!SObjectType.Community_News__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_News__c);
 		for (Community_News__c cnItem : [
 						SELECT Id, Title__c, Teaser__c, Image_Path__c
 						FROM Community_News__c
@@ -47,6 +48,7 @@ public with sharing class CommunityHomeComponentController {
 
 	/* -- My News Component -- */
 	public List<News> getMyNews() {
+		if (!SObjectType.Community_News__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_News__c);
 		List<Community_News__c> cnList = [
 			SELECT Id, Title__c, Teaser__c, Image_Path__c, Entry_Date__c
 			FROM Community_News__c
