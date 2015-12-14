@@ -52,7 +52,6 @@ public with sharing class CommunityGroupsController {
 		List<CollaborationGroupMember> CollaborationGroupMemberList = new List<CollaborationGroupMember>();
 		List<CollaborationGroupMemberRequest> GroupMemberRequestList = new List<CollaborationGroupMemberRequest>();
 		Map<Id, CollaborationGroupMemberRequest> GroupMemberRequestMap = new Map<Id, CollaborationGroupMemberRequest>();
-		Map<Id, Integer> mapMemberCount = new Map<Id, Integer>();
 		Set<Id> ChatterGroupIdSet = new Set<Id>();
 		Set<Id> GroupControlSet = new Set<Id>();
 		Boolean ModifyAllData = CommunityUtils.isModifyAllData();
@@ -119,7 +118,7 @@ public with sharing class CommunityGroupsController {
 		for (Community_Group_Control__c Item : GroupControlList) {
 			if (collaborationGroupMap.get(Item.Chatter_Group_ID__c) != NULL) {
 				ChatterGroupDetail groupDetail = new ChatterGroupDetail(Item);
-				groupDetail.GroupMembersCount = mapMemberCount.containsKey(Item.Chatter_Group_ID__c) ? mapMemberCount.get(Item.Chatter_Group_ID__c) : 0;
+				groupDetail.GroupMembersCount = collaborationGroupMap.get(Item.Chatter_Group_ID__c).MemberCount;
 				groupDetail.GroupLastActivityDate = collaborationGroupMap.get(Item.Chatter_Group_ID__c).LastFeedModifiedDate;
 				groupDetail.GroupId = Item.Chatter_Group_ID__c;
 				if (collaborationGroupMap.get(Item.Chatter_Group_ID__c).SmallPhotoUrl != NULL) {

@@ -403,12 +403,12 @@ public with sharing class CommunityGroupManageController {
 			}
 			Set<Id> membersIds = new Set<Id>();
 			if (!SObjectType.CollaborationGroupMember.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.CollaborationGroupMember);
-			for (CollaborationGroupMember mu2 : [SELECT MemberId FROM CollaborationGroupMember WHERE CollaborationGroupId = :queryGIdChatter AND MemberId IN :userByContactIdsMap.values()]) {
+			for (CollaborationGroupMember mu2 : [SELECT MemberId FROM CollaborationGroupMember WHERE CollaborationGroupId = :queryGIdChatter AND MemberId IN :usersIds]) {
 				membersIds.add(mu2.MemberId);
 			}
 			Set<Id> managersIds = new Set<Id>();
 			if (!SObjectType.Community_Group_Manager__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Manager__c);
-			for (Community_Group_Manager__c cgm2 : [SELECT Group_Manager_User__c FROM Community_Group_Manager__c WHERE Group_Control__c = :queryGIdControl AND Group_Manager_User__c IN :userByContactIdsMap.values()]) {
+			for (Community_Group_Manager__c cgm2 : [SELECT Group_Manager_User__c FROM Community_Group_Manager__c WHERE Group_Control__c = :queryGIdControl AND Group_Manager_User__c IN :usersIds]) {
 				managersIds.add(cgm2.Group_Manager_User__c);
 			}
 			Set<Id> subscribedToUsers = new Set<Id>();
