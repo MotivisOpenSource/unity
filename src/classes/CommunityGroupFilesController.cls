@@ -189,18 +189,19 @@ public with sharing class CommunityGroupFilesController {
         }
         
         if (!SObjectType.EntitySubscription.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.EntitySubscription);
-	Set<String> filtredContentVersionsId = new Set<String>();
-	for(Integer i=0; i<cvList.size(); i++){
-		filtredContentVersionsId.add(cvList.get(i).id);
-    		cdMap.put(cvList.get(i).Id, cvList.get(i).ContentDocument);
-    		contentDocumentToVersionMap.put(cvList.get(i).ContentDocumentId, cvList.get(i).id);
-    		if((math.mod(i, 204)==0 & i>0) || i==cvList.size()-1){
-       			for (EntitySubscription esItem : [SELECT ParentId FROM EntitySubscription WHERE SubscriberId =:Userinfo.getUserId() AND ParentId IN :contentDocumentToVersionMap.keySet() LIMIT 1000]) {
-				subscribedToContent.add(contentDocumentToVersionMap.get(esItem.ParentId));
-			}
-        		contentDocumentToVersionMap.clear();
-    		}
-	}
+            Set<String> filtredContentVersionsId = new Set<String>();
+            for(Integer i=0; i<cvList.size(); i++){
+                filtredContentVersionsId.add(cvList.get(i).id);
+                cdMap.put(cvList.get(i).Id, cvList.get(i).ContentDocument);
+                contentDocumentToVersionMap.put(cvList.get(i).ContentDocumentId, cvList.get(i).id);
+                if((math.mod(i, 204)==0 & i>0) || i==cvList.size()-1){
+                    for (EntitySubscription esItem : [SELECT ParentId FROM EntitySubscription WHERE SubscriberId =:Userinfo.getUserId() AND ParentId IN :contentDocumentToVersionMap.keySet() LIMIT 1000]) {
+                        subscribedToContent.add(contentDocumentToVersionMap.get(esItem.ParentId));
+                    }
+                    contentDocumentToVersionMap.clear();
+                }
+        }
+        
 /*        
         for (ContentVersion cvItem : cvList) {
             if(mode == 'detail'){
@@ -376,7 +377,7 @@ public with sharing class CommunityGroupFilesController {
 
     @RemoteAction
     public static String getGroupsSelector(String query) {
-        List<BlockWrapper> result = pullGroups(query);
+        List<BlockWrapper> result = pullGroups(query, false);
         return result.size() == 0 ? NULL : JSON.serialize(result);
     }
 
@@ -406,30 +407,17 @@ public with sharing class CommunityGroupFilesController {
         return '';
     }
 
-    private static List<BlockWrapper> pullGroups(String inQuery) {
+    private static List<BlockWrapper> pullGroups(String query, Boolean onlyMember) {
         List<BlockWrapper> resultList = new List<BlockWrapper>();
-        Set<String> filtredChatterGroups = new Set<String>();
-        Boolean hasModifyAll = CommunityUtils.isModifyAllData();
-        if (!SObjectType.CollaborationGroupMember.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.CollaborationGroupMember);
-        List<CollaborationGroupMember> cgmList = hasModifyAll ? new List<CollaborationGroupMember>() : [SELECT CollaborationGroupId FROM CollaborationGroupMember WHERE CollaborationGroup.NetworkId = :Network.getNetworkId() AND MemberId = :UserInfo.getUserId()];
-        for (CollaborationGroupMember cgmItem : cgmList) {
-            filtredChatterGroups.add(cgmItem.CollaborationGroupId);
-        }
-        if (hasModifyAll || !filtredChatterGroups.isEmpty()) {
-            if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
-            String queryString = 'SELECT Id, Name, Chatter_Group_ID__c FROM Community_Group_Control__c WHERE Status__c = \'Approved\'';
-            queryString += hasModifyAll ? '' : ' AND Chatter_Group_ID__c IN :filtredChatterGroups';
-            queryString += String.isNotBlank(inQuery) ? ' AND Name LIKE \'' + String.escapeSingleQuotes(inQuery) + '%\'' : '';
-            queryString += ' ORDER BY Name';
-            for (Community_Group_Control__c cgcItem : Database.query(queryString)) {
-                resultList.add(new BlockWrapper(cgcItem.Chatter_Group_ID__c, cgcItem.Name));
-            }
+        List<CollaborationGroup> cgList = CommunityShareController.getAvailableCollaborationGroupList(query, onlyMember);
+        for (CollaborationGroup cgItem : cgList) {
+            resultList.add(new BlockWrapper(cgItem.Id, cgItem.Name));
         }
         return resultList;
     }
 
     public List<BlockWrapper> getGroups() {
-        return (modal == 'sharegroup') ? pullGroups(NULL) : NULL;
+        return (modal == 'sharegroup') ? pullGroups(NULL, true) : NULL;
     }
 
     private static String prepareUrl(String inUncouthUrl) {

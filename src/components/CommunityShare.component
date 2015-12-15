@@ -30,9 +30,9 @@
 <apex:component controller="CommunityShareController" allowDml="true">
 	<apex:attribute name="sO" type="SObject" assignTo="{!sobj}" required="true" description="Parent Object" />
 
-	<button id="shareButton" class="btn-u" data-toggle="modal" data-target="#shareModal" title="{!$Label.BTN_Rechat}" onclick="loadGroupSuggestions();return false;">{!$Label.BTN_Rechat}</button>
+	<button id="shareButton" class="btn-u" data-toggle="modal" data-target="#cglayout" title="{!$Label.BTN_Rechat}" onclick="loadGroupSuggestions();return false;">{!$Label.BTN_Rechat}</button>
 
-	<div class="modal fade in CommunityShare" id="shareModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false" style="display:none;">
+	<div class="modal fade in CommunityShare" id="cglayout" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false" style="display:none;">
 		<!--<i class="fa fa-spinner fa-pulse m-status"></i>-->
 		<div id="shareModalDialog" class="modal-dialog">
 			<div class="modal-content text-align-left">
@@ -47,61 +47,73 @@
 						</apex:outputPanel>
 					</apex:outputPanel>
 					<div action="" class="sky-form">
-						<fieldset>
-							<section>
-								<apex:outputLabel value="{!$Label.LBL_Share_Link_Url}"/>
-								<label class="input">
-									<apex:inputText value="{!shareLinkUrl}" disabled="true"/>
-								</label>
-							</section>
-							<section>
-								<apex:outputLabel value="{!$Label.LBL_Share_Link_Name}"/>
-								<label class="input">
-									<apex:inputText id="linkName" value="{!shareLinkName}" disabled="true"/>
-								</label>
-							</section>
-							<section>
-								<label class="textarea">
-									<apex:inputTextarea id="commentArea" value="{!shareComment}" styleClass="full-width"/>
-								</label>
-							</section>
-							<section id = "selectedGroup">
-								<apex:outputLabel value="{!$Label.LBL_Share_To_A_Group}"/>
-								<div class="div-like-input clearfix">
-									<div id="groupsContainer" class="groups-container clearfix">
-										<input id="groupsInput" class="input-inviz" type="text"  autocomplete="off" size="2"></input>
-									</div>
-									<input id="groups" name="groups" style="display:none" visibility="hidden"/>
+						<section>
+							<apex:outputLabel value="{!$Label.LBL_Share_Link_Url}"/>
+							<label class="input">
+								<apex:inputText value="{!shareLinkUrl}" disabled="true"/>
+							</label>
+						</section>
+						<section>
+							<apex:outputLabel value="{!$Label.LBL_Share_Link_Name}"/>
+							<label class="input">
+								<apex:inputText id="linkName" value="{!shareLinkName}" disabled="true"/>
+							</label>
+						</section>
+						<section>
+							<label class="textarea">
+								<apex:inputTextarea id="commentArea" value="{!shareComment}" styleClass="full-width"/>
+							</label>
+						</section>
+						<section id = "selectedGroup">
+							<apex:outputLabel value="{!$Label.LBL_Share_To_A_Group}"/>
+							<div class="div-like-input clearfix">
+								<div id="groupsContainer" class="groups-container clearfix">
+									<input id="groupsInput" class="input-inviz" type="text"  autocomplete="off" size="2"></input>
 								</div>
-							</section>
-							<section>
-								<apex:commandLink value="Add Groups" onclick="getAvailableGroups(false); return false;" styleClass="addGroups"/>
-							</section>
-							<section>
-								<apex:inputCheckbox id="shareOnProfile" title="{!$Label.LBL_Share_on_Profile}"/>
-								&nbsp;<apex:outputLabel for="shareOnProfile" value="{!$Label.LBL_Share_on_Profile}"/>
-							</section>
-						</fieldset>
+								<input id="groups" name="groups" style="display:none" visibility="hidden"/>
+							</div>
+						</section>
+						<section>
+							<apex:commandLink value="Add Groups" onclick="getAvailableGroups(false); return false;" styleClass="addGroups"/>
+						</section>
+						<section>
+							<apex:inputCheckbox id="shareOnProfile" title="{!$Label.LBL_Share_on_Profile}"/>
+							&nbsp;<apex:outputLabel for="shareOnProfile" value="{!$Label.LBL_Share_on_Profile}"/>
+						</section>
 					</div>
 					<apex:outputPanel id="availGroupsPanel" layout="Block">
 						<apex:inputHidden id="availGroupsOut" value="{!availGroups}" />
-						<div class="panel-group acc-v1" id="accordion-1">
-							
+						<!-- <div class="panel-group acc-v1" id="accordion-1">
 								<div class="panel-body">
 									<ul class="list-unstyled blog-tags">
-										<apex:repeat value="{!AvailableGroupsControls}" var="group">
-											<li><a href="javascript:;" onclick="addtti('{!JSENCODE(group.Chatter_Group_ID__c)}','{!JSENCODE(group.name)}');"><i class="fa fa-users"></i>&nbsp;{!group.name}</a>
+										<apex:repeat value="{!availableGroups}" var="group">
+											<li><a href="javascript:;" onclick="addtti('{!JSENCODE(group.Id)}','{!JSENCODE(group.Name)}');"><i class="fa fa-users"></i>&nbsp;{!group.Name}</a>
 											</li>
 										</apex:repeat>
 									</ul>
 								</div>
 							<br/><apex:commandButton id="doneBtn" value="{!$Label.LBL_Done}" onclick="getAvailableGroups(true); return false;" styleClass="btn-u btn-u-primary"/>
+						</div> -->
+
+						<div id="panelshff" class="panel panel-success">
+							<div class="panel-heading">
+								<h3 class="panel-title">{!$Label.LBL_MyGroups}</h3>
+							</div>
+							<div class="panel-body">
+								<ul class="list-unstyled blog-tags">
+									<apex:repeat value="{!availableGroups}" var="group">
+										<li><a href="javascript:;" onclick="addtti('{!JSENCODE(group.Id)}','{!JSENCODE(group.Name)}');"><i class="fa fa-users"></i>&nbsp;{!group.Name}</a>
+										</li>
+									</apex:repeat>
+								</ul>
+							</div>
 						</div>
 					</apex:outputPanel>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn-u btn-u-default margin-right-10" data-dismiss="modal">{!$label.BTN_Cancel}</button>
-					<apex:commandButton id="shBtn"  value="{!$Label.BTN_Share}" onclick="shareForGroups(); return false;" styleClass="btn-u btn-u-primary"/>
+					<apex:commandButton id="doneBtn" value="{!$Label.LBL_Done}" onclick="getAvailableGroups(true); return false;" styleClass="btn-u btn-u-primary toogledGroup" style="display:none;"/>
+					<button type="button" class="btn-u btn-u-default margin-right-10 notToogledGroup" data-dismiss="modal">{!$label.BTN_Cancel}</button>
+					<apex:commandButton id="shBtn"  value="{!$Label.BTN_Share}" onclick="shareForGroups(); return false;" styleClass="btn-u btn-u-primary notToogledGroup"/>
 				</div>
 			</div>
 		</div>
@@ -200,7 +212,7 @@
 						jQuery('[id *= "messageArea"]').show();
 					}else{
 						jQuery('#shareModalDialog').hide();
-						jQuery('#shareModal').modal('hide');
+						jQuery('#cglayout').modal('hide');
 					}
 				}
 			);
@@ -218,13 +230,15 @@
 						item.style.display = "none";
 					}
 				});
-				jQuery(".modal-footer").hide();
-			}else {
+				jQuery(".toogledGroup").show();
+				jQuery(".notToogledGroup").hide();
+			} else {
 				jQuery("[id $= 'availGroupsPanel']").hide();
 				_.each(jQuery(".sky-form section"),function(item){
 					item.style.display = "block";
 				});
-				jQuery(".modal-footer").show();
+				jQuery(".toogledGroup").hide();
+				jQuery(".notToogledGroup").show();
 			}
 		}
 
@@ -243,7 +257,7 @@
 				jQuery('#shareModalDialog').show();
 			}
 			else {
-				jQuery('#shareModal').modal('hide');
+				jQuery('#cglayout').modal('hide');
 			}
 		}
 
