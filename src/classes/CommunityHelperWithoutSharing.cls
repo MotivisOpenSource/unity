@@ -31,61 +31,47 @@ public without sharing class CommunityHelperWithoutSharing {
 	public CommunityHelperWithoutSharing() {
 		
 	}
-	public static String getCommunityGroupControl(ID chatterGroupId) {
-		if(chatterGroupId != null) {
-			if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
-			List<Community_Group_Control__c> lgc = [SELECT ID,Name FROM Community_Group_Control__c Where Chatter_Group_ID__c = :chatterGroupId LIMIT 1];
-			if(lgc.size()>0) return lgc[0].Id;
-			else return null;
-		}
-		return null;
+	public static String getCommunityGroupControl(Id chatterGroupId) {
+		if (String.isBlank(chatterGroupId)) return null;
+		if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
+		List<Community_Group_Control__c> gcList = [SELECT Id FROM Community_Group_Control__c WHERE Chatter_Group_ID__c = :chatterGroupId LIMIT 1];
+		return gcList.isEmpty() ? null : gcList[0].Id;
 	}
 	
-	
-	public static List<User> getCommunityUsers(String querySearchName, Integer queryLimit, List<String> listRequestedFields, String sortColumn, Boolean SortDitecrion) {
-		String sortCol = sortColumn == null ? 'Name' : String.escapeSingleQuotes(sortColumn);
-		String sortDir = SortDitecrion ? 'ASC':'DESC';
+	public static List<User> getCommunityUsers(String querySearch, Integer queryLimit, List<String> queryFields, String sortColumn, Boolean isAscDirect) {
+		String sortCol = String.isNotBlank(sortColumn) ? 'Name' : String.escapeSingleQuotes(sortColumn);
+		String sortDir = isAscDirect ? 'ASC' : 'DESC';
 		List<User> uList = new List<User>();
 		try {
-			Set<Id> setNetworkMemberGroupId= new Set<Id>();
-			//if (!SObjectType.NetworkMemberGroup.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.NetworkMemberGroup);
-			for(NetworkMemberGroup item : [SELECT ParentId From NetworkMemberGroup Where NetworkId = :Network.getNetworkId() ]) {
-				setNetworkMemberGroupId.add(item.ParentId);
-			}
-			Set<Id> setPermissionSetAssignmentID = new Set<Id>();
-			for(PermissionSetAssignment item : [SELECT AssigneeId From PermissionSetAssignment Where PermissionSetID in :setNetworkMemberGroupId]) {
-				setPermissionSetAssignmentID.add(item.AssigneeId);
-			}
-			querySearchName = querySearchName != null ? String.escapeSingleQuotes(querySearchName) : '%%';
-			String UserId = (String) UserInfo.getUserId();
-			String requiedFields = 'Id, Name';
-			String requestedFields = ' ';
-			if(listRequestedFields!=null) {
-				for (String item:listRequestedFields){
-					requestedFields += ' , ';
-					requestedFields += item;
+			querySearch = String.isNotBlank(querySearch) ? String.escapeSingleQuotes(querySearch) + '%' : '%%';
+			String fieldsSting = '';
+			if (queryFields != null) {
+				for (String field : queryFields) {
+					fieldsSting += ', Member.' + String.escapeSingleQuotes(field);
 				}
 			}
-			String checkIfThisIsCommunityUser;
-			if(Test.isRunningTest()){
-				checkIfThisIsCommunityUser = ' ';
+			String currentNetworkId = Network.getNetworkId();
+			String currentUserId = UserInfo.getUserId();
+			String queryNetworkMembers = 'SELECT Id, Member.Id, Member.Name' + fieldsSting + ' FROM NetworkMember'
+					+ ' WHERE Member.isActive = true AND NetworkId = :currentNetworkId AND MemberId != :currentUserId'
+					+ ' AND (Member.Name LIKE :querySearch OR Member.LastName LIKE :querySearch OR Member.FirstName LIKE :querySearch)'
+					+ ' ORDER BY Member.' + sortCol + ' ' + sortDir + ' LIMIT :queryLimit';
+
+			if (!SObjectType.NetworkMember.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.NetworkMember);
+			List<NetworkMember> nmList = Database.query(queryNetworkMembers);
+			for (NetworkMember nm : nmList) {
+				uList.add((User)nm.Member);
 			}
-			else {
-				checkIfThisIsCommunityUser = +' AND (ProfileID in :setNetworkMemberGroupId OR Id in :setPermissionSetAssignmentID )';
+			if (Test.isRunningTest()) {
+				String collectedFields = String.join(queryFields, ', ');
+				String queryUsers = 'SELECT Id' + (String.isNotBlank(collectedFields) ? ', ' + collectedFields : '') + ', Name FROM User'
+						+ ' WHERE isActive = true AND Id != :currentUserId'
+						+ ' AND (FirstName LIKE :querySearch OR LastName LIKE :querySearch OR Name LIKE :querySearch)'
+						+ ' ORDER BY ' + sortCol + ' ' + sortDir + ' LIMIT :queryLimit';
+
+				if (!SObjectType.User.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.User);
+				uList = Database.query(queryUsers);
 			}
-			if (!SObjectType.User.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.User);
-			String queryString	= 'SELECT '
-				+ requiedFields
-				+ requestedFields
-				+' FROM User'
-				+' WHERE (ContactId != NULL OR Community_Contact_ID__c != NULL) AND isActive = true'
-				+' AND Id != :UserId'
-				+' AND (FirstName LIKE :querySearchName OR LastName LIKE :querySearchName OR Name LIKE :querySearchName)'
-				+ checkIfThisIsCommunityUser
-				+' ORDER BY '+sortCol + ' ' + sortDir
-				+' LIMIT :queryLimit';
-				System.debug(queryString);
-			uList = Database.query(queryString);
 		}
 		catch (Exception e) {
 			System.debug(e);
@@ -93,17 +79,15 @@ public without sharing class CommunityHelperWithoutSharing {
 		return uList;
 	}
 	
-	
 	// used for CommunityNewsController
 	public static String ImageLibFolder() {
-		Community_Settings__c cs = Community_Settings__c.getInstance();			
-		if(String.isNotBlank(cs.Image_Library_Folder__c)) {
-		    List<sObject> folders = [SELECT Id, Name, DeveloperName FROM Folder where DeveloperName = :String.valueOf(cs.Image_Library_Folder__c)  Limit 1];
-		    return folders.size()>0?folders[0].Id:null;	
+		Community_Settings__c cs = Community_Settings__c.getInstance();
+		if (String.isNotBlank(cs.Image_Library_Folder__c)) {
+			List<sObject> folders = [SELECT Id, Name, DeveloperName FROM Folder where DeveloperName = :String.valueOf(cs.Image_Library_Folder__c)  Limit 1];
+			return folders.size() > 0 ? folders[0].Id : null;
 		}
 		return null;
 	}
-	
 
 // used for CommunityHomeNotificationController
 	public static List<FeedItem> getFeeds(Set<Id> controlsIds, String userId){

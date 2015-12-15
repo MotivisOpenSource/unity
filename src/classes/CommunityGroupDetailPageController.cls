@@ -173,7 +173,8 @@ public with sharing class CommunityGroupDetailPageController {
 			return chatterGroup != NULL
 					&& SObjectType.Community_Events__c.isCreateable()
 						&& SObjectType.Community_Event_Tag__c.isCreateable()
-						&& ((groupRole == ConnectApi.GroupMembershipType.StandardMember || groupRole == ConnectApi.GroupMembershipType.GroupManager || groupRole == ConnectApi.GroupMembershipType.GroupOwner) || CommunityUtils.isModifyAllData());
+						&& ((groupRole == ConnectApi.GroupMembershipType.GroupOwner || groupRole == ConnectApi.GroupMembershipType.GroupManager || groupRole == ConnectApi.GroupMembershipType.StandardMember)
+							|| CommunityUtils.isModifyAllData());
 		}
 	}
 
@@ -209,8 +210,9 @@ public with sharing class CommunityGroupDetailPageController {
 	}
 	public Boolean showFilesSection {
 		get {
-			return Community_Settings__c.getInstance().Chatter_Action_Disable_Group_Files__c != true && !(control.Type__c == 'Private' && 
-				(groupRole == ConnectApi.GroupMembershipType.NotAMember || groupRole == ConnectApi.GroupMembershipType.NotAMemberPrivateRequested));
+			return Community_Settings__c.getInstance().Chatter_Action_Disable_Group_Files__c != true && (!(control.Type__c == 'Private' && 
+				(groupRole == ConnectApi.GroupMembershipType.NotAMember || groupRole == ConnectApi.GroupMembershipType.NotAMemberPrivateRequested)) ||
+				CommunityUtils.isModifyAllData() || CommunityUtils.isViewAllData());
 		}
 	}
 

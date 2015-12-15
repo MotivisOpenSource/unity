@@ -404,8 +404,7 @@ public with sharing class CommunityUtils {
 			for(ConnectApi.BatchResult batchResult : batchResults){
 				if (batchResult.isSuccess()) {
 					ConnectApi.ChatterGroup aGroup = (ConnectApi.ChatterGroup) batchResult.getResult();
-					if(String.valueOf(aGroup.myRole) != 'GroupOwner' 
-						&& String.valueOf(aGroup.myRole) != 'GroupManager'){
+					if(String.valueOf(aGroup.myRole) != 'GroupOwner' && String.valueOf(aGroup.myRole) != 'GroupManager'){
 						groupsIds.add(aGroup.Id);
 					}
 				}
@@ -468,22 +467,6 @@ public with sharing class CommunityUtils {
 		return result;
 	}
 
-	public static Boolean isShowGroupManagerUser(String groupId, Boolean checkModifyAllControl) {
-		Boolean isShow = false;
-		String queryGroupId = validateId(groupId);
-		if (String.isNotBlank(queryGroupId)) {
-			if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
-			List<Community_Group_Control__c> gcList = [SELECT Id, Chatter_Group_ID__c, UserRecordAccess.HasAllAccess FROM Community_Group_Control__c WHERE Id = :queryGroupId OR Chatter_Group_ID__c = :queryGroupId];
-			if (gcList != NULL && !gcList.isEmpty()) {
-				isShow = checkModifyAllControl && gcList[0].UserRecordAccess.HasAllAccess == true;
-				if (isShow) return isShow;
-				if (!SObjectType.Community_Group_Manager__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Manager__c);
-				isShow = isShow || [SELECT COUNT() FROM Community_Group_Manager__c WHERE Group_Manager_User__c = :UserInfo.getUserId() AND Group_Control__c = : gcList[0].Id] > 0;
-				isShow = isShow || CommunityUtils.isModifyAllData();
-			}
-		}
-		return isShow;
-	}
 
 	@future(callout=true)
 	public static void changeManagerRoleToStandard(Set<Id> collaborationMembersIds) {
@@ -531,6 +514,23 @@ public with sharing class CommunityUtils {
 			}
 		}
 		return collaborationMemberIds;
+	}
+
+	public static Boolean isShowGroupManagerUser(String groupId, Boolean checkModifyAllControl) {
+		Boolean isShow = false;
+		String queryGroupId = validateId(groupId);
+		if (String.isNotBlank(queryGroupId)) {
+			if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
+			List<Community_Group_Control__c> gcList = [SELECT Id, Chatter_Group_ID__c, UserRecordAccess.HasAllAccess FROM Community_Group_Control__c WHERE Id = :queryGroupId OR Chatter_Group_ID__c = :queryGroupId];
+			if (gcList != NULL && !gcList.isEmpty()) {
+				isShow = checkModifyAllControl && gcList[0].UserRecordAccess.HasAllAccess == true;
+				if (SObjectType.Community_Group_Manager__c.isAccessible()) {
+					isShow = isShow || [SELECT COUNT() FROM Community_Group_Manager__c WHERE Group_Manager_User__c = :UserInfo.getUserId() AND Group_Control__c = : gcList[0].Id] > 0;
+				}
+				isShow = isShow || CommunityUtils.isModifyAllData();
+			}
+		}
+		return isShow;
 	}
 
 	static public Boolean isValidId(String paramId) {

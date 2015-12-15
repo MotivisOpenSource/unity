@@ -104,6 +104,35 @@ private class CommunityTest {
 			cnc4.newsPageNumber = 2;
 			cnc4.newsPreviousPage();
 			cnc4.newsFirstPage();
+			cnc4.news = new Community_News__c();
+			cnc4.getNewsImage();
+		}
+	}
+
+	static testMethod void test_CommunityNewsSecond() {
+		CommunityTest3.testDataFactory df = new CommunityTest3.testDataFactory(
+			new Set<String> {
+				'communityUser',
+				'communitySuperUser'
+			}
+		);
+
+		System.runAs(df.communityUser) {
+			Community_News__c testNews = new Community_News__c();
+			testNews.Title__c = 'Test Title';
+			insert testNews;
+			Attachment testAttach = new Attachment(
+				Name = 'TEMPORARY_UPDATE',
+				ParentId = testNews.Id,
+				Body = Blob.valueOf(JSON.serialize(testNews))
+			);
+			insert testAttach;
+
+			CommunityNewsController testController = new CommunityNewsController(new ApexPages.StandardController(testNews));
+			testController.mode = 'preview';
+			testController.init();
+			testController.submitFirstStep();
+			System.assertEquals('preview', testController.mode);
 		}
 	}
 
@@ -168,6 +197,7 @@ private class CommunityTest {
 
 			CommunityGroupCreateController cgcc = new CommunityGroupCreateController(new ApexPages.StandardController(df.groupControl));
 			cgcc.initFromCreate();
+			cgcc.initFromView();
 			cgcc.getDisabledNext();
 			cgcc.doSubmit();
 			cgcc.currentGroup.Name = 'cc';
@@ -206,6 +236,14 @@ private class CommunityTest {
 			Community_Admins__c ca = cgcc.getTermsAndConditions();
 			System.assert(ca != NULL);
 			txt = cgcc.headerText;
+			cgcc.doSubmit();
+
+			cgcc.step = 2;
+			cgcc.photoContentType = 'jpeg';
+			cgcc.cropXCr = '10';
+			cgcc.cropYCr = '20';
+			cgcc.cropSizeCr = '30';
+			cgcc.blobImageData = 'testData';
 			cgcc.doSubmit();
 
 			cgcc.cancel();
@@ -251,9 +289,64 @@ private class CommunityTest {
 			//CommunityProfilePageController.toggleUserDigest(null,'P');
 			CommunityProfilePageController.toggle(ct.Id,true);
 			CommunityProfilePageController.toggle(ct.Id,false);
+			ApexPages.currentPage().getParameters().put('id', '');
+			ApexPages.currentPage().getParameters().put('cid', df.communityUser.ContactId);
+			cppc = new CommunityProfilePageController();
+			cppc.getIsCommunityUser();
+			cppc.getLastTimePasswordChange();
+			ApexPages.currentPage().getParameters().put('cid', '');
+			cppc = new CommunityProfilePageController();
 		}
 	}
 
+	static testMethod void test_CommunityProfileSecond() {
+		CommunityTest3.testDataFactory df = new CommunityTest3.testDataFactory(
+			new Set<String> {
+			'internalUser',
+			'secondInternalUser',
+			'communitySuperUser',
+			'addRoleToContact'
+			}
+		);
+
+		System.runAs(df.communityUser) {
+			CollaborationGroup cg = new CollaborationGroup(
+				Name = 'testName',
+				CollaborationType = 'Public',
+				OwnerId = df.secondCommunityUser.Id
+			);
+			insert cg;
+			CollaborationGroupMember cgmem = new CollaborationGroupMember(
+				CollaborationGroupId = cg.id,
+				CollaborationRole = 'Admin',
+				MemberId = df.communityUser.Id,
+				NotificationFrequency = 'P'
+			);
+			insert cgmem;
+			Test.startTest();
+			System.assertEquals('', CommunityProfilePageController.toggleUserDigest(cg.Id, 'D'));
+			Test.stopTest();
+		}
+		}
+
+	static testMethod void test_CommunityProfileThird() {
+		CommunityTest3.testDataFactory df = new CommunityTest3.testDataFactory(
+			new Set<String> {
+				'communityUser',
+				'communitySuperUser',
+				'addRoleToContact'
+	}
+		);
+
+		System.runAs(df.communityUser) {
+			Community_Theme__c cth = new Community_Theme__c(Name = 't', Theme_Type__c = 'Interest');
+			insert cth;
+			Community_Tag__c ct = new Community_Tag__c(Name = 't',Community_Theme__c = cth.Id);
+			insert ct;
+			CommunityProfilePageController cppc = new CommunityProfilePageController();
+			System.assertEquals(true, cppc.allOk);
+		}
+	}
 
 	static testMethod void test_CommunityEventController() {
 		CommunityTest3.testDataFactory df = new CommunityTest3.testDataFactory(
@@ -345,12 +438,15 @@ private class CommunityTest {
 		insert us;
 		System.runAs(us[0]) {
 			CommunityFeed_MyMessagesController cfhdgcb = new CommunityFeed_MyMessagesController();
+			System.assertNotEquals(0, cfhdgcb.MessagesPerPage);
+			cfhdgcb.goToConversation();
+			cfhdgcb.doSearchMessages();
 			CommunityFeed_MyMessagesController.ChatterMessage cm = cfhdgcb.newConversation('balalayka',us[1].Id);
 			CommunityFeed_MyMessagesController.postMessage(cm.ConversationId,'gorbachev',cm.MessageId);
 			cfhdgcb.markConversationRead(cm.ConversationId, true);
 		}
 		System.runAs(us[1]) {
-			List<CommunityFeed_MyMessagesController.ChatterGroupMember> sl = CommunityFeed_MyMessagesController.searchUsers('gu');
+			List<CommunityFeed_MyMessagesController.ChatterGroupMember> sl = CommunityFeed_MyMessagesController.searchUsers('guillermo');
 			System.assert(sl.size() > 0);
 			String cid = CommunityFeed_MyMessagesController.sendMessage('matreshka',sl[0].MemberId);
 			ApexPages.currentPage().getParameters().put('c',cid);
@@ -380,6 +476,9 @@ private class CommunityTest {
 			System.assertEquals(lUI.size() != null, true);
 			CommunityFeed_PeopleController.subscriberAction(df.secondCommunityUser.Id, true);
 			CommunityFeed_PeopleController cfpc = new CommunityFeed_PeopleController();
+			if (!lUI.isEmpty()) {
+				System.assert(String.isNotBlank(lUI[0].MemberPhotoUrl));
+			}
 		}
 	}
 
@@ -409,10 +508,14 @@ private class CommunityTest {
 			cgc.getActionButton();
 			cgc.getFieldset();
 			cgc.getEvents();
+			cgc.performRequestAction();
+			cgc.getRequiredTags();
+			cgc.getTagsCount();
 			Boolean b = cgc.showCreateEvent;
 			cgc.groupMode = '1';
 			cgc.performGroupMembershipAction();
 			cgc.getRequestCount();
+			cgc.getFilesController();
 			Community_Events__c event = new Community_Events__c();
 			event.Name__c = 'Event Test';
 			event.Start__c = system.now();
@@ -425,6 +528,9 @@ private class CommunityTest {
 			cgc.control = df.groupControl;
 			cgc.accepted = false;
 			cgc.requesterId = df.communityUser.Id;
+			System.assertNotEquals('', cgc.groupRoleString);
+			System.assertEquals(false, cgc.memberMode);
+			
 			System.debug(cgc.groupRoleString);
 			System.assert(cgc.showFilesSection != null);
 		}
@@ -544,7 +650,7 @@ private class CommunityTest {
 			crtc.completeCurrentStep();
 			crtc.checkAndPrepareMenu();
 			crtc.getDisabledNext();
-			System.assertEquals(crtc.init() == null, true);
+			System.assertEquals(crtc != null, true);
 			CommunityRegTermsController.Menu leftSideBar = new CommunityRegTermsController.Menu();
 				leftSideBar.getLastStep();
 				leftSideBar.getCurrentStepName();
@@ -738,6 +844,8 @@ private class CommunityTest {
 			Set<String> setRes = CommunityTopicController.selectSubscription(new List<String>{top1.Id});
 			String result2 = CommunityTopicController.removeFromFavorites(top1.Id);
 			String result3 = CommunityTopicController.deleteTopic(top1.Id);
+			CommunityTopicController.sortField = 'Name';
+			items[0].iUse = false;
 		}
 	}
 }

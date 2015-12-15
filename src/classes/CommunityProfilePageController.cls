@@ -46,20 +46,17 @@ global with sharing class CommunityProfilePageController {
 	public Boolean getIsCommunityUser() {
 		if (currentUserId == UserInfo.getUserId()) return true;
 		if (currentProfile == null) return false;
-		List<User> currentUserList = CommunityHelperWithoutSharing.getCommunityUsers(currentProfile.Contact__r.Name,100,new List<String>{'ContactId','FullPhotoUrl'},'Name',true);
-		for(User item:currentUserList) {
-			if(item.Id == currentUserId) return true;
-		}
-		return false;
+		List<NetworkMember> nmList = [SELECT Id FROM NetworkMember WHERE MemberId = :currentUserId AND Member.isActive = true AND NetworkId = :Network.getNetworkId()];
+		return !nmList.isEmpty();
 	}
-		
+
 	public CommunityProfilePageController() {
 		try {
 			String tempContactId = CommunityUtils.validateId(ApexPages.currentPage().getParameters().get('cid'));
 			String tempUserId = CommunityUtils.validateId(ApexPages.currentPage().getParameters().get('id'));
 			if (String.isBlank(tempUserId) && String.isNotBlank(tempContactId)) {
 				contactId = Id.valueOf(tempContactId);
-				List<User> currentUserList2 = CommunityHelperWithoutSharing.getCommunityUsers(null,100,new List<String>{'ContactId','FullPhotoUrl'},'Name',true);
+				List<User> currentUserList2 = CommunityHelperWithoutSharing.getCommunityUsers(null, 100, new List<String>{'ContactId', 'FullPhotoUrl'}, 'Name', true);
 				Boolean userFound = currentUserList2.size() > 0;
 				currentUserId = userFound ? currentUserList2[0].Id : NULL;
 				FullPhotoUrl = userFound ? currentUserList2[0].FullPhotoUrl : '/profilephoto/005/F';
@@ -187,7 +184,7 @@ global with sharing class CommunityProfilePageController {
 	}
 
 	public String getStudentName() {
-		return currentProfile.Contact__r.Name;
+		return currentProfile == NULL ? '' : currentProfile.Contact__r.Name;
 	}
 
 	public void initInterests() {

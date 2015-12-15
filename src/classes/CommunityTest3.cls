@@ -43,6 +43,28 @@ public class CommunityTest3 {
 		
 	}
 
+	static testMethod void test_CollaborationGroupTrigger() {
+		CollaborationGroup testGroup = new CollaborationGroup(
+			Name = 'groupName',
+			CollaborationType = 'Public',
+			Description = 'testDescription'
+		);
+		insert testGroup;
+
+		Community_Group_Control__c testGroupControl = new Community_Group_Control__c(
+			Name = 'controlName',
+			Discoverable__c = true,
+			Type__c = 'Public',
+			Network__c = 'Internal',
+			Description__c = 'testDescription',
+			Chatter_Group_ID__c = testGroup.Id
+		);
+		insert testGroupControl;
+
+		testGroup.Description = 'Description Test';
+		update testGroup;
+	}
+
 	static testMethod void test_CommunityGroupControlTrigger() {
 		insert new Community_Group_Control__c(Name='t',Discoverable__c=true,Type__c='Public',Network__c='Internal');
 		try {
@@ -72,6 +94,8 @@ public class CommunityTest3 {
 		comAd[0].Terms_Status__c = 'Published';
 		
 		update comAd[0];
+		delete comAd[0];
+		undelete comAd[0];
 	}
 
 	static testMethod void test_UserTrigger() {

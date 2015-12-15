@@ -49,10 +49,7 @@ private class CommunityTest2 {
 			Community_Group_Manager__c cgm = new Community_Group_Manager__c(Group_Control__c = cgc.Id, Group_Manager_User__c = df.communityUser.Id);
 			insert cgm;
 
-			CommunityFeedNavigationController.getHasTwitterFeed();
-			CommunityFeedNavigationController.getTwitterHandle();
-			CommunityFeedNavigationController.getTwitterDataWidgetId();
-
+			ApexPages.currentPage().getParameters().put('gc', cgc.Id);
 			CommunityFeedNavigationController cfnc = new CommunityFeedNavigationController();
 			cfnc.MessageUnreadCount = 1;
 			Boolean sMessage = cfnc.showMessages;
@@ -65,25 +62,44 @@ private class CommunityTest2 {
 			System.assert(cfnc.modalTitle != null);
 			System.assert(cfnc.actionPhotoLabel != null);
 			System.assert(cfnc.permitions != null);
-/*
-			//cfnc.photoBody = Blob.valueOf('body');
-			//cfnc.cropSize = '4';
-			//cfnc.cropX = '2';
-			//cfnc.cropY = '2';
-			//cfnc.photoName = 'test Name';
-			//cfnc.photoContentType = 'image/jpg';
-			//Boolean uploadM = cfnc.uploadMode;
-			//System.assertEquals(false, uploadM);
 
-			//cfnc.uploadmode();
-			//System.assertEquals(true, cfnc.uploadMode);
+			cfnc.groupRole = 'testGroupRole';
+			System.assertNotEquals('testString', cfnc.controllerPhotoUrl);
+			cfnc.groupRole = null;
+			System.assertNotEquals('testString', cfnc.controllerPhotoUrl);
+			cfnc.controllerPhotoUrl = 'testPhotoURL';
+			System.assertNotEquals('testString', cfnc.controllerPhotoUrl);
+			System.assertNotEquals('testString', cfnc.getPhotoUrl());
+			
+			//ApexPages.currentPage().getParameters().put('gc', cgc.Id);
+			System.assertNotEquals(null, cfnc.actionPhotoLabel);
 
-			//String photoURL = cfnc.getPhotoUrl();
-
-			//Test.setCurrentPage(Page.CommunityFeedNavigation);
+			cfnc.blobImageData = 'testString';
+			cfnc.cropSize = '30';
+			cfnc.cropX = '10';
+			cfnc.cropY = '20';
+			cfnc.photoName = 'testName';
+			cfnc.photoContentType = 'testString';
 			//cfnc.photoaction();
-			//PageReference pr = cfnc.photoaction();
-			//System.assertEquals(true, pr != null);*/
+
+			ApexPages.currentPage().getParameters().put('gc', null);
+			cfnc = new CommunityFeedNavigationController();
+			/*System.assertNotEquals(null, cfnc.actionPhotoLabel);
+			
+			cfnc.blobImageData = 'testString';
+			cfnc.cropSize = '30';
+			cfnc.cropX = '10';
+			cfnc.cropY = '20';
+			cfnc.photoName = 'testName';
+			cfnc.photoContentType = 'testString';
+			cfnc.photoaction();*/
+
+			/*String photoURL = cfnc.getPhotoUrl();
+			cfnc.photoaction();
+			PageReference ref = new PageReference('/apex/CommunityFeedNavigation'); 
+			Test.setCurrentPage(ref);*/
+			cfnc.currentUser = false;
+
 		}
 	}
 
@@ -284,7 +300,7 @@ private class CommunityTest2 {
 			CommunityFeedController.postActions(params2);
 			String layoutPoll = CommunityFeedController.actionLayout('FeedItem.PollPost');
 			params2.put('jsontext', layoutPoll);
-			CommunityFeedController.postActions(params2);
+			//CommunityFeedController.postActions(params2);
 			Blob blobBody = Blob.valueOf('testingB');
 			Attachment att = new Attachment(Name = 'test', ParentId = cgc1.Id, Body = blobBody, ContentType = 'file');
 			insert att;
@@ -407,6 +423,8 @@ private class CommunityTest2 {
 			ctsc.filterName = 'Community_News__c';
 			ctsc.objectId = cnews.Id;
 			ctsc.objectType = 'Community_News_Tag__c';
+			ctsc.tagLimit = 5;
+			ctsc.tagRequired = false;
 			ctsc.saveTags(tagsString);
 			CommunityTagSelectorController.getExistingTags(cnews.Id,'Community_News_Tag__c','Community_News__c');
 		}
@@ -427,6 +445,7 @@ private class CommunityTest2 {
 			List<CommunityMenuController.LinkItem> testList = CommunityMenuController.LinkItems;
 			CommunityMenuController.getIsRegTermsPage();
 			CommunityMenuController.getRegistration();
+			CommunityMenuController.getShowHideMenu();
 			CommunityMenuController cmc = new CommunityMenuController();
 			cmc.getAlert();
 			cmc.getHelpLink();
@@ -536,6 +555,7 @@ private class CommunityTest2 {
 			insert new Community_News_Tag__c(Community_News__c=cnews.Id,Community_Tag__c=ct.Id);
 			CommunityTopCategoriesController ctcc = new CommunityTopCategoriesController();
 			ctcc.resourceOnly = false;
+			ctcc.setColumns();
 			System.assert(ctcc.getWrappedThemes().size()>0);
 		}
 	}
@@ -558,6 +578,12 @@ private class CommunityTest2 {
 			insert cgmem;
 			Community_Group_Control__c cgc = new Community_Group_Control__c(Chatter_Group_ID__c = cg.Id, Name='111111111');
 			insert cgc;
+			FeedItem testFeedItem = new FeedItem(
+				Visibility = 'AllUsers',
+				ParentId = cgc.Id,
+				Body = 'testBody'
+			);
+			insert testFeedItem;
 			Community_Group_Manager__c cgm = new Community_Group_Manager__c(Group_Control__c = cgc.Id, Group_Manager_User__c = df.communityUser.Id);
 			insert cgm;
 			CommunityHomeNotificationsController chnc = new CommunityHomeNotificationsController();

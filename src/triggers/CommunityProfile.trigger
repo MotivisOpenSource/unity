@@ -124,7 +124,7 @@ trigger CommunityProfile on Community_Profile__c (before insert, before update, 
 			}
 			if (!RecordTypeMap.isEmpty()) {
 				for (Community_Profile__c communityProfileItem : Trigger.New) {
-					if (RecordTypeMap.get(communityProfileItem.Contact__c).contains(communityProfileItem.RecordTypeId)) {
+					if (RecordTypeMap.containsKey(communityProfileItem.Contact__c) && RecordTypeMap.get(communityProfileItem.Contact__c).contains(communityProfileItem.RecordTypeId)) {
 						communityProfileItem.RecordTypeId.addError(Label.ERR_Profile_RecordType);
 					}
 				}
