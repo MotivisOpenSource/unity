@@ -542,7 +542,6 @@ private class CommunityTest2 {
 			cscEvents.shareComment = 'shareComment';
 			cscEvents.shareGroup = 'shareGroup';
 			cscEvents.message = 'message';
-			List<Community_Group_Control__c> li1 = cscEvents.AvailableGroupsControls;
 			Boolean var4 = cscEvents.hasMessage;
 		}
 	}
