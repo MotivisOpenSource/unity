@@ -45,16 +45,12 @@ public with sharing class CommunityFeed_PeopleController {
 			followingsIds.add(subscription.ParentId); 
 		}
 		
-		List<User> uList = CommunityHelperWithoutSharing.getCommunityUsers(null,50000,new List<String>{'FirstName', 'LastName', 'SmallPhotoUrl', 'FullPhotoUrl', 'ContactId', 'Contact.Primary_Role__c', 'Community_Contact_ID__c'},'Name',true);
+		List<User> uList = CommunityHelperWithoutSharing.getCommunityUsers(null, 50000, new List<String>{'FirstName', 'LastName', 'SmallPhotoUrl', 'FullPhotoUrl', 'ContactId', 'Contact.Primary_Role__c', 'Community_Contact_ID__c'}, 'Name', true);
 		securityWrapper sw = new securityWrapper();
 		Map<Id,String> contactRoles = sw.prepareRoles(uList);
 		for (User uItem2 : uList) {
 			Id cId2 = getId(uItem2);
-			peoples.add(new UserItem(
-				uItem2,
-				followingsIds.contains(uItem2.Id),
-				cId2 == NULL ? '' : contactRoles.get(cId2)
-			));
+			peoples.add(new UserItem(uItem2, followingsIds.contains(uItem2.Id), cId2 == NULL ? '' : contactRoles.get(cId2)));
 		}
 		return peoples;
 	}

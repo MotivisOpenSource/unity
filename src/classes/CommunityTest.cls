@@ -440,15 +440,13 @@ private class CommunityTest {
 			CommunityFeed_MyMessagesController cfhdgcb = new CommunityFeed_MyMessagesController();
 			System.assertNotEquals(0, cfhdgcb.MessagesPerPage);
 			cfhdgcb.goToConversation();
-			//cfhdgcb.showMoreConversations();
-			//cfhdgcb.loadOlderMessages();
 			cfhdgcb.doSearchMessages();
 			CommunityFeed_MyMessagesController.ChatterMessage cm = cfhdgcb.newConversation('balalayka',us[1].Id);
 			CommunityFeed_MyMessagesController.postMessage(cm.ConversationId,'gorbachev',cm.MessageId);
 			cfhdgcb.markConversationRead(cm.ConversationId, true);
 		}
 		System.runAs(us[1]) {
-			List<CommunityFeed_MyMessagesController.ChatterGroupMember> sl = CommunityFeed_MyMessagesController.searchUsers('gu');
+			List<CommunityFeed_MyMessagesController.ChatterGroupMember> sl = CommunityFeed_MyMessagesController.searchUsers('guillermo');
 			System.assert(sl.size() > 0);
 			String cid = CommunityFeed_MyMessagesController.sendMessage('matreshka',sl[0].MemberId);
 			ApexPages.currentPage().getParameters().put('c',cid);

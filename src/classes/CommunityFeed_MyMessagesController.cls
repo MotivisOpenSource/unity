@@ -441,12 +441,7 @@ public with sharing class CommunityFeed_MyMessagesController {
 	@RemoteAction
 	public static List<ChatterGroupMember> searchUsers(String query) {
 		List<ChatterGroupMember> result = new List<ChatterGroupMember>();
-		Set<Id> memberNetworkIds = new Set<Id>();
-		for (NetworkMember nm : [SELECT Id, MemberId FROM NetworkMember WHERE MemberId != :UserInfo.getUserId() AND NetworkId = :Network.getNetworkId()]) {
-			memberNetworkIds.add(nm.MemberId);
-		}
-		query = String.format('%{0}%', new List<String> { !String.isBlank(query) ? query : '' });
-		List<User> users = CommunityHelperWithoutSharing.getCommunityUsers(query,10,new List<String>{'FirstName','LastName','SmallPhotoUrl'},'Name',true);
+		List<User> users = CommunityHelperWithoutSharing.getCommunityUsers(query, 10, new List<String>{'FirstName', 'LastName', 'SmallPhotoUrl'}, 'Name', true);
 		for (User summary : users) {
 			result.add(new ChatterGroupMember(summary));
 		}

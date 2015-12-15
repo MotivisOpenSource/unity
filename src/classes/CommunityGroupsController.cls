@@ -35,15 +35,14 @@ public with sharing class CommunityGroupsController {
 		}
 		private set;
 	}
+
 	private final String CurrentCommunityId = Network.getNetworkId();
 
-	public CommunityGroupsController() {
-	}
+	public CommunityGroupsController() {}
 
 	public Boolean getShowCreateGroupBtn() {
 		return CommunityUtils.canCreateGroup();
 	}
-
 
 	public static List<ChatterGroupDetail> getChatterGroupDetailList(List<Community_Group_Control__c> GroupControlList) {
 
@@ -53,7 +52,6 @@ public with sharing class CommunityGroupsController {
 		List<CollaborationGroupMember> CollaborationGroupMemberList = new List<CollaborationGroupMember>();
 		List<CollaborationGroupMemberRequest> GroupMemberRequestList = new List<CollaborationGroupMemberRequest>();
 		Map<Id, CollaborationGroupMemberRequest> GroupMemberRequestMap = new Map<Id, CollaborationGroupMemberRequest>();
-		Map<Id, Integer> mapMemberCount = new Map<Id, Integer>();
 		Set<Id> ChatterGroupIdSet = new Set<Id>();
 		Set<Id> GroupControlSet = new Set<Id>();
 		Boolean ModifyAllData = CommunityUtils.isModifyAllData();
@@ -96,6 +94,7 @@ public with sharing class CommunityGroupsController {
 				FROM CollaborationGroupMember
 				WHERE CollaborationGroup.NetworkId =: Network.getNetworkId()
 					AND CollaborationGroup.Id IN: collaborationGroupMap.keySet()
+					AND MemberId =: UserInfo.getUserId()
 				ORDER BY CollaborationGroup.Name
 			]; 
 
@@ -108,29 +107,18 @@ public with sharing class CommunityGroupsController {
 			];
 		}
 
-		if (!CollaborationGroupMemberList.isEmpty()) {
-			Integer tmpCount = 0;
-			for (CollaborationGroupMember Item : CollaborationGroupMemberList) {
-				if (Item.MemberId == UserInfo.getUserId()) {
-					CollaborationGroupMemberMap.put(Item.CollaborationGroup.Id, Item);
-				}
-				if (Item.Member.ContactId != null || Item.Member.Community_Contact_ID__c != null) {
-					tmpCount = mapMemberCount.containsKey(Item.CollaborationGroupId) ? mapMemberCount.get(Item.CollaborationGroupId) + 1 : 1;
-					mapMemberCount.put(Item.CollaborationGroupId, tmpCount);
-				}
-			}
+		for (CollaborationGroupMember Item : CollaborationGroupMemberList) {
+			CollaborationGroupMemberMap.put(Item.CollaborationGroup.Id, Item);
 		}
 
-		if (!GroupMemberRequestList.isEmpty()) {
-			for (CollaborationGroupMemberRequest Item : GroupMemberRequestList) {
-				GroupMemberRequestMap.put(Item.CollaborationGroupID, Item);
-			}
+		for (CollaborationGroupMemberRequest Item : GroupMemberRequestList) {
+			GroupMemberRequestMap.put(Item.CollaborationGroupID, Item);
 		}
 
 		for (Community_Group_Control__c Item : GroupControlList) {
 			if (collaborationGroupMap.get(Item.Chatter_Group_ID__c) != NULL) {
 				ChatterGroupDetail groupDetail = new ChatterGroupDetail(Item);
-				groupDetail.GroupMembersCount = mapMemberCount.containsKey(Item.Chatter_Group_ID__c) ? mapMemberCount.get(Item.Chatter_Group_ID__c) : 0;
+				groupDetail.GroupMembersCount = collaborationGroupMap.get(Item.Chatter_Group_ID__c).MemberCount;
 				groupDetail.GroupLastActivityDate = collaborationGroupMap.get(Item.Chatter_Group_ID__c).LastFeedModifiedDate;
 				groupDetail.GroupId = Item.Chatter_Group_ID__c;
 				if (collaborationGroupMap.get(Item.Chatter_Group_ID__c).SmallPhotoUrl != NULL) {
@@ -173,12 +161,9 @@ public with sharing class CommunityGroupsController {
 						groupDetail.NotAMemberStatus = '';
 					}
 				}
-
 				Result.add(groupDetail);
 			}
-
 		}
-
 		return Result;
 	}
 
@@ -208,17 +193,17 @@ public with sharing class CommunityGroupsController {
 
 		String gQuery = 'SELECT Id, Name, Chatter_Group_ID__c, Discoverable__c, Description__c, Type__c FROM Community_Group_Control__c';
 		Boolean foundData = false;
-		Set<String> filtredChatterGroups = new Set<String>();
+		Set<String> filtredChatterGroupIds = new Set<String>();
 		Set<String> alreadyJoinedGroups = new Set<String>();
 		Set<String> matchedTagedGroups = new Set<String>();
 
 		if (currentTab == 'all_groups' || currentTab == 'recommended_groups' || String.isBlank(currentTab)) {
 			for (CollaborationGroup cgItem : [SELECT Id FROM CollaborationGroup WHERE NetworkId = :Network.getNetworkId()]) {
-				filtredChatterGroups.add(cgItem.Id);
+				filtredChatterGroupIds.add(cgItem.Id);
 			}
-			gQuery += ' WHERE Chatter_Group_ID__c IN :filtredChatterGroups';
+			gQuery += ' WHERE Chatter_Group_ID__c IN :filtredChatterGroupIds';
 			gQuery += CommunityUtils.isModifyAllData() ? '' : ' AND Discoverable__c = true';
-			foundData = filtredChatterGroups.size() > 0;
+			foundData = filtredChatterGroupIds.size() > 0;
 		}
 
 		if (currentTab == 'recommended_groups' && foundData) {
@@ -261,10 +246,10 @@ public with sharing class CommunityGroupsController {
 					SELECT CollaborationGroupId FROM CollaborationGroupMember
 					WHERE CollaborationGroup.NetworkId = :Network.getNetworkId() AND MemberId = :UserInfo.getUserId()
 						]) {
-				filtredChatterGroups.add(cgmItem.CollaborationGroupId);
+				filtredChatterGroupIds.add(cgmItem.CollaborationGroupId);
 			}
-			gQuery += ' WHERE Chatter_Group_ID__c IN :filtredChatterGroups';
-			foundData = filtredChatterGroups.size() > 0;
+			gQuery += ' WHERE Chatter_Group_ID__c IN :filtredChatterGroupIds';
+			foundData = filtredChatterGroupIds.size() > 0;
 		}
 
 		DiscoverResultClass DiscoverResult;
@@ -303,7 +288,7 @@ public with sharing class CommunityGroupsController {
 
 	public class DiscoverResultClass {
 		public Integer totalRecords { get { return totalRecords == NULL ? 0 : totalRecords; } set; }
-		public List<ChatterGroupDetail> Groups  { get; set; }
+		public List<ChatterGroupDetail> Groups { get; set; }
 		public Boolean hasMore { get { return hasMore == NULL ? false : hasMore; } set; }
 
 		public DiscoverResultClass(Integer total, List<ChatterGroupDetail> groupsList) {
