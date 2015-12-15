@@ -7,13 +7,6 @@
         <shortDescription>BTN Accept</shortDescription>
         <value>Accept</value>
     </labels>
-	 <labels>
-        <fullName>LBL_TermsAndConditions</fullName>
-        <language>en_US</language>
-        <protected>true</protected>
-        <shortDescription>LBL TermsAndConditions</shortDescription>
-        <value>Terms &amp; Conditions</value>
-    </labels>
     <labels>
         <fullName>BTN_Back</fullName>
         <language>en_US</language>
@@ -281,20 +274,6 @@
         <value>Error : Can&apos;t found Topic</value>
     </labels>
     <labels>
-        <fullName>ERR_Cant_Found_Group</fullName>
-        <language>en_US</language>
-        <protected>true</protected>
-        <shortDescription>ERR Cant Found Group</shortDescription>
-        <value>Can`t found group:</value>
-    </labels>
-    <labels>
-        <fullName>ERR_Cant_Found_People</fullName>
-        <language>en_US</language>
-        <protected>true</protected>
-        <shortDescription>ERR Cant Found People</shortDescription>
-        <value>Can`t Found People</value>
-    </labels>
-    <labels>
         <fullName>ERR_Choice_To_Long</fullName>
         <categories>Unity Feed</categories>
         <language>en_US</language>
@@ -308,20 +287,6 @@
         <protected>true</protected>
         <shortDescription>ERR_Comment_Too_Large</shortDescription>
         <value>Your comment can&apos;t have more than 10000 characters.</value>
-    </labels>
-    <labels>
-        <fullName>ERR_Community_Profile</fullName>
-        <language>en_US</language>
-        <protected>true</protected>
-        <shortDescription>Error: Community Profile</shortDescription>
-        <value>This contact must have a Community Profile before they can be enabled for the Community</value>
-    </labels>
-    <labels>
-        <fullName>ERR_CreateGroup_MaxTagMessage</fullName>
-        <language>en_US</language>
-        <protected>true</protected>
-        <shortDescription>ERR CreateGroup MaxTagMessage</shortDescription>
-        <value>You have reached the Maximum of &lt;setting number&gt; for this group.  You must remove a tag in order to add a tag.</value>
     </labels>
     <labels>
         <fullName>ERR_Create_Event_Dates</fullName>
@@ -541,7 +506,7 @@
         <value>If Max Group Tags = 0, then Create Group Require Tags must be FALSE</value>
     </labels>
     <labels>
-        <fullName>LBL_Add_To_Favorites</fullName>
+        <fullName>LBL_Admin_Page_Group_Tag_Setting_Error</fullName>
         <language>en_US</language>
         <protected>true</protected>
         <shortDescription>LBL Admin Page Group Tag Setting Error</shortDescription>
@@ -562,13 +527,6 @@
         <value>All Groups</value>
     </labels>
     <labels>
-        <fullName>LBL_All_Updates</fullName>
-        <language>en_US</language>
-        <protected>true</protected>
-        <shortDescription>LBL All Updates</shortDescription>
-        <value>All Updates</value>
-    </labels>
-	<labels>
         <fullName>LBL_All_Updates</fullName>
         <language>en_US</language>
         <protected>true</protected>

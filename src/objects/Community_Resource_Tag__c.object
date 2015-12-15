@@ -128,8 +128,8 @@
     <pluralLabel>Community Resource Tags</pluralLabel>
     <searchLayouts>
         <excludedStandardButtons>ChangeOwner</excludedStandardButtons>
-        <excludedStandardButtons>Accept</excludedStandardButtons>
         <excludedStandardButtons>New</excludedStandardButtons>
+        <excludedStandardButtons>Accept</excludedStandardButtons>
         <lookupDialogsAdditionalFields>Community_Tag__c</lookupDialogsAdditionalFields>
         <lookupDialogsAdditionalFields>Theme__c</lookupDialogsAdditionalFields>
         <lookupDialogsAdditionalFields>Resource__c</lookupDialogsAdditionalFields>

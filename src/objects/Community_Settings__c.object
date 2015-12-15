@@ -57,14 +57,6 @@
         <type>Checkbox</type>
     </fields>
     <fields>
-        <fullName>Disable_Files_On_Community_Feed__c</fullName>
-        <defaultValue>true</defaultValue>
-        <externalId>false</externalId>
-        <label>Disable Files On Community Feed</label>
-        <trackTrending>false</trackTrending>
-        <type>Checkbox</type>
-    </fields>
-    <fields>
         <fullName>Disable_Share__c</fullName>
         <defaultValue>false</defaultValue>
         <description>Disable Share Button</description>
