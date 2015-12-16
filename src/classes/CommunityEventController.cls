@@ -394,17 +394,9 @@ public with sharing class CommunityEventController {
 						FROM Community_Group_Control__c
 						WHERE Name like :queryConnectedGroupStr
 						ORDER BY CreatedDate DESC
-					];	
-				// check if the group exist
-				//if (communityGroupControll.isEmpty()) {
-				//	//ApexPages.Message myMsg = new ApexPages.Message(ApexPages.Severity.ERROR,Label.ERR_Cant_Found_Group + connectedGroupStr );
-				//	//ApexPages.addMessage(myMsg);
-				//	throw new CommunityEventException(Label.ERR_Cant_Found_Group + connectedGroupStr);
-				//}
+					];
 				// delete all events if there was more than one record	
 				if(!(communityEventTagList.Size() == 1 && communityEventTagList[0].Community_Group_Control__c == communityGroupControll[0].Id )) {
-					
-					//delete communityEventTagList ;
 					CommunityAccess.DeleteWithoutSharing(
 						communityEventTagList,
 						'CommunityEventController.cls [submit]'
@@ -412,15 +404,14 @@ public with sharing class CommunityEventController {
 					Community_Event_Tag__c communityEventTag = new Community_Event_Tag__c();
 					communityEventTag.Community_Event__c = event.Id;
 					communityEventTag.Community_Group_Control__c = communityGroupControll[0].Id;
-					//insert communityEventTag;
 					CommunityAccess.InsertWithoutSharing(
-					communityEventTag,
-					'CommunityEventController.cls [submit]',
-					new List<Schema.DescribeFieldResult> {
-						Community_Event_Tag__c.Community_Event__c.getDescribe(),
-						Community_Event_Tag__c.Community_Group_Control__c.getDescribe()
-					}
-				);
+						communityEventTag,
+						'CommunityEventController.cls [submit]',
+						new List<Schema.DescribeFieldResult> {
+							Community_Event_Tag__c.Community_Event__c.getDescribe(),
+							Community_Event_Tag__c.Community_Group_Control__c.getDescribe()
+						}
+					);
 				}
 			}
 			pr = Page.CommunityEventDetail;
