@@ -283,7 +283,7 @@ private class CommunityTest4 {
 			CollaborationGroup cg = new CollaborationGroup();
 			cg.Name = 'newgroup';
 			cg.CollaborationType = 'Public' ;
-			insert cg;			
+			insert cg;
 			insert new Community_Group_Control__c(Name='1212t',Discoverable__c=true,Type__c='Public',Network__c='Internal', Chatter_Group_ID__c=cg.Id);
 			Community_Group_Control__c control = [SELECT id FROM Community_Group_Control__c  Where Chatter_Group_ID__c =: cg.Id LIMIT 1];
 			CommunityUtils.membership(UserInfo.getUserId(), control.Id, '1');
@@ -330,6 +330,8 @@ private class CommunityTest4 {
 			Test.startTest();
 			CommunityUtils.changeManagerRoleToStandard(new Set<Id>{cgmem.Id});
 			Test.stopTest();
+			CollaborationGroupMember cgm = [SELECT Id, CollaborationRole FROM CollaborationGroupMember WHERE Id = :cgmem.Id];
+			System.assert(cgm.CollaborationRole == 'Standard');
 		}
 	}
 

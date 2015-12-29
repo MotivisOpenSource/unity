@@ -446,6 +446,10 @@ private class CommunityTest2 {
 			CommunityMenuController.getIsRegTermsPage();
 			CommunityMenuController.getRegistration();
 			CommunityMenuController.getShowHideMenu();
+			CommunityMenuController.getColorScheme();
+			CommunityMenuController.getIsDefaultBackground();
+			CommunityMenuController.getBackgroundImageId();
+
 			CommunityMenuController cmc = new CommunityMenuController();
 			cmc.getAlert();
 			cmc.getHelpLink();
