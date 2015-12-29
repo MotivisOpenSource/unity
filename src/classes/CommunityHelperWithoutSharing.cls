@@ -54,7 +54,7 @@ public without sharing class CommunityHelperWithoutSharing {
 			String currentUserId = UserInfo.getUserId();
 			String queryNetworkMembers = 'SELECT Id, Member.Id, Member.Name' + fieldsSting + ' FROM NetworkMember'
 					+ ' WHERE Member.isActive = true AND NetworkId = :currentNetworkId AND MemberId != :currentUserId'
-					+ ' AND (Member.Name LIKE :querySearch OR Member.LastName LIKE :querySearch OR Member.FirstName LIKE :querySearch)'
+					+ ' AND (Member.Name LIKE \'' + querySearch + '\' OR Member.LastName LIKE \''+querySearch+ '\' OR Member.FirstName LIKE \''+querySearch+ '\')'
 					+ ' ORDER BY Member.' + sortCol + ' ' + sortDir + ' LIMIT :queryLimit';
 
 			if (!SObjectType.NetworkMember.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.NetworkMember);
