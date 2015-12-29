@@ -569,13 +569,6 @@
         <value>All Updates</value>
     </labels>
 	<labels>
-        <fullName>LBL_All_Updates</fullName>
-        <language>en_US</language>
-        <protected>true</protected>
-        <shortDescription>LBL All Updates</shortDescription>
-        <value>All Updates</value>
-    </labels>
-    <labels>
         <fullName>LBL_Assign_New_Owner</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -630,6 +623,13 @@
         <protected>true</protected>
         <shortDescription>LBL Change Owner</shortDescription>
         <value>Change Owner</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Change_Vote</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Change Vote</shortDescription>
+        <value>Change Vote</value>
     </labels>
     <labels>
         <fullName>LBL_Choose_from_Library</fullName>
@@ -1220,6 +1220,13 @@
         <value>Logout</value>
     </labels>
     <labels>
+        <fullName>LBL_Make_Vote</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Make Vote</shortDescription>
+        <value>Make Vote</value>
+    </labels>
+    <labels>
         <fullName>LBL_ManageDetails_Title</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -1647,6 +1654,13 @@
         <value>Recommended Groups</value>
     </labels>
     <labels>
+        <fullName>LBL_Refresh</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Refresh</shortDescription>
+        <value>Refresh</value>
+    </labels>
+    <labels>
         <fullName>LBL_RegGenInfo_Title</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -1988,6 +2002,13 @@
         <protected>true</protected>
         <shortDescription>Label Verify New Password</shortDescription>
         <value>Verify New Password</value>
+    </labels>
+    <labels>
+        <fullName>LBL_View_Results</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL View Results</shortDescription>
+        <value>View Results</value>
     </labels>
     <labels>
         <fullName>LBL_When</fullName>

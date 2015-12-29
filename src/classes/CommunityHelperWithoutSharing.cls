@@ -90,8 +90,13 @@ public without sharing class CommunityHelperWithoutSharing {
 	}
 
 // used for CommunityGroupFilesController
-	public static FeedItem getFeedParentId(String contentTitle, String contentOwner){
-		return [SELECT Id, Type, ParentId, Title, CreatedById FROM FeedItem WHERE Type = 'ContentPost' AND Title = :contentTitle AND CreatedById = :contentOwner LIMIT 1];
+    public static FeedItem getFeedParentId(String contentTitle, String contentOwner, Datetime createdDate){
+        return [SELECT Id, Type, ParentId, Title, CreatedById, CreatedDate 
+                FROM FeedItem 
+                WHERE Type = 'ContentPost' 
+                    AND Title = :contentTitle 
+                    AND CreatedById = :contentOwner 
+                    AND (CreatedDate < :createdDate.addSeconds(5) AND CreatedDate > :createdDate.addSeconds(-5)) LIMIT 1];
 	}
 
 // used for CommunityFeedController

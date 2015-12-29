@@ -42,7 +42,10 @@ public with sharing class CommunityMenuController {
 
 	public static String getRegistration() {
 		String result = 'false';
-		if (!currentPage(Page.CommunityRegTerms.getUrl()) && !currentPage(Page.Community404.getUrl())) {
+		if (UserInfo.getUserType() != 'Guest'
+			&& !currentPage(Page.CommunityRegTerms.getUrl())
+			&& !currentPage(Page.Community404.getUrl())
+		) {
 			CommunityRegTermsController crtc = new CommunityRegTermsController();
 			result = crtc.checkAndPrepareMenu();
 		}
@@ -51,10 +54,23 @@ public with sharing class CommunityMenuController {
 	
 	public static Boolean getShowHideMenu() {
 		Community_Template_Settings__c cts = Community_Template_Settings__c.getOrgDefaults();
-		If((String.isBlank(cts.Header_Logo_ImageID__c)) && getIsRegTermsPage()) return false;
-		else return true;
+		return !((String.isBlank(cts.Header_Logo_ImageID__c)) && getIsRegTermsPage());
 	}
 	
+	public static String getColorScheme() {
+		Community_Template_Settings__c cts = Community_Template_Settings__c.getInstance();
+		return String.isNotBlank(cts.Color_Scheme__c) ? cts.Color_Scheme__c : 'Green';
+	}
+
+	public static Boolean getIsDefaultBackground() {
+		Community_Template_Settings__c cts = Community_Template_Settings__c.getInstance();
+		return String.isBlank(cts.Background_ImageID__c);
+	}
+
+	public static String getBackgroundImageId() {
+		Community_Template_Settings__c cts = Community_Template_Settings__c.getInstance();
+		return String.isNotBlank(cts.Background_ImageID__c) ? cts.Background_ImageID__c : '';
+	}
 
 	public static Boolean getIsRegTermsPage() {
 		return currentPage(Page.CommunityRegTerms.getUrl());

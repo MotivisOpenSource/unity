@@ -27,7 +27,7 @@
  * unity@motivislearning.com
 -->
 
-<apex:component access="global" layout="none">
+<apex:component access="global" layout="none" controller="CommunityMenuController">
 
     <!-- Meta -->
     <meta charset="utf-8"/>
@@ -69,8 +69,6 @@
     <!-- Removed Inline Styles -->
     <link rel="stylesheet" href="{!$Resource.assets}/css/app/app.styles.css"/>
     <!-- Themes Styles -->
-    <apex:outputPanel rendered="{!NOT(ISBLANK($Setup.Community_Template_Settings__c.Color_Scheme__c))}">
-        <link rel="stylesheet" href="{!$Resource.assets}/css/theme-colors/{!$Setup.Community_Template_Settings__c.Color_Scheme__c}.theme.css"/>
-    </apex:outputPanel>
+    <link rel="stylesheet" href="{!$Resource.assets}/css/theme-colors/{!colorScheme}.theme.css"/>
 
 </apex:component>
