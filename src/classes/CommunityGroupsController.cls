@@ -190,7 +190,7 @@ public with sharing class CommunityGroupsController {
 
 	public DiscoverResultClass getGroups() {
 		String currentTab = currentFilter;
-
+		if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
 		String gQuery = 'SELECT Id, Name, Chatter_Group_ID__c, Discoverable__c, Description__c, Type__c FROM Community_Group_Control__c';
 		Boolean foundData = false;
 		Set<String> filtredChatterGroupIds = new Set<String>();
@@ -207,16 +207,19 @@ public with sharing class CommunityGroupsController {
 		}
 
 		if (currentTab == 'recommended_groups' && foundData) {
+			if (!SObjectType.User.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.User);
 			User currentUser = [SELECT ContactId, Community_Contact_ID__c FROM User WHERE Id = :UserInfo.getUserId()];
 			String currentContactId = currentUser.ContactId == NULL ? currentUser.Community_Contact_ID__c : currentUser.ContactId;
 			Set<Id> userTags = new Set<Id>();
 			if (String.isNotBlank(currentContactId)) {
 				String queryContactId = CommunityUtils.validateId(currentContactId);
+				if (!SObjectType.Community_Profile_Tag__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Profile_Tag__c);
 				for (Community_Profile_Tag__c cpt : [SELECT Community_Tag__c FROM Community_Profile_Tag__c WHERE Active__c = true AND Contact__c = :queryContactId]) {
 					userTags.add(cpt.Community_Tag__c);
 				}
 			}
 			if (userTags.size() > 0) {
+				if (!SObjectType.Community_Group_Control_Tag__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control_Tag__c);
 				for (Community_Group_Control_Tag__c cgctItem : [
 									SELECT Group_Control__r.Chatter_Group_ID__c FROM Community_Group_Control_Tag__c
 									WHERE Community_Tag__c IN :userTags AND Group_Control__c != NULL AND Group_Control__r.Chatter_Group_ID__c != NULL]) {

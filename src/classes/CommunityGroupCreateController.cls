@@ -60,6 +60,7 @@ public with sharing class CommunityGroupCreateController {
 	public PageReference initFromView() {
 		PageReference pageRef = CommunityUtils.checkRedirectToStandardView(currentGroup.Id);
 		if (pageRef == NULL) {
+			if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
 			currentGroup = [SELECT Id, Chatter_Group_Id__c FROM Community_Group_Control__c WHERE Id = :currentGroup.Id LIMIT 1];
 			pageRef = Page.CommunityGroupManager;
 			pageRef.getParameters().put('gr', currentGroup.Chatter_Group_ID__c);
@@ -121,6 +122,7 @@ public with sharing class CommunityGroupCreateController {
 					}
 				);
 				pr = Page.CommunityGroupCreate;
+				if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
 				currentGroup = [SELECT Id, Chatter_Group_ID__c FROM Community_Group_Control__c WHERE Id =:currentGroup.Id];
 				pr.getParameters().put('step', String.isBlank(currentGroup.Chatter_Group_ID__c) ? '3' : '2');
 			}
@@ -181,6 +183,7 @@ public with sharing class CommunityGroupCreateController {
 				pr = Page.CommunityGroupManager;
 				pr.getParameters().put('gc', currentGroup.Id);
 				currentGroup.T_C_Accepted_Date__c = Datetime.Now();
+				if (!SObjectType.Community_Admins__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Admins__c);
 				List<Community_Admins__c> caList = [
 					SELECT Id FROM Community_Admins__c
 					WHERE Terms_Status__c = 'Published' AND RecordType.Name = 'Group Terms'
@@ -242,6 +245,7 @@ public with sharing class CommunityGroupCreateController {
 	public Community_Admins__c getTermsAndConditions() {
 		List<Community_Admins__c> caList;
 		if (step == 4) {
+			if (!SObjectType.Community_Admins__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Admins__c);
 			caList = [
 				SELECT Terms_Body__c FROM Community_Admins__c
 				WHERE Terms_Status__c = 'Published' AND RecordType.Name = 'Group Terms'
@@ -276,6 +280,7 @@ public with sharing class CommunityGroupCreateController {
 	@RemoteAction
 	public static Boolean checkAvailability(String nameToCheck) {
 		String queryNameToCheck = String.escapeSingleQuotes(nameToCheck);
+		if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
 		List<Community_Group_Control__c> matchedGroups = [SELECT Id FROM Community_Group_Control__c WHERE Name = :queryNameToCheck];
 		List<CollaborationGroup> matchedChatterGroups = [SELECT Id FROM CollaborationGroup WHERE Name = :queryNameToCheck];
 		return matchedGroups.isEmpty() && matchedChatterGroups.isEmpty();

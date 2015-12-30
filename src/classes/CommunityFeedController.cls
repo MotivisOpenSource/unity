@@ -57,6 +57,7 @@ global with sharing class CommunityFeedController {
 				String contId = (us.ContactId != null) ? us.ContactId : us.Community_Contact_ID__c;
 				if(contId != null) {
 					String queryContId = CommunityUtils.validateId(contId);
+					if (!SObjectType.Community_Profile__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Profile__c);
 					List<Community_Profile__c> cpl = [SELECT Id FROM Community_Profile__c WHERE Contact__c = :queryContId LIMIT 1]; 
 					if(cpl.size()>0) return cpl[0].Id;
 				}
@@ -296,6 +297,7 @@ global with sharing class CommunityFeedController {
 		List<Community_Group_Manager__c> cgmList = new List<Community_Group_Manager__c>();
 		if (hasShowManagerFeed == false) {
 			if (SObjectType.Community_Group_Manager__c.isAccessible()) {
+				if (!SObjectType.Community_Group_Manager__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Manager__c);
 				cgmList = [SELECT Id, Group_Control__c, Manager_Role__c FROM Community_Group_Manager__c WHERE Group_Manager_User__c =: UserInfo.getUserId()];
 			}
 		}

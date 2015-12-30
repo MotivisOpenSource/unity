@@ -47,7 +47,7 @@ public with sharing class CommunityTopCategoriesController {
 		countCol = countCol != null ? countCol : 3;
 		compRendered = compRendered != null ? compRendered : false;
 		List<themeTagWapper> resultList = new List<themeTagWapper>();
-
+		if (!SObjectType.Community_Tag__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Tag__c);
 		List<Community_Tag__c> allTags = [
 			SELECT Id, Community_Theme__c, Community_Theme__r.Icon_Color__c, Community_Theme__r.Name, Name, Icon_Style__c,
 			(SELECT Id, Name FROM Community_EventItems_Tagged__r WHERE Community_Event__r.Public__c = true),
@@ -66,6 +66,7 @@ public with sharing class CommunityTopCategoriesController {
 				themeTagsMap.get(tag.Community_Theme__c).add(tag);
 			}
 		}
+		 if (!SObjectType.Community_Theme__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Theme__c);
 		String queryString = 'SELECT Id, Name, Icon_Color__c FROM Community_Theme__c';
 		queryString += ' WHERE Theme_Type__c = \'' + (resourceOnly == true ? 'Resource' : 'Interest') + '\'';
 		Set<Id> filteredThemes;

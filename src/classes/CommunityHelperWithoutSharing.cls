@@ -101,11 +101,13 @@ public without sharing class CommunityHelperWithoutSharing {
 
 // used for CommunityFeedController
 	public static List<User> getUsers(Set<String> usersIds){
+		if (!SObjectType.User.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.User);
 		return [SELECT Id, Name FROM User WHERE Id IN :usersIds];
 	}
 
 // used for CommunityFeedController
 	public static List<Community_Group_Control__c> getGroups(Set<String> groupsIds){
+		if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
 		return [SELECT Chatter_Group_ID__c, Name FROM Community_Group_Control__c WHERE Chatter_Group_ID__c IN :groupsIds];
 	}
 
