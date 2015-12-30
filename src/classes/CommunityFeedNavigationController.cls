@@ -57,7 +57,7 @@ public with sharing class CommunityFeedNavigationController {
 	}
 	
 	
-	public String controllerPhotoUrl { 
+	public String controllerPhotoUrl {
 		get {
 			if(groupRole!=null){
 				return controllerPhotoUrl;

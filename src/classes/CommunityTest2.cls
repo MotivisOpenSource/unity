@@ -49,6 +49,10 @@ private class CommunityTest2 {
 			Community_Group_Manager__c cgm = new Community_Group_Manager__c(Group_Control__c = cgc.Id, Group_Manager_User__c = df.communityUser.Id);
 			insert cgm;
 
+			CommunityFeedNavigationController.getHasTwitterFeed();
+			CommunityFeedNavigationController.getTwitterHandle();
+			CommunityFeedNavigationController.getTwitterDataWidgetId();
+			
 			ApexPages.currentPage().getParameters().put('gc', cgc.Id);
 			CommunityFeedNavigationController cfnc = new CommunityFeedNavigationController();
 			cfnc.MessageUnreadCount = 1;
@@ -208,7 +212,7 @@ private class CommunityTest2 {
 				3, 
 				ConnectApi.FeedDensity.FewerUpdates, 
 				null, 
-				1, 
+				8, 
 				ConnectApi.FeedSortOrder.LastModifiedDateDesc,
 				testPage
 			);
@@ -224,15 +228,21 @@ private class CommunityTest2 {
 				3,
 				ConnectApi.FeedDensity.FewerUpdates,
 				null, 
-				1, 
+				8, 
 				ConnectApi.FeedSortOrder.LastModifiedDateDesc,
 				testPage1);
 			Map<String, String> params1 = new Map<String, String>();
+			Map<String, String> params2 = new Map<String, String>();
 			params1.put('parentId', parentId);
 			params1.put('inFeedType', '1');
 			params1.put('inpt', null);
 			params1.put('topicId', topicTest.Id);
+			params2.put('parentId', parentId);
+			params2.put('inFeedType', '1');
+			params2.put('inpt', null);
+			params2.put('feedId', feedItemTop.Id);
 			String feedForTopic = CommunityFeedController.feedsForTopics(params1);
+			String feedFromEmail = CommunityFeedController.feedFromEmail(params2);
 		}
 
 		System.runAs(df.communityUser) {
@@ -536,7 +546,6 @@ private class CommunityTest2 {
 			cscEvents.shareComment = 'shareComment';
 			cscEvents.shareGroup = 'shareGroup';
 			cscEvents.message = 'message';
-			List<Community_Group_Control__c> li1 = cscEvents.AvailableGroupsControls;
 			Boolean var4 = cscEvents.hasMessage;
 		}
 	}

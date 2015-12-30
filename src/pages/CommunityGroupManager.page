@@ -136,10 +136,11 @@
 								<li><a data-toggle="tab" href="#editgroup">{!$Label.LBL_Edit_Group}</a></li>
 							</ul>
 							<div class="tab-content">
-
+							<apex:variable var="pfe" value="{!IF(ISBLANK($CurrentPage.parameters.fromEmail),false, true)}"/>
+							<apex:variable var="pffe" value="{!IF(ISBLANK($CurrentPage.parameters.fId),'',JSENCODE($CurrentPage.parameters.fId))}"/>
 							<!-- FEED -->
 							<div id="feed" class="profile-edit tab-pane fade in active">
-								<c:CommunityFeed pid="{!control.Id}" fu="{!$Setup.Community_Settings__c.Chatter_Action_Disable_Group_Files__c != true}"/>
+								<c:CommunityFeed pid="{!control.Id}" fe="{!pfe}" ffe="{!pffe}" fu="{!$Setup.Community_Settings__c.Chatter_Action_Disable_Group_Files__c != true}"/>
 							</div>
 							<!-- END FEED -->
 

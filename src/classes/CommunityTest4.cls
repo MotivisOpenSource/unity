@@ -125,7 +125,14 @@ private class CommunityTest4 {
 
 		testPageRef = new PageReference(testUrl);
 		testPageRef.getParameters().put(messageTypeParam, testRewriter.CHATTER_POST_NOTIFICATION);
-		testPageRef.getParameters().put('fid', testId);
+		testPageRef.getParameters().put('fid', feedItemId);
+		testPageRef.getParameters().put('s1uid', Userinfo.getUserId());
+		testRewriter.mapRequestUrl(testPageRef);
+
+		testPageRef = new PageReference(testUrl);
+		testPageRef.getParameters().put(messageTypeParam, testRewriter.CHATTER_POST_NOTIFICATION);
+		testPageRef.getParameters().put('fid', feedItemId);
+		testPageRef.getParameters().put('s1uid', testId);
 		testRewriter.mapRequestUrl(testPageRef);
 
 		testPageRef = new PageReference(testUrl);
