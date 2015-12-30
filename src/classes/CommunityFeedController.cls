@@ -816,7 +816,7 @@ global with sharing class CommunityFeedController {
 			try {
 				resultPage = postFeeds(params1);
 			}catch(ConnectApi.ConnectApiException ex){
-				throw new UnityFeedException(Label.ERR _Post_Too_Large);
+				throw new UnityFeedException(Label.ERR_Post_Too_Large);
 			}	
 		}
 		else if (layout.name == 'FeedItem.ContentPost') {

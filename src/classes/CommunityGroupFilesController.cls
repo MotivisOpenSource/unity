@@ -217,6 +217,7 @@ public with sharing class CommunityGroupFilesController {
         Set<String> filtredContentVersionsId = new Set<String>();
         filtredContentVersionsId.addAll(contentDocumentToVersionMap.values());
 */        
+        
         Set<String> checkForDuplicatingSet = new Set<String>();
         List<ConnectApi.FeedElement> filteredElements = new List<ConnectApi.FeedElement>();
         for (ConnectApi.FeedElement fe3 : elements) {

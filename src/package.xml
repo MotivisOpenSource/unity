@@ -312,6 +312,10 @@
         <members>ERR_1_Breaking_News</members>
         <members>ERR_3_Alerts</members>
         <members>ERR_Can_not_found_Topic</members>
+		<members>ERR_Cant_Found_Group</members>
+		<members>ERR_Cant_Found_People</members>
+		<members>ERR_Community_Profile</members>
+		<members>ERR_CreateGroup_MaxTagMessage</members>
         <members>ERR_Choice_To_Long</members>
         <members>ERR_Comment_Too_Large</members>
         <members>ERR_Create_Event_Dates</members>
