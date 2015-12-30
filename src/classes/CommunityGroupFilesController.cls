@@ -147,7 +147,7 @@ public with sharing class CommunityGroupFilesController {
             String contentTitle = contentDoc.Title;
             String contentOwner = contentDoc.OwnerId;
             Datetime createdDate = contentDoc.CreatedDate;
-            FeedItem feed = CommunityHelperWithoutSharing.getFeedParentId(contentTitle, contentOwner);
+            FeedItem feed = CommunityHelperWithoutSharing.getFeedParentId(contentTitle, contentOwner, createdDate);
             parentId = feed.parentId;
             feedElementsIds.add(feed.Id);
             fromEmail = true;

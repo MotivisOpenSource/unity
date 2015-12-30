@@ -60,7 +60,7 @@ public class CommunityTest3 {
 			Chatter_Group_ID__c = testGroup.Id
 		);
 		insert testGroupControl;
-		System.assert(testGroupControl.Id != null);
+		System.assert(testGroupControl.id!= null);
 		testGroup.Description = 'Description Test';
 		update testGroup;
 		System.assert(testGroup.Description == 'Description Test');

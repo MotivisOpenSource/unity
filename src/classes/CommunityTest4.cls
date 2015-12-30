@@ -368,7 +368,7 @@ private class CommunityTest4 {
 			Test.startTest();
 			CommunityUtils.changeManagerRoleToStandard(new Set<Id>{cgmem.Id});
 			Test.stopTest();
-			CollaborationGroupMember cgm = [SELECT Id, CollaborationRole FROM CollaborationGroupMember WHERE Id = :cgmem.Id];
+			CollaborationGroupMember cgm = [select id, CollaborationRole from CollaborationGroupMember where id=:cgmem.Id];           
 			System.assert(cgm.CollaborationRole == 'Standard');
 		}
 	}
