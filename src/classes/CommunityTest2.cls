@@ -79,24 +79,24 @@ private class CommunityTest2 {
 			System.assertNotEquals(null, cfnc.actionPhotoLabel);
 
 			cfnc.blobImageData = 'testString';
-			cfnc.cropSize = '30';
-			cfnc.cropX = '10';
-			cfnc.cropY = '20';
+			cfnc.cropSize = '1';
+			cfnc.cropX = '0';
+			cfnc.cropY = '0';
 			cfnc.photoName = 'testName';
-			cfnc.photoContentType = 'testString';
-			//cfnc.photoaction();
+			cfnc.photoContentType = 'image/jpg';
+			cfnc.photoaction();
 
 			ApexPages.currentPage().getParameters().put('gc', null);
 			cfnc = new CommunityFeedNavigationController();
-			/*System.assertNotEquals(null, cfnc.actionPhotoLabel);
+			System.assertNotEquals(null, cfnc.actionPhotoLabel);
 			
 			cfnc.blobImageData = 'testString';
-			cfnc.cropSize = '30';
-			cfnc.cropX = '10';
-			cfnc.cropY = '20';
+			cfnc.cropSize = '1';
+			cfnc.cropX = '0';
+			cfnc.cropY = '0';
 			cfnc.photoName = 'testName';
-			cfnc.photoContentType = 'testString';
-			cfnc.photoaction();*/
+			cfnc.photoContentType = 'image/jpg';
+			cfnc.photoaction();
 
 			/*String photoURL = cfnc.getPhotoUrl();
 			cfnc.photoaction();

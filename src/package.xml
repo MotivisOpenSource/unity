@@ -311,6 +311,9 @@
         <members>ERR_1_Breaking_News</members>
         <members>ERR_3_Alerts</members>
         <members>ERR_Can_not_found_Topic</members>
+		<members>ERR_Cant_Found_Group</members>
+		<members>ERR_Community_Profile</members>
+		<members>ERR_CreateGroup_MaxTagMessage</members>
         <members>ERR_Comment_Too_Large</members>
         <members>ERR_Create_Event_Dates</members>
         <members>ERR_Choice_To_Long</members>
@@ -349,9 +352,11 @@
         <members>LBL_Add_Photo</members>
         <members>LBL_Add_To_Favorites</members>
         <members>LBL_Add_Remove_Members</members>
+        <members>LBL_Add_To_Favorites</members>
         <members>LBL_Admin_Page_Group_Tag_Setting_Error</members>
         <members>LBL_AgreeToTerms</members>
         <members>LBL_AllGroups</members>
+        <members>LBL_All_Updates</members>
         <members>LBL_Assign_New_Owner</members>
         <members>LBL_Banner_Caption</members>
         <members>LBL_Banner_Text</members>
@@ -360,6 +365,7 @@
         <members>LBL_ChangePassword</members>
         <members>LBL_ChangePassword_Title</members>
         <members>LBL_Change_Owner</members>
+        <members>LBL_Change_Vote</members>
         <members>LBL_Choose_from_Library</members>
         <members>LBL_CommentsAfterMe</members>
         <members>LBL_CommentsOnBookmarked</members>
@@ -447,6 +453,7 @@
         <members>LBL_Load_More</members>
         <members>LBL_Location</members>
         <members>LBL_Logout</members>
+        <members>LBL_Make_Vote</members>
         <members>LBL_ManageDetails_Title</members>
         <members>LBL_ManageDigest_Message1</members>
         <members>LBL_ManageDigest_Title</members>
@@ -508,6 +515,7 @@
         <members>LBL_Read_More</members>
         <members>LBL_Read_More_News</members>
         <members>LBL_RecommendedGroups</members>
+        <members>LBL_Refresh</members>
         <members>LBL_RegGenInfo_Title</members>
         <members>LBL_RegInterests_Title</members>
         <members>LBL_RegProfilePicture_Title</members>

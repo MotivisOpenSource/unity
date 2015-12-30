@@ -57,6 +57,7 @@ global with sharing class CommunityFeedController {
 				String contId = (us.ContactId != null) ? us.ContactId : us.Community_Contact_ID__c;
 				if(contId != null) {
 					String queryContId = CommunityUtils.validateId(contId);
+					if (!SObjectType.Community_Profile__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Profile__c);
 					List<Community_Profile__c> cpl = [SELECT Id FROM Community_Profile__c WHERE Contact__c = :queryContId LIMIT 1]; 
 					if(cpl.size()>0) return cpl[0].Id;
 				}
@@ -147,7 +148,20 @@ global with sharing class CommunityFeedController {
 
 			result = json.serialize(fElement);
 		}catch(Exception ex){
-			return json.serialize(Label.LBL_There_Are_No_Updates);
+            String sobjectName = ((Id)inParentId).getSObjectType().getDescribe().getName();
+            Map<String, List<String>> parentTypeParentId = new Map<String, List<String>>{sobjectName => new List<String>{inParentId}};
+            Map<String, List<String>> mapParents = getParentsNames(parentTypeParentId);
+            String parentIdForObj;
+            for(String key : mapParents.keySet()){
+                if(key.containsIgnoreCase(inParentId)){
+                    parentIdForObj = key;
+                }
+            }
+            if(parentIdForObj == NULL){
+                parentIdForObj = 'user';
+                mapParents.put(parentIdForObj, new List<String>{null,null,null,prepareUrl(Page.CommunityFeed_MyFeed.getUrl())});
+            }
+            return json.serialize(mapParents.get(parentIdForObj)[3]);
 		}
 		FeedElement feResult = (FeedElement)JSON.deserialize(result,FeedElement.class);
 
@@ -252,7 +266,8 @@ global with sharing class CommunityFeedController {
 					ConnectApi.FeedDensity.FewerUpdates,
 					inPageToken2,
 					pageSize,
-					ConnectApi.FeedSortOrder.LastModifiedDateDesc
+                    ConnectApi.FeedSortOrder.LastModifiedDateDesc//,
+                //  ConnectApi.FeedFilter.CommunityScoped
 				);
 
 
@@ -282,6 +297,7 @@ global with sharing class CommunityFeedController {
 		List<Community_Group_Manager__c> cgmList = new List<Community_Group_Manager__c>();
 		if (hasShowManagerFeed == false) {
 			if (SObjectType.Community_Group_Manager__c.isAccessible()) {
+				if (!SObjectType.Community_Group_Manager__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Manager__c);
 				cgmList = [SELECT Id, Group_Control__c, Manager_Role__c FROM Community_Group_Manager__c WHERE Group_Manager_User__c =: UserInfo.getUserId()];
 			}
 		}
@@ -440,6 +456,7 @@ global with sharing class CommunityFeedController {
 				}
 				
 			}
+            
 		}
 		return parentIdNameGroupType;
 	}
@@ -1093,9 +1110,29 @@ global with sharing class CommunityFeedController {
 		return json.serialize(result);
 	}
 
+// deprecated
 	@RemoteAction
 	global static String voteOnPoll(Id pollId, Id choiceId, String inParentId, String inFeedType) {
+        return 'deprecated';
+    }
+
+    @RemoteAction
+    global static String votesOnPoll(Map<String, String> params) {
+        String pollId = params.get('pollId');
+        String choiceId = params.get('choiceId');
+        String inParentId = params.get('inParentId');
+        String inFeedType = params.get('inFeedType');
+        String voteFromEmail = params.get('fromEmail');
 		ConnectApi.PollCapability poll = ConnectApi.ChatterFeeds.voteOnFeedElementPoll(Network.getNetworkId(), pollId, choiceId);
+
+        if(voteFromEmail.equalsIgnoreCase('true')){
+            Map<String, String> paramsForFeeds = new Map<String, String>();
+            paramsForFeeds.put('parentId', inParentId);
+            paramsForFeeds.put('inFeedType', inFeedType);
+            paramsForFeeds.put('feedId', pollId);
+            paramsForFeeds.put('inpt', NULL);
+            return feedFromEmail(paramsForFeeds);
+        }
 		return feeds(inParentId, inFeedType, NULL);
 	}
 

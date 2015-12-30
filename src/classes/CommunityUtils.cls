@@ -494,7 +494,14 @@ public with sharing class CommunityUtils {
 		for (CollaborationGroupMember gm : collaborationAdmins) {
 			gm.CollaborationRole = 'Standard';
 		}
-		update collaborationAdmins;
+		CommunityAccess.UpdateWithoutSharing(
+			collaborationAdmins,
+			'CommunityUtils.cls [changeManagerRoleToStandard]',
+			new List<Schema.DescribeFieldResult> {
+				CollaborationGroupMember.CollaborationRole.getDescribe()
+			}
+		);
+		//update collaborationAdmins;
 	}
 
 	public static Set<Id> checkGroupManagers(Set<Id> userIds) {

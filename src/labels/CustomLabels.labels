@@ -509,8 +509,8 @@
         <fullName>LBL_Add_To_Favorites</fullName>
         <language>en_US</language>
         <protected>true</protected>
-        <shortDescription>LBL Admin Page Group Tag Setting Error</shortDescription>
-        <value>If Max Group Tags = 0, then Create Group Require Tags must be FALSE</value>
+        <shortDescription>LBL Add To Favorites</shortDescription>
+ +      <value>Add to favorites</value>
     </labels>
     <labels>
         <fullName>LBL_Admin_Page_Group_Tag_Setting_Error</fullName>
@@ -595,6 +595,13 @@
         <protected>true</protected>
         <shortDescription>LBL Change Owner</shortDescription>
         <value>Change Owner</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Change_Vote</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Change Vote</shortDescription>
+        <value>Change Vote</value>
     </labels>
     <labels>
         <fullName>LBL_Choose_from_Library</fullName>
@@ -1185,6 +1192,13 @@
         <value>Logout</value>
     </labels>
     <labels>
+        <fullName>LBL_Make_Vote</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Make Vote</shortDescription>
+        <value>Make Vote</value>
+    </labels>
+    <labels>
         <fullName>LBL_ManageDetails_Title</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -1612,6 +1626,13 @@
         <value>Recommended Groups</value>
     </labels>
     <labels>
+        <fullName>LBL_Refresh</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Refresh</shortDescription>
+        <value>Refresh</value>
+    </labels>
+    <labels>
         <fullName>LBL_RegGenInfo_Title</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -1953,6 +1974,13 @@
         <protected>true</protected>
         <shortDescription>Label Verify New Password</shortDescription>
         <value>Verify New Password</value>
+    </labels>
+    <labels>
+        <fullName>LBL_View_Results</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL View Results</shortDescription>
+        <value>View Results</value>
     </labels>
     <labels>
         <fullName>LBL_When</fullName>

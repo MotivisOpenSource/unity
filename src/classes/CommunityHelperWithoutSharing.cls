@@ -54,6 +54,7 @@ public without sharing class CommunityHelperWithoutSharing {
 			String currentUserId = UserInfo.getUserId();
 			String queryNetworkMembers = 'SELECT Id, Member.Id, Member.Name' + fieldsSting + ' FROM NetworkMember'
 					+ ' WHERE Member.isActive = true AND NetworkId = :currentNetworkId AND MemberId != :currentUserId'
+					//+ ' AND (Member.Name LIKE :querySearch OR Member.LastName LIKE :querySearch OR Member.FirstName LIKE :querySearch)'
 					+ ' AND (Member.Name LIKE \'' + querySearch + '\' OR Member.LastName LIKE \''+querySearch+ '\' OR Member.FirstName LIKE \''+querySearch+ '\')'
 					+ ' ORDER BY Member.' + sortCol + ' ' + sortDir + ' LIMIT :queryLimit';
 
@@ -90,17 +91,24 @@ public without sharing class CommunityHelperWithoutSharing {
 	}
 
 // used for CommunityGroupFilesController
-	public static FeedItem getFeedParentId(String contentTitle, String contentOwner){
-		return [SELECT Id, Type, ParentId, Title, CreatedById FROM FeedItem WHERE Type = 'ContentPost' AND Title = :contentTitle AND CreatedById = :contentOwner LIMIT 1];
+    public static FeedItem getFeedParentId(String contentTitle, String contentOwner, Datetime createdDate){
+        return [SELECT Id, Type, ParentId, Title, CreatedById, CreatedDate 
+                FROM FeedItem 
+                WHERE Type = 'ContentPost' 
+                    AND Title = :contentTitle 
+                    AND CreatedById = :contentOwner 
+                    AND (CreatedDate < :createdDate.addSeconds(5) AND CreatedDate > :createdDate.addSeconds(-5)) LIMIT 1];
 	}
 
 // used for CommunityFeedController
 	public static List<User> getUsers(Set<String> usersIds){
+		if (!SObjectType.User.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.User);
 		return [SELECT Id, Name FROM User WHERE Id IN :usersIds];
 	}
 
 // used for CommunityFeedController
 	public static List<Community_Group_Control__c> getGroups(Set<String> groupsIds){
+		if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
 		return [SELECT Chatter_Group_ID__c, Name FROM Community_Group_Control__c WHERE Chatter_Group_ID__c IN :groupsIds];
 	}
 
