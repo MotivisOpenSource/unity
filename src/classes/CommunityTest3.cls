@@ -50,7 +50,7 @@ public class CommunityTest3 {
 			Description = 'testDescription'
 		);
 		insert testGroup;
-
+		System.assert(testGroup.id!= null);
 		Community_Group_Control__c testGroupControl = new Community_Group_Control__c(
 			Name = 'controlName',
 			Discoverable__c = true,
@@ -60,10 +60,10 @@ public class CommunityTest3 {
 			Chatter_Group_ID__c = testGroup.Id
 		);
 		insert testGroupControl;
-		System.assert(testGroupControl.Id!= null);
-
+		System.assert(testGroupControl.id!= null);
 		testGroup.Description = 'Description Test';
 		update testGroup;
+		System.assert(testGroup.Description == 'Description Test');
 	}
 
 	static testMethod void test_CommunityGroupControlTrigger() {

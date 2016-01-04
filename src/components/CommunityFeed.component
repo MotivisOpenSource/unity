@@ -31,6 +31,8 @@
 	<apex:attribute name="pid" type="String" assignTo="{!parentId}" required="false" description="Parent Id" />
 	<apex:attribute name="ft" type="String" assignTo="{!feedType}" required="false" description="Feed Type" />
 	<apex:attribute name="ti" type="String" assignTo="{!topicId}" required="false" description="Topic Id" />
+	<apex:attribute name="fe" type="Boolean" assignTo="{!fromEmail}" required="false" description="from email" />
+	<apex:attribute name="ffe" type="String" assignTo="{!feedfromEmailId}" required="false" description="feed id from email" />
 	<apex:attribute name="fm" type="Boolean" assignTo="{!fullMode}" required="false" default="true" description="Full Mode" />
 	<apex:attribute name="fu" type="Boolean" assignTo="{!showFileUpload}" required="false" default="true" description="Show File Upload" />
 	<apex:attribute name="sjcb" type="Boolean" required="false" default="false" description="show Join the Conversation button" />
@@ -49,6 +51,13 @@
 	<script type="text/javascript" src="{!$Resource.assets}/plugins/datetimepicker/jquery.datetimepicker.js"></script>
 	<!-- script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.13.1/jquery.validate.min.js"></script-->
 	<div class="CommunityFeed">
+		<apex:outputPanel rendered = "{!fromEmail}">
+		<div class="preloader__container">
+			<div class="preloader__element">
+				<i class="fa fa-refresh fa-spin preloader__icon"></i>
+			</div>
+		</div>
+		</apex:outputPanel>
 		<apex:outputPanel id="simple" layout="block" styleClass="row" rendered="{!!fullMode}" style="display:none;">
 			<div id="cfcmp" class="col-sm-12 profile margin-bottom-20">
 				<div class="panel panel-profile">
@@ -140,7 +149,25 @@
 				<span>{!$Label.LBL_Load_More}</span>
 			</button>
 			<script id="ttp1" type="text/template">
+				<% if(viewFromEmail && rc.elements == null) {%>
+					<p><a class="font-weight-bold" href="<%- rc %>">{!$Label.LBL_All_Updates}</a> ) {!$Label.LBL_This_Update}</p>
+					<p>{!$Label.LBL_There_Are_No_Updates}<p>
+				<% } %>	
 				<% _.each(rc.elements, function(p2){ %>
+					<% if(viewFromEmail) {%>
+						<% if(p2.parentType) {%>
+							<span class="pull-right">
+								<p class="font-weight-bold"><strong><%- p2.parentType %> / <%- p2.parentName %></strong></p>
+							</span>
+						<% } %>
+						<% if(p2.parentLink){%>
+							<p><a class="font-weight-bold" href="<%- p2.parentLink %>">{!$Label.LBL_All_Updates}</a> ) {!$Label.LBL_This_Update} </p>
+						<% }else if(p2.parentId == "{!currentUserId}"){%>
+							<p><a class="font-weight-bold" href="{!$Page.CommunityFeed_MyFeed}">{!$Label.LBL_All_Updates}</a> ) {!$Label.LBL_This_Update}</p>
+						<% }else {%>
+							<p><a class="font-weight-bold" href="{!$Page.CommunityProfilePage}?id=<%- p2.parentId %>&f=2">{!$Label.LBL_All_Updates}</a> ) {!$Label.LBL_This_Update}</p>
+						<%}%>
+					<% } %>	
 				<div class="media media-v2" id="m<%- p2.id %>">
 					<a class="pull-left" href="{!$Page.CommunityProfilePage}?id=<%- p2.actor.id %>">
 						<img class="media-object rounded-x" src="<%- p2.actor.photo.smallPhotoUrl %>" alt=""/>
@@ -254,10 +281,10 @@
 							<fieldset class="pollfieldset">
 								<ul class="pollchoices">
 									<% _.each(p2.capabilities.poll.choices, function(choice) { %>
-											<% if (p2.capabilities.poll.myChoiceId && (p2.id != changeVoteId)) {%>
-												<li class="pollchoice">
+											<% if ((p2.capabilities.poll.myChoiceId && !changeVoteId(p2.id)) || viewRes(p2.id)) {%>
+												<li>
 													<label class="input" for="<%-choice.id%>"></label>
-													<h3 class="heading-xs"><%-choice.text%> <span class="pull-right"><%-choice.voteCount%> (<%-Math.round(choice.voteCountRatio*100)%>%)</span></h3>
+													<h3 class="heading-xs"><% print(wrapnl(choice.text)) %> <span class="pull-right"><%-choice.voteCount%> (<%-Math.round(choice.voteCountRatio*100)%>%)</span></h3>
 													<div class="progress progress-u progress-sm">
 														<div class="progress-bar progress-bar-u" role="progressbar" aria-valuenow="<%-choice.voteCountRatio*100%>" aria-valuemin="0" aria-valuemax="100" style="width: <%-choice.voteCountRatio*100%>%;">
 														</div>
@@ -266,21 +293,30 @@
 												</li>
 
 											<% } else { %>
-												<li>
+												<li class="pollchoice">
+													<div>
 													<input type="radio" id="<%-choice.id%>" name="pollchoicesgroup__<%-p2.id%>" onchange="enableBtn('vote_<%- p2.id %>')"/>
-													<label class="input" for="<%-choice.id%>"><%-choice.text%></label>
+													<label class="input" for="<%-choice.id%>"><% print(wrapnl(choice.text))%></label>
+													</div>
 												</li>
 											<%}%>
 									<% }); %>
 								</ul>
-								<% if (!p2.capabilities.poll.myChoiceId || changeVoteId != null) {%>
+								<% if ((!p2.capabilities.poll.myChoiceId || (changeVoteId(p2.id) )) && !viewRes(p2.id)) {%>
 									<input class="btn-u" type="button" value="Vote" title="Vote" onclick="vote(this);" id="vote_<%- p2.id %>" disabled="disabled">
 								<%}%>
 								<span class="pollvotecount"><%-p2.capabilities.poll.totalVoteCount%> votes</span>
-								<% if (p2.capabilities.poll.myChoiceId && changeVoteId == null) {%>
-									&bull;  <a href="javascript: void(0);"> <span onclick="refreshFeed();">Refresh</span></a>
-									&bull;  <a href="javascript: void(0);">	<span onclick="changeVote('<%- p2.id %>');">Change Vote</span></a>
+								<% if ((p2.capabilities.poll.myChoiceId && !changeVoteId(p2.id)) || (viewRes(p2.id) && p2.capabilities.poll.myChoiceId)) { %>
+									&bull;  <a href="javascript: void(0);"> <span onclick="refreshFeed();">{!$label.LBL_Refresh}</span></a>
+									&bull;  <a href="javascript: void(0);">	<span onclick="changeVote('<%- p2.id %>');">{!$label.LBL_Change_Vote}</span></a>
 								<%}%>
+								<% if ((!p2.capabilities.poll.myChoiceId || changeVoteId(p2.id)) && !viewRes(p2.id)) {%>
+									&bull;  <a href="javascript: void(0);"> <span onclick="viewResults('<%- p2.id %>');">{!$label.LBL_View_Results}</span></a>
+								<%}%>
+								<% if (!p2.capabilities.poll.myChoiceId && viewRes(p2.id)) {%>
+									&bull;  <a href="javascript: void(0);"> <span onclick="refreshFeed();">{!$label.LBL_Refresh}</span></a>
+									&bull;  <a href="javascript: void(0);"> <span onclick="viewResults('<%- p2.id %>');">{!$label.LBL_Make_Vote}</span></a>
+								<%}%>	
 								
 							</fieldset>
 						<%} %>
@@ -296,14 +332,14 @@
 							<li><a href="javascript:void(0);"><span><%- p2.countLikes %></span> Likes</a></li>
 						</ul>
 						<ul class="list-inline pull-right margin-top-5" id="ul<%- p2.id %>">
-							<li><a href="javascript:void(0);"><i onclick="focusComment('<%- p2.id %>');" class="expand-list rounded-x fa fa-reply"></i></a></li>
-							<li><a href="javascript:void(0);"><i onclick="inlAct('<%- p2.id %>','fa-thumbs-up','<%- p2.likeId %>');" class="expand-list rounded-x fa fa-thumbs-up<%- p2.likeStyle %>"></i></a></li>
+							<li><a href="javascript:void(0);" data-toggle="tooltip" title={!$Label.LBL_Feed_Reply}><i onclick="focusComment('<%- p2.id %>');" class="expand-list rounded-x fa fa-reply"></i></a></li>
+							<li><a href="javascript:void(0);" data-toggle="tooltip" title={!$Label.LBL_Feed_Like}><i onclick="inlAct('<%- p2.id %>','fa-thumbs-up','<%- p2.likeId %>');" class="expand-list rounded-x fa fa-thumbs-up<%- p2.likeStyle %>"></i></a></li>
 							<% if ( (p2.showFlag)&&chekFlagOnPage(p2.parentType) ) { %>
-							<li><a href="javascript:void(0);"><i onclick="inlAct('<%- p2.id %>','fa-flag','<%- p2.flagStatus %>');" class="expand-list rounded-x fa fa-flag<%- p2.flagStyle %>"></i></a></li>
+							<li><a href="javascript:void(0);" data-toggle="tooltip" title={!$Label.LBL_Feed_Flag}><i onclick="inlAct('<%- p2.id %>','fa-flag','<%- p2.flagStatus %>');" class="expand-list rounded-x fa fa-flag<%- p2.flagStyle %>"></i></a></li>
 							<% } %>
-							<li><a href="javascript:void(0);"><i onclick="inlAct('<%- p2.id %>','fa-bookmark','<%- p2.bookmarkStatus %>');" class="expand-list rounded-x fa fa-bookmark<%- p2.bookmarkStyle %>"></i></a></li>
+							<li><a href="javascript:void(0);" data-toggle="tooltip" title={!$Label.LBL_Feed_Bookmark}><i onclick="inlAct('<%- p2.id %>','fa-bookmark','<%- p2.bookmarkStatus %>');" class="expand-list rounded-x fa fa-bookmark<%- p2.bookmarkStyle %>"></i></a></li>
 							<% if (p2.isDeleteRestricted) { %>
-							<li><a href="javascript:void(0);"><i onclick="inlAct('<%- p2.id %>','fa-times','');" class="expand-list rounded-x fa fa-times"></i></a></li>
+							<li><a href="javascript:void(0);" data-toggle="tooltip" title={!$Label.LBL_Feed_Delete}><i onclick="inlAct('<%- p2.id %>','fa-times','');" class="expand-list rounded-x fa fa-times"></i></a></li>
 							<% } %>
 						</ul>
 						<div class="clearfix"></div>
@@ -334,12 +370,12 @@
 										<li><a href="#"><span><%- c2.countLikes %></span> Likes</a></li>
 									</ul>
 									<ul class="list-inline pull-right" id="ul<%- c2.id %>">
-										<li><a href="javascript:void(0);"><i onclick="inlAct('<%- c2.id %>','fa-thumbs-up','<%- c2.likeId %>');" class="expand-list rounded-x fa fa-thumbs-up<%- c2.likeStyle %>"></i></a></li>
+										<li><a href="javascript:void(0);" data-toggle="tooltip" title={!$Label.LBL_Feed_Like}><i onclick="inlAct('<%- c2.id %>','fa-thumbs-up','<%- c2.likeId %>');" class="expand-list rounded-x fa fa-thumbs-up<%- c2.likeStyle %>"></i></a></li>
 										<% if ( (c2.showFlag)&&chekFlagOnPage(c2.parentType) ) { %>
-										<li><a href="javascript:void(0);"><i onclick="inlAct('<%- c2.id %>','fa-flag','<%- c2.flagStatus %>');" class="expand-list rounded-x fa fa-flag<%- c2.flagStyle %>"></i></a></li>
+										<li><a href="javascript:void(0);" data-toggle="tooltip" title={!$Label.LBL_Feed_Flag}><i onclick="inlAct('<%- c2.id %>','fa-flag','<%- c2.flagStatus %>');" class="expand-list rounded-x fa fa-flag<%- c2.flagStyle %>"></i></a></li>
 										<% } %>
 										<% if (c2.isDeleteRestricted) { %>
-										<li><a href="javascript:void(0);"><i onclick="inlAct('<%- c2.id %>','fa-times','');" class="expand-list rounded-x fa fa-times"></i></a></li>
+										<li><a href="javascript:void(0);" data-toggle="tooltip" title={!$Label.LBL_Feed_Delete}><i onclick="inlAct('<%- c2.id %>','fa-times','');" class="expand-list rounded-x fa fa-times"></i></a></li>
 										<% } %>
 									</ul>
 								</div>
@@ -443,14 +479,13 @@
 				function hideFeedError() {
 					//$('#postform-error').hide();
 				}
-			
-    			function inputFileOnchange(elm) {
-    			    console.log(elm);
-    			    if (elm.files.length>0) elm.parentNode.nextSibling.value = elm.files[0].name;
-    			    else elm.parentNode.nextSibling.value = '';
-    			}
+				
+		 		function inputFileOnchange(elm) {
+						console.log(elm);
+						if (elm.files.length>0) elm.parentNode.nextSibling.value = elm.files[0].name;
+						else elm.parentNode.nextSibling.value = '';
+					}
 				var chekFlagOnPage = function(type){
-
 					if(!(_.contains(['News','Events','Manager'], type)) ) {
 						listPages = ['CommunityNewsDetail', 'CommunityEventDetail', 'CommunityGroupManager'];
 						_.each(listPages, function(value, key, obj){ obj[key] = '{!packagePrefix}'+ value.toLowerCase(); });
@@ -458,18 +493,25 @@
 					}
 					else return false;
 				}
-				var changeVoteId = null;
+				var changeVoteIds = [];
+				var viewResultsArray = [];
+				var viewFromEmail = {!fromEmail} && '{!feedfromEmailId}'.length > 0 ? true : false;
+				
 				$(document).ready(function() {
-					var top = '{!JSENCODE(topicId)}';
-					if(!top){
-						loadFeeds(null);
-					}
-					else {
+					var top = '{!topicId}';
+					if(viewFromEmail){
+						loadFeedFromEmail(null);
+						$(".nav-tabs").hide();
+						$('#palist').hide();
+						$('#postarea').hide();
+					}else if(top){
 						loadFeedsForTopic(null);
 						if({!!isTopicAssignmentCreateable}){
 							$('#palist').hide();
 							$('#postarea').hide();
 						}
+					}else{
+						loadFeeds(null);
 					}
 				});
 
@@ -504,20 +546,20 @@
 					disableBtn('shmbtn',true);
 					var params = {'parentId' : '{!JSENCODE(parentId)}',
 								'feedType' 	 : '{!feedType}',
-								'inpt'		 : inpt, 
+								'inpt'		 : inpt,
 								'topicId' 	 : '{!JSENCODE(topicId)}'};
 					Visualforce.remoting.Manager.invokeAction(
 						'{!$RemoteAction.CommunityFeedController.feedsForTopics}',
 						params,
 						function(result, event) {
 							if (event.result) {
-							_.templateSettings.variable = 'rc';
-							var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
-							var tt = jsonObj(result);
-							$('#cfcmp').append(template(tt));
-							enableBtn('shmbtn');
-							$('#shmbtn').css('display',tt.showMore?'block':'none').attr('onclick','loadFeedsForTopic(\'' + tt.nextPageToken + '\');return false;');
-						}
+								_.templateSettings.variable = 'rc';
+								var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
+								var tt = jsonObj(result);
+								$('#cfcmp').append(template(tt));
+								enableBtn('shmbtn');
+								$('#shmbtn').css('display',tt.showMore?'block':'none').attr('onclick','loadFeedsForTopic(\'' + tt.nextPageToken + '\');return false;');
+							}
 							else {
 								showFeedError(event.message);
 							}
@@ -526,6 +568,34 @@
 					);
 					initValidator();
 				}
+
+				function loadFeedFromEmail(inpt) {
+					disableBtn('shmbtn',true);
+					var params = {'parentId' : '{!JSENCODE(parentId)}', 
+								'feedType' 	 : '{!feedType}',
+								'inpt'		 : inpt, 
+								'feedId' 	 : '{!JSENCODE(feedfromEmailId)}'};
+					Visualforce.remoting.Manager.invokeAction(
+						'{!$RemoteAction.CommunityFeedController.feedFromEmail}',
+						params,
+						function(result, event) {
+							if (event.result) {
+								_.templateSettings.variable = 'rc';
+								var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
+								var tt = jsonObj(result);
+								$('#cfcmp').append(template(tt));
+								enableBtn('shmbtn');
+								$('#shmbtn').css('display',tt.showMore?'block':'none').attr('onclick','loadFeedsForTopic(\'' + tt.nextPageToken + '\');return false;');
+								$('.preloader__container').hide();
+							}else{
+								showFeedError(event.message);
+								$('.preloader__container').hide();
+							}
+						}
+					);
+					initValidator();
+				}
+
 
 				function postFeed(text) {
 					disableBtn('mesbtn');
@@ -540,10 +610,10 @@
 								params,
 								function(result, event) {
 									if (event.result) {
-									_.templateSettings.variable = 'rc';
-									var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
-									var tt = jsonObj(result);
-									$('#cfcmp').prepend(template(tt));
+										_.templateSettings.variable = 'rc';
+										var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
+										var tt = jsonObj(result);
+										$('#cfcmp').prepend(template(tt));
 										$('#message').val('');
 									}
 									else {
@@ -562,42 +632,42 @@
 					
 				uploadAttachment = function(binary,fName,fType) {
 					// send attacment
-										var __sfdcSessionId = '{!GETSESSIONID()}';
+					var __sfdcSessionId = '{!GETSESSIONID()}';
 					if('{!JSENCODE(parentIdForAtt)}'.length == 0) {
-											enableBtn('mesbtn');
+							enableBtn('mesbtn');
 							showFeedError('{!JSINHTMLENCODE($Label.ERR_Set_Up_Community_Profile)}');
-											return null;
-										}
-										sforce.connection.serverUrl = '{!$Site.Prefix}/services/Soap/u/33.0';
-										sforce.connection.sessionId = __sfdcSessionId;
-										var Attachment = new sforce.SObject('Attachment');
-										Attachment.Name = fName;
-										Attachment.ContentType = fType;
-										Attachment.Body  = binary;
-										Attachment.ParentId = '{!JSENCODE(parentIdForAtt)}';
-										sforce.connection.create([Attachment],
-					{
+							return null;
+						}
+						sforce.connection.serverUrl = '{!$Site.Prefix}/services/Soap/u/33.0';
+						sforce.connection.sessionId = __sfdcSessionId;
+						var Attachment = new sforce.SObject('Attachment');
+						Attachment.Name = fName;
+						Attachment.ContentType = fType;
+						Attachment.Body  = binary;
+						Attachment.ParentId = '{!JSENCODE(parentIdForAtt)}';
+						sforce.connection.create([Attachment],
+						{
 							onSuccess : function(result, source) {
 								if (result[0].getBoolean("success")) {
-										            if($("[name='message']").val()) {
-														$('#message').mentionsInput('val', function(text) {
-															chataction.layout.items[messageItemIndex].value = text;
-															insertAttIntoFeed(result[0].id, JSON.stringify(chataction.layout));
-														});
+								if($("[name='message']").val()) {
+										$('#message').mentionsInput('val', function(text) {
+											chataction.layout.items[messageItemIndex].value = text;
+											insertAttIntoFeed(result[0].id, JSON.stringify(chataction.layout));
+										});
 									}
 									else {
-														insertAttIntoFeed(result[0].id, null);
-													}
-											    }
+										insertAttIntoFeed(result[0].id, null);
+									}
+								}
 								else {
-													enableBtn('mesbtn');
+									enableBtn('mesbtn');
 									showFeedError(result[0].errors.message);
-										        }
-										    },
+								}
+							},
 							onFailure : function(error, source) {
-												enableBtn('mesbtn');
+								enableBtn('mesbtn');
 								showFeedError(result[0].errors.message);
-					    }
+							}
 					});
 					// end sending
 				}
@@ -656,7 +726,7 @@
 											var length = bytes.byteLength;
 											for (var i = 0; i < length; i++)
 											{
-											    binary += String.fromCharCode(bytes[i]);
+												binary += String.fromCharCode(bytes[i]);
 											}
 											uploadAttachment(new sforce.Base64Binary(binary).toString(),fName,fType);
 									};
@@ -665,8 +735,8 @@
 							}
 							}
 							item.value = $("[name='" + item.fieldName + "']").val();
-						});	
-						if(sendFile == false) {					
+						});
+						if(sendFile == false) {
 							if($("[name='message']").val()) {
 								$('#message').mentionsInput('val', function(text) {
 									chataction.layout.items[messageItemIndex].value = text;
@@ -683,7 +753,7 @@
 						enableBtn('mesbtn');
 					}
 				}
-				function insertAttIntoFeed(attId, jsontext){
+				function insertAttIntoFeed(attId, jsontext) {
 					hideFeedError();
 					Visualforce.remoting.Manager.invokeAction(
 						'{!$RemoteAction.CommunityFeedController.insertAttacmentIntoFeed}',
@@ -710,10 +780,10 @@
 					var err = false;
 					var params = {
 						'parentId'	 : '{!JSENCODE(parentId)}',
-								'jsontext' 	 : jsontext, 
-								'infilebstr' : infilebstr, 
-								'infiletype' : infiletype, 
-								'infilename' : infilename,
+						'jsontext'	 : jsontext,
+						'infilebstr' : infilebstr,
+						'infiletype' : infiletype,
+						'infilename' : infilename,
 						'topicId' 	 : '{!JSENCODE(topicId)}'
 					};
 					hideFeedError();
@@ -722,21 +792,21 @@
 						params,
 						function(result, event) {
 							if (event.result) {
-										_.templateSettings.variable = 'rc';
-										var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
-										var tt = jsonObj(result);
-										$('#cfcmp').prepend(template(tt));
-										_.each(chataction.layout.items, function(item) {
-											$("[name='" + item.fieldName + "']").val('');
-										});
+								_.templateSettings.variable = 'rc';
+								var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
+								var tt = jsonObj(result);
+								$('#cfcmp').prepend(template(tt));
+								_.each(chataction.layout.items, function(item) {
+									$("[name='" + item.fieldName + "']").val('');
+								});
 								setActiveli();
-								}	
+							}
 							else {
 								showFeedError(event.message);
 							}
 							enableBtn('mesbtn');
 						}
-					);					
+					);
 					if (typeof(switchToMemberMode) == 'function') switchToMemberMode();
 				}
 				function getComments(feedid, token) {
@@ -747,12 +817,12 @@
 						token,
 						function(result, event) {
 							if (event.result) {
-							_.templateSettings.variable = 'rc';
-							var template = _.template($('#ttp21').html() + $('#ttp2').html());
-							var tt = jsonObj(result);
-							$('#c'+tt.feedId).prepend(template(tt));
-							$('#l'+tt.feedId).css('display',tt.showNextComments?'block':'none').attr('onclick','getComments(\'' + tt.feedId + '\',\'' + tt.nextPageToken + '\');return false;');
-						}
+								_.templateSettings.variable = 'rc';
+								var template = _.template($('#ttp21').html() + $('#ttp2').html());
+								var tt = jsonObj(result);
+								$('#c'+tt.feedId).prepend(template(tt));
+								$('#l'+tt.feedId).css('display',tt.showNextComments?'block':'none').attr('onclick','getComments(\'' + tt.feedId + '\',\'' + tt.nextPageToken + '\');return false;');
+							}
 							else {
 								showFeedError(event.message);
 							}
@@ -763,8 +833,8 @@
 					if({!!isTopicAssignmentCreateable}) return 1;
 					var pos = 0;
 					var numbertopics = 0;
-					do{					  
-						var foundPos = text.indexOf('#[', pos);	
+					do {
+						var foundPos = text.indexOf('#[', pos);
 						numbertopics = foundPos!=-1? numbertopics+1:numbertopics;
 						pos = foundPos + 1;
 					}
@@ -786,10 +856,10 @@
 							text,
 							function(result, event) {
 								if (event.result) {
-								_.templateSettings.variable = 'rc';
-								var template = _.template($('#ttp21').html() + $('#ttp2').html());
-								var tt = jsonObj(result);
-								$('#d'+tt.feedId).before(template(tt));
+									_.templateSettings.variable = 'rc';
+									var template = _.template($('#ttp21').html() + $('#ttp2').html());
+									var tt = jsonObj(result);
+									$('#d'+tt.feedId).before(template(tt));
 									$('#a'+tt.feedId).val('');
 								}
 								else {
@@ -829,19 +899,19 @@
 						ini,
 						function(result, event) {
 							if (event.result) {
-							var tt = jsonObj(result);
-							if (tt.cname=='fa-times') {
-								$('#m'+tt.pid).remove();
-								if (typeof(switchToMemberMode) == 'function') switchToMemberMode();
-							}
-							else {
-								var nocl = 'inlAct(\''+tt.pid+'\',\''+tt.cname+'\',\''+tt.oid+'\');';
-								$('#ul'+tt.pid+' [name="'+tt.cname+'"]').removeClass('fa-spinner fa-pulse').addClass(tt.cname+tt.stl).attr('onclick',nocl);
-								if (tt.cname=='fa-thumbs-up') {
-									var dti = parseInt($('#m'+tt.pid+' .pull-left span').first().text());
-									$('#m'+tt.pid+' .pull-left span').first().text(tt.oid==''?(dti-1):(dti+1));
+								var tt = jsonObj(result);
+								if (tt.cname=='fa-times') {
+									$('#m'+tt.pid).remove();
+									if (typeof(switchToMemberMode) == 'function') switchToMemberMode();
 								}
-							}
+								else {
+									var nocl = 'inlAct(\''+tt.pid+'\',\''+tt.cname+'\',\''+tt.oid+'\');';
+									$('#ul'+tt.pid+' [name="'+tt.cname+'"]').removeClass('fa-spinner fa-pulse').addClass(tt.cname+tt.stl).attr('onclick',nocl);
+									if (tt.cname=='fa-thumbs-up') {
+									var dti = parseInt($('#m'+tt.pid+' .results-list span').first().text());
+									$('#m'+tt.pid+' .results-list span').first().text(tt.oid==''?(dti-1):(dti+1));
+									}
+								}
 						}
 							else {
 								showFeedError(event.message);
@@ -863,10 +933,10 @@
 						elastic: false
 					}).focus();
 				}
-				function initTextarea(element) {					
-					$(element).mentionsInput({					
+				function initTextarea(element) {
+					$(element).mentionsInput({
 						onDataRequest:function (mode, charValue, query, callback) {
-							if(charValue == '@'){					
+							if(charValue == '@') {
 								Visualforce.remoting.Manager.invokeAction(
 									'{!$RemoteAction.CommunityFeedController.getUsers}',
 									query,
@@ -884,7 +954,6 @@
 									}
 								);
 							}
-
 						},
 						elastic: false
 					}).css('height','78px').focus();
@@ -941,36 +1010,36 @@
 							invokeActionParam,
 							function(result, event) {
 								if (event.result) {
-								chataction.loading = false;
-								chataction.layout = jsonObj(result);
-								_.templateSettings.variable = 'rc';
-								var template = _.template($('#atp').html());
-								$('#postarea').html(template(chataction.layout));
-								var aname = $('#palist .fa-spinner').closest('a').attr('name');
-								$('#palist .fa-spinner').removeClass('fa-spinner fa-pulse').addClass(aname);
-								initValidator();
-								//datetime
-								if($('.validate-datetimepicker')) {
-									var currentdate = new Date(); 
-									var datetime = (currentdate.getMonth()+1) + '/' + currentdate.getDate() + '/' + currentdate.getFullYear() + ' ' + currentdate.getHours() + ":"  + currentdate.getMinutes();
-									$('.validate-datetimepicker').datetimepicker({
-										minDate:datetime,
-										format:'m/d/Y h:i A',
-										formatTime:'h:i A',
-										formatDate:'m/d/Y',
+									chataction.loading = false;
+									chataction.layout = jsonObj(result);
+									_.templateSettings.variable = 'rc';
+									var template = _.template($('#atp').html());
+									$('#postarea').html(template(chataction.layout));
+									var aname = $('#palist .fa-spinner').closest('a').attr('name');
+									$('#palist .fa-spinner').removeClass('fa-spinner fa-pulse').addClass(aname);
+									initValidator();
+									//datetime
+									if($('.validate-datetimepicker')) {
+										var currentdate = new Date(); 
+										var datetime = (currentdate.getMonth()+1) + '/' + currentdate.getDate() + '/' + currentdate.getFullYear() + ' ' + currentdate.getHours() + ":"  + currentdate.getMinutes();
+										$('.validate-datetimepicker').datetimepicker({
+											minDate:datetime,
+											format:'m/d/Y h:i A',
+											formatTime:'h:i A',
+											formatDate:'m/d/Y',
 											step:30
-									});
-								}
-								//date
-								if(jQuery('.validate-datepicker')) {
-									var currentdate = new Date(); 
-									var datetime = (currentdate.getMonth()+1) + '/' + currentdate.getDate() + '/' + currentdate.getFullYear();
-									$('.validate-datepicker').datetimepicker({
-										timepicker:false,
-										minDate:datetime,
-										format:'m/d/Y',
-										formatDate:'m/d/Y',
-									});
+										});
+									}
+									//date
+									if(jQuery('.validate-datepicker')) {
+										var currentdate = new Date(); 
+										var datetime = (currentdate.getMonth()+1) + '/' + currentdate.getDate() + '/' + currentdate.getFullYear();
+										$('.validate-datepicker').datetimepicker({
+											timepicker:false,
+											minDate:datetime,
+											format:'m/d/Y',
+											formatDate:'m/d/Y',
+										});
 								}
 							}
 								else {
@@ -1004,7 +1073,7 @@
 					}
 				}
 				
-				function vote (t) {
+				function vote(t) {
 					var t_el = $(t);
 					var choice = t_el.parent().find('input[type=radio]:checked');
 					if (choice) {
@@ -1013,21 +1082,25 @@
 						t_el.parent().find('input[type=radio]:checked');
 						t_el.attr('disabled', true);
 						hideFeedError();
+						var params = {	'pollId' 		: pollId,
+										'choiceId' 	 	: choice.attr("id"),
+										'inParentId'	: '{!JSENCODE(parentId)}',
+										'inFeedType' 	: '{!feedType}',
+										'fromEmail'		: '{!fe}' };
+						if(_.contains(changeVoteIds, pollId)){
+							changeVoteIds.splice(changeVoteIds.indexOf(pollId), 1);
+						}					
 						Visualforce.remoting.Manager.invokeAction(
-							'{!$RemoteAction.CommunityFeedController.voteOnPoll}',
-							pollId,
-							choice.attr('id'),
-							'{!JSENCODE(parentId)}',
-							'{!feedType}',
+							'{!$RemoteAction.CommunityFeedController.votesOnPoll}',
+							params,
 							function(result, event) {
 								if (event.result) {
-								_.templateSettings.variable = 'rc';
-								changeVoteId = null;
-								var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
-								var tt = jsonObj(result);
-								$('#cfcmp').empty();
-								$('#cfcmp').prepend(template(tt));
-								t_el.removeAttr('disabled');
+									_.templateSettings.variable = 'rc';
+									var template = _.template($('#ttp1').html() + $('#ttp2').html() + $('#ttp3').html());
+									var tt = jsonObj(result);
+									$('#cfcmp').empty();
+									$('#cfcmp').prepend(template(tt));
+									t_el.removeAttr('disabled');
 								}
 								else {
 									showFeedError(event.message);
@@ -1037,9 +1110,12 @@
 					}
 					setActiveli();
 				}
-
 				function refreshFeed() {
 					hideFeedError();
+					if(viewFromEmail){
+						$('#cfcmp').empty();
+						loadFeedFromEmail('');
+					}else{
 					Visualforce.remoting.Manager.invokeAction(
 						'{!$RemoteAction.CommunityFeedController.feeds}',
 						'{!JSENCODE(parentId)}',
@@ -1059,9 +1135,34 @@
 						}
 					);
 				}
+				}
 				function changeVote(voteId){
 					_.templateSettings.variable = 'rc';
-					changeVoteId = voteId;
+					changeVoteIds.push(voteId);
+					if(_.contains(viewResultsArray, voteId)){
+						viewResultsArray.splice(viewResultsArray.indexOf(voteId), 1);
+					}				
+					refreshFeed();
+				}
+
+				function changeVoteId(voteId){
+					return _.contains(changeVoteIds, voteId);
+				}
+
+				function viewRes(pollId){
+					return _.contains(viewResultsArray, pollId);
+				}
+				
+				function viewResults(pollId){
+					_.templateSettings.variable = 'rc';
+					if(!_.contains(viewResultsArray, pollId)){
+						viewResultsArray.push(pollId);
+					}else{
+						viewResultsArray.splice(viewResultsArray.indexOf(pollId), 1);
+					}
+					if(_.contains(changeVoteIds, pollId)){
+						changeVoteIds.splice(changeVoteIds.indexOf(pollId), 1);
+					}
 					refreshFeed();
 				}
 				function initValidator () {	
@@ -1127,7 +1228,6 @@
 			</script>
 		</apex:outputPanel>
 	</div>
-
 	<script>
 		function parseFeedBody(o,t){
 			var outString = "";
@@ -1140,7 +1240,19 @@
 					}
 				}
 				if(item.text != null && (item.type == "Text" || item.type == "Link")){
+					if(item.type == "Link"){
+						if(item.text.indexOf('@') != -1){
+							outString += '<a href="mailto:'+item.text+'">'+item.text+'</a>';
+						}else if(item.text.indexOf('ftp') == 0){
+							outString += '<a href="ftp:'+item.text.split('ftp:')[1]+'">'+item.text+'</a>';
+						}else if(item.text.indexOf('http') == 0) {
+						outString += '<a href="'+item.text+'">'+item.text+'</a>';
+					}else{
+							outString += '<a href="http://'+item.text+'">'+item.text+'</a>';
+						}
+					}else{
 					outString += item.text;
+				}
 				}
 				if(item.type == 'Hashtag'){
 					var topicObj = {}; _.each(_.values(t), function(val){
@@ -1150,12 +1262,11 @@
 					itemText = _.unescape(itemText);
 					itemText = itemText.replace(/&#39;/g,"'");
 					itemText = itemText.replace(/&#92;/g,"\\");
-					outString += '<a href="{!$Page.CommunityTopic}?id='+_.invert(topicObj)[itemText]+'&pid={!JSENCODE(parentId)}">'+item.text+'</a>';
+					outString += '<a href="{!$Page.CommunityTopic}?id='+_.invert(topicObj)[itemText]+'&pid={!parentId}">'+item.text+'</a>';
 				}
 			});
 			return outString;
 		}
-
 		function wrapnl(intext) {
 			return intext ? intext.replace(/\r\n/g, '<br />').replace(/[\r\n]/g, '<br />') : '';
 		}
@@ -1165,7 +1276,7 @@
 			var count = 1;
 			_.each(inObj, function(top){
 				if(top.entityId != null){ 
-					outString += '<a href="{!$Page.CommunityTopic}?id='+top.id+'&pid={!JSENCODE(parentId)}">'+top.name.replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</a>, ';
+					outString += '<a href="{!$Page.CommunityTopic}?id='+top.id+'&pid={!parentId}">'+top.name.replace(/</g,"&lt;").replace(/>/g,"&gt;")+'</a>, ';
 				}
 			});
 			if(outString.lastIndexOf(',') == outString.length-2){

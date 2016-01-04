@@ -9,6 +9,14 @@
         <enabled>false</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>CommunityAccess</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>CommunityAccessException</apexClass>
+        <enabled>false</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>CommunityEventController</apexClass>
         <enabled>false</enabled>
     </classAccesses>
@@ -812,6 +820,10 @@
         <enabled>false</enabled>
     </pageAccesses>
     <pageAccesses>
+        <apexPage>CommunityNavigator</apexPage>
+        <enabled>false</enabled>
+    </pageAccesses>
+    <pageAccesses>
         <apexPage>CommunityNews</apexPage>
         <enabled>false</enabled>
     </pageAccesses>
@@ -853,6 +865,14 @@
     </pageAccesses>
     <pageAccesses>
         <apexPage>CommunityTopic</apexPage>
+        <enabled>false</enabled>
+    </pageAccesses>
+    <pageAccesses>
+        <apexPage>UnityAdmin</apexPage>
+        <enabled>false</enabled>
+    </pageAccesses>
+    <pageAccesses>
+        <apexPage>UnitySiteTemplate</apexPage>
         <enabled>false</enabled>
     </pageAccesses>
     <recordTypeVisibilities>

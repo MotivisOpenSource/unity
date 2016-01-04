@@ -173,8 +173,7 @@ public with sharing class CommunityGroupDetailPageController {
 			return chatterGroup != NULL
 					&& SObjectType.Community_Events__c.isCreateable()
 						&& SObjectType.Community_Event_Tag__c.isCreateable()
-						&& ((groupRole == ConnectApi.GroupMembershipType.GroupOwner || groupRole == ConnectApi.GroupMembershipType.GroupManager || groupRole == ConnectApi.GroupMembershipType.StandardMember)
-							|| CommunityUtils.isModifyAllData());
+						&& ((groupRole == ConnectApi.GroupMembershipType.StandardMember || groupRole == ConnectApi.GroupMembershipType.GroupManager || groupRole == ConnectApi.GroupMembershipType.GroupOwner) || CommunityUtils.isModifyAllData());
 		}
 	}
 
@@ -189,7 +188,7 @@ public with sharing class CommunityGroupDetailPageController {
 	}
 
 	public Integer getRequestCount() {
-		return (groupRole == ConnectApi.GroupMembershipType.GroupOwner || groupRole == ConnectApi.GroupMembershipType.GroupManager)
+		return (groupRole == ConnectApi.GroupMembershipType.GroupOwner || groupRole == ConnectApi.GroupMembershipType.GroupManager) || CommunityUtils.isModifyAllData()
 				? CommunityUtils.getRequestJoinGroupCount(chatterGroup.Id) : 0;
 	}
 

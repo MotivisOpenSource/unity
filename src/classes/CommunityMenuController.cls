@@ -42,7 +42,10 @@ public with sharing class CommunityMenuController {
 
 	public static String getRegistration() {
 		String result = 'false';
-		if (!currentPage(Page.CommunityRegTerms.getUrl()) && !currentPage(Page.Community404.getUrl())) {
+		if (UserInfo.getUserType() != 'Guest'
+			&& !currentPage(Page.CommunityRegTerms.getUrl())
+			&& !currentPage(Page.Community404.getUrl())
+		) {
 			CommunityRegTermsController crtc = new CommunityRegTermsController();
 			result = crtc.checkAndPrepareMenu();
 		}

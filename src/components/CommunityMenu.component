@@ -28,12 +28,12 @@
 -->
 
 <apex:component controller="CommunityMenuController" access="global">
-<!-- For Background Image  -->
+<!-- For Background Image -->
 <apex:outputPanel layout="none" rendered="{!isDefaultBackground}">
     <script type="text/javascript">
         jQuery(".boxed-layout").css("{background: url('{!URLFOR($Resource.assets, 'img/patterns/wood-planks.png')}') repeat;}");
     </script>
-</apex:outputPanel> 
+</apex:outputPanel>
 
 <apex:outputPanel layout="none" rendered="{!!isDefaultBackground}">
    <style>.boxed-layout {background: url("{!$Site.Prefix}/servlet/servlet.ImageServer?oid={!$Organization.Id}&amp;id={!backgroundImageId}") repeat;}</style>
@@ -45,13 +45,6 @@
 			console.log('Registration = true');
 			window.location.href = '{!$Page.CommunityRegTerms}';
 			jQuery('body').hide();
-		})();
-	</script>
-</apex:outputPanel>
-<apex:outputPanel rendered="{!Registration != 'true' && Registration != 'false'}">
-	<script type="text/javascript">
-		(function() {
-			console.log('Registration Error: {!Registration}');
 		})();
 	</script>
 </apex:outputPanel>

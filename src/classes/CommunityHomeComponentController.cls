@@ -63,6 +63,7 @@ public with sharing class CommunityHomeComponentController {
 				newsIds.add(cnItem.Id);
 			}
 			Map<Id, Community_Tag__c> newsTagMap = new Map<Id, Community_Tag__c>();
+			if (!SObjectType.Community_News_Tag__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_News_Tag__c);
 			for (Community_News_Tag__c cntItem : [
 				SELECT Community_News__c, Community_Tag__c, Community_Tag__r.Community_Theme__c, Community_Tag__r.Community_Theme__r.Theme_Type__c,
 					Community_Tag__r.Name

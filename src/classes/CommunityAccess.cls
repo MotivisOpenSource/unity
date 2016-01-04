@@ -26,7 +26,6 @@
  * Salem, NH 03790
  * unity@motivislearning.com
  */
-
 public without sharing class CommunityAccess {
 
 	private static final Boolean IsGuestUser = (UserInfo.getUserType() == 'Guest');
