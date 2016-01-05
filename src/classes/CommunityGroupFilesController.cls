@@ -57,6 +57,9 @@ public with sharing class CommunityGroupFilesController {
     private String gc;
     private String gr;
     private String p;
+    private Integer MAX_FILES_IN_QUERY = 200;
+    private Set<String> subscribedToContent = new Set<String>();
+    Set<String> filtredContentVersionsId = new Set<String>();
 
     public CommunityGroupFilesController() {
         f = CommunityUtils.validateId(ApexPages.currentPage().getParameters().get('f'));
@@ -141,8 +144,7 @@ public with sharing class CommunityGroupFilesController {
         Set<String> collectedVersionIds = new Set<String>();
 
         parentId = String.isBlank(parentId) && parent != NULL && String.isNotBlank(parent.id) ? parent.id : parentId;
-
-        if(String.isBlank(parentId)){
+        if(String.isBlank(parentId)) {
             ContentDocument contentDoc = [SELECT Id, Title, OwnerId, CreatedDate FROM ContentDocument WHERE Id =: contentDetailId LIMIT 1];
             String contentTitle = contentDoc.Title;
             String contentOwner = contentDoc.OwnerId;
@@ -158,7 +160,6 @@ public with sharing class CommunityGroupFilesController {
             }
         }
         List<ConnectApi.FeedElement> elements = new List<ConnectApi.FeedElement>();
-        Set<String> subscribedToContent = new Set<String>();
         Map<String, String> contentDocumentToVersionMap = new Map<String, String>();
         Map<String, ContentDocument> cdMap = new Map<String, ContentDocument>();
 
@@ -168,12 +169,16 @@ public with sharing class CommunityGroupFilesController {
                 if (fe.capabilities != NULL && fe.capabilities.content != NULL && fe.capabilities.content.versionId != NULL) {
                     collectedVersionIds.add(fe.capabilities.content.versionId);
                     elements.add(fe);
-                    if(mode != 'detail'){
-                    contentDocumentToVersionMap.put(fe.capabilities.content.id, fe.capabilities.content.versionId);
-                }
-            }
+                    if(mode != 'detail') {
+                    	contentDocumentToVersionMap.put(fe.capabilities.content.id, fe.capabilities.content.versionId);
+                    	if(isListFilesFilled(contentDocumentToVersionMap)) {
+                    		fillSubscribedToContent(contentDocumentToVersionMap);
+                    	}
+               		}
+            	}
+        	}
         }
-        }
+       
         if (cvList.isEmpty()) {
             if (!SObjectType.ContentVersion.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.ContentVersion);
             String cvQuery = 'SELECT Id, ContentDocumentId, ContentDocument.Id, ContentDocument.OwnerId, ContentDocument.Owner.Name, ContentDocument.LastModifiedDate, ContentDocument.Description FROM ContentVersion';
@@ -188,35 +193,18 @@ public with sharing class CommunityGroupFilesController {
             cvList = Database.query(cvQuery);
         }
         
-        if (!SObjectType.EntitySubscription.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.EntitySubscription);
-            Set<String> filtredContentVersionsId = new Set<String>();
-            for(Integer i=0; i<cvList.size(); i++){
-                filtredContentVersionsId.add(cvList.get(i).id);
-                cdMap.put(cvList.get(i).Id, cvList.get(i).ContentDocument);
-                contentDocumentToVersionMap.put(cvList.get(i).ContentDocumentId, cvList.get(i).id);
-                if((math.mod(i, 204)==0 & i>0) || i==cvList.size()-1){
-                    for (EntitySubscription esItem : [SELECT ParentId FROM EntitySubscription WHERE SubscriberId =:Userinfo.getUserId() AND ParentId IN :contentDocumentToVersionMap.keySet() LIMIT 1000]) {
-                        subscribedToContent.add(contentDocumentToVersionMap.get(esItem.ParentId));
-                    }
-                    contentDocumentToVersionMap.clear();
-                }
-        }
-        
-/*        
-        for (ContentVersion cvItem : cvList) {
-            if(mode == 'detail'){
-                contentDocumentToVersionMap.put(cvItem.ContentDocumentId, cvItem.Id);
-            }
-            cdMap.put(cvItem.Id, cvItem.ContentDocument);
-        }
-        if (!SObjectType.EntitySubscription.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.EntitySubscription);
-        for (EntitySubscription esItem : [SELECT ParentId FROM EntitySubscription WHERE SubscriberId =:Userinfo.getUserId() AND ParentId IN :contentDocumentToVersionMap.keySet() LIMIT 1000]) {
-            subscribedToContent.add(contentDocumentToVersionMap.get(esItem.ParentId));
-        }
-
-        Set<String> filtredContentVersionsId = new Set<String>();
-        filtredContentVersionsId.addAll(contentDocumentToVersionMap.values());
-*/        
+		for(ContentVersion cvItem : cvList) {
+			filtredContentVersionsId.add(cvItem.id);
+			cdMap.put(cvItem.Id, cvItem.ContentDocument);
+			if(mode == 'detail') {
+				contentDocumentToVersionMap.put(cvItem.ContentDocumentId, cvItem.id);
+				if(isListFilesFilled(contentDocumentToVersionMap)) {
+					fillSubscribedToContent(contentDocumentToVersionMap);
+				}
+			}
+		}        
+      
+        if(!contentDocumentToVersionMap.isEmpty()) fillSubscribedToContent(contentDocumentToVersionMap);
         
         Set<String> checkForDuplicatingSet = new Set<String>();
         List<ConnectApi.FeedElement> filteredElements = new List<ConnectApi.FeedElement>();
@@ -243,6 +231,19 @@ public with sharing class CommunityGroupFilesController {
             Boolean modifiable = modifyAllDataAccess || (hasDocInfo && (cdItem.OwnerId == UserInfo.getUserId()));
             fileList.add(new FileWrapper(filteredElements[ii], subscribed, modifiable, cdItem));
         }
+    }
+    
+    private void fillSubscribedToContent(Map<String, String> contentDocumentToVersionMap) {
+    	 filtredContentVersionsId.addAll(contentDocumentToVersionMap.values());
+    	 if (!SObjectType.EntitySubscription.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.EntitySubscription);
+    	 for (EntitySubscription esItem : [SELECT ParentId FROM EntitySubscription WHERE SubscriberId =:Userinfo.getUserId() AND ParentId IN :contentDocumentToVersionMap.keySet() LIMIT 1000]) {
+             subscribedToContent.add(contentDocumentToVersionMap.get(esItem.ParentId));
+         }
+         contentDocumentToVersionMap.clear();
+    }
+    
+    private Boolean isListFilesFilled(Map<String, String> contentDocumentToVersionMap) {
+    	return math.mod(contentDocumentToVersionMap.keySet().size(), MAX_FILES_IN_QUERY)==0;
     }
 
     public FileWrapper getFileDetail() {
