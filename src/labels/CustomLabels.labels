@@ -246,13 +246,6 @@
         <value>Error : Can&apos;t found Topic</value>
     </labels>
     <labels>
-        <fullName>ERR_Cant_Found_Group</fullName>
-        <language>en_US</language>
-        <protected>true</protected>
-        <shortDescription>ERR Cant Found Group</shortDescription>
-        <value>Can`t found group:</value>
-    </labels>
-    <labels>
         <fullName>ERR_Cant_Found_People</fullName>
         <language>en_US</language>
         <protected>true</protected>
