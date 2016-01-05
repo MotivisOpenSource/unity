@@ -45,6 +45,9 @@
 					<div class="profile-body margin-bottom-20">
 						<div class="tab-v1">
 							<apex:variable var="pft" value="{!IF(ISBLANK($CurrentPage.parameters.f),'1',JSENCODE($CurrentPage.parameters.f))}"/>
+							<apex:variable var="pfe" value="{!IF(ISBLANK($CurrentPage.parameters.fromEmail),false, true)}"/>
+							<apex:variable var="pffe" value="{!IF(ISBLANK($CurrentPage.parameters.fId),'',JSENCODE($CurrentPage.parameters.fId))}"/>
+							<apex:variable var="ppid" value="{!IF(ISBLANK($CurrentPage.parameters.oid),'',JSENCODE($CurrentPage.parameters.oid))}"/>
 							<ul class="nav nav-justified nav-tabs">
 								<li class="{!IF(pft == '1','active','')}"><a href="{!$Page.CommunityFeed_MyFeed}?f=1">What I Follow</a></li>
 								<li class="{!IF(pft == '2','active','')}"><a href="{!$Page.CommunityFeed_MyFeed}?f=2">To Me</a></li>
@@ -52,7 +55,7 @@
 							</ul>
 							<div class="tab-content">
 								<div id="feed" class="profile-edit tab-pane fade in active">
-									<c:CommunityFeed ft="{!pft}" tf="true"/>
+									<c:CommunityFeed ft="{!pft}" fe="{!pfe}" ffe="{!pffe}" pid="{!ppid}" tf="true" />
 								</div>
 							</div>
 						</div>

@@ -188,7 +188,7 @@
 							</ul>
 							<apex:outputPanel layout="block" styleClass="panel panel-default margin-bottom-10" rendered="{!!ISBLANK(FileDetail.description)}">
 								<div class="panel-body">
-									<p>{!FileDetail.description}</p>
+									<p id="fdDescription">{!FileDetail.description}</p>
 								</div>
 							</apex:outputPanel>
 							<apex:outputPanel layout="block" styleClass="panel panel-default">

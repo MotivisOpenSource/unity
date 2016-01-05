@@ -311,7 +311,11 @@
         <members>ERR_1_Breaking_News</members>
         <members>ERR_3_Alerts</members>
         <members>ERR_Can_not_found_Topic</members>
+		<members>ERR_Community_Profile</members>
+		<members>ERR_CreateGroup_MaxTagMessage</members>
+        <members>ERR_Comment_Too_Large</members>
         <members>ERR_Create_Event_Dates</members>
+        <members>ERR_Choice_To_Long</members>
         <members>ERR_Dup_Group_Name</members>
         <members>ERR_Group_Picture_FileError</members>
         <members>ERR_Group_Tags_Limit</members>
@@ -328,15 +332,14 @@
         <members>ERR_Please_Enter_Value</members>
         <members>ERR_Please_Select_Group</members>
         <members>ERR_Pole_SameValueWarning</members>
+        <members>ERR_Post_Too_Large</members>
         <members>ERR_Primary_Profile</members>
         <members>ERR_Profile_RecordType</members>
+        <members>ERR_Set_Up_Community_Profile</members>
         <members>ERR_Topic_Not_Available</members>
         <members>ERR_Topic_Not_Available_Message</members>
         <members>ERR_You_do_not_have_access_to_this_user</members>
-        <members>ERR_Profile_Not_Available</members>
-        <members>ERR_CreateGroup_MaxTagMessage</members>
         <members>ERR_Comment_Too_Large</members>
-        <members>ERR_Community_Profile</members>
         <members>ERR_Cant_Found_People</members>
         <members>ERR_Choice_To_Long</members>
         <members>ERR_Post_Too_Large</members>
@@ -346,11 +349,13 @@
         <members>LBL_Add</members>
         <members>LBL_AddToCalendar</members>
         <members>LBL_Add_Photo</members>
-        <members>LBL_Add_Remove_Members</members>
-        <members>LBL_Admin_Page_Group_Tag_Setting_Error</members>
         <members>LBL_Add_To_Favorites</members>
+        <members>LBL_Add_Remove_Members</members>
+        <members>LBL_Add_To_Favorites</members>
+        <members>LBL_Admin_Page_Group_Tag_Setting_Error</members>
         <members>LBL_AgreeToTerms</members>
         <members>LBL_AllGroups</members>
+        <members>LBL_All_Updates</members>
         <members>LBL_Assign_New_Owner</members>
         <members>LBL_Banner_Caption</members>
         <members>LBL_Banner_Text</members>
@@ -359,6 +364,7 @@
         <members>LBL_ChangePassword</members>
         <members>LBL_ChangePassword_Title</members>
         <members>LBL_Change_Owner</members>
+        <members>LBL_Change_Vote</members>
         <members>LBL_Choose_from_Library</members>
         <members>LBL_CommentsAfterMe</members>
         <members>LBL_CommentsOnBookmarked</members>
@@ -368,17 +374,14 @@
         <members>LBL_Comments_Title</members>
         <members>LBL_Confirm_Remove_Manager</members>
         <members>LBL_Contact</members>
+		<members>LBL_This_Update</members>
+		<members>LBL_All_Updates</members>
+		<members>LBL_There_Are_No_Updates</members>
         <members>LBL_CreateGroup_Details</members>
         <members>LBL_CreateGroup_NoTagsMessage</members>
         <members>LBL_CreateGroup_PictureUpload</members>
         <members>LBL_CreateGroup_Tags</members>
         <members>LBL_Current_Events_Title</members>
-        <members>LBL_All</members>
-        <members>LBL_Topics_I_Use</members>
-        <members>LBL_Shue_To_Delete_Topic</members>
-        <members>LBL_TalkingAbout</members>
-        <members>LBL_My_Favorites</members>
-        <members>LBL_People_Talking_About_This</members>
         <members>LBL_Current_News_Title</members>
         <members>LBL_Current_Owner</members>
         <members>LBL_Delete</members>
@@ -390,7 +393,6 @@
         <members>LBL_Digest_Group</members>
         <members>LBL_Digest_Never</members>
         <members>LBL_Digest_Weekly</members>
-        <members>LBL_DiscoverTitle</members>
         <members>LBL_Done</members>
         <members>LBL_ERR_Help_Link</members>
         <members>LBL_ERR_Quick_Link</members>
@@ -401,6 +403,11 @@
         <members>LBL_Event_Group</members>
         <members>LBL_Events</members>
         <members>LBL_Feed</members>
+		<members>LBL_Feed_Bookmark</members>
+        <members>LBL_Feed_Delete</members>
+        <members>LBL_Feed_Flag</members>
+        <members>LBL_Feed_Like</members>
+        <members>LBL_Feed_Reply</members>
         <members>LBL_FeedsTime</members>
         <members>LBL_File</members>
         <members>LBL_File_InputBox</members>
@@ -445,6 +452,7 @@
         <members>LBL_Load_More</members>
         <members>LBL_Location</members>
         <members>LBL_Logout</members>
+        <members>LBL_Make_Vote</members>
         <members>LBL_ManageDetails_Title</members>
         <members>LBL_ManageDigest_Message1</members>
         <members>LBL_ManageDigest_Title</members>
@@ -482,7 +490,6 @@
         <members>LBL_Notifications</members>
         <members>LBL_Notifications_Message</members>
         <members>LBL_Notifications_Post</members>
-        <members>LBL_Oh_Snap</members>
         <members>LBL_OldPassword</members>
         <members>LBL_Other</members>
         <members>LBL_Owner</members>
@@ -507,6 +514,7 @@
         <members>LBL_Read_More</members>
         <members>LBL_Read_More_News</members>
         <members>LBL_RecommendedGroups</members>
+        <members>LBL_Refresh</members>
         <members>LBL_RegGenInfo_Title</members>
         <members>LBL_RegInterests_Title</members>
         <members>LBL_RegProfilePicture_Title</members>
@@ -555,6 +563,10 @@
         <members>LBL_VerifyNewPassword</members>
         <members>LBL_When</members>
         <members>LBL_of</members>
+		<members>LBL_Make_Vote</members>
+		<members>LBL_View_Results</members>
+		<members>LBL_Change_Vote</members>
+		<members>LBL_Refresh</members>
         <members>MSG_Group_Name_Available</members>
         <members>NAV_Discover</members>
         <members>NAV_Events</members>
@@ -601,6 +613,7 @@
     <types>
         <members>Motivis_Unity</members>
         <members>Motivis_Unity/motivis_unity_logo_png.png</members>
+		<members>Motivis_Unity/Unity_branding_header</members>
         <name>Document</name>
     </types>
     <types>
@@ -706,5 +719,5 @@
         <members>User.Update Community Contact ID on User</members>
         <name>WorkflowRule</name>
     </types>
-    <version>34.0</version>
+    <version>35.0</version>
 </Package>

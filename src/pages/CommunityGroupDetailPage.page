@@ -71,7 +71,9 @@
                 <!-- Center -->
                 <div class="col-md-7 md-margin-bottom-20">
                     <div id="feed" class="profile-edit">
-                        <c:CommunityFeed pid="{!chatterGroup.Id}" rendered="{!!HideFeedComponent}" he="{!!showCreateEvent}"/>
+                        <apex:variable var="pfe" value="{!IF(ISBLANK($CurrentPage.parameters.fromEmail),false, true)}"/>
+                        <apex:variable var="pffe" value="{!IF(ISBLANK($CurrentPage.parameters.fId),'',JSENCODE($CurrentPage.parameters.fId))}"/>
+                        <c:CommunityFeed pid="{!chatterGroup.Id}" rendered="{!!HideFeedComponent}" he="{!!showCreateEvent}" fe="{!pfe}" ffe="{!pffe}"/>
                         <apex:outputPanel layout="block" styleClass="alert alert-danger fade in" rendered="{!HideFeedComponent}">
                             <i class="fa fa-exclamation-triangle"></i>&nbsp;&nbsp;{!$Label.LBL_PrivateGroup}
                         </apex:outputPanel>

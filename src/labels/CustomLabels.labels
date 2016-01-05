@@ -443,13 +443,6 @@
         <value>You don`t have access to this user.</value>
     </labels>
     <labels>
-        <fullName>ERR_Profile_Not_Available</fullName>
-        <language>en_US</language>
-        <protected>true</protected>
-        <shortDescription>ERR Profile Not Available</shortDescription>
-        <value>This profile is no longer available</value>
-    </labels>
-    <labels>
         <fullName>Feed_Nav_People</fullName>
         <language>en_US</language>
         <protected>false</protected>
@@ -499,18 +492,18 @@
         <value>Add/Remove Members</value>
     </labels>
     <labels>
+        <fullName>LBL_Add_To_Favorites</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Add To Favorites</shortDescription>
+ +      <value>Add to favorites</value>
+    </labels>
+    <labels>
         <fullName>LBL_Admin_Page_Group_Tag_Setting_Error</fullName>
         <language>en_US</language>
         <protected>true</protected>
         <shortDescription>LBL Admin Page Group Tag Setting Error</shortDescription>
         <value>If Max Group Tags = 0, then Create Group Require Tags must be FALSE</value>
-	</labels>
-    <labels>
-        <fullName>LBL_Add_To_Favorites</fullName>
-        <language>en_US</language>
-        <protected>true</protected>
-        <shortDescription>LBL Add To Favorites</shortDescription>
-        <value>Add to favorites</value>
     </labels>
     <labels>
         <fullName>LBL_AgreeToTerms</fullName>
@@ -520,18 +513,18 @@
         <value>I agree to these Terms and Conditions.</value>
     </labels>
     <labels>
-        <fullName>LBL_All</fullName>
-        <language>en_US</language>
-        <protected>true</protected>
-        <shortDescription>LBL All</shortDescription>
-        <value>All</value>
-    </labels>
-    <labels>
         <fullName>LBL_AllGroups</fullName>
         <language>en_US</language>
         <protected>true</protected>
         <shortDescription>Label All Groups</shortDescription>
         <value>All Groups</value>
+    </labels>
+    <labels>
+        <fullName>LBL_All_Updates</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL All Updates</shortDescription>
+        <value>All Updates</value>
     </labels>
     <labels>
         <fullName>LBL_Assign_New_Owner</fullName>
@@ -588,6 +581,13 @@
         <protected>true</protected>
         <shortDescription>LBL Change Owner</shortDescription>
         <value>Change Owner</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Change_Vote</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Change Vote</shortDescription>
+        <value>Change Vote</value>
     </labels>
     <labels>
         <fullName>LBL_Choose_from_Library</fullName>
@@ -765,13 +765,6 @@
         <value>Weekly Digest</value>
     </labels>
     <labels>
-        <fullName>LBL_DiscoverTitle</fullName>
-        <language>en_US</language>
-        <protected>true</protected>
-        <shortDescription>LBL DiscoverTitle</shortDescription>
-        <value>Discover &lt;span class=&quot;color-green&quot;&gt;new&lt;/span&gt; things</value>
-    </labels>
-    <labels>
         <fullName>LBL_Done</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -840,6 +833,41 @@
         <protected>true</protected>
         <shortDescription>LBL Feed</shortDescription>
         <value>Feed</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Feed_Bookmark</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL_Feed_Bookmark</shortDescription>
+        <value>Bookmark</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Feed_Delete</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL_Feed_Delete</shortDescription>
+        <value>Delete</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Feed_Flag</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL_Feed_Flag</shortDescription>
+        <value>Flag</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Feed_Like</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL_Feed_Like</shortDescription>
+        <value>Like</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Feed_Reply</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL_Feed_Reply</shortDescription>
+        <value>Reply</value>
     </labels>
     <labels>
         <fullName>LBL_FeedsTime</fullName>
@@ -1150,6 +1178,13 @@
         <value>Logout</value>
     </labels>
     <labels>
+        <fullName>LBL_Make_Vote</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Make Vote</shortDescription>
+        <value>Make Vote</value>
+    </labels>
+    <labels>
         <fullName>LBL_ManageDetails_Title</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -1289,13 +1324,6 @@
         <shortDescription>LBL My Discussions</shortDescription>
         <value>My Discussions</value>
     </labels>
- 	  <labels>
-        <fullName>LBL_My_Favorites</fullName>
-        <language>en_US</language>
-        <protected>true</protected>
-        <shortDescription>LBL My Favorites</shortDescription>
-        <value>My Favorites</value>
-    </labels>
     <labels>
         <fullName>LBL_My_News</fullName>
         <language>en_US</language>
@@ -1416,13 +1444,6 @@
         <value>commented in the {0} manager feed.</value>
     </labels>
     <labels>
-        <fullName>LBL_Oh_Snap</fullName>
-        <language>en_US</language>
-        <protected>true</protected>
-        <shortDescription>LBL Oh Snap</shortDescription>
-        <value>Oh snap! Change a few things up and try submitting again.</value>
-    </labels>
-    <labels>
         <fullName>LBL_OldPassword</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -1491,13 +1512,6 @@
         <protected>true</protected>
         <shortDescription>LBL People Talking</shortDescription>
         <value>people talking</value>
-    </labels>
-    <labels>
-        <fullName>LBL_People_Talking_About_This</fullName>
-        <language>en_US</language>
-        <protected>true</protected>
-        <shortDescription>LBL People Talking About This</shortDescription>
-        <value>People Talking About This</value>
     </labels>
     <labels>
         <fullName>LBL_Person_Talking</fullName>
@@ -1596,6 +1610,13 @@
         <protected>true</protected>
         <shortDescription>Label Recommended Groups</shortDescription>
         <value>Recommended Groups</value>
+    </labels>
+    <labels>
+        <fullName>LBL_Refresh</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Refresh</shortDescription>
+        <value>Refresh</value>
     </labels>
     <labels>
         <fullName>LBL_RegGenInfo_Title</fullName>
@@ -1814,13 +1835,6 @@
         <value>Show All</value>
     </labels>
     <labels>
-        <fullName>LBL_Shue_To_Delete_Topic</fullName>
-        <language>en_US</language>
-        <protected>true</protected>
-        <shortDescription>LBL Shue To Delete Topic</shortDescription>
-        <value>Are you sure you want to delete this topic ?</value>
-    </labels>
-    <labels>
         <fullName>LBL_Sorted_By</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -1835,13 +1849,6 @@
         <value>What tags can I use?</value>
     </labels>
     <labels>
-        <fullName>LBL_TalkingAbout</fullName>
-        <language>en_US</language>
-        <protected>true</protected>
-        <shortDescription>LBL_TalkingAbout</shortDescription>
-        <value>TalkingAbout</value>
-    </labels>
-    <labels>
         <fullName>LBL_TermsAndConditions</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -1849,6 +1856,21 @@
         <value>Terms &amp; Conditions</value>
     </labels>
     <labels>
+        <fullName>LBL_There_Are_No_Updates</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL There Are No Updates</shortDescription>
+        <value>There are no updates</value>
+    </labels>
+    <labels>
+        <fullName>LBL_This_Update</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL This Update</shortDescription>
+        <value>This Update</value>
+    </labels>
+    <labels>
+
         <fullName>LBL_Thumbnail</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -1884,13 +1906,6 @@
         <value>Topics</value>
     </labels>
     <labels>
-    	<fullName>LBL_Topics_I_Use</fullName>
-        <language>en_US</language>
-        <protected>true</protected>
-        <shortDescription>LBL Topics I Use</shortDescription>
-        <value>Topics I Use</value>
-    </labels>
-	<labels>
         <fullName>LBL_Upcoming_Events</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -1945,6 +1960,13 @@
         <protected>true</protected>
         <shortDescription>Label Verify New Password</shortDescription>
         <value>Verify New Password</value>
+    </labels>
+    <labels>
+        <fullName>LBL_View_Results</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL View Results</shortDescription>
+        <value>View Results</value>
     </labels>
     <labels>
         <fullName>LBL_When</fullName>

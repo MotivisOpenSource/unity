@@ -35,22 +35,14 @@ global with sharing class CommunityShareController {
 	public String shareGroup { get;set; }
 	public Boolean hasMessage { get { return hasMessage == NULL ? false : hasMessage; } set; }
 	public String message { get; set; }
-	public List<GroupFinderWrapper> AvailableGroups { get; set; }
+	public List<GroupFinderWrapper> availableGroups { get; set; }
 	public List<GroupFinderWrapper> listGroupFindWrapper { get; set; }
 	public Boolean availGroups {
 		get {
-			return AvailableGroups != NULL;
+			return availableGroups != NULL && !availableGroups.isEmpty();
 		}
 		set;
 	}
-/*
-	public Boolean showShareButton { 
-		get{
-			Community_Settings__c cs = Community_Settings__c.getOrgDefaults();
-			return cs.Disable_Share__c != true;
-		}
-	}
-*/
 	public SObject sobj {
 		get;
 		set {
@@ -70,6 +62,7 @@ global with sharing class CommunityShareController {
 			shareLinkUrl = Page.CommunityNewsDetail.getUrl().replace('/apex/','') + '?id=' + (String)sobj.get('Id');
 			shareLinkName = (String)sobj.get('Title__c');
 		}
+		availableGroups = getMyGroupsInGroupFinderWrapper(null, true);
 	}
 
 	//remote actions
@@ -81,14 +74,14 @@ global with sharing class CommunityShareController {
 		String message;
 		String obj = String.valueOf(((Id)sobjId).getSObjectType());
 		obj = obj.split('__').size() > 2 ? obj.split('__')[1] : obj.split('__')[0];
-		if(obj.equalsIgnoreCase('Community_Events')){
+		if (obj.equalsIgnoreCase('Community_Events')) {
 			shareLinkUrl = Page.CommunityEventDetail.getUrl().replace('/apex/','') + '?id=' + sobjId;
 			shareLinkName = shareLinkName;
-		}else {
+		}
+		else {
 			shareLinkUrl = Page.CommunityNewsDetail.getUrl().replace('/apex/','') + '?id=' +  sobjId;
 			shareLinkName = shareLinkName;
 		}
-
 		try {
 			Set<String> gcSet2 = new Set<String>();
 			if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
@@ -105,14 +98,10 @@ global with sharing class CommunityShareController {
 				nRec = [SELECT UrlPathPrefix FROM Network WHERE Id = :Network.getNetworkId()];
 				cprefix = nRec.UrlPathPrefix != null ? '/' + nRec.UrlPathPrefix + '/' : '/';
 			}
-			
-	
 			List<CollaborationGroup> cgrec = new List<CollaborationGroup>();
 
 			if(gcSet2.isEmpty() && !shareLinkProfile){
-				message = 'ERR '+Label.LBL_No_share_destination;
-				return message;
-			
+				return 'ERR ' + Label.LBL_No_share_destination;
 			}
 			else if(!gcSet2.isEmpty()){
 				if (!SObjectType.CollaborationGroup.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.CollaborationGroup);
@@ -141,7 +130,6 @@ global with sharing class CommunityShareController {
 				message	= 'SUCCESS';
 			}
 			if (!cgrec.isEmpty()) {
-				
 				List<FeedItem> shareFeeds = new List<FeedItem>();
 				for(CollaborationGroup gr : cgrec){
 					shareFeeds.add(
@@ -166,20 +154,17 @@ global with sharing class CommunityShareController {
 				message	= 'SUCCESS';
 			}
 			else if(!shareLinkProfile){
-				message = 'ERR Something wrong with group name';
+				return 'ERR Something wrong with group name';
 			}
 		}
 		catch(Exception e) {
-			message = '!ERR '+e.getMessage();
-			return message;
+			return 'ERR ' + e.getMessage();
 		}
 		return message;
 	}
 
 	public void availableGroupsProcess(){
-		
 		Map<Id, String> cGroups = new Map<Id, String>();
-
 		if (!SObjectType.CollaborationGroup.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.CollaborationGroup);
 		List<CollaborationGroup> groups = [SELECT Id, Name, CollaborationType, NetworkId FROM CollaborationGroup WHERE NetworkId =:Network.getNetworkId()];
 		List<String> groupsNames = new List<String>();
@@ -250,7 +235,6 @@ global with sharing class CommunityShareController {
 		if(!wrapper.isEmpty()) {
 			tagsForGroups.add(new TagsForGroup(Label.LBL_Other, wrapper));
 		}
-		AvailableGroups = getMyGroupsInGroupFinderWrapper(null);
 		listGroupFindWrapper = new List<GroupFinderWrapper>();
 		for (TagsForGroup tfg : tagsForGroups) {
 			for (GroupFinderWrapper gfw : tfg.wrapperGroup) {
@@ -263,51 +247,50 @@ global with sharing class CommunityShareController {
 	public static List<String> getNamesOfAvailableGroups(List<String> groupIds){
 
 		List<String> groupsNames = new List<String>();
-		try{
+		try {
+			Boolean hasShareAllGroups = CommunityUtils.isModifyAllData();
 			List<ConnectApi.BatchResult> batchResults = ConnectApi.ChatterGroups.getGroupBatch(Network.getNetworkId(), groupIds);
-			for(ConnectApi.BatchResult batchResult : batchResults){
+			for (ConnectApi.BatchResult batchResult : batchResults) {
 				if (batchResult.isSuccess()) {
 					ConnectApi.ChatterGroup aGroup = (ConnectApi.ChatterGroup) batchResult.getResult();
-					if(String.valueOf(aGroup.myRole) != 'NotAMember' && String.valueOf(aGroup.myRole) != 'NotAMemberPrivateRequested'){
+					if (hasShareAllGroups || (String.valueOf(aGroup.myRole) != 'NotAMember' && String.valueOf(aGroup.myRole) != 'NotAMemberPrivateRequested')) {
 						groupsNames.add(aGroup.name);
 					}
 				}
 				else {
-					// Operation failed. Print errors.
 					System.debug('FAILURE');
 					System.debug(batchResult.getErrorMessage());
 				}
 			}
-		}catch(Exception e){
+		} catch (Exception e){
 			System.debug('FAILURE: '+e.getMessage());
 		}
 		return groupsNames;
 	}
 	
 	
-	public static List<GroupFinderWrapper> getMyGroupsInGroupFinderWrapper(String query){
-		String SearchQuery = query == null ? '%%' : '%'+query+'%';
-		Set<Id> chatterGroups = new Set<Id>();
+	public static List<GroupFinderWrapper> getMyGroupsInGroupFinderWrapper(String query, Boolean onlyMember){
 		List<GroupFinderWrapper> groupsNames = new List<GroupFinderWrapper>();
-		if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
-		for (Community_Group_Control__c gcItem : [SELECT Chatter_Group_ID__c FROM Community_Group_Control__c WHERE Status__c = 'Approved' AND Name LIKE :SearchQuery LIMIT 100]) {
-			chatterGroups.add(gcItem.Chatter_Group_ID__c);
-		}
-		List<String> groupIdList = new List<String>();
-		if (!SObjectType.CollaborationGroup.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.CollaborationGroup);
-		if (!SObjectType.CollaborationGroupMember.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.CollaborationGroupMember);
-		for (CollaborationGroup cgItem : [
-											SELECT Id, Name FROM CollaborationGroup Where NetworkId = :Network.getNetworkId() AND ID in :chatterGroups AND
-												ID in (SELECT CollaborationGroupId FROM CollaborationGroupMember WHERE
-												MemberId = :UserInfo.getUserId()) LIMIT 100 ] ) {
-			groupIdList.add(cgItem.Id);
-			groupsNames.add(new GroupFinderWrapper(cgItem.Name,cgItem.Id));
+		List<CollaborationGroup> cgList = getAvailableCollaborationGroupList(query, onlyMember);
+		for (CollaborationGroup cgItem : cgList) {
+			groupsNames.add(new GroupFinderWrapper(cgItem.Name, cgItem.Id));
 		}
 		return groupsNames;
 	}
-	
-	
-	
+
+	public static List<CollaborationGroup> getAvailableCollaborationGroupList(String search, Boolean onlyMember) {
+		String querySearch = String.isBlank(search) ? '%%' : '%' + String.escapeSingleQuotes(search) + '%';
+		Set<Id> filtredGroupIds = new Set<Id>();
+		if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
+		for (Community_Group_Control__c gcItem : [SELECT Chatter_Group_ID__c FROM Community_Group_Control__c WHERE Status__c = 'Approved' AND Name LIKE :querySearch LIMIT 100]) {
+			filtredGroupIds.add(gcItem.Chatter_Group_ID__c);
+		}
+		if (!SObjectType.CollaborationGroup.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.CollaborationGroup);
+		if (!SObjectType.CollaborationGroupMember.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.CollaborationGroupMember);
+		return onlyMember == false && CommunityUtils.isModifyAllData() ? [SELECT Id, Name FROM CollaborationGroup WHERE NetworkId = :Network.getNetworkId() AND Id IN :filtredGroupIds AND IsArchived = false ORDER BY Name ASC LIMIT 100] : [SELECT Id, Name FROM CollaborationGroup WHERE NetworkId = :Network.getNetworkId() AND Id IN :filtredGroupIds AND Id IN (SELECT CollaborationGroupId FROM CollaborationGroupMember WHERE MemberId = :UserInfo.getUserId()) AND IsArchived = false ORDER BY Name ASC LIMIT 100];
+	}
+
+
 	//remote actions
 	@RemoteAction
 	global static String getGroups(String query) {
@@ -325,65 +308,40 @@ global with sharing class CommunityShareController {
 	}
 
 	@RemoteAction
-	global static String getGroupsSelector(String getGroupsSelector){		
-		return JSON.serialize(getMyGroupsInGroupFinderWrapper(getGroupsSelector));
+	global static String getGroupsSelector(String getGroupsSelector) {
+		return JSON.serialize(getMyGroupsInGroupFinderWrapper(getGroupsSelector, false));
 	}
 
 	global class TagsForGroup implements Comparable{
 		public List<GroupFinderWrapper> wrapperGroup {get; set;}
 		public String TagName {get; set;}
 
-		TagsForGroup(String tagN, List<GroupFinderWrapper> gfw){
-			this.TagName = tagN;
-			this.wrapperGroup = gfw;
+		TagsForGroup(String inTagName, List<GroupFinderWrapper> inWrapperGroup){
+			this.TagName = inTagName;
+			this.wrapperGroup = inWrapperGroup;
 		}
 
 		global Integer compareTo(Object compareTo) {
 			TagsForGroup compareToEmp = (TagsForGroup)compareTo;
 			if (this.TagName == compareToEmp.TagName) return 0;
-			if (this.TagName > compareToEmp.TagName) return 1;
-			return -1;   
+			return (this.TagName > compareToEmp.TagName) ? 1 : -1;
 		}
-		
 	}
 
 	global class GroupFinderWrapper implements Comparable{
 		public String name { get; set; }
 		public Id id { get; set;}
 
-		GroupFinderWrapper(String name, Id id){
-			this.name = name;
-			this.id = id;
+		GroupFinderWrapper(String inName, Id inId){
+			this.name = inName;
+			this.id = inId;
 		}
 
 		global Integer compareTo(Object compareTo) {
 			GroupFinderWrapper compareToEmp = (GroupFinderWrapper)compareTo;
 			if (this.name == compareToEmp.name) return 0;
-			if (this.name > compareToEmp.name) return 1;
-			return -1;
+			return (this.name > compareToEmp.name) ? 1 : -1;
 		}
+	}
 
-	}
-	
-	public List<Community_Group_Control__c> AvailableGroupsControls { 
-		get {
-			Set<String> filtredChatterGroups = new Set<String>();
-			Set<String> filtredTotalChatterGroups = new Set<String>();
-			if (!SObjectType.CollaborationGroupMember.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.CollaborationGroupMember);
-			for (CollaborationGroupMember cgmItem : [
-					SELECT CollaborationGroupId FROM CollaborationGroupMember
-					WHERE CollaborationGroup.NetworkId = :Network.getNetworkId() AND MemberId = :UserInfo.getUserId()
-						]) {
-				filtredChatterGroups.add(cgmItem.CollaborationGroupId);
-			}
-			//gQuery += ' WHERE Chatter_Group_ID__c IN :filtredChatterGroups';
-			if (!SObjectType.CollaborationGroup.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.CollaborationGroup);
-			for (CollaborationGroup cgItem: [SELECT Id, Name, IsArchived FROM CollaborationGroup WHERE ID IN :filtredChatterGroups and IsArchived = false LIMIT 100]) {
-				filtredTotalChatterGroups.add(cgItem.Id);
-			}			
-			if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);			
-			return filtredTotalChatterGroups.size() > 0?[SELECT Id, Name, Chatter_Group_ID__c, Status__c FROM  Community_Group_Control__c WHERE Chatter_Group_ID__c IN :filtredTotalChatterGroups AND Status__c = 'Approved' ORDER BY Name ASC  LIMIT 100]:null;			
-		}
-		set;
-	}
 }
