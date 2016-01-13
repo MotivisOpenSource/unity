@@ -563,7 +563,6 @@
         <members>LBL_VerifyNewPassword</members>
         <members>LBL_When</members>
         <members>LBL_of</members>
-		<members>LBL_Make_Vote</members>
 		<members>LBL_View_Results</members>
 		<members>LBL_Change_Vote</members>
 		<members>LBL_Refresh</members>
