@@ -452,7 +452,7 @@
         <members>LBL_Load_More</members>
         <members>LBL_Location</members>
         <members>LBL_Logout</members>
-        <members>LBL_Make_Vote</members>
+        <members>LBL_Vote</members>
         <members>LBL_ManageDetails_Title</members>
         <members>LBL_ManageDigest_Message1</members>
         <members>LBL_ManageDigest_Title</members>

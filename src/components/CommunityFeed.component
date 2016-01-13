@@ -315,7 +315,7 @@
 								<%}%>
 								<% if (!p2.capabilities.poll.myChoiceId && viewRes(p2.id)) {%>
 									&bull;  <a href="javascript: void(0);"> <span onclick="refreshFeed();">{!$label.LBL_Refresh}</span></a>
-									&bull;  <a href="javascript: void(0);"> <span onclick="viewResults('<%- p2.id %>');">{!$label.LBL_Make_Vote}</span></a>
+									&bull;  <a href="javascript: void(0);"> <span onclick="viewResults('<%- p2.id %>');">{!$label.LBL_Vote}</span></a>
 								<%}%>	
 								
 							</fieldset>
