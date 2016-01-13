@@ -315,7 +315,7 @@
 								<%}%>
 								<% if (!p2.capabilities.poll.myChoiceId && viewRes(p2.id)) {%>
 									&bull;  <a href="javascript: void(0);"> <span onclick="refreshFeed();">{!$label.LBL_Refresh}</span></a>
-									&bull;  <a href="javascript: void(0);"> <span onclick="viewResults('<%- p2.id %>');">{!$label.LBL_Make_Vote}</span></a>
+									&bull;  <a href="javascript: void(0);"> <span onclick="viewResults('<%- p2.id %>');">{!$label.LBL_Vote}</span></a>
 								<%}%>	
 								
 							</fieldset>
@@ -1244,11 +1244,11 @@
 						if(item.text.indexOf('@') != -1){
 							outString += '<a href="mailto:'+item.text+'">'+item.text+'</a>';
 						}else if(item.text.indexOf('ftp') == 0){
-							outString += '<a href="ftp:'+item.text.split('ftp:')[1]+'">'+item.text+'</a>';
+							outString += '<a target="_blank" href="ftp:'+item.text.split('ftp:')[1]+'">'+item.text+'</a>';
 						}else if(item.text.indexOf('http') == 0) {
-						outString += '<a href="'+item.text+'">'+item.text+'</a>';
+							outString += '<a target="_blank" href="'+item.text+'">'+item.text+'</a>';
 					}else{
-							outString += '<a href="http://'+item.text+'">'+item.text+'</a>';
+							outString += '<a target="_blank" href="http://'+item.text+'">'+item.text+'</a>';
 						}
 					}else{
 					outString += item.text;

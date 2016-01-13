@@ -1178,11 +1178,11 @@
         <value>Logout</value>
     </labels>
     <labels>
-        <fullName>LBL_Make_Vote</fullName>
+        <fullName>LBL_Vote</fullName>
         <language>en_US</language>
         <protected>true</protected>
-        <shortDescription>LBL Make Vote</shortDescription>
-        <value>Make Vote</value>
+        <shortDescription>LBL Vote</shortDescription>
+        <value>Vote</value>
     </labels>
     <labels>
         <fullName>LBL_ManageDetails_Title</fullName>
