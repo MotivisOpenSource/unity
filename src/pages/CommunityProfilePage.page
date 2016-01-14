@@ -290,11 +290,17 @@
 											<label><h4><strong>{!section.sectionLabel}</strong></h4></label>
 											<apex:repeat value="{!section.items}" var="it">
 												<label class="toggle{!IF(section.general,'',' plus')}">
-													<apex:outputPanel layout="none" rendered="{!it.disabled}">
-														<input type="checkbox" onchange="chnot(this);" name="{!it.fieldName}" checked="{!IF(it.checked, 'true', 'false')}" disabled="disabled" />
+													<apex:outputPanel layout="none" rendered="{!AND(it.disabled, !it.checked)}">
+														<input type="checkbox" onchange="chnot(this);" name="{!it.fieldName}" disabled="disabled" />
 													</apex:outputPanel>
-													<apex:outputPanel layout="none" rendered="{!!it.disabled}">
-														<input type="checkbox" onchange="chnot(this);" name="{!it.fieldName}" checked="{!IF(it.checked, 'true', 'false')}"/>
+													<apex:outputPanel layout="none" rendered="{!AND(it.disabled, it.checked)}">
+														<input type="checkbox" onchange="chnot(this);" name="{!it.fieldName}" checked="checked" disabled="disabled" />
+													</apex:outputPanel>
+													<apex:outputPanel layout="none" rendered="{!AND(!it.disabled, !it.checked)}">
+														<input type="checkbox" onchange="chnot(this);" name="{!it.fieldName}" />
+													</apex:outputPanel>
+													<apex:outputPanel layout="none" rendered="{!AND(!it.disabled, it.checked)}">
+														<input type="checkbox" onchange="chnot(this);" name="{!it.fieldName}" checked="checked"/>
 													</apex:outputPanel>
 													<i class="{!IF(it.disabled, '', IF(it.checked, 'green-btn', 'red-btn'))}"></i>
 													{!it.fieldLabel}

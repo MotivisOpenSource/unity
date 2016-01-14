@@ -77,6 +77,41 @@
         <shortDescription>BTN Decline</shortDescription>
         <value>Decline</value>
     </labels>
+	<labels>
+        <fullName>LBL_My_Favorites</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL My Favorites</shortDescription>
+        <value>My Favorites</value>
+	</labels>
+	<labels>
+        <fullName>LBL_People_Talking_About_This</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL People Talking About This</shortDescription>
+        <value>People Talking About This</value>
+	</labels>
+	<labels>
+        <fullName>LBL_Shue_To_Delete_Topic</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Shue To Delete Topic</shortDescription>
+        <value>Are you sure you want to delete this topic ?</value>
+	</labels>
+	<labels>
+        <fullName>LBL_TalkingAbout</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL_TalkingAbout</shortDescription>
+        <value>TalkingAbout</value>
+	</labels>
+	<labels>
+        <fullName>LBL_Topics_I_Use</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Topics I Use</shortDescription>
+        <value>Topics I Use</value>
+	</labels>
     <labels>
         <fullName>BTN_Download</fullName>
         <language>en_US</language>
@@ -1178,11 +1213,11 @@
         <value>Logout</value>
     </labels>
     <labels>
-        <fullName>LBL_Make_Vote</fullName>
+        <fullName>LBL_Vote</fullName>
         <language>en_US</language>
         <protected>true</protected>
-        <shortDescription>LBL Make Vote</shortDescription>
-        <value>Make Vote</value>
+        <shortDescription>LBL Vote</shortDescription>
+        <value>Vote</value>
     </labels>
     <labels>
         <fullName>LBL_ManageDetails_Title</fullName>

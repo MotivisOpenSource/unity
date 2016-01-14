@@ -402,6 +402,11 @@
         <members>LBL_EmailNotifications</members>
         <members>LBL_Event_Group</members>
         <members>LBL_Events</members>
+		<members>LBL_My_Favorites</members>
+		<members>LBL_People_Talking_About_This</members>
+		<members>LBL_Shue_To_Delete_Topic</members>
+		<members>LBL_TalkingAbout</members>
+		<members>LBL_Topics_I_Use</members>
         <members>LBL_Feed</members>
 		<members>LBL_Feed_Bookmark</members>
         <members>LBL_Feed_Delete</members>
@@ -452,7 +457,7 @@
         <members>LBL_Load_More</members>
         <members>LBL_Location</members>
         <members>LBL_Logout</members>
-        <members>LBL_Make_Vote</members>
+        <members>LBL_Vote</members>
         <members>LBL_ManageDetails_Title</members>
         <members>LBL_ManageDigest_Message1</members>
         <members>LBL_ManageDigest_Title</members>
@@ -563,7 +568,6 @@
         <members>LBL_VerifyNewPassword</members>
         <members>LBL_When</members>
         <members>LBL_of</members>
-		<members>LBL_Make_Vote</members>
 		<members>LBL_View_Results</members>
 		<members>LBL_Change_Vote</members>
 		<members>LBL_Refresh</members>

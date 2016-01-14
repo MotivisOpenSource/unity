@@ -404,6 +404,11 @@ private class CommunityTest4 {
 		String RegProfilePicture = Label.LBL_RegProfilePicture_Title;
 		String RegTerms = Label.LBL_RegTerms_Title;
 		String leaveLabel = Label.LBL_LeavePage_Message;
+		String MyFavorites = Label.LBL_My_Favorites;
+		String PeopleTalking = Label.LBL_People_Talking_About_This;
+		String ShueToDelete = Label.LBL_Shue_To_Delete_Topic;
+		String TalkingAbout = Label.LBL_TalkingAbout;
+		String TopicsIUse = Label.LBL_Topics_I_Use;
 		System.assert(true);
 	}
 
