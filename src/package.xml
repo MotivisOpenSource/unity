@@ -402,11 +402,6 @@
         <members>LBL_EmailNotifications</members>
         <members>LBL_Event_Group</members>
         <members>LBL_Events</members>
-		<members>LBL_My_Favorites</members>
-		<members>LBL_People_Talking_About_This</members>
-		<members>LBL_Shue_To_Delete_Topic</members>
-		<members>LBL_TalkingAbout</members>
-		<members>LBL_Topics_I_Use</members>
         <members>LBL_Feed</members>
 		<members>LBL_Feed_Bookmark</members>
         <members>LBL_Feed_Delete</members>
@@ -434,6 +429,11 @@
         <members>LBL_Files_Upload_WhatChanged</members>
         <members>LBL_First</members>
         <members>LBL_Follow</members>
+		<members>LBL_MyFavorites</members>
+		<members>LBL_PeopleTalkingAboutThis</members>
+		<members>LBL_Sure_To_Delete_Topic</members>
+		<members>LBL_Talking_About</members>
+		<members>LBL_TopicsIUse</members>
         <members>LBL_FollowMe</members>
         <members>LBL_Followers</members>
         <members>LBL_Follows</members>
