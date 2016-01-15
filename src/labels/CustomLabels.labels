@@ -78,41 +78,6 @@
         <value>Decline</value>
     </labels>
 	<labels>
-        <fullName>LBL_My_Favorites</fullName>
-        <language>en_US</language>
-        <protected>true</protected>
-        <shortDescription>LBL My Favorites</shortDescription>
-        <value>My Favorites</value>
-	</labels>
-	<labels>
-        <fullName>LBL_People_Talking_About_This</fullName>
-        <language>en_US</language>
-        <protected>true</protected>
-        <shortDescription>LBL People Talking About This</shortDescription>
-        <value>People Talking About This</value>
-	</labels>
-	<labels>
-        <fullName>LBL_Shue_To_Delete_Topic</fullName>
-        <language>en_US</language>
-        <protected>true</protected>
-        <shortDescription>LBL Shue To Delete Topic</shortDescription>
-        <value>Are you sure you want to delete this topic ?</value>
-	</labels>
-	<labels>
-        <fullName>LBL_TalkingAbout</fullName>
-        <language>en_US</language>
-        <protected>true</protected>
-        <shortDescription>LBL_TalkingAbout</shortDescription>
-        <value>TalkingAbout</value>
-	</labels>
-	<labels>
-        <fullName>LBL_Topics_I_Use</fullName>
-        <language>en_US</language>
-        <protected>true</protected>
-        <shortDescription>LBL Topics I Use</shortDescription>
-        <value>Topics I Use</value>
-	</labels>
-    <labels>
         <fullName>BTN_Download</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -1360,6 +1325,13 @@
         <value>My Discussions</value>
     </labels>
     <labels>
+        <fullName>LBL_MyFavorites</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL My Favorites</shortDescription>
+        <value>My Favorites</value>
+    </labels>
+    <labels>
         <fullName>LBL_My_News</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -1540,6 +1512,13 @@
         <protected>true</protected>
         <shortDescription>LBL People</shortDescription>
         <value>People</value>
+    </labels>
+    <labels>
+        <fullName>LBL_PeopleTalkingAboutThis</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL People Talking About This</shortDescription>
+        <value>People Talking About This</value>
     </labels>
     <labels>
         <fullName>LBL_People_Talking</fullName>
@@ -1870,6 +1849,13 @@
         <value>Show All</value>
     </labels>
     <labels>
+        <fullName>LBL_Sure_To_Delete_Topic</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Shue To Delete Topic</shortDescription>
+        <value>Are you sure you want to delete this topic ?</value>
+    </labels>
+    <labels>
         <fullName>LBL_Sorted_By</fullName>
         <language>en_US</language>
         <protected>true</protected>
@@ -1883,6 +1869,13 @@
         <shortDescription>LBL TagHelper Link</shortDescription>
         <value>What tags can I use?</value>
     </labels>
+    <labels>
+        <fullName>LBL_Talking_About</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL_TalkingAbout</shortDescription>
+        <value>TalkingAbout</value>
+    </labels>	
     <labels>
         <fullName>LBL_TermsAndConditions</fullName>
         <language>en_US</language>
@@ -1939,6 +1932,13 @@
         <protected>true</protected>
         <shortDescription>LBL Topics</shortDescription>
         <value>Topics</value>
+    </labels>
+	<labels>
+        <fullName>LBL_TopicsIUse</fullName>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>LBL Topics I Use</shortDescription>
+        <value>Topics I Use</value>
     </labels>
     <labels>
         <fullName>LBL_Upcoming_Events</fullName>
