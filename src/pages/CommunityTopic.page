@@ -366,14 +366,14 @@
                     return function(input, scope) {
                         var output = [];
                         // show section
-                        if (scope.quickShow == '{!$Label.LBL_My_Favorites}') {
+                        if (scope.quickShow == '{!$Label.LBL_MyFavorites}') {
                             for (var j = 0; j < input.length; j++) {
                                 if (input[j].MyFavorites == true) {
                                     output.push(input[j]);
                                 }
                             }
                             
-                        }else if(scope.quickShow == '{!$Label.LBL_Topics_I_Use}'){
+                        }else if(scope.quickShow == '{!$Label.LBL_TopicsIUse}'){
                             for (var j = 0; j < input.length; j++) {
                                 if (input[j].iUse == true) {
                                     output.push(input[j]);
@@ -386,7 +386,7 @@
                         if(scope.quickSort == '{!$Label.LBL_Name}'){
                             scope.quickSortVal = '{!$Label.LBL_Name}';
                         }else{
-                            scope.quickSortVal = '-{!$Label.LBL_TalkingAbout}';
+                            scope.quickSortVal = '-{!$Label.LBL_Talking_About}';
                         }
 
                         input = output;
@@ -405,9 +405,9 @@
 
                 TopicsApp.controller('TopicsController', ['$scope', '$filter' ,'getTopics', 'subscriberAction', 'ngDialog', function($scope, $filter, getTopics, subscriberAction, ngDialog){
                     $scope.quickSearchQuery = '';
-                    $scope.sortItems = [{name:"{!$Label.LBL_People_Talking_About_This}",active:true}, {name:"{!$Label.LBL_Name}",active:false}];
-                    $scope.showItems = [{name:"{!$Label.LBL_All}",active:true}, {name:"{!$Label.LBL_My_Favorites}",active:false},{name:"{!$Label.LBL_Topics_I_Use}",active:false}];
-                    $scope.quickSort = '{!$Label.LBL_People_Talking_About_This}';
+                    $scope.sortItems = [{name:"{!$Label.LBL_PeopleTalkingAboutThis}",active:true}, {name:"{!$Label.LBL_Name}",active:false}];
+                    $scope.showItems = [{name:"{!$Label.LBL_All}",active:true}, {name:"{!$Label.LBL_MyFavorites}",active:false},{name:"{!$Label.LBL_TopicsIUse}",active:false}];
+                    $scope.quickSort = '{!$Label.LBL_PeopleTalkingAboutThis}';
                     $scope.quickSortVal = '';
                     $scope.quickShow = 'All';
                     $scope.active = 'active';
@@ -558,7 +558,7 @@
 
                     $scope.deleteTopic = function(){
                         var tid = '{!JSENCODE(topicId)}';
-                        if(confirm('{!$Label.LBL_Shue_To_Delete_Topic}')){
+                        if(confirm('{!$Label.LBL_Sure_To_Delete_Topic}')){
                             $scope.deleteAction = true;
                             $(".dropdown__button").attr('disabled','disabled')
                             Visualforce.remoting.Manager.invokeAction(
