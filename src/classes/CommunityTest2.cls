@@ -287,7 +287,7 @@ private class CommunityTest2 {
 
 			Map<String, List<String>> parentTypeParentId = new Map<String, List<String>>();
 			Community_Group_Control__c cgc1 = new Community_Group_Control__c();
-			cgc1.Name = 'Test group';
+			cgc1.Name = 'Test CommunityGroupControl';
 			cgc1.Type__c = 'Public';
 			cgc1.Discoverable__c = true;
 			insert cgc1;
