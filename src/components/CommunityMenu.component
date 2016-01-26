@@ -63,6 +63,9 @@
 						<apex:outputPanel layout="none" rendered="{!!ISBLANK(HelpLink)}">
 							<li><a href="{!HelpLink}"><i class="fa fa-question"></i>&nbsp;{!$Label.LBL_Help}</a></li>
 						</apex:outputPanel>
+                        <apex:outputPanel layout="none" rendered="{!!ISBLANK(BackCRMlink)}">
+                            <li><a href="{!BackCRMlink}" title="{!$Label.LBL_Back_to_CRM}"><i class="fa fa-cloud"></i></a></li>
+                        </apex:outputPanel>
 						<li><a href="{!$Site.Prefix}/secur/logout.jsp"><i class="fa fa-sign-out"></i> {!$Label.LBL_Logout}</a></li>
 					</ul>
 				</div>
@@ -86,7 +89,10 @@
 				</div>
 				<div class="col-xs-12 col-sm-6">
 					<ul class="list-inline top-v1-data">
-						<li><a href="{!$Page.CommunityHome}"><i class="fa fa-home"></i></a></li>
+						<li><a href="{!$Page.CommunityHome}" title="{!$Label.LBL_Home}"><i class="fa fa-home"></i></a></li>
+						<apex:outputPanel layout="none" rendered="{!!ISBLANK(BackCRMlink)}">
+							<li><a href="{!BackCRMlink}" title="{!$Label.LBL_Back_to_CRM}"><i class="fa fa-cloud"></i></a></li>
+						</apex:outputPanel>
 						<!--i><a href="#" data-placement="bottom" data-toggle="tooltip" class="hp tooltips" data-original-title="Set Home Page"><i class="fa fa-bookmark"></i></a></li-->
 						<apex:outputPanel layout="none" rendered="{!!ISBLANK(HelpLink)}">
 							<li><a href="{!HelpLink}"><i class="fa fa-question"></i>&nbsp;{!$Label.LBL_Help}</a></li>

@@ -101,8 +101,8 @@ public with sharing class CommunityFeedNavigationController {
 				return grID;
 			}	
 			else if (gcID!= null) {
-                String queryGroupControlId = CommunityUtils.validateId(gcID);
 				if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
+                String queryGroupControlId = CommunityUtils.validateId(gcID);
 				List<Community_Group_Control__c> ls = [SELECT Id, Chatter_Group_ID__c FROM Community_Group_Control__c WHERE Id =: queryGroupControlId LIMIT 1];
 				return ls[0].Chatter_Group_ID__c;
 			}
@@ -120,7 +120,6 @@ public with sharing class CommunityFeedNavigationController {
 			}
 			else {
 				ConnectApi.Photo photoUser = ConnectApi.ChatterUsers.getPhoto(Network.getNetworkId(), UserInfo.getUserId());
-                //ConnectApi.Photo photoUser = ConnectApi.UserProfiles.getPhoto(Network.getNetworkId(), UserInfo.getUserId());
 				return (String.valueOf(photoUser).contains('default') || (photoUser == null)) ? Label.LBL_Add_Photo : Label.BTN_Update;
 			}
 		}
@@ -162,7 +161,6 @@ public with sharing class CommunityFeedNavigationController {
 				}
 				else {
 					ConnectApi.ChatterUsers.setPhotoWithAttributes(
-                    //ConnectApi.UserProfiles.setPhotoWithAttributes(
 						Network.getNetworkId(),
 						UserInfo.getUserId(), // it could be that another id
 						pi,

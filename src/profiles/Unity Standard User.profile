@@ -361,9 +361,9 @@
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <editable>false</editable>
-        <field>Community_Group_Control__c.Automatic_Archive__c</field>
-        <readable>false</readable>
+        <editable>true</editable>
+        <field>Community_Group_Control__c.Automatic_Archiving__c</field>
+        <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>

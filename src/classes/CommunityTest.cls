@@ -162,6 +162,7 @@ private class CommunityTest {
 			crc.linkText = NULL;
 			crc.imgBody = Blob.valueOf('blob');
 			crc.imgFileName = 'ifn';
+			crc.resource.description__c='description';
 			crc.saveResource();
 
 			System.assertEquals([SELECT Name,Id From Community_Resource__c Where Name='r' ][0].Name,'r');
@@ -676,7 +677,7 @@ private class CommunityTest {
 			ApexPages.currentPage().getParameters().put('s','cat');
 			CommunitySearchController csc2 = new CommunitySearchController();
 			csc2.getFilterName();
-			ApexPages.currentPage().getParameters().put('tr','tr');
+			ApexPages.currentPage().getParameters().put('tr','trr000000000000');
 			CommunitySearchController csc3 = new CommunitySearchController();
 			ApexPages.currentPage().getParameters().put('t','t');
 			CommunitySearchController csc4 = new CommunitySearchController();

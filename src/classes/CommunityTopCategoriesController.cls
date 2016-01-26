@@ -57,9 +57,45 @@ public with sharing class CommunityTopCategoriesController {
 			(SELECT Id, Name FROM Resource_Tagged_w_Primary__r WHERE Status__c = 'active')
 			FROM Community_Tag__c ORDER BY Name ASC
 				];
+        
+//      Add library resource tag stored in community_resource_tag
+        List<Community_Resource__c> activeLibraryResourses = [SELECT Id from Community_Resource__c where Status__c = 'active'];
+        Set<Community_Tag__c> resourceLibraryTags = new Set<Community_Tag__c>();
+		Map<Id, Set<Id>> libraryResoursesMap = new Map<Id, Set<Id>>(); 
+        if(activeLibraryResourses.size() > 0){
+        	List<Community_Tag__c> resourceTagsList = [
+        		SELECT Id, Community_Theme__c, Community_Theme__r.Icon_Color__c, Community_Theme__r.Name, Name, Icon_Style__c,
+        		(SELECT Id, Name FROM Resource_Tagged_w_Primary__r WHERE Status__c = 'active')
+        		FROM Community_Tag__c 
+        		WHERE Id in 
+        		(SELECT Community_tag__c from community_resource_tag__c 
+        	 	WHERE resource__c in : activeLibraryResourses)
+        		AND Community_Theme__r.Theme_Type__c = 'Resource' ORDER BY Name ASC 
+        	]; 
+
+			List<Community_Resource_Tag__c> communityResourses = [
+				select id, community_tag__c, resource__r.primary_tag__c 
+				from Community_Resource_Tag__c 
+				where community_tag__c in: resourceTagsList 
+				and Resource__c in : activeLibraryResourses
+			];  
+
+			for(Community_Resource_Tag__c crt : communityResourses){
+				if(!libraryResoursesMap.containsKey(crt.community_tag__c)){
+					libraryResoursesMap.put(crt.community_tag__c, new Set<Id>());
+				}
+				if(crt.resource__r.primary_tag__c != crt.community_tag__c){				
+					libraryResoursesMap.get(crt.community_tag__c).add(crt.id);
+				}	
+			}
+        	resourceLibraryTags.addAll(resourceTagsList);
+        	allTags.addAll(resourceLibraryTags);
+        	allTags = getUniqueCommunityTagList(allTags);
+        }
+
 		Map<Id,List<Community_Tag__c>> themeTagsMap = new Map<Id,List<Community_Tag__c>>();
 		for (Community_Tag__c tag : allTags) {
-			if (resourceOnly != true || tag.Resource_Tagged_w_Primary__r.size() > 0) {
+            if (resourceOnly != true || tag.Resource_Tagged_w_Primary__r.size() > 0 || resourceLibraryTags.contains(tag)) {
 				if(!themeTagsMap.containsKey(tag.Community_Theme__c)) {
 					themeTagsMap.put(tag.Community_Theme__c, new List<Community_Tag__c>());
 				}
@@ -77,11 +113,22 @@ public with sharing class CommunityTopCategoriesController {
 		queryString += ' ORDER BY Name';
 		if (resourceOnly != true || themeTagsMap.size() > 0) {
 			for(Community_Theme__c theme : Database.query(queryString)) {
-				resultList.add(new themeTagWapper(theme, themeTagsMap.get(theme.Id), resourceOnly == true));
+                resultList.add(new themeTagWapper(theme, themeTagsMap.get(theme.Id), libraryResoursesMap, resourceOnly == true));
+            }
 			}
+        return resultList;
 		}
 
-		return resultList;
+    private List<Community_Tag__c> getUniqueCommunityTagList(List<Community_Tag__c> allTags){
+    	List<Community_Tag__c> results = new List<Community_Tag__c>();
+    	Map <Id, Community_Tag__c> bufferMap = new Map<Id, Community_Tag__c>();
+    	for(Community_Tag__c tag : allTags){
+    		bufferMap.put(tag.id, tag);
+    	}
+    	for(Id communityTagId:bufferMap.keySet()){
+    		results.add(bufferMap.get(communityTagId));
+    	}
+    	return results;
 	}
 
 	//WRAPPERS
@@ -91,7 +138,8 @@ public with sharing class CommunityTopCategoriesController {
 		public String themeIconColor { get; set; }
 		public List<List<themeTagItem>> tagColumns { get; set; }
 
-		public themeTagWapper(Community_Theme__c t, List<Community_Tag__c> tags, Boolean inRO) {
+        public themeTagWapper(Community_Theme__c t, List<Community_Tag__c> tags, 
+        							Map<Id, Set<Id>> libraryResoursesMap, Boolean inRO) {
 			themeName = t.Name;
 			themeId = t.Id;
 			themeIconColor = t.Icon_Color__c;
@@ -112,6 +160,11 @@ public with sharing class CommunityTopCategoriesController {
 					for (Community_Resource__c cr : tag.Resource_Tagged_w_Primary__r) {
 						calculateResources.add(cr.Id);
 					}
+                  
+					if(libraryResoursesMap.get(tag.id)!=null){
+						calculateResources.addAll(libraryResoursesMap.get(tag.id));
+					}                    
+
 					Integer accumulateTags = inRO ? calculateResources.size(): (tag.Community_EventItems_Tagged__r.size() + tag.Community_GroupItems_Tagged__r.size() + tag.Community_NewItems_Tagged__r.size());
 					tagColumns[currentColumn].add(new themeTagItem(tag, accumulateTags, inRO));
                     if (tagCount == breakpoint || ((breakpoint - tagCount == 1) && remainder == 0)) {

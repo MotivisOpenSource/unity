@@ -198,7 +198,7 @@ public with sharing class CommunityGroupsController {
 		Set<String> matchedTagedGroups = new Set<String>();
 
 		if (currentTab == 'all_groups' || currentTab == 'recommended_groups' || String.isBlank(currentTab)) {
-			for (CollaborationGroup cgItem : [SELECT Id FROM CollaborationGroup WHERE NetworkId = :Network.getNetworkId()]) {
+			for (CollaborationGroup cgItem : [SELECT Id FROM CollaborationGroup WHERE NetworkId = :Network.getNetworkId() AND IsArchived = false]) {
 				filtredChatterGroupIds.add(cgItem.Id);
 			}
 			gQuery += ' WHERE Chatter_Group_ID__c IN :filtredChatterGroupIds';
@@ -247,7 +247,7 @@ public with sharing class CommunityGroupsController {
 		if (currentTab == 'my_groups') {
 			for (CollaborationGroupMember cgmItem : [
 					SELECT CollaborationGroupId FROM CollaborationGroupMember
-					WHERE CollaborationGroup.NetworkId = :Network.getNetworkId() AND MemberId = :UserInfo.getUserId()
+					WHERE CollaborationGroup.NetworkId = :Network.getNetworkId() AND MemberId = :UserInfo.getUserId() AND CollaborationGroup.IsArchived = false
 						]) {
 				filtredChatterGroupIds.add(cgmItem.CollaborationGroupId);
 			}

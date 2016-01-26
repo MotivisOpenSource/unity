@@ -27,7 +27,7 @@
  * unity@motivislearning.com
  */
 
-global with sharing class CommunityShareController {
+public with sharing class CommunityShareController {
 
 	public String shareLinkUrl { get;set; }
 	public String shareLinkName { get;set; }
@@ -62,24 +62,35 @@ global with sharing class CommunityShareController {
 			shareLinkUrl = Page.CommunityNewsDetail.getUrl().replace('/apex/','') + '?id=' + (String)sobj.get('Id');
 			shareLinkName = (String)sobj.get('Title__c');
 		}
+		else if (sobj instanceof Community_Resource__c) {
+			shareLinkUrl = Page.communityresourcedetail.getUrl().replace('/apex/','') + '?id=' + (String)sobj.get('Id');
+			shareLinkName = (String)sobj.get('Name');
+		}
 		availableGroups = getMyGroupsInGroupFinderWrapper(null, true);
 	}
 
 	//remote actions
 	@RemoteAction
-	global static String shareForGroups(String idsGroups, String shareComment, String shareLinkName, String sobjId, Boolean shareLinkProfile) {
+	public static String shareForGroups(String idsGroups, String shareComment, String shareLinkName, String sobjId, Boolean shareLinkProfile) {
 		
 		List<String> groupsIds = idsGroups.split(',');
 		String shareLinkUrl;
 		String message;
+		
+		if(sobjId.contains('&')){
+			sobjId = sobjId.split('&')[0];
+		}
+		
 		String obj = String.valueOf(((Id)sobjId).getSObjectType());
 		obj = obj.split('__').size() > 2 ? obj.split('__')[1] : obj.split('__')[0];
 		if (obj.equalsIgnoreCase('Community_Events')) {
 			shareLinkUrl = Page.CommunityEventDetail.getUrl().replace('/apex/','') + '?id=' + sobjId;
 			shareLinkName = shareLinkName;
-		}
-		else {
+		}else if(obj.equalsIgnoreCase('Community_News')){
 			shareLinkUrl = Page.CommunityNewsDetail.getUrl().replace('/apex/','') + '?id=' +  sobjId;
+			shareLinkName = shareLinkName;
+		}else if(obj.equalsIgnoreCase('Community_Resource')){
+			shareLinkUrl = Page.communityresourcedetail.getUrl().replace('/apex/','') + '?id=' +  sobjId;
 			shareLinkName = shareLinkName;
 		}
 		try {
@@ -154,7 +165,7 @@ global with sharing class CommunityShareController {
 				message	= 'SUCCESS';
 			}
 			else if(!shareLinkProfile){
-				return 'ERR Something wrong with group name';
+				message = 'ERR Something wrong with group name';
 			}
 		}
 		catch(Exception e) {
@@ -293,7 +304,7 @@ global with sharing class CommunityShareController {
 
 	//remote actions
 	@RemoteAction
-	global static String getGroups(String query) {
+	public static String getGroups(String query) {
 		String result = '';
 		Set<String> gcSet = new Set<String>();
 		if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
@@ -308,11 +319,11 @@ global with sharing class CommunityShareController {
 	}
 
 	@RemoteAction
-	global static String getGroupsSelector(String getGroupsSelector) {
+	public static String getGroupsSelector(String getGroupsSelector) {
 		return JSON.serialize(getMyGroupsInGroupFinderWrapper(getGroupsSelector, false));
 	}
 
-	global class TagsForGroup implements Comparable{
+	public class TagsForGroup implements Comparable{
 		public List<GroupFinderWrapper> wrapperGroup {get; set;}
 		public String TagName {get; set;}
 
@@ -321,14 +332,14 @@ global with sharing class CommunityShareController {
 			this.wrapperGroup = inWrapperGroup;
 		}
 
-		global Integer compareTo(Object compareTo) {
+		public Integer compareTo(Object compareTo) {
 			TagsForGroup compareToEmp = (TagsForGroup)compareTo;
 			if (this.TagName == compareToEmp.TagName) return 0;
 			return (this.TagName > compareToEmp.TagName) ? 1 : -1;
 		}
 	}
 
-	global class GroupFinderWrapper implements Comparable{
+	public class GroupFinderWrapper implements Comparable{
 		public String name { get; set; }
 		public Id id { get; set;}
 
@@ -337,7 +348,7 @@ global with sharing class CommunityShareController {
 			this.id = inId;
 		}
 
-		global Integer compareTo(Object compareTo) {
+		public Integer compareTo(Object compareTo) {
 			GroupFinderWrapper compareToEmp = (GroupFinderWrapper)compareTo;
 			if (this.name == compareToEmp.name) return 0;
 			return (this.name > compareToEmp.name) ? 1 : -1;

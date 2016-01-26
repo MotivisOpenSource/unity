@@ -27,7 +27,7 @@
  * unity@motivislearning.com
 -->
 
-<apex:page showHeader="false" sideBar="false" standardStylesheets="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false">
+<apex:page controller="CommunityHomeComponentController" showHeader="false" sideBar="false" standardStylesheets="false" docType="html-5.0" applyBodyTag="false" applyHtmlTag="false">
 <apex:composition template="{!$Site.Template}">
 <apex:define name="title">{!$Label.LBL_Page_Title}</apex:define>
 <apex:define name="body">
@@ -52,6 +52,7 @@
 								<li class="{!IF(pft == '1','active','')}"><a href="{!$Page.CommunityFeed_MyFeed}?f=1">What I Follow</a></li>
 								<li class="{!IF(pft == '2','active','')}"><a href="{!$Page.CommunityFeed_MyFeed}?f=2">To Me</a></li>
 								<li class="{!IF(pft == '3','active','')}"><a href="{!$Page.CommunityFeed_MyFeed}?f=3">Bookmarked</a></li>
+								<li class="{!IF(pft == '4','active','')}" id="isMuteAvailable"><a href="{!$Page.CommunityFeed_MyFeed}?f=4">Muted</a></li>
 							</ul>
 							<div class="tab-content">
 								<div id="feed" class="profile-edit tab-pane fade in active">
@@ -69,4 +70,11 @@
 	</div>
 </apex:define>
 </apex:composition>
+	<script>
+		$(document).ready(function() {
+			if(!{!isMuteAvailable}){
+				$('#isMuteAvailable').hide();	
+			}
+		});
+	</script>
 </apex:page>

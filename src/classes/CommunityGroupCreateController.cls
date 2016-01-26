@@ -44,10 +44,13 @@ public with sharing class CommunityGroupCreateController {
 	public String cropYCr { get; set; }
 	public String cropSizeCr { get; set; }
 
+	public String arhivingValue { get; set; }
+
 	private final String TAGS_INPUT_NAME = 'tags';
 
 	public CommunityGroupCreateController(ApexPages.StandardController stdController) {
 		currentGroup = (Community_Group_Control__c)stdController.getRecord();
+		if(currentGroup.Id == NULL) arhivingValue = 'true';
 	}
 
 	private Map<String, String> pageParams {
@@ -111,6 +114,7 @@ public with sharing class CommunityGroupCreateController {
 		try {
 			if (step == 1) {
 				currentGroup.Status__c = 'Pending';
+				currentGroup.Automatic_Archiving__c = arhivingValue.equals('true') ? true : false;
 				//upsert currentGroup;
 				CommunityAccess.UpsertWithoutSharing(
 					currentGroup,
@@ -276,6 +280,13 @@ public with sharing class CommunityGroupCreateController {
 		pr.setRedirect(true);
 		return pr;
 	}
+
+	public List<SelectOption> getItems() {
+        List<SelectOption> options = new List<SelectOption>();
+		options.add(new SelectOption('true', Label.LBL_Archive_90_days));
+        options.add(new SelectOption('false', Label.LBL_Dont_auto_archive));
+        return options;
+    }
 
 	@RemoteAction
 	public static Boolean checkAvailability(String nameToCheck) {

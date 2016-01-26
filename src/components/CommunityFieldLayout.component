@@ -30,9 +30,11 @@
 <apex:component layout="none">
 	<apex:attribute name="fl" description="" type="CommunityFieldLayout" required="true"/>
 	<apex:attribute name="so" description="" type="SObject" required="true"/>
+	<apex:attribute name="it" description="" type="SelectOption[]" required="false"/>
+	<apex:attribute name="av" description="" type="String" required="false"/>
 	<apex:variable var="index" value="{!0}"/>
 	<apex:repeat value="{!fl.flds}" var="fld">
-		<section>
+		<section class="CommunityFieldLayout">
 
 			<label class="label">
 				<apex:outputPanel layout="none" rendered="{!fld.tyrion}">
@@ -62,9 +64,16 @@
 			</apex:outputLabel>
 
 			<!-- CHECKBOX -->
-			<apex:outputLabel styleClass="checkbox" rendered="{!fld.ftype == 'checkbox'}">
+			<apex:outputLabel styleClass="checkbox" rendered="{!AND(fld.ftype == 'checkbox',fld.label != 'Automatic Archiving')}">
 				<apex:inputCheckbox value="{!so[fld.name]}" required="{!fld.tyrion}"/><i></i>
 			</apex:outputLabel>
+
+			<!-- RADIO FOR ARCHIVING-->
+			<apex:outputLabel styleClass="radioOptions" rendered="{!AND(fld.ftype == 'checkbox',fld.label == 'Automatic Archiving')}">
+				<apex:selectRadio value="{!av}" layout="pageDirection">
+			        <apex:selectOptions value="{!it}"/>
+			    </apex:selectRadio>
+		    </apex:outputLabel>
 
 			<!-- PICKLIST -->
 			<apex:outputLabel styleClass="select" rendered="{!fld.ftype == 'picklist'}">
@@ -143,6 +152,7 @@
 			return !(UserContext && UserContext.timeFormat) ? 'h:m a'
 					: UserContext.timeFormat.replace('mm','i').replace('a','A').replace('hh','g').replace('h','g').replace('HH','G').replace('H','G');
 		}
+		
 		//multipicklist
 		jQuery('select[id$=msfld]').show();
 		jQuery('.multiSelectPicklistTable').hide();
