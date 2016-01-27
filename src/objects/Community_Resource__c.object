@@ -105,11 +105,6 @@
             <isRequired>false</isRequired>
         </availableFields>
         <availableFields>
-            <field>Quick_Link__c</field>
-            <isFieldManaged>false</isFieldManaged>
-            <isRequired>false</isRequired>
-        </availableFields>
-        <availableFields>
             <field>Resource_Name__c</field>
             <isFieldManaged>false</isFieldManaged>
             <isRequired>false</isRequired>
