@@ -385,16 +385,20 @@ public with sharing class CommunityUtils {
 	*/
 	public static List<String> getNamesOfAvailableGroups(List<String> groupIds){
 		List<String> groupsNames = new List<String>();
+		Boolean hasShareAllGroups = CommunityUtils.isModifyAllData();
 		try {
 			List<ConnectApi.BatchResult> batchResults = ConnectApi.ChatterGroups.getGroupBatch(Network.getNetworkId(),groupIds);
 			for(ConnectApi.BatchResult batchResult : batchResults){
 				if (batchResult.isSuccess()) {
 					ConnectApi.ChatterGroup aGroup = (ConnectApi.ChatterGroup) batchResult.getResult();
-					if((String.valueOf(aGroup.myRole) != 'NotAMember' 
+					if(String.valueOf(aGroup.isArchived) == 'false'){
+						if(hasShareAllGroups || 
+							(String.valueOf(aGroup.myRole) != 'NotAMember' 
 						&& String.valueOf(aGroup.myRole) != 'NotAMemberPrivateRequested' 
 						&& String.valueOf(aGroup.visibility) == 'PrivateAccess') || String.valueOf(aGroup.visibility) == 'PublicAccess'){
 						groupsNames.add(aGroup.name);
 					}
+				}
 				}
 				else {
 					// Operation failed. Print errors.

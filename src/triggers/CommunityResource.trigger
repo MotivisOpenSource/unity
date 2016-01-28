@@ -33,10 +33,11 @@ trigger CommunityResource on Community_Resource__c (after undelete, before inser
 	Boolean duplicated = false;
 
 	for (Community_Resource__c crItem : Trigger.new) {
+/*		
 		if (crItem.Quick_Link__c != true && crItem.Help_Link__c != true && String.isBlank(crItem.Primary_Tag__c)) {
 			crItem.Primary_Tag__c.addError(Label.ERR_Please_Enter_Value);
 		}
-
+*/
 		if (crItem.Quick_Link__c == true
 			&& (String.isBlank(crItem.Name) || crItem.Name.length() > 20)
 			&& (!Trigger.isUpdate || crItem.Quick_Link__c != Trigger.oldMap.get(crItem.Id).Quick_Link__c)
@@ -51,6 +52,10 @@ trigger CommunityResource on Community_Resource__c (after undelete, before inser
 			) {
 			duplicated = checkForDuplicate;
 			checkForDuplicate = true;
+		}
+		
+		if(crItem.Quick_Link__c==true && String.isBlank(crItem.Link__c)){
+			crItem.Link__c.addError(Label.ERR_Must_Upload_Link_c);
 		}
 	}
 

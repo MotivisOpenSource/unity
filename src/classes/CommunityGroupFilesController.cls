@@ -122,6 +122,11 @@ public with sharing class CommunityGroupFilesController {
                 List<Community_Events__c> cEvents = [SELECT Id, Name__c FROM Community_Events__c WHERE Id = :queryParentId];
                 parent = new ParentWrapper(cEvents[0].Id, cEvents[0].Name__c, Label.LBL_Events, prepareUrl(Page.CommunityEventsList.getUrl()), prepareUrl(Page.CommunityEventDetail.getUrl())+'?id='+cEvents[0].Id, null);
             }
+            else if (parentObjectType.equalsIgnoreCase('Community_Resource__c')) {
+				if (!SObjectType.Community_Resource__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Resource__c);
+				List<Community_Resource__c> cResource = [SELECT Id, Name FROM Community_Resource__c WHERE Id = :queryParentId];
+				parent = new ParentWrapper(cResource[0].Id, cResource[0].Name, Label.LBL_Resources, prepareUrl(Page.CommunityResources.getUrl()), prepareUrl(Page.CommunityResourceDetail.getUrl())+'?id='+cResource[0].Id, null);
+			}
             else if (parentObjectType.equalsIgnoreCase('User') || parentObjectType.equalsIgnoreCase('Contact')) {
                 if (!SObjectType.User.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.User);
                 List<User> uList = [SELECT Id, Name, FullPhotoUrl FROM User WHERE Id = :queryParentId OR ContactId = :queryParentId];

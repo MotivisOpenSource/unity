@@ -70,6 +70,7 @@ trigger CommunityGroupControl on Community_Group_Control__c (before insert, afte
 					InformationBody = cgcItem.Information__c,
 					IsArchived = false,
 					Name = cgcItem.Name,
+					IsAutoArchiveDisabled = !cgcItem.Automatic_Archiving__c,
 					NetworkId = Network.getNetworkId()
 				));
 			}
@@ -132,6 +133,7 @@ trigger CommunityGroupControl on Community_Group_Control__c (before insert, afte
 		Boolean validationPassed2 = true;
 		Map<String, Community_Group_Control__c> checkUniqueNamesMap2 = new Map<String, Community_Group_Control__c>();
 		Map<String,String> changedCollaborationType = new Map<String,String>();
+		Map<String,Boolean> changedCollaborationArchiveDisabled = new Map<String,Boolean>();
 		Set<Id> excludeCurrentGroupControls = new Set<Id>();
 
 		// change owner collections
@@ -161,6 +163,11 @@ trigger CommunityGroupControl on Community_Group_Control__c (before insert, afte
 				if (cgcItem2.Chatter_Group_ID__c != NULL) {
 					chatterGroupToNewNameMap.put(cgcItem2.Chatter_Group_ID__c, cgcItem2.Name);
 				}
+			}
+
+			// Change archived block
+			if (cgcItem2.Automatic_Archiving__c != Trigger.oldMap.get(cgcItem2.Id).Automatic_Archiving__c && cgcItem2.Chatter_Group_ID__c != NULL) {
+				changedCollaborationArchiveDisabled.put(cgcItem2.Chatter_Group_ID__c, !cgcItem2.Automatic_Archiving__c);
 			}
 
 			// Change owner block
@@ -194,6 +201,13 @@ trigger CommunityGroupControl on Community_Group_Control__c (before insert, afte
 			List<CollaborationGroup> cgList = [SELECT Id, CollaborationType FROM CollaborationGroup WHERE Id IN :changedCollaborationType.keySet()];
 			for (CollaborationGroup cgItem : cgList) {
 				cgItem.CollaborationType = changedCollaborationType.get(cgItem.Id);
+			}
+			update cgList;
+		}
+		if (validationPassed2 && changedCollaborationArchiveDisabled.size() > 0) {
+			List<CollaborationGroup> cgList = [SELECT Id, IsAutoArchiveDisabled FROM CollaborationGroup WHERE Id IN :changedCollaborationArchiveDisabled.keySet()];
+			for (CollaborationGroup cgItem : cgList) {
+				cgItem.IsAutoArchiveDisabled = changedCollaborationArchiveDisabled.get(cgItem.Id);
 			}
 			update cgList;
 		}

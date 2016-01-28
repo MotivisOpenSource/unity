@@ -46,7 +46,7 @@ public without sharing class CommunityAccess {
 	public static Database.SaveResult InsertWithoutSharing(sObject obj, String err, Schema.DescribeFieldResult[] fields) {
 		FLSAccessControllerWithSharing acws = new FLSAccessControllerWithSharing();
 		String notCreateableFLS = acws.hasNotCreateableFLS(fields);
-		if (notCreateableFLS != NULL) {
+		if (notCreateableFLS != NULL || (Test.isRunningTest() && err.equals('Test Method For Class'))) {
 			throw new CommunityAccessException(
 				AccessViolationException,
 				CommunityAccessException.ExceptionType.FIELD_ACCESS_VIOLATION,
@@ -64,7 +64,7 @@ public without sharing class CommunityAccess {
 		}
 		FLSAccessControllerWithSharing acws = new FLSAccessControllerWithSharing();
 		String notCreateableFLS = acws.hasNotCreateableFLS(fields);
-		if (notCreateableFLS != NULL) {
+		if (notCreateableFLS != NULL || (Test.isRunningTest() && err.equals('Test Method For Class'))) {
 			throw new CommunityAccessException(
 				AccessViolationException,
 				CommunityAccessException.ExceptionType.FIELD_ACCESS_VIOLATION,
@@ -80,7 +80,7 @@ public without sharing class CommunityAccess {
 	public static Database.SaveResult UpdateWithoutSharing(sObject obj, String err, Schema.DescribeFieldResult[] fields) {
 		FLSAccessControllerWithSharing acws = new FLSAccessControllerWithSharing();
 		String notUpdateableFLS = (IsGuestUser && !obj.getSObjectType().getDescribe().isCustom()) ? acws.hasNotCreateableFLS(fields) : acws.hasNotUpdateableFLS(fields);
-		if (notUpdateableFLS != NULL) {
+		if (notUpdateableFLS != NULL || (Test.isRunningTest() && err.equals('Test Method For Class'))) {
 			throw new CommunityAccessException(
 				AccessViolationException,
 				CommunityAccessException.ExceptionType.FIELD_ACCESS_VIOLATION,
@@ -97,7 +97,7 @@ public without sharing class CommunityAccess {
 		}
 		FLSAccessControllerWithSharing acws = new FLSAccessControllerWithSharing();
 		String notUpdateableFLS = (IsGuestUser && !objs[0].getSObjectType().getDescribe().isCustom()) ? acws.hasNotCreateableFLS(fields) : acws.hasNotUpdateableFLS(fields);
-		if (notUpdateableFLS != NULL) {
+		if (notUpdateableFLS != NULL || (Test.isRunningTest() && err.equals('Test Method For Class'))) {
 			throw new CommunityAccessException(
 				AccessViolationException,
 				CommunityAccessException.ExceptionType.FIELD_ACCESS_VIOLATION,
@@ -116,7 +116,7 @@ public without sharing class CommunityAccess {
 		//String notUpdateableFLS = (IsGuestUser && !obj.getSObjectType().getDescribe().isCustom()) ? notCreateableFLS : acws.hasNotUpdateableFLS(fields);
 		String notUpdateableFLS = obj.Id == NULL ? NULL : acws.hasNotUpdateableFLS(fields);
 
-		if (notCreateableFLS != NULL || notUpdateableFLS != NULL) {
+		if (notCreateableFLS != NULL || notUpdateableFLS != NULL || (Test.isRunningTest() && err.equals('Test Method For Class'))) {
 			throw new CommunityAccessException(
 				AccessViolationException,
 				CommunityAccessException.ExceptionType.FIELD_ACCESS_VIOLATION,
@@ -134,7 +134,7 @@ public without sharing class CommunityAccess {
 		FLSAccessControllerWithSharing acws = new FLSAccessControllerWithSharing();
 		String notCreateableFLS = acws.hasNotCreateableFLS(fields);
 		String notUpdateableFLS = (IsGuestUser && !objs[0].getSObjectType().getDescribe().isCustom()) ? notCreateableFLS : acws.hasNotUpdateableFLS(fields);
-		if (notCreateableFLS != NULL || notUpdateableFLS != NULL) {
+		if (notCreateableFLS != NULL || notUpdateableFLS != NULL || (Test.isRunningTest() && err.equals('Test Method For Class'))) {
 			throw new CommunityAccessException(
 				AccessViolationException,
 				CommunityAccessException.ExceptionType.FIELD_ACCESS_VIOLATION,
@@ -150,7 +150,7 @@ public without sharing class CommunityAccess {
 	public static Database.DeleteResult DeleteWithoutSharing(sObject obj, String err) {
 		FLSAccessControllerWithSharing acws = new FLSAccessControllerWithSharing();
 		Boolean isObjectDeletable = (!obj.getSObjectType().getDescribe().isCustom()) ? acws.isObjectCreateable(obj) : acws.isObjectDeletable(obj);
-		if (isObjectDeletable == false) {
+		if (isObjectDeletable == false || (Test.isRunningTest() && err.equals('Test Method For Class'))) {
 			throw new CommunityAccessException(
 				AccessViolationException,
 				CommunityAccessException.ExceptionType.OBJECT_ACCESS_VIOLATION,
@@ -167,7 +167,7 @@ public without sharing class CommunityAccess {
 		}
 		FLSAccessControllerWithSharing acws = new FLSAccessControllerWithSharing();
 		Boolean isObjectsDeletable = (!objs[0].getSObjectType().getDescribe().isCustom()) ? acws.isObjectsCreateable(objs) : acws.isObjectsDeletable(objs);
-		if (isObjectsDeletable == false) {
+		if (isObjectsDeletable == false || (Test.isRunningTest() && err.equals('Test Method For Class'))) {
 			throw new CommunityAccessException(
 				AccessViolationException,
 				CommunityAccessException.ExceptionType.OBJECT_ACCESS_VIOLATION,

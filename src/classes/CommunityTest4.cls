@@ -434,6 +434,60 @@ private class CommunityTest4 {
 		System.assert(exc.ExceptionMessage != null);
 	}
 
+	static testMethod void test_CommunityAccess() {
+		
+		Contact con = new Contact();
+		String err = 'Test Method For Class';
+		
+		try{
+			Database.SaveResult resI = CommunityAccess.InsertWithoutSharing(con, err, new List<Schema.DescribeFieldResult> { Contact.OwnerId.getDescribe(), Contact.Birthdate.getDescribe() });
+		}catch(Exception ex){
+			System.assert(ex.getMessage() != null);
+		}
+
+		try{
+			Database.SaveResult[] resIi = CommunityAccess.InsertWithoutSharing(new List<SObject>{con}, err, new List<Schema.DescribeFieldResult> { Contact.OwnerId.getDescribe(), Contact.Birthdate.getDescribe() });
+		}catch(Exception ex){
+			System.assert(ex.getMessage() != null);
+		}
+		
+		try{
+			Database.SaveResult[] resUpd = CommunityAccess.UpdateWithoutSharing(new List<SObject>{con}, err, new List<Schema.DescribeFieldResult> { Contact.OwnerId.getDescribe(), Contact.Birthdate.getDescribe() });
+		}catch(Exception ex){
+			System.assert(ex.getMessage() != null);
+		}
+		
+		try{
+			Database.UpsertResult resUps = CommunityAccess.UpsertWithoutSharing(con, err, new List<Schema.DescribeFieldResult> { Contact.OwnerId.getDescribe(), Contact.Birthdate.getDescribe() });
+		}catch(Exception ex){
+			System.assert(ex.getMessage() != null);
+		}
+		
+		try{
+			Database.UpsertResult[] resUpss = CommunityAccess.UpsertWithoutSharing(new List<SObject>{con}, err, new List<Schema.DescribeFieldResult> { Contact.OwnerId.getDescribe(), Contact.Birthdate.getDescribe() });
+		}catch(Exception ex){
+			System.assert(ex.getMessage() != null);
+		}
+		
+		try{
+			Database.DeleteResult resD = CommunityAccess.DeleteWithoutSharing(con, err);
+		}catch(Exception ex){
+			System.assert(ex.getMessage() != null);
+		}
+		
+		try{
+			Database.DeleteResult[] resDd = CommunityAccess.DeleteWithoutSharing(new List<SObject>{con}, err);
+		}catch(Exception ex){
+			System.assert(ex.getMessage() != null);
+		}
+		try{
+			CommunityAccess.ThrowAccessException(Contact.getsObjectType().getDescribe());
+		}catch(Exception ex){
+			System.assert(ex.getMessage() != null);
+		}
+		
+	}
+
 	@IsTest(SeeAllData=true)
 	static void test_CommunityObjectController() {
 		CommunityTest3.testDataFactory df = new CommunityTest3.testDataFactory(

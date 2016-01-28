@@ -134,9 +134,9 @@ public class CommunityTest3 {
 		insert cth;
 		Community_Tag__c ct = new Community_Tag__c(Name='t',Community_Theme__c=cth.Id);
 		insert ct;
-		Community_Resource__c cr = new Community_Resource__c(Resource_Name__c = 'TestRes', Primary_Tag__c = ct.id, Quick_Link__c = true, Name = 'testR');
+		Community_Resource__c cr = new Community_Resource__c(Resource_Name__c = 'TestRes', Primary_Tag__c = ct.id, Quick_Link__c = true, Name = 'testR', Link__c = 'testLink');
 		insert cr;
-		Community_Resource__c cr_1 = new Community_Resource__c(Resource_Name__c = 'TestRes1', Primary_Tag__c = ct.id, Help_Link__c = true, Name = 'testR0');
+		Community_Resource__c cr_1 = new Community_Resource__c(Resource_Name__c = 'TestRes1', Primary_Tag__c = ct.id, Help_Link__c = true, Name = 'testR0', Link__c = 'testLink1');
 		insert cr_1;
 		try{
 		Community_Resource__c cr_2 = new Community_Resource__c(Resource_Name__c = 'TestRes10', 

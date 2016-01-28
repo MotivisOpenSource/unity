@@ -83,6 +83,17 @@ public with sharing class CommunityHomeComponentController {
 	}
 	/* !-- My News Component -- */
 
+	public Boolean isMuteAvailable{
+		get{
+			try{
+				ConnectApi.Feed f = ConnectApi.ChatterFeeds.getFeed(Network.getNetworkId(), ConnectApi.FeedType.Muted, 'me');
+				return true;
+			}catch(Exception ex){
+				return false;
+			}
+		}
+	}
+
 	/* -- Wrapper -- */
 	private static final Map<String,String> TAG_STYLE = new Map<String,String> {
 		'default' => 'label-blue', 'Interest' => 'label-green', 'Resource' => 'label-sea'

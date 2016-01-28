@@ -95,6 +95,27 @@ public with sharing class CommunityMenuController {
 		return (helpList.size() > 0 && String.isNotBlank(helpList[0].Link__c)) ? helpList[0].Link__c : NULL;
 	}
 
+	public String getBackCRMlink() {
+		String result;
+		if (UserInfo.getUserType() == 'Standard' || Test.isRunningTest()) {
+			try {
+				PageReference pr = new PageReference('/id/' + UserInfo.getOrganizationId() + '/' + UserInfo.getUserId());
+				pr.getParameters().put('oauth_token', UserInfo.getSessionId());
+				pr.getParameters().put('format', 'json');
+				Map<String,Object> identityContent = (Map<String,Object>)Json.deserializeUntyped(pr.getContent().toString());
+				Map<String,Object> urls = (Map<String,Object>)identityContent.get('urls');
+				result = (String)urls.get('custom_domain');
+			}
+			catch(Exception e) {
+			}
+			result = result == null ? ApexPages.currentPage().getHeaders().get('X-Salesforce-Forwarded-To') : result;
+			if (String.isNotBlank(result)) {
+				result = result.contains('://') ? result : ('https://' + result);
+			}
+		}
+		return result == null ? null : (result + '/home/home.jsp');
+	}
+
 	// -- variables -- lists for wrapper class --
 	public static List<LinkItem> LinkItems {
 		get {

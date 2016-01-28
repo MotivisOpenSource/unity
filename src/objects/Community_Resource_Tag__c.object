@@ -61,11 +61,11 @@
         <externalId>false</externalId>
         <label>Community Tag</label>
         <lookupFilter>
-            <active>true</active>
+            <active>false</active>
             <filterItems>
                 <field>Community_Tag__c.Community_Theme__r.Theme_Type__c</field>
                 <operation>equals</operation>
-                <value>Interest, System</value>
+                <value>Interest, System, Resource</value>
             </filterItems>
             <infoMessage>You can only select Tags where Theme Type = Interest.</infoMessage>
             <isOptional>false</isOptional>

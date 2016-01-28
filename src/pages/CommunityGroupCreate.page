@@ -90,7 +90,7 @@
 										<button id="nabtn" onclick="checkName();return false;" class="btn-u btn-u-sm opacity-65" disabled="disabled">Check Availability</button>
 									</label>
 								</section>
-								<c:CommunityFieldLayout fl="{!flayout}" so="{!currentGroup}"/>
+								<c:CommunityFieldLayout fl="{!flayout}" so="{!currentGroup}" it="{!items}" av="{!arhivingValue}"/>
 							</fieldset>
 							</apex:pageBlock>
 						</div>

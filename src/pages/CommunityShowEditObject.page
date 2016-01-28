@@ -46,7 +46,7 @@
 					<div class="calert">
 						<apex:pageMessages id="pageMessages"/>
 					</div>
-					<c:CommunityFieldLayout fl="{!flayout}" so="{!so}"/>
+					<c:CommunityFieldLayout fl="{!flayout}" so="{!so}" it="{!items}" av="{!arhivingValue}"/>
 				</section>
 			</fieldset>
 			<apex:outputPanel layout="none" rendered="{!!ISBLANK(TagSection)}">

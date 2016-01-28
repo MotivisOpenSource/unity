@@ -148,6 +148,24 @@
 				<i class="fa fa-spinner fa-pulse" style="display:none;"></i>
 				<span>{!$Label.LBL_Load_More}</span>
 			</button>
+					<!-- modal section for edit post-->	
+			<div class="modal fade" tabindex="-1" role="dialog" id="editPanel" data-backdrop="static">
+				<div class="modal-dialog">
+					<div class="modal-content">
+			    		<div class="modal-header">
+				        	<button type="button" class="close" onclick="closeEditDialog();return false;" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				        	<h4 class="modal-title">{!$Label.BTN_Edit}</h4>
+				      	</div>
+				     	<div id="modalDialog" class="modal-body">
+						    <form name="editform">
+								<div class="sky-form bordered margin-bottom-5">
+									<textarea name="message" id="message" class="form-control share" onclick="checkmi(this);"></textarea>
+								</div>
+							</form>
+				      	</div>
+				    </div><!-- /.modal-content -->
+				</div><!-- /.modal-dialog -->
+			</div><!-- /.modal -->
 			<script id="ttp1" type="text/template">
 				<% if(viewFromEmail && rc.elements == null) {%>
 					<p><a class="font-weight-bold" href="<%- rc %>">{!$Label.LBL_All_Updates}</a> ) {!$Label.LBL_This_Update}</p>
@@ -175,7 +193,11 @@
 					<div class="media-body">
 						<h4 class="media-heading">
 							<strong><a href="{!$Page.CommunityProfilePage}?id=<%- p2.actor.id %>"><%- p2.actor.displayName %> <%- p2.actor.role !== null ?  '(' + p2.actor.role + ')': '' %></a></strong>
+							<% if(p2.capabilities.edit.editedDate) {%>
+								<small><a href="javascript:void(0);">{!$Label.LBL_Edited} <span><%- p2.capabilities.edit.editedDate %></span></a></small>
+							<% }else{ %>
 							<small><%- p2.dateStr %></small>
+							<% } %>
 						</h4>
 						<% if(p2.parentType != null && {!tf}){ %>
 							<p><strong><a class="<%- p2.parentIcon %> font-weight-bold" href="<%- p2.parentLink %>"> <%- p2.parentType %> - <%- p2.parentName %> <% if(p2.parentAcssesType != null){ %> (<%- p2.parentAcssesType %>) <% } %></a>
@@ -242,7 +264,7 @@
 								<div class="col-md-12">
 									<div class="image-link__container">
 										<a href="javascript: void(0);" target="_self">
-											<img src="<%- p2.capabilities.content.downloadUrl %>" alt="" style="max-height:500px;" class="img-responsive" onerror="this.style.visibility = 'hidden'"/>
+											<img src="<%- p2.capabilities.content.downloadUrl %>" alt="" class="img-responsive max-height-500" onerror="this.style.visibility = 'hidden'"/>
 										</a>
 									</div>
 									<div class="download-links__container">
@@ -322,7 +344,7 @@
 						<%} %>
 						<% 
 						if (!_.isEmpty(p2.topicsUser) && wraptop(p2.topicsUser) != "") {%>
-							<br /><p id="topiclabel<%- p2.id %>"><a href="{!$Page.CommunityTopic}">{!$Label.LBL_Topic}</a> :
+							<br /><p id="topiclabel<%- p2.id %>"><a href="{!$Page.CommunityTopic}" id="topLabel">{!$Label.LBL_Topic}</a> :
 							 	<% var p2t = wraptop(p2.topicsUser);
 							 	print(wrapnl(p2t)); 
 							 	%>
@@ -338,6 +360,17 @@
 							<li><a href="javascript:void(0);" data-toggle="tooltip" title={!$Label.LBL_Feed_Flag}><i onclick="inlAct('<%- p2.id %>','fa-flag','<%- p2.flagStatus %>');" class="expand-list rounded-x fa fa-flag<%- p2.flagStyle %>"></i></a></li>
 							<% } %>
 							<li><a href="javascript:void(0);" data-toggle="tooltip" title={!$Label.LBL_Feed_Bookmark}><i onclick="inlAct('<%- p2.id %>','fa-bookmark','<%- p2.bookmarkStatus %>');" class="expand-list rounded-x fa fa-bookmark<%- p2.bookmarkStyle %>"></i></a></li>
+							<% if (!p2.showLink && !p2.showContent && !p2.capabilities.poll && !p2.capabilities.edit.isEditRestricted){ %>
+								<li><a href="javascript:void(0);" title={!$Label.BTN_Edit}><i onclick="editPost('<%- p2.id %>');" class="expand-list rounded-x fa fa-edit"></i></a></li>
+							<% } %>
+							<% if(p2.capabilities.mute != null && {!isMuteShow}){ %>
+								<% if({!muteShowTooltip}){%>
+									<li><a href="javascript:void(0);" data-toggle="tooltip" title={!$Label.LBL_MuteFeed}><i onclick="muteFeed('<%- p2.id %>', '<%- p2.capabilities.mute.isMutedByMe %>');" class="expand-list rounded-x fa fa-minus"></i></a></li>
+								<% } %>
+								<% if({!!muteShowTooltip}){%>
+									<li><a href="javascript:void(0);" data-toggle="tooltip" title={!$Label.LBL_Unmute_Feed}><i onclick="muteFeed('<%- p2.id %>', '<%- p2.capabilities.mute.isMutedByMe %>');" class="expand-list rounded-x fa fa-minus"></i></a></li>
+								<% } %>
+							<% } %>
 							<% if (p2.isDeleteRestricted) { %>
 							<li><a href="javascript:void(0);" data-toggle="tooltip" title={!$Label.LBL_Feed_Delete}><i onclick="inlAct('<%- p2.id %>','fa-times','');" class="expand-list rounded-x fa fa-times"></i></a></li>
 							<% } %>
@@ -361,7 +394,11 @@
 								<div class="media-body">
 									<h4 class="media-heading">
 										<strong><a href="{!$Page.CommunityProfilePage}?id=<%- c2.user.id %>"><%- c2.user.displayName %> <%- c2.user.role !== null ?  '(' + c2.user.role + ')': '' %></a></strong>
+										<% if(c2.capabilities.edit.editedDate) {%>
+											<small><a href="javascript:void(0);">{!$Label.LBL_Edited} <span><%- c2.capabilities.edit.editedDate %></span></a></small>
+										<% }else{ %>
 										<small><%- c2.dateStr %></small>
+										<% } %>
 									</h4>
 									<p>	<% var p2p = parseFeedBody(c2.body,c2.topicsUser);
 										print(wrapnl(p2p)); %>
@@ -373,6 +410,9 @@
 										<li><a href="javascript:void(0);" data-toggle="tooltip" title={!$Label.LBL_Feed_Like}><i onclick="inlAct('<%- c2.id %>','fa-thumbs-up','<%- c2.likeId %>');" class="expand-list rounded-x fa fa-thumbs-up<%- c2.likeStyle %>"></i></a></li>
 										<% if ( (c2.showFlag)&&chekFlagOnPage(c2.parentType) ) { %>
 										<li><a href="javascript:void(0);" data-toggle="tooltip" title={!$Label.LBL_Feed_Flag}><i onclick="inlAct('<%- c2.id %>','fa-flag','<%- c2.flagStatus %>');" class="expand-list rounded-x fa fa-flag<%- c2.flagStyle %>"></i></a></li>
+										<% } %>
+										<% if(!c2.capabilities.edit.isEditRestricted){ %>
+										<li><a href="javascript:void(0);" title={!$Label.BTN_Edit}><i onclick="editComment('<%- c2.id %>');" class="expand-list rounded-x fa fa-edit"></i></a></li>
 										<% } %>
 										<% if (c2.isDeleteRestricted) { %>
 										<li><a href="javascript:void(0);" data-toggle="tooltip" title={!$Label.LBL_Feed_Delete}><i onclick="inlAct('<%- c2.id %>','fa-times','');" class="expand-list rounded-x fa fa-times"></i></a></li>
@@ -471,6 +511,43 @@
 				</form>
 			</script>
 
+			<script id="etp" type="text/template">
+				<div id="postarea">
+				<form name="editform" class="edit-form" novalidate="novalidate">
+					<div class="sky-form bordered margin-bottom-5">
+						<div class="sky-div-margin">
+                    	<% if(rc.elements){ 
+                    		_.each(rc.elements, function(editel){%>
+							</div>
+								<textarea id="message" name="message" class="form-control tagged_text share validate-textarea" onFocus="checkmi(this);"  onclick="checkmi(this);"><%print(wrapnl(parseFeedBodyEdit(editel.body))); 
+										parseBody(editel.body,editel.topicsUser);
+									%>
+								</textarea>
+							<%}); 
+                    	}else{
+                    		_.each(rc.items, function(editel){%>
+							</div>
+								<textarea id="message" name="message" class="form-control tagged_text share validate-textarea" onFocus="checkmi(this);"  onclick="checkmi(this);"><%print(wrapnl(parseFeedBodyEdit(editel.body))); 
+										parseBody(editel.body,editel.topicsUser);
+									%>
+								</textarea>
+							<%}); 
+                    	}%>
+	                </div>
+	                <div class="text-right">
+	                	<button id="svbtn" class="btn-u margin-right-5" type="button" onclick="initTextareaBTN(this);updateAction($('#editPanel #message').val());return false;">
+	                		<i class="fa fa-spinner fa-pulse" style="display:none;"></i>
+							<span>{!$Label.BTN_Save}</span>
+						</button>
+				    	<button id="cnlbtn" class="btn-u btn-u-default margin-right-5" type="button" onclick="closeEditDialog();return false;">
+				    		<span>{!$Label.BTN_Cancel}</span>
+						</button>
+						
+					</div>
+                </form>
+                </div>
+            </script>
+
 			<script>
 				function showFeedError(msg) {
 					//$('#postform-error').text(msg).show();
@@ -481,13 +558,12 @@
 				}
 				
 		 		function inputFileOnchange(elm) {
-						console.log(elm);
 						if (elm.files.length>0) elm.parentNode.nextSibling.value = elm.files[0].name;
 						else elm.parentNode.nextSibling.value = '';
 					}
 				var chekFlagOnPage = function(type){
-					if(!(_.contains(['News','Events','Manager'], type)) ) {
-						listPages = ['CommunityNewsDetail', 'CommunityEventDetail', 'CommunityGroupManager'];
+					if(!(_.contains(['News','Events','Manager','Resources'], type)) ) {
+						listPages = ['CommunityNewsDetail', 'CommunityEventDetail', 'CommunityGroupManager', 'communityresourcedetail'];
 						_.each(listPages, function(value, key, obj){ obj[key] = '{!packagePrefix}'+ value.toLowerCase(); });
 						return !(_.contains(listPages, '{!$CurrentPage.Name}'.toLowerCase()));
 					}
@@ -496,6 +572,14 @@
 				var changeVoteIds = [];
 				var viewResultsArray = [];
 				var viewFromEmail = {!fromEmail} && '{!feedfromEmailId}'.length > 0 ? true : false;
+				//Global variables for edit post dialog
+				var idForEditPost = '';
+				var idForEditComment = '';
+				var bodyObjects = [];
+				var editMessageText = '';
+				var countTopicsEdit = 0;
+				var namesTopicsEdit = [];
+				var chatactionForEdit;
 				
 				$(document).ready(function() {
 					var top = '{!topicId}';
@@ -753,6 +837,60 @@
 						enableBtn('mesbtn');
 					}
 				}
+
+				function updateAction(text) {
+					if( checkTopicsCount(text) == -1 ) return ;
+					hideFeedError();
+					disableBtn('svbtn');
+					var messageItemIndex = -1;
+
+					if(idForEditPost){
+						if($("form[name='editform']").data('validator').checkForm()) {
+							_.each(chatactionForEdit.layout.items, function(item) {
+								messageItemIndex = chatactionForEdit.layout.items.indexOf(item);
+								item.value = $("#modalDialog [name='message']").val();
+							});
+							if($("#modalDialog [name='message']").val()) {
+								$('#modalDialog #message').mentionsInput('val', function(text) {
+									chatactionForEdit.layout.items[messageItemIndex].value = text;
+									updateFeedPostAction(JSON.stringify(chatactionForEdit.layout));
+								});
+							}
+						}
+						else {
+							$("form[name='editform']").data('validator').showErrors(); 
+							enableBtn('svbtn');
+						}
+					}
+					if(idForEditComment){
+						$('#modalDialog #message').mentionsInput('val', function(text) {
+							hideFeedError();
+							var params = {
+								'inText' 	 : text, 
+								'commId'	 : idForEditComment
+							};
+							Visualforce.remoting.Manager.invokeAction(
+								'{!$RemoteAction.CommunityFeedController.updateComment}',
+								params,
+								function(result, event) {
+									if (event.result) {
+										enableBtn('svbtn');
+										refreshFeed();
+										setActiveli();
+										closeEditDialog();
+										$('#modalDialog #message').val('');
+										if (typeof(switchToMemberMode) == 'function') switchToMemberMode();
+									}
+									else {
+										showFeedError(event.message);
+									}
+									enableBtn('svbtn');
+								}
+							);
+						});
+					}
+				}
+
 				function insertAttIntoFeed(attId, jsontext) {
 					hideFeedError();
 					Visualforce.remoting.Manager.invokeAction(
@@ -764,6 +902,9 @@
 							if(event.result){
 								enableBtn('mesbtn');
 								refreshFeed();
+								bodyObjects = [];
+								editMessageText = '';
+								$('#message').val('');
 								setActiveli();
 								if (typeof(switchToMemberMode) == 'function') switchToMemberMode();
 							}
@@ -775,6 +916,36 @@
 					);
 					
 				}
+
+				function updateFeedPostAction (jsontext) {
+					Visualforce.remoting.timeout = 120000;
+					var err = false;
+					var params = {
+						'parentId'	 : '{!JSENCODE(parentId)}',
+						'inText' 	 : jsontext, 
+						'feedId'	 : idForEditPost
+					};
+					hideFeedError();
+					Visualforce.remoting.Manager.invokeAction(
+						'{!$RemoteAction.CommunityFeedController.updateFeed}',
+						params,
+						function(result, event) {
+							if (event.result) {
+								enableBtn('svbtn');
+								refreshFeed();
+								setActiveli();
+								closeEditDialog();
+								$('#modalDialog #message').val('');
+								if (typeof(switchToMemberMode) == 'function') switchToMemberMode();
+							} 
+							else {
+								showFeedError(event.message);
+							}
+							enableBtn('svbtn');
+						}
+					);					
+				}
+
 				function sendPostAction (jsontext, infilebstr, infiletype, infilename) {
 					Visualforce.remoting.timeout = 120000;
 					var err = false;
@@ -799,6 +970,8 @@
 								_.each(chataction.layout.items, function(item) {
 									$("[name='" + item.fieldName + "']").val('');
 								});
+								bodyObjects = [];
+								editMessageText = '';
 								setActiveli();
 							}
 							else {
@@ -809,6 +982,29 @@
 					);
 					if (typeof(switchToMemberMode) == 'function') switchToMemberMode();
 				}
+
+				function muteFeed(feedid, isMutedByMe){
+					disableBtn('mesbtn');
+					var params = {'feedId' 			: feedid, 
+								  'isMutedByMe' 	: isMutedByMe };
+
+					Visualforce.remoting.Manager.invokeAction(
+						'{!$RemoteAction.CommunityFeedController.muteFeeds}',
+						params,
+						function(result, event) {
+							if (event.result) {
+								$('#m'+feedid).remove();
+								if (typeof(switchToMemberMode) == 'function') switchToMemberMode();
+							}
+							else {
+								showFeedError(event.message);
+							}
+							enableBtn('mesbtn');
+						}
+					);
+						
+				}
+
 				function getComments(feedid, token) {
 					hideFeedError();
 					Visualforce.remoting.Manager.invokeAction(
@@ -829,16 +1025,25 @@
 						}
 					);
 				}
+
+				
 				var checkTopicsCount = function (text) {
 					if({!!isTopicAssignmentCreateable}) return 1;
 					var pos = 0;
-					var numbertopics = 0;
+					var countTopicsBeforeEdit = 0;
+					_.each(namesTopicsEdit, function(nte){
+						if(text.toLowerCase().indexOf(nte.toLowerCase()) != -1){
+							countTopicsBeforeEdit += text.toLowerCase().split(nte.toLowerCase()).length-1;
+						}
+					});						
+					var numbertopics = countTopicsEdit;
 					do {
 						var foundPos = text.indexOf('#[', pos);
 						numbertopics = foundPos!=-1? numbertopics+1:numbertopics;
 						pos = foundPos + 1;
 					}
 					while (foundPos!=-1);
+					numbertopics = numbertopics - countTopicsBeforeEdit;
 					if(numbertopics>10) {
 						showFeedError("{!$Label.ERR_Maximum_number_topics}");
 						numbertopics = 0;
@@ -933,6 +1138,7 @@
 						elastic: false
 					}).focus();
 				}
+				
 				function initTextarea(element) {
 					$(element).mentionsInput({
 						onDataRequest:function (mode, charValue, query, callback) {
@@ -955,9 +1161,28 @@
 								);
 							}
 						},
-						elastic: false
-					}).css('height','78px').focus();
+						elastic: false,
+						editMessage: editMessageText,
+						prefillMentions: bodyObjects
+					}).css('height',editMessageText.length ? $('#editPanel #message').get(0).scrollHeight+'px' : '78px').css('min-height', '78px').focus().setCursorPosition(0);
 				}
+
+				$.fn.setCursorPosition = function (pos) {
+				    this.each(function (index, elem) {
+				        if (elem.setSelectionRange) {
+				            elem.setSelectionRange(pos, pos);
+				        } else if (elem.createTextRange) {
+				            var range = elem.createTextRange();
+				            range.collapse(true);
+				            range.moveEnd('character', pos);
+				            range.moveStart('character', pos);
+				            range.select();
+				}
+				    });
+				    return this;
+				};
+
+
 				function checkmi(element) {
 					if(!$(element).attr('data-mentions-input')) {
 						initTextarea(element);
@@ -973,6 +1198,14 @@
 				}
 				var chataction = {loading:false};
 				function setActiveli(element) {
+					var previousText = $('#message').val();
+					if(previousText.length){
+						$('#message').mentionsInput('getMentions', function(text) {
+							bodyObjects = text;
+						});
+						editMessageText = previousText;
+					}
+								
 					if(!element) element = $("#palist a").get(0); 
 					if (!chataction.loading) {
 						hideFeedError();
@@ -1018,6 +1251,12 @@
 									var aname = $('#palist .fa-spinner').closest('a').attr('name');
 									$('#palist .fa-spinner').removeClass('fa-spinner fa-pulse').addClass(aname);
 									initValidator();
+								
+									//previous text
+									if(editMessageText.length){
+										checkmi($('#postarea #message'));
+									}
+								
 									//datetime
 									if($('.validate-datetimepicker')) {
 										var currentdate = new Date(); 
@@ -1110,11 +1349,85 @@
 					}
 					setActiveli();
 				}
+
+				function editPost(objId){
+					$('#editPanel').modal('toggle');
+					idForEditPost = objId;
+					var params = {'parentId' : '{!JSENCODE(parentId)}', 
+								'feedType' 	 : '{!feedType}',
+								'inpt'		 : null, 
+								'feedId' 	 : objId};
+					Visualforce.remoting.Manager.invokeAction(
+						'{!$RemoteAction.CommunityFeedController.feedFromEmail}',
+						params,
+						function(result, event) {
+							if (event.result) {
+								_.templateSettings.variable = 'rc';
+								var template = _.template($('#etp').html());
+								var tt = jsonObj(result);
+								$('#modalDialog').empty();
+								$('#modalDialog').prepend(template(tt));
+								//$('.preloader__container').hide();
+								initValidator(true);
+								checkmi($('#editPanel textarea'));
+							}else{
+								showFeedError(event.message);
+							}
+						}
+					);
+				}
+
+				function editComment(objId){
+					$('#editPanel').modal('toggle');
+					idForEditComment = objId;
+					var params = {
+						'commentId'	 	: objId
+					};
+					Visualforce.remoting.Manager.invokeAction(
+						'{!$RemoteAction.CommunityFeedController.getCommentForEdit}',
+						params,
+						function(result, event) {
+							if (event.result) {
+								_.templateSettings.variable = 'rc';
+								var template = _.template($('#etp').html());
+								var tt = jsonObj(result);
+								$('#modalDialog').empty();
+								$('#modalDialog').prepend(template(tt));
+								//$('.preloader__container').hide();
+								initValidator(true);
+								checkmi($('#editPanel textarea'));
+							}else{
+								showFeedError(event.message);
+							}
+						}
+					);
+				}
+
+				function closeEditDialog(){
+					$('#editPanel').modal('toggle');
+					$('#modalDialog #message').val('');
+					idForEditPost = '';
+					idForEditComment = '';
+					bodyObjects = [];
+					editMessageText = '';
+					countTopicsEdit = 0;
+					namesTopicsEdit = [];
+
+				}
+
 				function refreshFeed() {
 					hideFeedError();
+					var top = '{!topicId}';
 					if(viewFromEmail){
 						$('#cfcmp').empty();
 						loadFeedFromEmail('');
+					}else if(top){
+						$('#cfcmp').empty();
+						loadFeedsForTopic(null);
+						if({!!isTopicAssignmentCreateable}){
+							$('#palist').hide();
+							$('#postarea').hide();
+						}
 					}else{
 					Visualforce.remoting.Manager.invokeAction(
 						'{!$RemoteAction.CommunityFeedController.feeds}',
@@ -1165,9 +1478,16 @@
 					}
 					refreshFeed();
 				}
-				function initValidator () {	
-					if($("form[name='postform']")[0]) {
-						$("form[name='postform']").validate({
+				function initValidator (editFlag) {
+					chatactionForEdit = (chatactionForEdit && chatactionForEdit.layout) ? chatactionForEdit : _.clone(chataction);
+					var elementForValidate;
+					if(editFlag){
+						elementForValidate = $("form[name='editform']");
+					}else{
+						elementForValidate = $("form[name='postform']");
+					}
+					if(elementForValidate[0]) {
+						elementForValidate.validate({
 							onkeyup: false,
 							focusCleanup: true,
 							focusInvalid: false,
@@ -1205,7 +1525,7 @@
 								if(item.fieldName == 'message') {
 									messageItemIndex = chataction.layout.items.indexOf(item);
 								}
-								var currentItem = $("[name='" + item.fieldName + "']");
+								var currentItem = editFlag ? $("#modalDialog [name='message']") : $("[name='" + item.fieldName + "']");
 								if(currentItem) {
 									if(currentItem.rules()) {
 										currentItem.rules('remove');
@@ -1267,6 +1587,66 @@
 			});
 			return outString;
 		}
+
+		function parseFeedBodyEdit(o){
+			editMessageText = '';
+			_.each(o.messageSegments,function(item){
+				item.text = item.record != null ? item.text.replace('@','@[') + ']' : item.text;
+				item.text = item.type == 'Hashtag' ? item.text.replace('#','#[') + ']' : item.text;
+				editMessageText += item.text;
+			});
+			return editMessageText;
+		}
+
+		function parseBody(o, t){
+			bodyObjects = [];
+			_.each(o.messageSegments,function(item){
+				var objectMention = {};
+				if(item.record != null){
+					objectMention['id'] = item.record.id;
+					objectMention['name'] = _.unescape(item.name).replace(/&#39;/g,"'").replace(/&#92;/g,"\\");
+					objectMention['value'] = _.unescape(item.name).replace(/&#39;/g,"'").replace(/&#92;/g,"\\");
+					if(item.record.id.indexOf("005") == 0){
+						objectMention['type'] = 'user';
+					}else{
+						objectMention['type'] = 'group';
+					}
+				}else if(item.type == 'Hashtag'){
+					var topicObj = {}; _.each(_.values(t), function(val){
+						topicObj[val.id] = val.name.toLowerCase();
+					});
+					var itemText = item.text.substring(1).toLowerCase().toString();
+					itemText = _.unescape(itemText);
+					itemText = itemText.replace(/&#39;/g,"'");
+					itemText = itemText.replace(/&#92;/g,"\\");
+					itemText = itemText.replace("[","").replace("]","");
+					objectMention['id'] = _.invert(topicObj)[itemText];
+					objectMention['name'] = item.text;
+					objectMention['value'] = item.text;
+					objectMention['type'] = 'topic';	
+				}
+				if(!_.isEmpty(objectMention)) bodyObjects.push(objectMention);
+			});
+			namesTopicsEdit = [];
+			if(idForEditComment.length > 0){
+				var topicsArray = $('#m'+idForEditComment).parent().parent().find('[id*="topiclabel"] a'); 
+				_.each(topicsArray, function(top){
+					if(!top.id.length){ 
+						namesTopicsEdit.push('#['+top.text+']');
+					}
+				});
+				countTopicsEdit = namesTopicsEdit.length;
+			}else{
+			_.each(t, function(top){
+				if(top.entityId != null){ 
+						namesTopicsEdit.push('#['+top.name+']');
+				}
+
+			});
+				countTopicsEdit = namesTopicsEdit.length;
+			}
+		}
+
 		function wrapnl(intext) {
 			return intext ? intext.replace(/\r\n/g, '<br />').replace(/[\r\n]/g, '<br />') : '';
 		}
