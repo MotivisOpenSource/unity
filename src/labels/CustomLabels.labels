@@ -1828,7 +1828,7 @@
         <value>Select Image</value>
     </labels>
     <labels>
-        <fullName>LBL_Select_Library</fullName>
+        <fullName>LBL_Select_Prim_Tags</fullName>
         <language>en_US</language>
         <protected>true</protected>
         <shortDescription>LBL_Select_Library</shortDescription>

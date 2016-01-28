@@ -93,7 +93,7 @@
 							</div>
 							<div class="panel-link">
 								<div class="panel-heading" onclick="toggleTagSection(this);">
-									<i id="tagicon" class="fa fa-caret-right"></i>&nbsp;<span>{!$Label.LBL_Select_Library}</span> <!-- Label.LBL_Select_Prim_Tags -->
+									<i id="tagicon" class="fa fa-caret-right"></i>&nbsp;<span>{!$Label.LBL_Select_Prim_Tags}</span> <!-- Label.LBL_Select_Prim_Tags -->
 								</div>
 								<div id="tagsectionPrim" class="panel-body" style="display:none;">
 									<div class="panel-group acc-v1" id="accordion-2">
