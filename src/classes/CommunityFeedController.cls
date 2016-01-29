@@ -2012,7 +2012,7 @@ global with sharing class CommunityFeedController {
 			for(Integer i = 2; i < splitSTR.size(); i++){
 				String fNameSplit = splitSTR[i].split(':')[0].replaceAll(' ','_')+'__c';
 				Boolean fReqSplit =  Boolean.valueOf(splitSTR[i].split(':')[1]);
-				fieldNames.add(fNameSplit);
+				fieldNames.add(CommunityUtils.getPackagePrefix() + fNameSplit);
 				nameReq.put(fNameSplit, fReqSplit);
 			}
 			
