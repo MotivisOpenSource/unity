@@ -27,7 +27,7 @@
  * unity@motivislearning.com
  */
 
-public with sharing class CommunityShareController {
+global with sharing class CommunityShareController {
 
 	public String shareLinkUrl { get;set; }
 	public String shareLinkName { get;set; }
@@ -71,7 +71,7 @@ public with sharing class CommunityShareController {
 
 	//remote actions
 	@RemoteAction
-	public static String shareForGroups(String idsGroups, String shareComment, String shareLinkName, String sobjId, Boolean shareLinkProfile) {
+	global static String shareForGroups(String idsGroups, String shareComment, String shareLinkName, String sobjId, Boolean shareLinkProfile) {
 		
 		List<String> groupsIds = idsGroups.split(',');
 		String shareLinkUrl;
@@ -304,7 +304,7 @@ public with sharing class CommunityShareController {
 
 	//remote actions
 	@RemoteAction
-	public static String getGroups(String query) {
+	global static String getGroups(String query) {
 		String result = '';
 		Set<String> gcSet = new Set<String>();
 		if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
@@ -319,11 +319,11 @@ public with sharing class CommunityShareController {
 	}
 
 	@RemoteAction
-	public static String getGroupsSelector(String getGroupsSelector) {
+	global static String getGroupsSelector(String getGroupsSelector) {
 		return JSON.serialize(getMyGroupsInGroupFinderWrapper(getGroupsSelector, false));
 	}
 
-	public class TagsForGroup implements Comparable{
+	global class TagsForGroup implements Comparable{
 		public List<GroupFinderWrapper> wrapperGroup {get; set;}
 		public String TagName {get; set;}
 
@@ -332,14 +332,14 @@ public with sharing class CommunityShareController {
 			this.wrapperGroup = inWrapperGroup;
 		}
 
-		public Integer compareTo(Object compareTo) {
+		global Integer compareTo(Object compareTo) {
 			TagsForGroup compareToEmp = (TagsForGroup)compareTo;
 			if (this.TagName == compareToEmp.TagName) return 0;
 			return (this.TagName > compareToEmp.TagName) ? 1 : -1;
 		}
 	}
 
-	public class GroupFinderWrapper implements Comparable{
+	global class GroupFinderWrapper implements Comparable{
 		public String name { get; set; }
 		public Id id { get; set;}
 
@@ -348,7 +348,7 @@ public with sharing class CommunityShareController {
 			this.id = inId;
 		}
 
-		public Integer compareTo(Object compareTo) {
+		global Integer compareTo(Object compareTo) {
 			GroupFinderWrapper compareToEmp = (GroupFinderWrapper)compareTo;
 			if (this.name == compareToEmp.name) return 0;
 			return (this.name > compareToEmp.name) ? 1 : -1;
