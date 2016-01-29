@@ -2010,9 +2010,9 @@ global with sharing class CommunityFeedController {
 			String fName = splitSTR[0];
 			String objName = splitSTR[1];
 			for(Integer i = 2; i < splitSTR.size(); i++){
-				String fNameSplit = splitSTR[i].split(':')[0].replaceAll(' ','_')+'__c';
+				String fNameSplit = CommunityUtils.getPackagePrefix() + splitSTR[i].split(':')[0].replaceAll(' ','_')+'__c';
 				Boolean fReqSplit =  Boolean.valueOf(splitSTR[i].split(':')[1]);
-				fieldNames.add(CommunityUtils.getPackagePrefix() + fNameSplit);
+				fieldNames.add(fNameSplit);
 				nameReq.put(fNameSplit, fReqSplit);
 			}
 			
