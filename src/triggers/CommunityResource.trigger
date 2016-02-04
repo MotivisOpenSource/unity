@@ -33,11 +33,7 @@ trigger CommunityResource on Community_Resource__c (after undelete, before inser
 	Boolean duplicated = false;
 
 	for (Community_Resource__c crItem : Trigger.new) {
-/*		
-		if (crItem.Quick_Link__c != true && crItem.Help_Link__c != true && String.isBlank(crItem.Primary_Tag__c)) {
-			crItem.Primary_Tag__c.addError(Label.ERR_Please_Enter_Value);
-		}
-*/
+
 		if (crItem.Quick_Link__c == true
 			&& (String.isBlank(crItem.Name) || crItem.Name.length() > 20)
 			&& (!Trigger.isUpdate || crItem.Quick_Link__c != Trigger.oldMap.get(crItem.Id).Quick_Link__c)
@@ -73,6 +69,43 @@ trigger CommunityResource on Community_Resource__c (after undelete, before inser
 				else if (Trigger.isUpdate && crItem2.Status__c != Trigger.oldMap.get(crItem2.Id).Status__c) {
 					crItem2.Status__c.addError(Label.LBL_ERR_Help_Link);
 				}
+			}
+		}
+	}
+
+	if (Trigger.isBefore && Trigger.isUpdate) {
+		List<String> resourceTagIdList = new List<String>();
+		Set<Id> resourceIdSet = new Set<Id>();
+		Set<Id> tagIdSet = new Set<Id>();
+		for (Community_Resource__c crItem3 : Trigger.new) {
+			if (crItem3.Primary_Tag__c != null) {
+				tagIdSet.add(crItem3.Primary_Tag__c);
+				resourceIdSet.add(crItem3.Id);
+				resourceTagIdList.add('' + crItem3.Id + ':' + crItem3.Primary_Tag__c);
+				crItem3.Primary_Tag__c = null;
+			}
+		}
+		if (resourceTagIdList.size() > 0) {
+			Set<String> existingResourceTagIdSet = new Set<String>();
+			for (Community_Resource_Tag__c crtItem : [
+				SELECT Id, Community_Tag__c, Resource__c
+				FROM Community_Resource_Tag__c
+				WHERE Community_Tag__c IN :tagIdSet AND Resource__c IN :resourceIdSet
+			]) {
+				existingResourceTagIdSet.add('' + crtItem.Resource__c + ':' + crtItem.Community_Tag__c);
+			}
+			List<Community_Resource_Tag__c> crtToInsert = new List<Community_Resource_Tag__c>();
+			for (String keyItem : resourceTagIdList) {
+				if (!existingResourceTagIdSet.contains(keyItem)) {
+					List<String> ids = keyItem.split(':');
+					crtToInsert.add(new Community_Resource_Tag__c(
+						Community_Tag__c = ids[1],
+						Resource__c = ids[0]
+					));
+				}
+			}
+			if (crtToInsert.size() > 0) {
+				insert crtToInsert;
 			}
 		}
 	}

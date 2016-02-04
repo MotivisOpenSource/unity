@@ -130,32 +130,42 @@ public class CommunityTest3 {
 	}
 
 	static testMethod void test_CommunityResourceTrigger() {
-		Community_Theme__c cth = new Community_Theme__c(Name='t',Theme_Type__c='Resource');
+		Community_Theme__c cth = new Community_Theme__c(Name = 't', Theme_Type__c = 'Resource');
 		insert cth;
-		Community_Tag__c ct = new Community_Tag__c(Name='t',Community_Theme__c=cth.Id);
+		Community_Tag__c ct = new Community_Tag__c(Name = 't', Community_Theme__c = cth.Id);
 		insert ct;
 		Community_Resource__c cr = new Community_Resource__c(Resource_Name__c = 'TestRes', Primary_Tag__c = ct.id, Quick_Link__c = true, Name = 'testR', Link__c = 'testLink');
 		insert cr;
 		Community_Resource__c cr_1 = new Community_Resource__c(Resource_Name__c = 'TestRes1', Primary_Tag__c = ct.id, Help_Link__c = true, Name = 'testR0', Link__c = 'testLink1');
 		insert cr_1;
+		cr_1.Resource_Name__c = 'New Name';
+		update cr_1;
 		try{
-		Community_Resource__c cr_2 = new Community_Resource__c(Resource_Name__c = 'TestRes10', 
-																Primary_Tag__c = ct.id, 
-																Link__c = 'www.google.com', 
-																Quick_Link__c = true, 
-																Help_Link__c = true, 
-																Name = 'testR',
-																Status__c = 'Active');
-		insert cr_2;
-		}catch(Exception ex){}
+			Community_Resource__c cr_2 = new Community_Resource__c(
+				Resource_Name__c = 'TestRes10',
+				Primary_Tag__c = ct.id,
+				Link__c = 'www.google.com',
+				Quick_Link__c = true,
+				Help_Link__c = true,
+				Name = 'testR',
+				Status__c = 'Active'
+			);
+			insert cr_2;
+		}
+		catch(Exception ex) {
+		}
 		try{
 			Community_Resource__c cr3 = new Community_Resource__c(Resource_Name__c = 'TestRes2');
 			insert cr3;
-		}catch(Exception ex){}
+		}
+		catch(Exception ex) {
+		}
 		try{
 			Community_Resource__c cr_4 = new Community_Resource__c(Resource_Name__c = 'TestRes3', Primary_Tag__c = ct.id, Link__c = 'www.google.com', Quick_Link__c = true);
 			insert cr_4;
-		}catch(Exception ex){}
+		}
+		catch(Exception ex) {
+		}
 		System.assert( [SELECT Id,Name FROM Community_Resource__c LIMIT 10].size()>0 );
 	}
 
