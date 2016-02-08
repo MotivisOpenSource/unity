@@ -86,7 +86,7 @@ public with sharing class CommunityMenuController {
 			AND Entry_Date__c <= :Now AND Expiration_Date__c >= :Now
 			LIMIT 1
 		];
-		return newsList.isEmpty() ? '' : newsList[0].Teaser__c;
+		return newsList.isEmpty() ? NULL : newsList[0].Teaser__c;
 	}
 
 	public String getHelpLink() {

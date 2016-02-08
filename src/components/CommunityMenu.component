@@ -79,7 +79,7 @@
 		<div class="container">
 			<div class="row">
 				<div class="col-xs-12 col-sm-6">
-					<apex:outputPanel layout="none" rendered="{!URLENCODE(Alert)}">
+					<apex:outputPanel layout="none" rendered="{!!ISBLANK(Alert)}">
 					<ul class="list-inline top-v1-contacts">
 						<li>
 							<i class="fa fa-thumb-tack"></i> {!$Label.LBL_News_Alert}: {!Alert}

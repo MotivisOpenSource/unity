@@ -697,6 +697,7 @@
     </types>
     <types>
         <members>Edit_System_Tags</members>
+        <members>Unity_Standard_User</members>
         <members>Unity_Super_User</members>
         <members>View_System_Tags</members>
         <name>PermissionSet</name>
