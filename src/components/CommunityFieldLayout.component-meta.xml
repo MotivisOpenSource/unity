@@ -2,9 +2,4 @@
 <ApexComponent xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>30.0</apiVersion>
     <label>CommunityFieldLayout</label>
-    <packageVersions>
-        <majorNumber>1</majorNumber>
-        <minorNumber>6</minorNumber>
-        <namespace>sf_com_apps</namespace>
-    </packageVersions>
 </ApexComponent>

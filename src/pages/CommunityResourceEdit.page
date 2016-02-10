@@ -56,17 +56,19 @@
 			</fieldset>
 
 			<fieldset>
-				<label class="label"><i class="fa fa-asterisk color-red" title="required"></i>&nbsp;Resource</label>
-				<apex:outputPanel id="resblock" layout="block" styleClass="requiredInput">
-					<span id="reslname">{!ResourceLink[0]}</span>&nbsp;
+				<label class="label">{!$Label.LBL_Resource}</label>
+				<apex:outputPanel id="resblock" layout="block"> 
+					<span id="reslname">{!ResourceLink[0]}</span>
+					<apex:inputHidden value="{!ResourceLink[0]}" id="resLink"/>
+					<input id="resLink" name="resLink" style="display:none" visibility="hidden" required="required" value="{!ResourceLink[0]}"/>					
 					<button id="resbname" class="btn-u btn-u-sm" data-toggle="modal" data-target="#uploadResourceDialog" onclick="cancelDialog();return false;">{!$Label.BTN_Upload_Resource}</button>
 				</apex:outputPanel>
 			</fieldset>
 
 			<fieldset>
 				<section>
-					<label class="label">
-						<i class="fa fa-asterisk color-red" title="required"></i>&nbsp;{!$ObjectType.Community_Resource__c.Fields.Primary_Tag__c.Label}
+					<label class="label" id="libraryLabel">
+						<i class="fa fa-asterisk color-red" title="required"></i>&nbsp;{!$Label.LBL_Library}  <!-- {!$ObjectType.Community_Resource__c.Fields.Primary_Tag__c.Label}-->
 					</label>
 					<label class="input">
 						<div class="CommunityTagSelector">
@@ -75,17 +77,23 @@
 									<apex:outputPanel layout="none" rendered="{!isShowPrimaryTag}">
 										<span id="{!resource.Primary_Tag__c}" class="item guestItem">
 											<span>{!resource.Primary_Tag__r.Community_Theme__r.Name} &gt; {!resource.Primary_Tag__r.Name}</span>
-											<a href="javascript:;" onclick="removePrimaryTag('{!resource.Primary_Tag__c}')" class="remove"><img src="/s.gif"/></a>
+											<a href="javascript:;" onclick="removePrimTag('{!resource.Primary_Tag__c}')" class="remove"><img src="/s.gif"/></a>
 										</span>
 									</apex:outputPanel>
-									<input id="ptin" class="input-inviz" type="text" data-provide="typeahead" autocomplete="off" size="2" style="display:{!IF(ISBLANK(resource.Primary_Tag__c),'block','none')};"></input>
+										<apex:repeat value="{!libraryTags}" var="lt">
+											<span id="{!lt.Community_Tag__c}" class="item guestItem">
+												<span> {!lt.Community_Tag__r.Theme_Name__c} &gt; {!lt.Community_Tag__r.name}</span>    
+												<a href="javascript:;" onclick="removePrimTag('{!lt.Community_Tag__c}')" class="remove"><img src="/s.gif"/></a>
 								</span>
-								<input id="ptag" name="ptag" style="display:none" visibility="hidden" required="required"/>
-								<apex:inputHidden value="{!resource.Primary_Tag__c}" id="ptag"/>
+										</apex:repeat>									
+									<input id="ptin" class="input-inviz" type="text" data-provide="typeahead" autocomplete="off" size="2"></input> <!--style="display:{!IF(ISBLANK(resource.Primary_Tag__c),'block','none')};"-->
+								</span>
+								<input id="ptag" name="ptag" style="display:none" visibility="hidden" required="required" value="{!stringLibraryTags}"/>
+								<apex:inputHidden value="{!stringLibraryTags}" id="ptag"/>
 							</div>
 							<div class="panel-link">
 								<div class="panel-heading" onclick="toggleTagSection(this);">
-									<i id="tagicon" class="fa fa-caret-right"></i>&nbsp;<span>{!$Label.LBL_Select_Prim_Tags}</span>
+									<i id="tagicon" class="fa fa-caret-right"></i>&nbsp;<span>{!$Label.LBL_Select_Prim_Tags}</span> <!-- Label.LBL_Select_Prim_Tags -->
 								</div>
 								<div id="tagsectionPrim" class="panel-body" style="display:none;">
 									<div class="panel-group acc-v1" id="accordion-2">
@@ -133,54 +141,55 @@
 
 			<script>
 			
-				jQuery('[id$=resblock]').bind('DOMNodeInserted DOMNodeRemoved', function() {
-					
-					if(jQuery('[id$=reslname]').text().trim()) {
-						jQuery('#submitBtnId').removeAttr('disabled').css('opacity','1');
-					}
-					else {
-						jQuery('#submitBtnId').attr('disabled','disabled').css('opacity','0.65');
-					}
-				});
-				/* jQuery('[id$=resblock]').change( function () {
-					alert(1);
-					jQuery('#submitBtnId').removeAttr('disabled');
-				}); */
-			
 				function submitResource() {
-					if (jQuery('#reslname').text().trim() == '') {
-						if (jQuery('#reserr').length == 0) {
-							jQuery('[id$=resblock]').append('<div id="reserr" class="errorMsg"><strong>Error:</strong> {!$Label.LBL_Message_select_resource}</div>');
+					jQuery('#resLink').val(jQuery('#reslname').text());
+					var err = false;
+/*
+					for ( var i in CKEDITOR.instances ){
+   						var currentInstance = i;
+   						break;
+					}
+					var oEditor   = CKEDITOR.instances[currentInstance];
+					if (jQuery('#reslname').text().trim() == '' && oEditor.getData()=='') {
+						if (jQuery('#Link_File_or_Description_Required').text() == '') {
 							jQuery('[id$=pageMessages]').append(
-									'<span>'+
+									'<span id="Link_File_or_Description_Required">'+
 									'<div class="message errorM3" role="alert"><table class="messageTable"><tbody><tr valign="top"><td></td>'+
 									'<td class="messageCell"><div  class="messageText"><span></span>'+
-									'<strong>Error:</strong>&nbsp{!$Label.LBL_Message_select_resource}</div>'+
+									'<strong>Error:</strong>&nbsp{!$Label.ERR_Link_File_or_Description_Required}</div>'+
 									'</td></tr><tr><td></td><td></td></tr></tbody></table></div></span>'
 									);
-									/* 
-									'<span>'+
-									'<div class="message errorM3" role="alert">'+
-									'<table border="0" cellpadding="0" cellspacing="0" class="messageTable" style="padding:0px;margin:0px;">'+
-									'<tbody><tr valign="top">'+
-									'<td>'+
-									'</td>'+
-									'<td class="messageCell"><div  class="messageText"><span style="color:#cc0000">'+
-									'</span>{!$Label.LBL_Message_select_resource}</div>'+
-									'</td>'+
-									'</tr>'+
-									'<tr>'+
-									'<td></td>'+
-									'<td>'+
-									'</td>'+
-									'</tr>'+
-									'</tbody></table>'+
-									'</div></span>' */
+					}
+						err=true;
+					}else{
+						jQuery('#Link_File_or_Description_Required').remove();
+					}
+*/					
+					if(jQuery('#ptag').val() == ''){
+						if (jQuery('#reserr').text() == '') {
+							jQuery('[id$=libraryLabel]').append('<div id="reserr" class="errorMsg"><strong>Error:</strong>&nbsp; You must enter a value</div>');
 						}
+						err=true;
+					}else{
+						jQuery('#reserr').remove();
 					}
-					else {
-						submitResourceAction();
+			
+					if(jQuery('[id$=inputId]').val().trim() == ''){
+						if (jQuery('#Resource_title_required').text() == '') {
+							jQuery('[id$=pageMessages]').append(
+									'<span id="Resource_title_required">'+
+									'<div class="message errorM3" role="alert"><table class="messageTable"><tbody><tr valign="top"><td></td>'+
+									'<td class="messageCell"><div  class="messageText"><span></span>'+
+									'<strong>Error:</strong>&nbsp{!$Label.ERR_Resource_title_required}</div>'+
+									'</td></tr><tr><td></td><td></td></tr></tbody></table></div></span>'
+									);
+						}
+						err=true;					
+					}else{
+						jQuery('#Resource_title_required').remove();
 					}
+					
+					if(!err) submitResourceAction();
 				}
 				if (jQuery('#reslname').text().trim() == '') {
 					jQuery('#reslname').text(jQuery('[id$=it265]')[2].value);
@@ -191,16 +200,17 @@
 					jQuery('#ptin').show();
 				}
 				function addPrimTag(tid,fn) {
-					if(jQuery('#ptcon > span').length === 0) {
+					//if(jQuery('#ptcon > span').length === 0) { document.getElementById("ptin").contains(span)
+					if(jQuery('#'+tid).val()===undefined) {
+						jQuery('#ptag').val(jQuery('#ptag').val() + tid + ',');	
 						var span = '<span id="'+tid+'" class="item guestItem"><span>'+fn+'</span><a href="javascript:void(0);" onclick="removePrimTag(\''+tid+'\')" class="remove"><img src="/s.gif"></a></span>';
 						jQuery('#ptin').before(span);
 						jQuery('#ptin').hide();
-						jQuery('[id$=ptag]').val(tid);
+						//jQuery('[id$=ptag]').val(tid);
 					}
-					else alert('{!$Label.LBL_Message_only_one_tag}');
+					//else alert('{!$Label.LBL_Message_only_one_tag}');
 				}
 			</script>
-			
 		</apex:form>
 	</div>
 </apex:define>

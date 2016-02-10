@@ -44,10 +44,13 @@ public with sharing class CommunityGroupCreateController {
 	public String cropYCr { get; set; }
 	public String cropSizeCr { get; set; }
 
+	public String arhivingValue { get; set; }
+
 	private final String TAGS_INPUT_NAME = 'tags';
 
 	public CommunityGroupCreateController(ApexPages.StandardController stdController) {
 		currentGroup = (Community_Group_Control__c)stdController.getRecord();
+		if(currentGroup.Id == NULL) arhivingValue = 'true';
 	}
 
 	private Map<String, String> pageParams {
@@ -60,6 +63,7 @@ public with sharing class CommunityGroupCreateController {
 	public PageReference initFromView() {
 		PageReference pageRef = CommunityUtils.checkRedirectToStandardView(currentGroup.Id);
 		if (pageRef == NULL) {
+			if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
 			currentGroup = [SELECT Id, Chatter_Group_Id__c FROM Community_Group_Control__c WHERE Id = :currentGroup.Id LIMIT 1];
 			pageRef = Page.CommunityGroupManager;
 			pageRef.getParameters().put('gr', currentGroup.Chatter_Group_ID__c);
@@ -110,6 +114,7 @@ public with sharing class CommunityGroupCreateController {
 		try {
 			if (step == 1) {
 				currentGroup.Status__c = 'Pending';
+				currentGroup.Automatic_Archiving__c = arhivingValue.equals('true') ? true : false;
 				//upsert currentGroup;
 				CommunityAccess.UpsertWithoutSharing(
 					currentGroup,
@@ -121,6 +126,7 @@ public with sharing class CommunityGroupCreateController {
 					}
 				);
 				pr = Page.CommunityGroupCreate;
+				if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
 				currentGroup = [SELECT Id, Chatter_Group_ID__c FROM Community_Group_Control__c WHERE Id =:currentGroup.Id];
 				pr.getParameters().put('step', String.isBlank(currentGroup.Chatter_Group_ID__c) ? '3' : '2');
 			}
@@ -181,6 +187,7 @@ public with sharing class CommunityGroupCreateController {
 				pr = Page.CommunityGroupManager;
 				pr.getParameters().put('gc', currentGroup.Id);
 				currentGroup.T_C_Accepted_Date__c = Datetime.Now();
+				if (!SObjectType.Community_Admins__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Admins__c);
 				List<Community_Admins__c> caList = [
 					SELECT Id FROM Community_Admins__c
 					WHERE Terms_Status__c = 'Published' AND RecordType.Name = 'Group Terms'
@@ -242,6 +249,7 @@ public with sharing class CommunityGroupCreateController {
 	public Community_Admins__c getTermsAndConditions() {
 		List<Community_Admins__c> caList;
 		if (step == 4) {
+			if (!SObjectType.Community_Admins__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Admins__c);
 			caList = [
 				SELECT Terms_Body__c FROM Community_Admins__c
 				WHERE Terms_Status__c = 'Published' AND RecordType.Name = 'Group Terms'
@@ -273,9 +281,17 @@ public with sharing class CommunityGroupCreateController {
 		return pr;
 	}
 
+	public List<SelectOption> getItems() {
+        List<SelectOption> options = new List<SelectOption>();
+		options.add(new SelectOption('true', Label.LBL_Archive_90_days));
+        options.add(new SelectOption('false', Label.LBL_Dont_auto_archive));
+        return options;
+    }
+
 	@RemoteAction
 	public static Boolean checkAvailability(String nameToCheck) {
 		String queryNameToCheck = String.escapeSingleQuotes(nameToCheck);
+		if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
 		List<Community_Group_Control__c> matchedGroups = [SELECT Id FROM Community_Group_Control__c WHERE Name = :queryNameToCheck];
 		List<CollaborationGroup> matchedChatterGroups = [SELECT Id FROM CollaborationGroup WHERE Name = :queryNameToCheck];
 		return matchedGroups.isEmpty() && matchedChatterGroups.isEmpty();

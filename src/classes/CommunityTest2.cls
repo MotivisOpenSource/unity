@@ -49,6 +49,10 @@ private class CommunityTest2 {
 			Community_Group_Manager__c cgm = new Community_Group_Manager__c(Group_Control__c = cgc.Id, Group_Manager_User__c = df.communityUser.Id);
 			insert cgm;
 
+			CommunityFeedNavigationController.getHasTwitterFeed();
+			CommunityFeedNavigationController.getTwitterHandle();
+			CommunityFeedNavigationController.getTwitterDataWidgetId();
+			
 			ApexPages.currentPage().getParameters().put('gc', cgc.Id);
 			CommunityFeedNavigationController cfnc = new CommunityFeedNavigationController();
 			cfnc.MessageUnreadCount = 1;
@@ -75,24 +79,24 @@ private class CommunityTest2 {
 			System.assertNotEquals(null, cfnc.actionPhotoLabel);
 
 			cfnc.blobImageData = 'testString';
-			cfnc.cropSize = '30';
-			cfnc.cropX = '10';
-			cfnc.cropY = '20';
+			cfnc.cropSize = '1';
+			cfnc.cropX = '0';
+			cfnc.cropY = '0';
 			cfnc.photoName = 'testName';
-			cfnc.photoContentType = 'testString';
-			//cfnc.photoaction();
+			cfnc.photoContentType = 'image/jpg';
+			cfnc.photoaction();
 
 			ApexPages.currentPage().getParameters().put('gc', null);
 			cfnc = new CommunityFeedNavigationController();
-			/*System.assertNotEquals(null, cfnc.actionPhotoLabel);
+			System.assertNotEquals(null, cfnc.actionPhotoLabel);
 			
 			cfnc.blobImageData = 'testString';
-			cfnc.cropSize = '30';
-			cfnc.cropX = '10';
-			cfnc.cropY = '20';
+			cfnc.cropSize = '1';
+			cfnc.cropX = '0';
+			cfnc.cropY = '0';
 			cfnc.photoName = 'testName';
-			cfnc.photoContentType = 'testString';
-			cfnc.photoaction();*/
+			cfnc.photoContentType = 'image/jpg';
+			cfnc.photoaction();
 
 			/*String photoURL = cfnc.getPhotoUrl();
 			cfnc.photoaction();
@@ -186,6 +190,15 @@ private class CommunityTest2 {
 			feedItemRep = ConnectApi.ChatterFeeds.postFeedItem(Network.getNetworkId(), ConnectApi.FeedType.News, parentId, input, null);
 			feedItemTop = ConnectApi.ChatterFeeds.postFeedItem(Network.getNetworkId(), ConnectApi.FeedType.News, parentId, input, null);
 			ConnectApi.Comment commentRep = ConnectApi.ChatterFeeds.postComment(Network.getNetworkId(), feedItemRep.Id, cInput, null);
+
+			String jsonTextUp = CommunityFeedController.actionLayout('FeedItem.TextPost');
+			Map<String, String> paramsUpdateFeed = new Map<String, String>{'inText' => jsonTextUp, 'feedId' => feedItemRep.Id};
+			Map<String, String> paramsUpdateComment = new Map<String, String>{'inText' => textComment, 'commId' => commentRep.Id, 'commentId' => commentRep.Id};
+			Map<String, String> paramsMute = new Map<String, String>{'isMutedByMe' => 'false', 'feedId' => feedItemRep.Id};
+			String resUpdateFeed = CommunityFeedController.updateFeed(paramsUpdateFeed);
+			String resUpdateComm = CommunityFeedController.updateComment(paramsUpdateComment);
+			String resUpdateMute = CommunityFeedController.muteFeeds(paramsMute);
+			String getComment = CommunityFeedController.getCommentForEdit(paramsUpdateComment);
 		}
 
 		CommunityTest3.testDataFactory df2 = new CommunityTest3.testDataFactory(
@@ -208,7 +221,7 @@ private class CommunityTest2 {
 				3, 
 				ConnectApi.FeedDensity.FewerUpdates, 
 				null, 
-				1, 
+				8, 
 				ConnectApi.FeedSortOrder.LastModifiedDateDesc,
 				testPage
 			);
@@ -224,15 +237,21 @@ private class CommunityTest2 {
 				3,
 				ConnectApi.FeedDensity.FewerUpdates,
 				null, 
-				1, 
+				8, 
 				ConnectApi.FeedSortOrder.LastModifiedDateDesc,
 				testPage1);
 			Map<String, String> params1 = new Map<String, String>();
+			Map<String, String> params2 = new Map<String, String>();
 			params1.put('parentId', parentId);
 			params1.put('inFeedType', '1');
 			params1.put('inpt', null);
 			params1.put('topicId', topicTest.Id);
+			params2.put('parentId', parentId);
+			params2.put('inFeedType', '1');
+			params2.put('inpt', null);
+			params2.put('feedId', feedItemTop.Id);
 			String feedForTopic = CommunityFeedController.feedsForTopics(params1);
+			String feedFromEmail = CommunityFeedController.feedFromEmail(params2);
 		}
 
 		System.runAs(df.communityUser) {
@@ -268,7 +287,7 @@ private class CommunityTest2 {
 
 			Map<String, List<String>> parentTypeParentId = new Map<String, List<String>>();
 			Community_Group_Control__c cgc1 = new Community_Group_Control__c();
-			cgc1.Name = 'Test group';
+			cgc1.Name = 'Test CommunityGroupControl';
 			cgc1.Type__c = 'Public';
 			cgc1.Discoverable__c = true;
 			insert cgc1;
@@ -304,7 +323,7 @@ private class CommunityTest2 {
 			Blob blobBody = Blob.valueOf('testingB');
 			Attachment att = new Attachment(Name = 'test', ParentId = cgc1.Id, Body = blobBody, ContentType = 'file');
 			insert att;
-			String iAtt = CommunityFeedController.insertAttacmentIntoFeed(parentId, att.Id, null);
+			String iAtt = CommunityFeedController.insertAttacmentIntoFeed(parentId, att.Id, layoutText);
 			System.assertEquals(true, iAtt.length() > 0);
 			String gUsers = CommunityFeedController.getUsers('lastname');
 			System.assertEquals(true, gUsers.length() > 0);
@@ -453,6 +472,7 @@ private class CommunityTest2 {
 			CommunityMenuController cmc = new CommunityMenuController();
 			cmc.getAlert();
 			cmc.getHelpLink();
+			cmc.getBackCRMlink();
 			CommunityMenuController.LinkItem li = new CommunityMenuController.LinkItem('testN','testL');
 			System.assertEquals(String.valueOf('testN'),String.valueOf(li.Name));
 		}
@@ -482,6 +502,7 @@ private class CommunityTest2 {
 			chc.getMyNews();
 			CommunityHomeComponentController.News news1 = new CommunityHomeComponentController.News(cnews);
 			news1.getImagePath();
+			Boolean boolMute = chc.isMuteAvailable;
 		}
 	}
 
@@ -536,7 +557,6 @@ private class CommunityTest2 {
 			cscEvents.shareComment = 'shareComment';
 			cscEvents.shareGroup = 'shareGroup';
 			cscEvents.message = 'message';
-			List<Community_Group_Control__c> li1 = cscEvents.AvailableGroupsControls;
 			Boolean var4 = cscEvents.hasMessage;
 		}
 	}

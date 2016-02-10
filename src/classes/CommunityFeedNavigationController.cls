@@ -57,7 +57,7 @@ public with sharing class CommunityFeedNavigationController {
 	}
 	
 	
-	public String controllerPhotoUrl { 
+	public String controllerPhotoUrl {
 		get {
 			if(groupRole!=null){
 				return controllerPhotoUrl;
@@ -102,7 +102,7 @@ public with sharing class CommunityFeedNavigationController {
 			}	
 			else if (gcID!= null) {
 				if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
-				String queryGroupControlId = CommunityUtils.validateId(gcID);
+                String queryGroupControlId = CommunityUtils.validateId(gcID);
 				List<Community_Group_Control__c> ls = [SELECT Id, Chatter_Group_ID__c FROM Community_Group_Control__c WHERE Id =: queryGroupControlId LIMIT 1];
 				return ls[0].Chatter_Group_ID__c;
 			}
@@ -111,6 +111,7 @@ public with sharing class CommunityFeedNavigationController {
 		set;
 	}
 	
+    
 	public String actionPhotoLabel {
 		get {
 			if (getGroupId != null) {
@@ -140,6 +141,8 @@ public with sharing class CommunityFeedNavigationController {
 		set;
 	}
 
+    
+    
 	public void photoaction() {
 		try {
 			if (blobImageData != NULL) {

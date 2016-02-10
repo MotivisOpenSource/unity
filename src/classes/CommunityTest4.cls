@@ -97,6 +97,17 @@ private class CommunityTest4 {
 				Body = Blob.valueOf(JSON.serialize(testNews))
 			);
 			insert testAttach;
+            FeedItem fi = new FeedItem();
+            fi.Title = 'testString';
+            fi.Body = 'testString';
+            fi.ParentId = df.communityUser.Id;
+            fi.Type = 'ContentPost';
+            fi.ContentFileName = 'testString'; 
+            fi.ContentData = EncodingUtil.base64Decode('testString'); 
+            insert fi;
+            FeedItem fi2 = CommunityHelperWithoutSharing.getFeedParentId('testString', df.communityUser.Id, System.now());
+            CommunityHelperWithoutSharing.getUsers(new Set<String>{UserInfo.getUserId()});
+            CommunityHelperWithoutSharing.getGroups(new Set<String>{cg.Id});
 			CommunityHelperWithoutSharing.getAttachment(testAttach.Id);
 			CommunityHelperWithoutSharing.membershipWOSH(currentUserId, testControl.Id, '2');
 		}
@@ -114,7 +125,27 @@ private class CommunityTest4 {
 		testPageRef = new PageReference(testRewriter.STANDARD_CHATTER_PAGE + testUrl);
 		testRewriter.mapRequestUrl(testPageRef);
 
+        testPageRef = new PageReference(testRewriter.STANDARD_CHATTER_PAGE + testUrl);
+        testPageRef.getParameters().put(messageTypeParam, testRewriter.CHATTER_POST_NOTIFICATION);
+        testRewriter.mapRequestUrl(testPageRef);
+
+        testPageRef = new PageReference(testRewriter.COMMUNITY_HEADER_REWRITING_PAGE + testUrl);
+        testRewriter.mapRequestUrl(testPageRef);
+
+        testPageRef = new PageReference(testRewriter.COMMUNITY_HEADER_REWRITING_PAGE + testUrl);
+        testPageRef.getParameters().put('id', '005120015402305');
+        testRewriter.mapRequestUrl(testPageRef);
+
+        testPageRef = new PageReference(testRewriter.STANDARD_TOPIC_PAGE + testUrl);
+        testRewriter.mapRequestUrl(testPageRef);
+
+        testPageRef = new PageReference(testRewriter.STANDARD_GROUP_DETAIL_PAGE + testUrl);
+        testPageRef.getParameters().put('u', testId);
+        testPageRef.getParameters().put('g', UserInfo.getUserId());
+        testRewriter.mapRequestUrl(testPageRef);
+
 		testPageRef = new PageReference(testRewriter.STANDARD_GROUP_DETAIL_PAGE + testUrl);
+        testPageRef.getParameters().put(messageTypeParam, testRewriter.CHATTER_POST_NOTIFICATION);
 		testPageRef.getParameters().put('u', testId);
 		testPageRef.getParameters().put('g', UserInfo.getUserId());
 		testRewriter.mapRequestUrl(testPageRef);
@@ -125,7 +156,14 @@ private class CommunityTest4 {
 
 		testPageRef = new PageReference(testUrl);
 		testPageRef.getParameters().put(messageTypeParam, testRewriter.CHATTER_POST_NOTIFICATION);
-		testPageRef.getParameters().put('fid', testId);
+		testPageRef.getParameters().put('fid', feedItemId);
+		testPageRef.getParameters().put('s1uid', Userinfo.getUserId());
+		testRewriter.mapRequestUrl(testPageRef);
+
+		testPageRef = new PageReference(testUrl);
+		testPageRef.getParameters().put(messageTypeParam, testRewriter.CHATTER_POST_NOTIFICATION);
+		testPageRef.getParameters().put('fid', feedItemId);
+		testPageRef.getParameters().put('s1uid', testId);
 		testRewriter.mapRequestUrl(testPageRef);
 
 		testPageRef = new PageReference(testUrl);
@@ -330,7 +368,7 @@ private class CommunityTest4 {
 			Test.startTest();
 			CommunityUtils.changeManagerRoleToStandard(new Set<Id>{cgmem.Id});
 			Test.stopTest();
-			CollaborationGroupMember cgm = [SELECT Id, CollaborationRole FROM CollaborationGroupMember WHERE Id = :cgmem.Id];
+			CollaborationGroupMember cgm = [select id, CollaborationRole from CollaborationGroupMember where id=:cgmem.Id];           
 			System.assert(cgm.CollaborationRole == 'Standard');
 		}
 	}
@@ -366,6 +404,11 @@ private class CommunityTest4 {
 		String RegProfilePicture = Label.LBL_RegProfilePicture_Title;
 		String RegTerms = Label.LBL_RegTerms_Title;
 		String leaveLabel = Label.LBL_LeavePage_Message;
+		String MyFavorites = Label.LBL_MyFavorites;
+		String PeopleTalking = Label.LBL_PeopleTalkingAboutThis;
+		String ShueToDelete = Label.LBL_Sure_To_Delete_Topic;
+		String TalkingAbout = Label.LBL_Talking_About;
+		String TopicsIUse = Label.LBL_TopicsIUse;
 		System.assert(true);
 	}
 
@@ -389,6 +432,60 @@ private class CommunityTest4 {
 		exc.getExceptionField();
 		exc.getText();
 		System.assert(exc.ExceptionMessage != null);
+	}
+
+	static testMethod void test_CommunityAccess() {
+		
+		Contact con = new Contact();
+		String err = 'Test Method For Class';
+		
+		try{
+			Database.SaveResult resI = CommunityAccess.InsertWithoutSharing(con, err, new List<Schema.DescribeFieldResult> { Contact.OwnerId.getDescribe(), Contact.Birthdate.getDescribe() });
+		}catch(Exception ex){
+			System.assert(ex.getMessage() != null);
+		}
+
+		try{
+			Database.SaveResult[] resIi = CommunityAccess.InsertWithoutSharing(new List<SObject>{con}, err, new List<Schema.DescribeFieldResult> { Contact.OwnerId.getDescribe(), Contact.Birthdate.getDescribe() });
+		}catch(Exception ex){
+			System.assert(ex.getMessage() != null);
+		}
+		
+		try{
+			Database.SaveResult[] resUpd = CommunityAccess.UpdateWithoutSharing(new List<SObject>{con}, err, new List<Schema.DescribeFieldResult> { Contact.OwnerId.getDescribe(), Contact.Birthdate.getDescribe() });
+		}catch(Exception ex){
+			System.assert(ex.getMessage() != null);
+		}
+		
+		try{
+			Database.UpsertResult resUps = CommunityAccess.UpsertWithoutSharing(con, err, new List<Schema.DescribeFieldResult> { Contact.OwnerId.getDescribe(), Contact.Birthdate.getDescribe() });
+		}catch(Exception ex){
+			System.assert(ex.getMessage() != null);
+		}
+		
+		try{
+			Database.UpsertResult[] resUpss = CommunityAccess.UpsertWithoutSharing(new List<SObject>{con}, err, new List<Schema.DescribeFieldResult> { Contact.OwnerId.getDescribe(), Contact.Birthdate.getDescribe() });
+		}catch(Exception ex){
+			System.assert(ex.getMessage() != null);
+		}
+		
+		try{
+			Database.DeleteResult resD = CommunityAccess.DeleteWithoutSharing(con, err);
+		}catch(Exception ex){
+			System.assert(ex.getMessage() != null);
+		}
+		
+		try{
+			Database.DeleteResult[] resDd = CommunityAccess.DeleteWithoutSharing(new List<SObject>{con}, err);
+		}catch(Exception ex){
+			System.assert(ex.getMessage() != null);
+		}
+		try{
+			CommunityAccess.ThrowAccessException(Contact.getsObjectType().getDescribe());
+		}catch(Exception ex){
+			System.assert(ex.getMessage() != null);
+		}
+		
 	}
 
 	@IsTest(SeeAllData=true)

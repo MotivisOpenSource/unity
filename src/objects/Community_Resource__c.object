@@ -105,11 +105,6 @@
             <isRequired>false</isRequired>
         </availableFields>
         <availableFields>
-            <field>Quick_Link__c</field>
-            <isFieldManaged>false</isFieldManaged>
-            <isRequired>false</isRequired>
-        </availableFields>
-        <availableFields>
             <field>Resource_Name__c</field>
             <isFieldManaged>false</isFieldManaged>
             <isRequired>false</isRequired>
@@ -137,6 +132,11 @@
         </displayedFields>
         <displayedFields>
             <field>Description__c</field>
+            <isFieldManaged>false</isFieldManaged>
+            <isRequired>false</isRequired>
+        </displayedFields>
+        <displayedFields>
+            <field>Quick_Link__c</field>
             <isFieldManaged>false</isFieldManaged>
             <isRequired>false</isRequired>
         </displayedFields>
@@ -261,15 +261,14 @@
         <externalId>false</externalId>
         <label>Primary Tag</label>
         <lookupFilter>
-            <active>true</active>
-            <errorMessage>You must select a Resource Tag as the primary tag for this resource.</errorMessage>
+            <active>false</active>
             <filterItems>
                 <field>Community_Tag__c.Community_Theme__r.Theme_Type__c</field>
                 <operation>equals</operation>
                 <value>Resource</value>
             </filterItems>
             <infoMessage>You can only select Tags where the Theme Type = Resource.</infoMessage>
-            <isOptional>false</isOptional>
+            <isOptional>true</isOptional>
         </lookupFilter>
         <referenceTo>Community_Tag__c</referenceTo>
         <relationshipLabel>Resources Tagged w Primary</relationshipLabel>

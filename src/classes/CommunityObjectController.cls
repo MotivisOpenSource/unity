@@ -36,6 +36,9 @@ public with sharing class CommunityObjectController {
 	public Boolean tagRequired { get; set; }
 	public Integer tagLimit { get; set; }
 
+	public String arhivingValue { get; set; }
+	public String setName { get; set; }
+
 	public CommunityObjectController() {
 		init();
 	}
@@ -57,6 +60,11 @@ public with sharing class CommunityObjectController {
 				CommunityUtils.getPackagePrefix()
 			);
 			so = flayout.getRecord();
+			if(fieldSetName.equalsIgnoreCase('EditGroup') || fieldSetName.equalsIgnoreCase('ViewGroup')){
+				setName = fieldSetName;
+				Community_Group_Control__c cgc = (Community_Group_Control__c) so;
+				arhivingValue = cgc.Automatic_Archiving__c ? 'true' : 'false';
+			}
 
 			//firewall
 			Boolean haveAccessToEditObject = false;
@@ -99,9 +107,21 @@ public with sharing class CommunityObjectController {
 
 	private String TAGS_INPUT_NAME = 'tags';
 
+	public List<SelectOption> getItems() {
+        List<SelectOption> options = new List<SelectOption>();
+		options.add(new SelectOption('true', Label.LBL_Archive_90_days));
+        options.add(new SelectOption('false', Label.LBL_Dont_auto_archive));
+        return options;
+    }
+
+
 	public PageReference saveAction() {
 		PageReference pr;
 		try {
+			if(setName.equalsIgnoreCase('EditGroup') || setName.equalsIgnoreCase('ViewGroup')){
+				Community_Group_Control__c cgc = (Community_Group_Control__c) so;
+				cgc.Automatic_Archiving__c = arhivingValue.equals('true') ? true : false;
+			}
 			update so;
 			String tn = ApexPages.currentPage().getParameters().get('tn');
 			String tfn = ApexPages.currentPage().getParameters().get('tfn');

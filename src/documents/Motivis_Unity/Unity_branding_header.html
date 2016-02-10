@@ -1,0 +1,13 @@
+<div>
+	<script>
+		var params = window.location.href.split('/');
+		if(params[params.length-1].indexOf('068') == 0){
+			document.body.style.display = "none";
+			window.location.href = 'CommunityHome';
+		}		
+		if(params[params.length-1].indexOf('069') == 0){
+			document.body.style.display = "none";
+			window.location.href = 'CommunityHeaderRewriting?id='+params[params.length-1];
+		}
+	</script>
+</div>

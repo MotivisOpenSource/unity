@@ -355,6 +355,21 @@ public with sharing class CommunityUtils {
 		/*Set<String> noredirect = new Set<String> { 'Standard', 'Salesforce' };
 		Map<Id, Profile> studentsProfiles = new Map<Id, Profile>([SELECT Id FROM Profile WHERE Name LIKE '%Community%']);
 		if (noredirect.contains(Userinfo.getUserType()) || !studentsProfiles.containsKey(Userinfo.getProfileId())) {*/
+		if(String.isNOTBlank(Site.getName()) && ApexPages.currentPage().getParameters().get('fromEmail') == '1'){
+			String sObjectName = sObjectId.getSObjectType().getDescribe().getName();	
+			String fId = ApexPages.currentPage().getParameters().get('fid');
+			if(sObjectName.contains('Community_Group_Control__c')){
+				resultpr = Page.CommunityGroupManager;
+				resultpr.getParameters().put('gc',sObjectId);
+			}else if(fId != NULL){
+				resultpr = Page.CommunityFeed_MyFeed;
+			}
+			if(resultpr != NULL){
+				resultpr.getParameters().put('oid',ApexPages.currentPage().getParameters().get('id'));
+				resultpr.getParameters().put('fid',ApexPages.currentPage().getParameters().get('fid'));
+				resultpr.getParameters().put('fromEmail','1');
+			}
+		}		
 		if (String.isBlank(Site.getName())) {
 			resultpr = new PageReference('/' + sObjectId);
 			resultpr.getParameters().putAll(ApexPages.currentPage().getParameters());
@@ -370,16 +385,20 @@ public with sharing class CommunityUtils {
 	*/
 	public static List<String> getNamesOfAvailableGroups(List<String> groupIds){
 		List<String> groupsNames = new List<String>();
+		Boolean hasShareAllGroups = CommunityUtils.isModifyAllData();
 		try {
 			List<ConnectApi.BatchResult> batchResults = ConnectApi.ChatterGroups.getGroupBatch(Network.getNetworkId(),groupIds);
 			for(ConnectApi.BatchResult batchResult : batchResults){
 				if (batchResult.isSuccess()) {
 					ConnectApi.ChatterGroup aGroup = (ConnectApi.ChatterGroup) batchResult.getResult();
-					if((String.valueOf(aGroup.myRole) != 'NotAMember' 
+					if(String.valueOf(aGroup.isArchived) == 'false'){
+						if(hasShareAllGroups || 
+							(String.valueOf(aGroup.myRole) != 'NotAMember' 
 						&& String.valueOf(aGroup.myRole) != 'NotAMemberPrivateRequested' 
 						&& String.valueOf(aGroup.visibility) == 'PrivateAccess') || String.valueOf(aGroup.visibility) == 'PublicAccess'){
 						groupsNames.add(aGroup.name);
 					}
+				}
 				}
 				else {
 					// Operation failed. Print errors.
@@ -479,7 +498,14 @@ public with sharing class CommunityUtils {
 		for (CollaborationGroupMember gm : collaborationAdmins) {
 			gm.CollaborationRole = 'Standard';
 		}
-		update collaborationAdmins;
+		CommunityAccess.UpdateWithoutSharing(
+			collaborationAdmins,
+			'CommunityUtils.cls [changeManagerRoleToStandard]',
+			new List<Schema.DescribeFieldResult> {
+				CollaborationGroupMember.CollaborationRole.getDescribe()
+			}
+		);
+		//update collaborationAdmins;
 	}
 
 	public static Set<Id> checkGroupManagers(Set<Id> userIds) {

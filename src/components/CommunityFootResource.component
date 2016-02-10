@@ -77,7 +77,6 @@
 			$('.contentHolder').perfectScrollbar();
 		});
 	</script>
-	
 
 	<!--[if lt IE 9]>
 		<script src="{!$Resource.assets}/plugins/respond.js"></script>

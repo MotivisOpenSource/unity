@@ -246,8 +246,7 @@ global with sharing class CommunityHomeNotificationsController {
 		global Integer compareTo(Object compareTo) {
 			NotificationWrapper compareToEmp = (NotificationWrapper)compareTo;
 			if (this.SentDate == compareToEmp.SentDate) return 0;
-			if (this.SentDate < compareToEmp.SentDate) return 1;
-			return -1;   
+			return (this.SentDate < compareToEmp.SentDate) ? 1 : -1;
 		}
 
 	}

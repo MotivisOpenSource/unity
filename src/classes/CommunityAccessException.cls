@@ -26,7 +26,6 @@
  * Salem, NH 03790
  * unity@motivislearning.com
  */
-
 global with sharing class CommunityAccessException extends Exception {
 	// ExceptionType - this enum defines the different types of access control exceptions.
 	global enum ExceptionType {

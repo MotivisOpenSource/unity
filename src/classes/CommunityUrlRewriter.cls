@@ -32,7 +32,8 @@ global without sharing class CommunityUrlRewriter implements Site.UrlRewriter {
 	public final String STANDARD_CHATTER_PAGE = '/chatter/';
 	public final String STANDARD_GROUP_DETAIL_PAGE = '/groups/';
 	public final String STANDARD_USER_DETAIL_PAGE = '/userprofile/';
-	public final String STANDARD_TOPIC_PAGE = '/topics/';
+    public final String STANDARD_TOPIC_PAGE = '/topics/';
+	public final String COMMUNITY_HEADER_REWRITING_PAGE = '/CommunityHeaderRewriting';
 	public final String CHATTER_COMMENT_NOTIFICATION = 'chatterCommentNotification';
 	public final String CHATTER_POST_NOTIFICATION = 'chatterPostNotification';
 	public final String CHATTER_PRIVATE_MESSAGE_NOTIFICATION = 'chatterPrivateMessageNotification';
@@ -43,7 +44,17 @@ global without sharing class CommunityUrlRewriter implements Site.UrlRewriter {
 		String url = myFriendlyUrl.getUrl();
 		String messageType = myFriendlyUrl.getParameters().get('emkind');
 		PageReference redirect;
-
+		if(url.contains(COMMUNITY_HEADER_REWRITING_PAGE)){
+			Id objId = (Id)myFriendlyUrl.getParameters().get('id');
+			if(objId == NULL){
+                redirect = Page.CommunityHome;
+            }else if(objId.getSObjectType().getDescribe().getName().contains('ContentDocument')){
+				redirect = Page.CommunityGroupFiles;
+				redirect.getParameters().put('f',objId);
+			}else{
+				redirect = Page.CommunityFeed_MyFeed;
+			}
+		}
 		if (myFriendlyUrl.getParameters().containsKey('nr')) {
 
 		}
@@ -59,6 +70,13 @@ global without sharing class CommunityUrlRewriter implements Site.UrlRewriter {
 		}
 		else if (url.contains(STANDARD_CHATTER_PAGE)) {
 			redirect = Page.CommunityFeed_MyFeed;
+			if(messageType == CHATTER_POST_NOTIFICATION || messageType == CHATTER_COMMENT_NOTIFICATION || messageType == CHATTER_LIKE_NOTIFICATION){
+				if(myFriendlyUrl.getParameters().get('fid') != NULL){
+					redirect.getParameters().put('oid',myFriendlyUrl.getParameters().get('id'));
+					redirect.getParameters().put('fid',myFriendlyUrl.getParameters().get('fid'));
+					redirect.getParameters().put('fromEmail','1');
+				}
+			}
 		}
 
 		if (url.contains(STANDARD_GROUP_DETAIL_PAGE)) {
@@ -72,12 +90,37 @@ global without sharing class CommunityUrlRewriter implements Site.UrlRewriter {
 					redirect.getParameters().put('u', userParam);
 				}
 			}
+			if(messageType == CHATTER_POST_NOTIFICATION || messageType == CHATTER_COMMENT_NOTIFICATION || messageType == CHATTER_LIKE_NOTIFICATION){
+				if(myFriendlyUrl.getParameters().get('fid') != NULL){
+					redirect.getParameters().put('oid',myFriendlyUrl.getParameters().get('id'));
+					redirect.getParameters().put('fid',myFriendlyUrl.getParameters().get('fid'));
+					redirect.getParameters().put('fromEmail','1');
+				}
+			}
 		}
 		else if (messageType == CHATTER_PRIVATE_MESSAGE_NOTIFICATION && !url.contains(STANDARD_USER_DETAIL_PAGE)) {
 			redirect = Page.CommunityFeed_MyMessages;
 		}
 		else if (messageType == CHATTER_POST_NOTIFICATION && myFriendlyUrl.getParameters().get('fId') != null) {
+			//redirect = Page.CommunityFeed_MyFeed;
+			String feedItemId = myFriendlyUrl.getParameters().get('fId');
+			String parentId;
+			if([SELECT COUNT() FROM FeedItem WHERE Id = :feedItemId] > 0){
+				parentId = [SELECT Id, ParentId FROM FeedItem WHERE Id = :feedItemId LIMIT 1].ParentId;
+			}
+			String currentId = myFriendlyUrl.getParameters().get('s1uid');
+						
+			if(myFriendlyUrl.getParameters().get('id') == NULL && parentId != NULL && parentId.substring(0, currentId.length()) != currentId){
+				redirect = Page.CommunityProfilePage;
+				redirect.getparameters().put('oid',myFriendlyUrl.getParameters().get('u'));
+				redirect.getparameters().put('id',myFriendlyUrl.getParameters().get('u'));
+				redirect.getparameters().put('f','2');
+			}else{
 			redirect = Page.CommunityFeed_MyFeed;
+				redirect.getParameters().put('oid',myFriendlyUrl.getParameters().get('id'));
+			}
+			redirect.getParameters().put('fid',myFriendlyUrl.getParameters().get('fid'));
+			redirect.getParameters().put('fromEmail','1');
 		}
 		else if (messageType == CHATTER_COMMENT_NOTIFICATION || messageType == CHATTER_LIKE_NOTIFICATION) {
 			String feedItemId = myFriendlyUrl.getParameters().get('fId');
@@ -86,9 +129,19 @@ global without sharing class CommunityUrlRewriter implements Site.UrlRewriter {
 				String currentId = myFriendlyUrl.getParameters().get('s1uid');
 				if (parentId.substring(0, currentId.length()) == currentId) {
 					redirect = Page.CommunityFeed_MyFeed;
+					if(myFriendlyUrl.getParameters().get('id') == NULL){
+						redirect.getparameters().put('oid',myFriendlyUrl.getParameters().get('u'));
+					}else{
+						redirect.getParameters().put('oid',myFriendlyUrl.getParameters().get('id'));
+					}
+					redirect.getParameters().put('fid',myFriendlyUrl.getParameters().get('fid'));
+					redirect.getParameters().put('fromEmail','1');
 				}
 				else {
 					redirect = Page.CommunityProfilePage;
+					redirect.getparameters().put('oid',parentId);
+					redirect.getParameters().put('fid',myFriendlyUrl.getParameters().get('fid'));
+					redirect.getParameters().put('fromEmail','1');
 					redirect.getParameters().put('id', parentId);
 					redirect.getParameters().put('f', '2');
 				}

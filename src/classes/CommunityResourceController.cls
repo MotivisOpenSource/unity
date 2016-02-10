@@ -65,8 +65,11 @@ public with sharing class CommunityResourceController {
 	public String imgContentType { get;set; }
 	public String linkText { get;set; }
 	public CommunityFieldLayout rlayout { get;set; }
+	public List<Community_Resource_Tag__c> libraryTags{ get;set; }
+	public String stringLibraryTags { get;set; } 
 	
 	private String TAGS_INPUT_NAME = 'tags';
+    private String LIBRARY_TAGS_INPUT_NAME = 'ptag';
 
 	// -- methods --
 	@TestVisible private void init() {
@@ -86,15 +89,31 @@ public with sharing class CommunityResourceController {
 		);
 		if (resource.Id != NULL) {
 			resource = (Community_Resource__c)rlayout.getRecord();
+
+			stringLibraryTags='';  
+			libraryTags = getLibraryTags(resource.Id);
+			for(Community_Resource_Tag__c resourceTag : libraryTags){
+				stringLibraryTags += resourceTag.Community_Tag__c +',';
+			}
+
+			if(resource.primary_tag__c!=null  &&  !stringLibraryTags.contains(resource.primary_tag__c)) 
+						stringLibraryTags += resource.primary_tag__c+',';
+						
 		}
 	}
 
 	public Boolean getIsShowPrimaryTag() {
-		return mode == 'edit' && resource.Primary_Tag__c != NULL && resource.Id != NULL;
+        return mode == 'edit' && resource.Id != NULL && resource.Primary_Tag__c != NULL;
+    }
+    
+    public boolean getIsNoteResource() {
+        return (String.isBlank(resource.Link__c) && resource.NotesAndAttachments.size()==0);
 	}
 
 	public List<String> getResourceLink() {
 		List<String> resultList = new List<String> {'','','fa-file-o'};
+		Set<ApexPages.Message> messages = new Set<ApexPages.Message>(ApexPages.getMessages());
+        if(!messages.contains(new ApexPages.message(ApexPages.severity.ERROR, Label.ERR_Link_File_or_Description_Required))){
 		if (String.isNotBlank(resource.Link__c)) {
 			resultList = new List<String> {resource.Link__c, resource.Link__c,'fa-link'};
 		}
@@ -108,9 +127,10 @@ public with sharing class CommunityResourceController {
 					ext
 						};
 		}
+        }
 		return resultList;
 	}
-
+//  Tags for communityresourcedetail
 	public List<List<String>> getTags() {
 		List<List<String>> result = new List<List<String>>();
 		if (mode == 'view') {
@@ -141,7 +161,7 @@ public with sharing class CommunityResourceController {
 	public CommunityResourceController getPageController() {
 		return this;
 	}
-
+//  Breadcumbs for communityresourcedetail
 	public List<String> getBreadcumbs() {
 		List<String> resultList = new List<String> {'',''};
 		if (resource.Primary_Tag__c != NULL) {
@@ -172,6 +192,7 @@ public with sharing class CommunityResourceController {
 			fullname = t + ' > ' + n;
 		}
 	}
+//  Library (primary tag) available for selection    
 	public List<ThemeWrapper> getAvailablePriTags() {
 		Map<Id, ThemeWrapper> themesMap = new Map<Id, ThemeWrapper>();
 		List<ThemeWrapper> sortedList = new List<ThemeWrapper>();
@@ -218,8 +239,15 @@ public with sharing class CommunityResourceController {
 
 	public PageReference saveResource() {
 		PageReference pr;
+		String resourceLink = ApexPages.currentPage().getParameters().get('resLink');
+        if( String.isBlank(resource.Description__c) & String.isBlank(resourceLink) ) {
+        	 ApexPages.addMessage(new ApexPages.message(ApexPages.severity.ERROR, Label.ERR_Link_File_or_Description_Required));
+        	 return pr;
+        }
+		
 		if (resource.Primary_Tag__c != NULL) {
-			resource.Primary_Tag__c = String.isBlank(String.valueOf(resource.Primary_Tag__c)) ? NULL : resource.Primary_Tag__c;
+            //resource.Primary_Tag__c = String.isBlank(String.valueOf(resource.Primary_Tag__c)) ? NULL : resource.Primary_Tag__c;
+            resource.Primary_Tag__c=NULL;
 		}
 		try {
 			if (String.isNotBlank(linkText)) {
@@ -260,6 +288,10 @@ public with sharing class CommunityResourceController {
 				);
 			}
 			else {
+				if(!String.isNotBlank(ApexPages.currentPage().getParameters().get('resLink'))) {
+					resource.Link__c=NULL;
+    				delete [select id from Attachment where ParentId=:resource.Id];
+				}				
 				//upsert resource;
 				CommunityAccess.UpsertWithoutSharing(
 					resource,
@@ -273,6 +305,8 @@ public with sharing class CommunityResourceController {
 			}
 			if (mode == 'edit') {
 				String tagsIdsString = ApexPages.currentPage().getParameters().get(TAGS_INPUT_NAME);
+//				add library tags in community_resource_tag list  				
+				tagsIdsString = ApexPages.currentPage().getParameters().get(LIBRARY_TAGS_INPUT_NAME)+tagsIdsString;
 				CommunityTagSelectorController ctsc = new CommunityTagSelectorController();
 				ctsc.objectId = resource.Id;
 				ctsc.objectType = Community_Resource_Tag__c.getSObjectType().getDescribe().getName();
@@ -288,4 +322,20 @@ public with sharing class CommunityResourceController {
 		}
 		return pr;
 	}
+	
+	private static List<Community_Resource_Tag__c> getLibraryTags(ID resourceID) {
+		if (!SObjectType.Community_Tag__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Tag__c);
+		String tagQuery = 'SELECT id, Community_Tag__c, Community_Tag__r.name, Community_Tag__r.Theme_Name__c FROM Community_Resource_Tag__c ';
+		tagQuery += 'WHERE resource__c =: resourceID and Community_Tag__r.Theme_Type__c=\'Resource\' ORDER BY Community_Tag__r.name, Name';
+		
+		return database.query(tagQuery);
+	}
+	
+    public Boolean permissionShareBanned {
+		get {
+			Community_Settings__c cs = Community_Settings__c.getInstance();
+			return Boolean.valueOf(cs.Disable_Share__c);
+		}
+	}
+    
 }
