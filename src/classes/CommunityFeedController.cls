@@ -1383,7 +1383,7 @@ global with sharing class CommunityFeedController {
 			Profile prof = [SELECT PermissionsModerateChatter, PermissionsModerateNetworkFeeds FROM Profile WHERE Id = :UserInfo.getProfileId() Limit 1];
 			Boolean moderateChatter = prof.PermissionsModerateChatter;
 			Boolean moderateFeeds = prof.PermissionsModerateNetworkFeeds;
-			bool =  moderateChatter || moderateFeeds;
+			bool = moderateChatter || moderateFeeds;
 		}
 		return bool;
 	}
