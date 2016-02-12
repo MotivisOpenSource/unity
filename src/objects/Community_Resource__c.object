@@ -100,11 +100,6 @@
             <isRequired>false</isRequired>
         </availableFields>
         <availableFields>
-            <field>Primary_Tag__c</field>
-            <isFieldManaged>false</isFieldManaged>
-            <isRequired>false</isRequired>
-        </availableFields>
-        <availableFields>
             <field>Resource_Name__c</field>
             <isFieldManaged>false</isFieldManaged>
             <isRequired>false</isRequired>
@@ -176,11 +171,6 @@
         </availableFields>
         <availableFields>
             <field>OwnerId</field>
-            <isFieldManaged>false</isFieldManaged>
-            <isRequired>false</isRequired>
-        </availableFields>
-        <availableFields>
-            <field>Primary_Tag__c</field>
             <isFieldManaged>false</isFieldManaged>
             <isRequired>false</isRequired>
         </availableFields>
@@ -354,7 +344,6 @@
         <fullName>Active_Resources</fullName>
         <columns>NAME</columns>
         <columns>Resource_Name__c</columns>
-        <columns>Primary_Tag__c</columns>
         <columns>Sort__c</columns>
         <columns>Quick_Link__c</columns>
         <columns>Link__c</columns>
@@ -375,7 +364,6 @@
         <columns>Resource_Name__c</columns>
         <columns>Description__c</columns>
         <columns>Status__c</columns>
-        <columns>Primary_Tag__c</columns>
         <columns>Quick_Link__c</columns>
         <columns>Sort__c</columns>
         <columns>Link__c</columns>
@@ -388,7 +376,6 @@
         <fullName>All_Resources</fullName>
         <columns>NAME</columns>
         <columns>Resource_Name__c</columns>
-        <columns>Primary_Tag__c</columns>
         <columns>Sort__c</columns>
         <columns>Quick_Link__c</columns>
         <columns>Help_Link__c</columns>
