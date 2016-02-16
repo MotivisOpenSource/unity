@@ -272,7 +272,6 @@
 												<div class="sky-form">
 													<fieldset>
 														<section>
-                                                            <label class="label">Write a reply...</label>
 															<label class="textarea">
 																<i class="icon-append fa fa-comment"></i>
 																<textarea name="replyBody" id="replyBody" placeholder="Write a reply..."></textarea><!--rows="4"-->
@@ -485,8 +484,7 @@
 					$.each($('li.search-choice'), function(i, item) {
 						recipients.push(item);
 					})
-                    if(recipients.length > 0) return true;
-                    return false;
+					return $(RECIPIENT_INPUT_BOX).is(':visible') == false || recipients.length > 0;
 				}
 
 				function messageValidationHandler (el, err_el, disabled_cls, btn, txt_lim) {
