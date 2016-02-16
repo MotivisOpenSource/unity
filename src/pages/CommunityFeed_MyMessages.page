@@ -481,12 +481,14 @@
 				}
 
 				function checkRecipients() {
+					if ($('#newConversationModal').is(":visible") == false) {
+						return true;
+					}
 					var recipients = [];
 					$.each($('li.search-choice'), function(i, item) {
 						recipients.push(item);
 					})
-                    if(recipients.length > 0) return true;
-                    return false;
+                    return (recipients.length > 0);
 				}
 
 				function messageValidationHandler (el, err_el, disabled_cls, btn, txt_lim) {
