@@ -30,9 +30,11 @@
 <apex:component layout="none">
 	<apex:attribute name="fl" description="" type="CommunityFieldLayout" required="true"/>
 	<apex:attribute name="so" description="" type="SObject" required="true"/>
+	<apex:attribute name="it" description="" type="SelectOption[]" required="false"/>
+	<apex:attribute name="av" description="" type="String" required="false"/>
 	<apex:variable var="index" value="{!0}"/>
 	<apex:repeat value="{!fl.flds}" var="fld">
-		<section>
+		<section class="CommunityFieldLayout">
 
 			<label class="label">
 				<apex:outputPanel layout="none" rendered="{!fld.tyrion}">
@@ -62,9 +64,16 @@
 			</apex:outputLabel>
 
 			<!-- CHECKBOX -->
-			<apex:outputLabel styleClass="checkbox" rendered="{!fld.ftype == 'checkbox'}">
+			<apex:outputLabel styleClass="checkbox" rendered="{!AND(fld.ftype == 'checkbox',fld.label != 'Automatic Archiving')}">
 				<apex:inputCheckbox value="{!so[fld.name]}" required="{!fld.tyrion}"/><i></i>
 			</apex:outputLabel>
+
+			<!-- RADIO FOR ARCHIVING-->
+			<apex:outputLabel styleClass="radioOptions" rendered="{!AND(fld.ftype == 'checkbox',fld.label == 'Automatic Archiving')}">
+				<apex:selectRadio value="{!av}" layout="pageDirection">
+			        <apex:selectOptions value="{!it}"/>
+			    </apex:selectRadio>
+		    </apex:outputLabel>
 
 			<!-- PICKLIST -->
 			<apex:outputLabel styleClass="select" rendered="{!fld.ftype == 'picklist'}">
@@ -120,10 +129,9 @@
 		if(jQuery('.cs-datetime')) {
 			var currentdate = new Date(); 
 			jQuery('.cs-datetime').datetimepicker({
-				format:'m/d/Y h:i A',//format: ucDateFormat() + ' ' + ucTimeFormat(),
-				formatTime:'h:i A',
-				formatDate:'m/d/Y',
+				format: ucDateFormat() + ' ' + ucTimeFormat(),
 				step:30,
+				closeOnTimeSelect: true,
 				lang: 'en'
 			});
 		}
@@ -131,20 +139,20 @@
 		if(jQuery('.cs-date')) {
 			jQuery('.cs-date').datetimepicker({
 				timepicker:false,
-				format: 'm/d/Y',
+				format: ucDateFormat(),
+				closeOnDateSelect: true,
 				lang: 'en'
 			});
 		}
-		/*
 		function ucDateFormat() {
-	 		return !(UserContext && UserContext.dateTimeFormat) ? 'n/d/Y'
+			return !(UserContext && UserContext.dateTimeFormat) ? 'n/d/Y'
 					: UserContext.dateFormat.replace('yyyy','Y').replace('yy','y').replace('MM','m').replace('M','n').replace('dd','d').replace('d','j');
 		}
 		function ucTimeFormat() {
 			return !(UserContext && UserContext.timeFormat) ? 'h:m a'
 					: UserContext.timeFormat.replace('mm','i').replace('a','A').replace('hh','g').replace('h','g').replace('HH','G').replace('H','G');
-		} 
-		*/
+		}
+		
 		//multipicklist
 		jQuery('select[id$=msfld]').show();
 		jQuery('.multiSelectPicklistTable').hide();

@@ -43,6 +43,10 @@ public with sharing class CommunityTopicController {
 
     public CommunityTopicController() {
         topicId = CommunityUtils.validateId(ApexPages.CurrentPage().getParameters().get('id'));
+		if (topicId != null && topicId.length() < 18) {
+			Id tempId = topicId;
+			topicId = tempId;
+		}
         parentId = CommunityUtils.validateId(ApexPages.CurrentPage().getParameters().get('pid'));
     }
 
@@ -157,6 +161,7 @@ public with sharing class CommunityTopicController {
 // List for ids must be less than 200
 	public static Set<String> selectSubscription(List<String> parentItemIds){
 		Set<String> parentFollowingIds = new Set<String>();
+		if (!SObjectType.EntitySubscription.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.EntitySubscription);
 		for(EntitySubscription es : [SELECT Id, ParentId, SubscriberId, NetworkId 
 									FROM EntitySubscription
 									WHERE NetworkId =: Network.getNetworkId()

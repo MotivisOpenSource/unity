@@ -40,7 +40,7 @@
 	</head> 
 	<body class="header-fixed boxed-layout container">
 		<div class="wrapper">
-			<c:CommunityMenu />
+			<c:CommunityMenu rendered="{!TEXT($User.UserType) != 'Guest'}" />
 			<apex:insert name="body"/>
 			<c:CommunityFooter />
 		</div><!--/wrapper-->

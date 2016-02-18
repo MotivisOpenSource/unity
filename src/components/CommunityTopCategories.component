@@ -34,12 +34,12 @@
 <apex:outputPanel rendered="{!compRendered}">
 	<apex:repeat value="{!WrappedThemes}" var="theme">
 		<div class="headline"><h2>{!theme.themeName}</h2> &nbsp;<span id="tagsArrow{!JSENCODE(theme.themeId)}" class="glyphicon glyphicon-chevron-down" onclick="diplayHideTagsList('{!JSENCODE(theme.themeId)}')"></span></div>
-
-		<div id="tagsList{!theme.themeId}" class="row category margin-bottom-20">
+        <div id="tagsList{!theme.themeId}">
 			<apex:repeat value="{!theme.tagColumns}" var="tagColumn">
-				<div class="col-md-4 col-sm-6">
+            <div class="row category">
 					<apex:repeat value="{!tagColumn}" var="tag">
-						<div class="content-boxes-v3 margin-bottom-10 md-margin-bottom-20">
+                    <div class="col-xs-12 col-sm-6 col-md-4">
+                        <div class="content-boxes-v3 margin-top-5">
 							<i class="icon-custom icon-sm rounded-x {!theme.themeIconColor} {!tag.iconStyle}"></i>
 							<div class="content-boxes-in-v3 padding-top-10">
 								<h3>
@@ -52,6 +52,7 @@
 								</h3>
 							</div>
 						</div>
+                    </div>
 					</apex:repeat>
 				</div>
 			</apex:repeat>

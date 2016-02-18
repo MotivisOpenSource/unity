@@ -31,6 +31,7 @@ public with sharing class CommunityHomeComponentController {
 	/* -- Campus Section Component -- */
 	public List<News> getCampusNews() {
 		List<News> resultList = new List<News>();
+		if (!SObjectType.Community_News__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_News__c);
 		for (Community_News__c cnItem : [
 						SELECT Id, Title__c, Teaser__c, Image_Path__c
 						FROM Community_News__c
@@ -47,6 +48,7 @@ public with sharing class CommunityHomeComponentController {
 
 	/* -- My News Component -- */
 	public List<News> getMyNews() {
+		if (!SObjectType.Community_News__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_News__c);
 		List<Community_News__c> cnList = [
 			SELECT Id, Title__c, Teaser__c, Image_Path__c, Entry_Date__c
 			FROM Community_News__c
@@ -61,6 +63,7 @@ public with sharing class CommunityHomeComponentController {
 				newsIds.add(cnItem.Id);
 			}
 			Map<Id, Community_Tag__c> newsTagMap = new Map<Id, Community_Tag__c>();
+			if (!SObjectType.Community_News_Tag__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_News_Tag__c);
 			for (Community_News_Tag__c cntItem : [
 				SELECT Community_News__c, Community_Tag__c, Community_Tag__r.Community_Theme__c, Community_Tag__r.Community_Theme__r.Theme_Type__c,
 					Community_Tag__r.Name
@@ -79,6 +82,17 @@ public with sharing class CommunityHomeComponentController {
 		return resultList;
 	}
 	/* !-- My News Component -- */
+
+	public Boolean isMuteAvailable{
+		get{
+			try{
+				ConnectApi.Feed f = ConnectApi.ChatterFeeds.getFeed(Network.getNetworkId(), ConnectApi.FeedType.Muted, 'me');
+				return true;
+			}catch(Exception ex){
+				return false;
+			}
+		}
+	}
 
 	/* -- Wrapper -- */
 	private static final Map<String,String> TAG_STYLE = new Map<String,String> {

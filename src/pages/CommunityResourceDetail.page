@@ -45,16 +45,25 @@
 	</div>
 	<div class="profile CommunityResourceDetail">
 		<div class="container content">
-			<apex:outputPanel layout="block" styleClass="row text-center margin-bottom-20" rendered="{!$ObjectType.Community_Resource__c.Updateable}">
-				<apex:outputLink value="{!urlForEditResource}" styleClass="btn-u">{!$Label.BTN_Edit_Resource}</apex:outputLink>
+<apex:form >
+			<apex:outputPanel layout="block" styleClass="row text-center margin-bottom-20">
+				<apex:outputLink value="{!urlForEditResource}" styleClass="btn-u" rendered="{!$ObjectType.Community_Resource__c.Updateable}">{!$Label.BTN_Edit_Resource}</apex:outputLink>
+				<c:CommunityShare sO="{!resource}" rendered="{!!permissionShareBanned}"/>
 			</apex:outputPanel>
+</apex:form>			
+
+
 			<apex:outputPanel layout="block" styleClass="sky-form">
 				<dl class="dl-horizontal">
 					<apex:repeat value="{!rlayout.flds}" var="fs">
+                    <apex:outputPanel layout="none" rendered="{!OR(!IsNoteResource, AND(fs.label!='Status', fs.label!='Link'))}">            
 						<dt><strong>{!fs.label}</strong></dt>
 						<dd><apex:outputField value="{!resource[fs.name]}"/></dd>
 						<hr/>
+                    </apex:outputPanel>       
 					</apex:repeat>
+
+                    <apex:outputPanel layout="none" rendered="{!!IsNoteResource}">
 					<dt><strong>Resource</strong></dt>
 					<dd>
 						<!-- <i class="expand-list rounded-x fa {!ResourceLink[2]}" style="width:24px;"></i>&nbsp; -->
@@ -65,6 +74,7 @@
 						</apex:outputPanel>
 					</dd>
 					<hr/>
+                    </apex:outputPanel>  
 					<dt><strong>Tags</strong></dt>
 					<dd>
 						<ul class="list-unstyled blog-tags">
@@ -80,6 +90,15 @@
 				</dl>
 			</apex:outputPanel>
 		</div>
+		
+		<div class="row">
+			<div class="col-sm-12">
+				<div id="feed" class="profile-edit tab-pane fade in active">
+					  <c:CommunityFeed pid="{!resource.Id}"/>   
+				</div>
+			</div>
+		</div>
+		
 	</div>
 	<apex:form rendered="{!$ObjectType.Community_Resource__c.Updateable}">
 		<c:CommunityResourceDialog lt="{!linkText}" fn="{!imgFileName}" ft="{!imgContentType}" fb="{!imgBody}"/>

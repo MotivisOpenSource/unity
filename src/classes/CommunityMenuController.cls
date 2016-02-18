@@ -42,7 +42,10 @@ public with sharing class CommunityMenuController {
 
 	public static String getRegistration() {
 		String result = 'false';
-		if (!currentPage(Page.CommunityRegTerms.getUrl()) && !currentPage(Page.Community404.getUrl())) {
+		if (UserInfo.getUserType() != 'Guest'
+			&& !currentPage(Page.CommunityRegTerms.getUrl())
+			&& !currentPage(Page.Community404.getUrl())
+		) {
 			CommunityRegTermsController crtc = new CommunityRegTermsController();
 			result = crtc.checkAndPrepareMenu();
 		}
@@ -51,22 +54,26 @@ public with sharing class CommunityMenuController {
 	
 	public static Boolean getShowHideMenu() {
 		Community_Template_Settings__c cts = Community_Template_Settings__c.getOrgDefaults();
-		If((String.isBlank(cts.Header_Logo_ImageID__c)) && getIsRegTermsPage()) return false;
-		else return true;
+		return !((String.isBlank(cts.Header_Logo_ImageID__c)) && getIsRegTermsPage());
 	}
-	
+
+	public static String getColorScheme() {
+		Community_Template_Settings__c cts = Community_Template_Settings__c.getInstance();
+		return String.isNotBlank(cts.Color_Scheme__c) ? cts.Color_Scheme__c : 'Green';
+	}
+
+	public static Boolean getIsDefaultBackground() {
+		Community_Template_Settings__c cts = Community_Template_Settings__c.getInstance();
+		return String.isBlank(cts.Background_ImageID__c);
+	}
+
+	public static String getBackgroundImageId() {
+		Community_Template_Settings__c cts = Community_Template_Settings__c.getInstance();
+		return String.isNotBlank(cts.Background_ImageID__c) ? cts.Background_ImageID__c : '';
+	}
 
 	public static Boolean getIsRegTermsPage() {
 		return currentPage(Page.CommunityRegTerms.getUrl());
-	}
-
-	public PageReference getRedirectToLogin() {
-		PageReference pr;
-		if (UserInfo.getUserType() == 'Guest') {
-			pr = Network.forwardToAuthPage(NULL);
-			
-		}
-		return pr;
 	}
 
 	public String getAlert() {
@@ -79,13 +86,34 @@ public with sharing class CommunityMenuController {
 			AND Entry_Date__c <= :Now AND Expiration_Date__c >= :Now
 			LIMIT 1
 		];
-		return newsList.isEmpty() ? '' : newsList[0].Teaser__c;
+		return newsList.isEmpty() ? NULL : newsList[0].Teaser__c;
 	}
 
 	public String getHelpLink() {
 		if (!SObjectType.Community_Resource__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Resource__c);
 		List<Community_Resource__c> helpList = [SELECT Id, Link__c FROM Community_Resource__c WHERE Status__c = 'Active' AND Help_Link__c = true AND Link__c != NULL];
 		return (helpList.size() > 0 && String.isNotBlank(helpList[0].Link__c)) ? helpList[0].Link__c : NULL;
+	}
+
+	public String getBackCRMlink() {
+		String result;
+		if (UserInfo.getUserType() == 'Standard' || Test.isRunningTest()) {
+			try {
+				PageReference pr = new PageReference('/id/' + UserInfo.getOrganizationId() + '/' + UserInfo.getUserId());
+				pr.getParameters().put('oauth_token', UserInfo.getSessionId());
+				pr.getParameters().put('format', 'json');
+				Map<String,Object> identityContent = (Map<String,Object>)Json.deserializeUntyped(pr.getContent().toString());
+				Map<String,Object> urls = (Map<String,Object>)identityContent.get('urls');
+				result = (String)urls.get('custom_domain');
+			}
+			catch(Exception e) {
+			}
+			result = result == null ? ApexPages.currentPage().getHeaders().get('X-Salesforce-Forwarded-To') : result;
+			if (String.isNotBlank(result)) {
+				result = result.contains('://') ? result : ('https://' + result);
+			}
+		}
+		return result == null ? null : (result + '/home/home.jsp');
 	}
 
 	// -- variables -- lists for wrapper class --

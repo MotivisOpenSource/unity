@@ -30,6 +30,156 @@
 @isTest
 private class CommunityTest4 {
 /*Utility Class Tests*/
+	private static final String testUrl = 'testUrl';
+	private static final String messageTypeParam = 'emkind';
+	private static final String testId = '123456789';
+
+	private static String prepareFeedItemData() {
+		FeedItem testFeedItem = new FeedItem(
+			ParentId = UserInfo.getUserId(),
+			Body = 'testBody'
+		);
+		insert testFeedItem;
+
+		return testFeedItem.Id;
+	}
+
+	static testMethod void test_CommunityHelperWithoutSharing() {
+		CommunityTest3.testDataFactory df = new CommunityTest3.testDataFactory(
+			new Set<String> {
+				'internalUser',
+				'secondInternalUser',
+				'communitySuperUser',
+				'addRoleToContact'
+			}
+		);
+		Id currentUserId = UserInfo.getUserId();
+		
+
+		System.runAs(df.communityUser) {
+			CommunityHelperWithoutSharing testHelper = new CommunityHelperWithoutSharing();
+			CollaborationGroup cg = new CollaborationGroup();
+			cg.Name = 'newgroup';
+			cg.CollaborationType = 'Public' ;
+			insert cg;
+			
+			Community_Group_Control__c testControl = new Community_Group_Control__c(
+				Name = 'testName',
+				Discoverable__c = true,
+				Type__c = 'Public',
+				Network__c = 'Internal',
+				Chatter_Group_ID__c = cg.Id
+			);
+			insert testControl;
+
+			Community_Group_Manager__c testManager = new Community_Group_Manager__c(
+				Group_Manager_User__c = currentUserId,
+				Group_Control__c = testControl.Id
+			);
+			insert testManager;
+
+			CollaborationGroupMember cgmem = new CollaborationGroupMember(
+				CollaborationGroupId = cg.id,
+				CollaborationRole = 'Admin',
+				MemberId = currentUserId,
+				NotificationFrequency = 'P'
+			);
+			insert cgmem;
+
+			System.assertNotEquals(null, CommunityHelperWithoutSharing.getCommunityGroupControl(cg.Id));
+			CommunityHelperWithoutSharing.getFeeds(new Set<Id>(), null);
+			Community_News__c testNews = new Community_News__c();
+			testNews.Title__c = 'Test Title';
+			insert testNews;
+			Attachment testAttach = new Attachment(
+				Name = 'TEMPORARY_UPDATE',
+				ParentId = testNews.Id,
+				Body = Blob.valueOf(JSON.serialize(testNews))
+			);
+			insert testAttach;
+            FeedItem fi = new FeedItem();
+            fi.Title = 'testString';
+            fi.Body = 'testString';
+            fi.ParentId = df.communityUser.Id;
+            fi.Type = 'ContentPost';
+            fi.ContentFileName = 'testString'; 
+            fi.ContentData = EncodingUtil.base64Decode('testString'); 
+            insert fi;
+            FeedItem fi2 = CommunityHelperWithoutSharing.getFeedParentId('testString', df.communityUser.Id, System.now());
+            CommunityHelperWithoutSharing.getUsers(new Set<String>{UserInfo.getUserId()});
+            CommunityHelperWithoutSharing.getGroups(new Set<String>{cg.Id});
+			CommunityHelperWithoutSharing.getAttachment(testAttach.Id);
+			CommunityHelperWithoutSharing.membershipWOSH(currentUserId, testControl.Id, '2');
+		}
+	}
+
+	static testMethod void commonRewriterTest() {
+		String feedItemId = prepareFeedItemData();
+		CommunityUrlRewriter testRewriter = new CommunityUrlRewriter();
+
+		PageReference testPageRef = new PageReference(testRewriter.STANDARD_USER_DETAIL_PAGE + testUrl);
+		testPageRef.getParameters().put('u', testId);
+		testPageRef.getParameters().put('fi', testId);
+		testRewriter.mapRequestUrl(testPageRef);
+
+		testPageRef = new PageReference(testRewriter.STANDARD_CHATTER_PAGE + testUrl);
+		testRewriter.mapRequestUrl(testPageRef);
+
+        testPageRef = new PageReference(testRewriter.STANDARD_CHATTER_PAGE + testUrl);
+        testPageRef.getParameters().put(messageTypeParam, testRewriter.CHATTER_POST_NOTIFICATION);
+        testRewriter.mapRequestUrl(testPageRef);
+
+        testPageRef = new PageReference(testRewriter.COMMUNITY_HEADER_REWRITING_PAGE + testUrl);
+        testRewriter.mapRequestUrl(testPageRef);
+
+        testPageRef = new PageReference(testRewriter.COMMUNITY_HEADER_REWRITING_PAGE + testUrl);
+        testPageRef.getParameters().put('id', '005120015402305');
+        testRewriter.mapRequestUrl(testPageRef);
+
+        testPageRef = new PageReference(testRewriter.STANDARD_TOPIC_PAGE + testUrl);
+        testRewriter.mapRequestUrl(testPageRef);
+
+        testPageRef = new PageReference(testRewriter.STANDARD_GROUP_DETAIL_PAGE + testUrl);
+        testPageRef.getParameters().put('u', testId);
+        testPageRef.getParameters().put('g', UserInfo.getUserId());
+        testRewriter.mapRequestUrl(testPageRef);
+
+		testPageRef = new PageReference(testRewriter.STANDARD_GROUP_DETAIL_PAGE + testUrl);
+        testPageRef.getParameters().put(messageTypeParam, testRewriter.CHATTER_POST_NOTIFICATION);
+		testPageRef.getParameters().put('u', testId);
+		testPageRef.getParameters().put('g', UserInfo.getUserId());
+		testRewriter.mapRequestUrl(testPageRef);
+
+		testPageRef = new PageReference(testUrl);
+		testPageRef.getParameters().put(messageTypeParam, testRewriter.CHATTER_PRIVATE_MESSAGE_NOTIFICATION);
+		testRewriter.mapRequestUrl(testPageRef);
+
+		testPageRef = new PageReference(testUrl);
+		testPageRef.getParameters().put(messageTypeParam, testRewriter.CHATTER_POST_NOTIFICATION);
+		testPageRef.getParameters().put('fid', feedItemId);
+		testPageRef.getParameters().put('s1uid', Userinfo.getUserId());
+		testRewriter.mapRequestUrl(testPageRef);
+
+		testPageRef = new PageReference(testUrl);
+		testPageRef.getParameters().put(messageTypeParam, testRewriter.CHATTER_POST_NOTIFICATION);
+		testPageRef.getParameters().put('fid', feedItemId);
+		testPageRef.getParameters().put('s1uid', testId);
+		testRewriter.mapRequestUrl(testPageRef);
+
+		testPageRef = new PageReference(testUrl);
+		testPageRef.getParameters().put(messageTypeParam, testRewriter.CHATTER_COMMENT_NOTIFICATION);
+		testPageRef.getParameters().put('fId', feedItemId);
+		testPageRef.getParameters().put('s1uid', Userinfo.getUserId());
+		testRewriter.mapRequestUrl(testPageRef);
+
+		testPageRef = new PageReference(testUrl);
+		testPageRef.getParameters().put(messageTypeParam, testRewriter.CHATTER_COMMENT_NOTIFICATION);
+		testPageRef.getParameters().put('fId', feedItemId);
+		testPageRef.getParameters().put('s1uid', testId);
+		testRewriter.mapRequestUrl(testPageRef);
+
+		System.assertEquals(testRewriter.generateUrlFor(new List<PageReference>()), null);
+	}
 
 	static testMethod void test_CommunityUrlRewriter() {
 		CommunityUrlRewriter rewriter = new CommunityUrlRewriter();
@@ -72,6 +222,8 @@ private class CommunityTest4 {
 			FederationIdentifier='TestCon3456tactName.TestContactLastname2', Community_Contact_ID__c=con2.Id);
 		insert u2;
 		System.runAs(u2) {
+			CommunityUtils.systemTagFilter('testString', 'testString');
+			CommunityUtils.getHtmlField('testValue');
 			CommunityUtils.isModifyAllData();
 			CommunityUtils.isViewAllData();
 			CommunityUtils.canCreateGroup();
@@ -169,7 +321,7 @@ private class CommunityTest4 {
 			CollaborationGroup cg = new CollaborationGroup();
 			cg.Name = 'newgroup';
 			cg.CollaborationType = 'Public' ;
-			insert cg;			
+			insert cg;
 			insert new Community_Group_Control__c(Name='1212t',Discoverable__c=true,Type__c='Public',Network__c='Internal', Chatter_Group_ID__c=cg.Id);
 			Community_Group_Control__c control = [SELECT id FROM Community_Group_Control__c  Where Chatter_Group_ID__c =: cg.Id LIMIT 1];
 			CommunityUtils.membership(UserInfo.getUserId(), control.Id, '1');
@@ -189,6 +341,38 @@ private class CommunityTest4 {
 		}	
 	}
 	
+	static testMethod void test_CommunityUtils2() {
+		CommunityTest3.testDataFactory df = new CommunityTest3.testDataFactory(
+			new Set<String> {
+			'internalUser',
+			'secondInternalUser',
+			'communitySuperUser',
+			'addRoleToContact'
+			}
+		);
+
+		System.runAs(df.communityUser) {
+			CollaborationGroup cg = new CollaborationGroup(
+				Name = 'testName',
+				CollaborationType = 'Public',
+				OwnerId = df.secondCommunityUser.Id
+			);
+			insert cg;
+			CollaborationGroupMember cgmem = new CollaborationGroupMember(
+				CollaborationGroupId = cg.id,
+				CollaborationRole = 'Admin',
+				MemberId = df.communityUser.Id,
+				NotificationFrequency = 'P'
+			);
+			insert cgmem;
+			Test.startTest();
+			CommunityUtils.changeManagerRoleToStandard(new Set<Id>{cgmem.Id});
+			Test.stopTest();
+			CollaborationGroupMember cgm = [select id, CollaborationRole from CollaborationGroupMember where id=:cgmem.Id];           
+			System.assert(cgm.CollaborationRole == 'Standard');
+		}
+	}
+
 	static testMethod void test_UnityAdminController() {
 		UnityAdminController ua = new UnityAdminController();
 		ua.getFieldsCR();
@@ -210,6 +394,7 @@ private class CommunityTest4 {
 		ua.saveCS();
 		ua.cts = null;
 		ua.saveCTS();
+		ua.getColorSchemeItems();
 	}
 
 	static testMethod void test_AddLabelToPackage() {
@@ -219,6 +404,11 @@ private class CommunityTest4 {
 		String RegProfilePicture = Label.LBL_RegProfilePicture_Title;
 		String RegTerms = Label.LBL_RegTerms_Title;
 		String leaveLabel = Label.LBL_LeavePage_Message;
+		String MyFavorites = Label.LBL_MyFavorites;
+		String PeopleTalking = Label.LBL_PeopleTalkingAboutThis;
+		String ShueToDelete = Label.LBL_Sure_To_Delete_Topic;
+		String TalkingAbout = Label.LBL_Talking_About;
+		String TopicsIUse = Label.LBL_TopicsIUse;
 		System.assert(true);
 	}
 
@@ -227,37 +417,110 @@ private class CommunityTest4 {
 		//deprecated
 	}
 
-	static testMethod void test_CommunityObjectController() {
-		Account acc = new Account(Name='testAccount');
-		insert acc;
-		Contact con = new Contact(LastName='TCLN', MailingPostalCode='99013', email='testc@testdomain.com', AccountId=acc.Id, Primary_Role__c='Student');
-		insert con;
-		Profile profile = [SELECT Id FROM Profile WHERE Name = 'System Administrator'];
-		User u = new User(alias='alias', email='email@email.com', emailencodingkey='UTF-8', lastname='lastname', firstname = 'firstName', languagelocalekey='en_US',
-			localesidkey='en_US', profileid = profile.Id, timezonesidkey='America/Los_Angeles', username='ttsde.tedf2@testmail.com',
-			FederationIdentifier='TestContactName.TestContactLastname2', Community_Contact_ID__c=con.Id);
-		insert u;
-		Community_Group_Control__c cgc =  new Community_Group_Control__c(Name='ts',Discoverable__c=true,Type__c='Public',Network__c='Internal');
-		insert cgc;
-		ApexPages.currentPage().getParameters().put('fieldSetName','EditGroup');
-		ApexPages.currentPage().getParameters().put('objectId',cgc.Id);
-		ApexPages.currentPage().getParameters().put('objectName','Community_Group_Control__c');
-		System.runAs(u) {
-			CommunityObjectController coc3 = new CommunityObjectController();
-			coc3.saveAction();
+	static testMethod void test_CommunityAccessException() {
+		Contact nc = new Contact();
+		CommunityAccessException exc = new CommunityAccessException(
+			CommunityAccess.AccessViolationException,
+			CommunityAccessException.ExceptionType.OBJECT_ACCESS_VIOLATION,
+			CommunityAccessException.ExceptionReason.NO_DELETE,
+			nc.getSObjectType().getDescribe().getName(),
+			''
+		);
+		exc.getExceptionType();
+		exc.getExceptionReason();
+		exc.getExceptionObject();
+		exc.getExceptionField();
+		exc.getText();
+		System.assert(exc.ExceptionMessage != null);
+	}
+
+	static testMethod void test_CommunityAccess() {
+		
+		Contact con = new Contact();
+		String err = 'Test Method For Class';
+		
+		try{
+			Database.SaveResult resI = CommunityAccess.InsertWithoutSharing(con, err, new List<Schema.DescribeFieldResult> { Contact.OwnerId.getDescribe(), Contact.Birthdate.getDescribe() });
+		}catch(Exception ex){
+			System.assert(ex.getMessage() != null);
 		}
-		Community_Profile__c cp = [SELECT Id FROM Community_Profile__c WHERE Contact__c = :con.Id LIMIT 1];
-		System.Debug(cp);
+
+		try{
+			Database.SaveResult[] resIi = CommunityAccess.InsertWithoutSharing(new List<SObject>{con}, err, new List<Schema.DescribeFieldResult> { Contact.OwnerId.getDescribe(), Contact.Birthdate.getDescribe() });
+		}catch(Exception ex){
+			System.assert(ex.getMessage() != null);
+		}
+		
+		try{
+			Database.SaveResult[] resUpd = CommunityAccess.UpdateWithoutSharing(new List<SObject>{con}, err, new List<Schema.DescribeFieldResult> { Contact.OwnerId.getDescribe(), Contact.Birthdate.getDescribe() });
+		}catch(Exception ex){
+			System.assert(ex.getMessage() != null);
+		}
+		
+		try{
+			Database.UpsertResult resUps = CommunityAccess.UpsertWithoutSharing(con, err, new List<Schema.DescribeFieldResult> { Contact.OwnerId.getDescribe(), Contact.Birthdate.getDescribe() });
+		}catch(Exception ex){
+			System.assert(ex.getMessage() != null);
+		}
+		
+		try{
+			Database.UpsertResult[] resUpss = CommunityAccess.UpsertWithoutSharing(new List<SObject>{con}, err, new List<Schema.DescribeFieldResult> { Contact.OwnerId.getDescribe(), Contact.Birthdate.getDescribe() });
+		}catch(Exception ex){
+			System.assert(ex.getMessage() != null);
+		}
+		
+		try{
+			Database.DeleteResult resD = CommunityAccess.DeleteWithoutSharing(con, err);
+		}catch(Exception ex){
+			System.assert(ex.getMessage() != null);
+		}
+		
+		try{
+			Database.DeleteResult[] resDd = CommunityAccess.DeleteWithoutSharing(new List<SObject>{con}, err);
+		}catch(Exception ex){
+			System.assert(ex.getMessage() != null);
+		}
+		try{
+			CommunityAccess.ThrowAccessException(Contact.getsObjectType().getDescribe());
+		}catch(Exception ex){
+			System.assert(ex.getMessage() != null);
+		}
+		
+	}
+
+	@IsTest(SeeAllData=true)
+	static void test_CommunityObjectController() {
+		CommunityTest3.testDataFactory df = new CommunityTest3.testDataFactory(
+			new Set<String> {
+				'internalUser',
+				'communitySuperUser',
+				'createGroupControl',
+				'makeApprovedGroup'
+			}
+		);
+		System.runAs(df.communityUser) {
+		ApexPages.currentPage().getParameters().put('fieldSetName','EditGroup');
+			ApexPages.currentPage().getParameters().put('objectId',df.groupControl.Id);
+		ApexPages.currentPage().getParameters().put('objectName','Community_Group_Control__c');
+			CommunityObjectController coc3 = new CommunityObjectController();
+			System.assert(coc3 != NULL);
+		}
+		CommunityTest3.testDataFactory df2 = new CommunityTest3.testDataFactory(
+			new Set<String> {
+				'communityUser',
+				'communitySuperUser',
+				'addRoleToContact'
+			}
+		);
+		System.runAs(df2.communityUser) {
+			Community_Profile__c cp = [SELECT Id FROM Community_Profile__c WHERE Contact__c = :df2.communityUser.ContactId LIMIT 1];
 		ApexPages.currentPage().getParameters().put('fieldSetName',CommunityUtils.getPackagePrefix()+'Student_About_Me_1');
 		ApexPages.currentPage().getParameters().put('objectId',cp.Id);
 		ApexPages.currentPage().getParameters().put('objectName',CommunityUtils.getPackagePrefix()+'Community_Profile__c');
 		ApexPages.currentPage().getParameters().put('tn','wrong');
 		ApexPages.currentPage().getParameters().put('tfn','wrong');
-		CommunityObjectController coc = new CommunityObjectController();
-		System.Debug(coc.so);
-		System.runAs(u) {
 			CommunityObjectController coc2 = new CommunityObjectController();
-			System.assert(coc2.so != NULL);
+			System.assert(coc2 != NULL);
 			coc2.saveAction();
 		}
 	}

@@ -47,14 +47,7 @@ public with sharing class CommunityFeedNavigationController {
 
 	public String chatterGroupId { get; set; }
 	public Boolean getShowGroupManager() {
-		Boolean result = false;
-		if (String.isNotBlank(chatterGroupId)) {
-			if (!SObjectType.Community_Group_Manager__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Manager__c);
-			String queryChatterGroupId = CommunityUtils.validateId(chatterGroupId);
-			List<Community_Group_Manager__c> cgmList = [SELECT Id FROM Community_Group_Manager__c WHERE Group_Manager_User__c = :UserInfo.getUserId() AND Group_Control__r.Chatter_Group_ID__c = :queryChatterGroupId];
-			result = cgmList.size() > 0;
-		}
-		return result;
+		return CommunityUtils.isShowGroupManagerUser(chatterGroupId, true);
 	}
 
 
@@ -64,22 +57,21 @@ public with sharing class CommunityFeedNavigationController {
 	}
 	
 	
-	public String controllerPhotoUrl { 
-	    get {
-	        if(groupRole!=null){
-	            return controllerPhotoUrl;
-	        }
-	        else {
-	        	if (!SObjectType.User.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.User);
-        	    if (controllerPhotoUrl == null) return [SELECT FullPhotoUrl FROM User WHERE Id = :UserInfo.getUserId()].FullPhotoUrl;
-        	    else return controllerPhotoUrl;
-            }
-	    }
-	    set; 
-	    
+	public String controllerPhotoUrl {
+		get {
+			if(groupRole!=null){
+				return controllerPhotoUrl;
+			}
+			else {
+				if (!SObjectType.User.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.User);
+				if (controllerPhotoUrl == null) return [SELECT FullPhotoUrl FROM User WHERE Id = :UserInfo.getUserId()].FullPhotoUrl;
+				else return controllerPhotoUrl;
+			}
+		}
+		set;
 	}
 	// photo vars
-	public Blob photoBody { get; set; }
+	public String blobImageData { get; set; }
 	public String photoName { get; set; }
 	public String photoContentType { get; set; }
 	public Boolean currentUser { get; set; }
@@ -103,14 +95,14 @@ public with sharing class CommunityFeedNavigationController {
 	private String grID = CommunityUtils.validateId(ApexPages.currentPage().getParameters().get('gr'));
 	private String gcID = CommunityUtils.validateId(ApexPages.currentPage().getParameters().get('gc'));
 	
-	private String getGroupId { 
+	private String getGroupId {
 		get {
 			if( grID != null) {
 				return grID;
 			}	
 			else if (gcID!= null) {
 				if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
-				String queryGroupControlId = CommunityUtils.validateId(gcID);
+                String queryGroupControlId = CommunityUtils.validateId(gcID);
 				List<Community_Group_Control__c> ls = [SELECT Id, Chatter_Group_ID__c FROM Community_Group_Control__c WHERE Id =: queryGroupControlId LIMIT 1];
 				return ls[0].Chatter_Group_ID__c;
 			}
@@ -119,80 +111,89 @@ public with sharing class CommunityFeedNavigationController {
 		set;
 	}
 	
-	
-	public String actionPhotoLabel { 
+    
+	public String actionPhotoLabel {
 		get {
-		        if (getGroupId != null) {
-				    ConnectApi.Photo photoGroup = ConnectApi.ChatterGroups.getPhoto(Network.getNetworkId(), getGroupId);
-				    return (String.valueOf(photoGroup).contains('default')||(photoGroup==null))?Label.LBL_Add_Photo:Label.BTN_Update;						
-		        }
-		        else {
-				    ConnectApi.Photo photoUser = ConnectApi.ChatterUsers.getPhoto(Network.getNetworkId(), UserInfo.getUserId());
-				    return (String.valueOf(photoUser).contains('default')||(photoUser==null))?Label.LBL_Add_Photo:Label.BTN_Update;						
-		        }
+			if (getGroupId != null) {
+				ConnectApi.Photo photoGroup = ConnectApi.ChatterGroups.getPhoto(Network.getNetworkId(), getGroupId);
+				return (String.valueOf(photoGroup).contains('default') || (photoGroup == null)) ? Label.LBL_Add_Photo : Label.BTN_Update;
+			}
+			else {
+				ConnectApi.Photo photoUser = ConnectApi.ChatterUsers.getPhoto(Network.getNetworkId(), UserInfo.getUserId());
+				return (String.valueOf(photoUser).contains('default') || (photoUser == null)) ? Label.LBL_Add_Photo : Label.BTN_Update;
+			}
 		}
-		set; 
+		set;
 	}
 	
 	// set permitions
-	public String groupRole  { get; set; }
+	public String groupRole { get; set; }
 	
-	public String permitions {	 
-		get { 
-	        if (getGroupId != null) {
-	            return (CommunityUtils.isModerateChatter() == true || CommunityUtils.isModifyAllData() == true || (groupRole == 'Owner' || groupRole == 'Manager'))?'true':'false';	/////////////////////////					
-	        }
-	        else {
-	            return (currentUser==true)?'true':'false';		
-	        }
+	public String permitions {
+		get {
+			if (getGroupId != null) {
+				return groupRole == 'Manager' || groupRole == 'Owner' || CommunityUtils.isModerateChatter() || CommunityUtils.isModifyAllData() ? 'true' : 'false';
+			}
+			else {
+				return (currentUser == true) ? 'true' : 'false';
+			}
 		}
-		set; 
+		set;
 	}
-	
-	
-	
-	public PageReference photoaction() {
-		try {		
-			if (photoBody != NULL) {
+
+    
+    
+	public void photoaction() {
+		try {
+			if (blobImageData != NULL) {
+				Blob bl;
+				bl = EncodingUtil.base64Decode(blobImageData);
 				ConnectApi.PhotoInput pi = new ConnectApi.PhotoInput();
 				pi.cropX = Integer.valueOf(cropX);
 				pi.cropY = Integer.valueOf(cropY);
 				pi.cropSize = Integer.valueOf(cropSize)-1;
-				System.debug(pi);
 				if (getGroupId != null) {
 					ConnectApi.ChatterGroups.setPhotoWithAttributes(
-    					Network.getNetworkId(),
-    					getGroupId,
-    					pi,
-    					new ConnectApi.BinaryInput(photoBody, photoContentType, photoName)
-					); 
+						Network.getNetworkId(),
+						getGroupId,
+						pi,
+						new ConnectApi.BinaryInput(bl, photoContentType, 'image.jpg')); 
 				}
 				else {
-				    ConnectApi.ChatterUsers.setPhotoWithAttributes(
-        				Network.getNetworkId(),
-        				UserInfo.getUserId(), // it could be that another id
-        				pi,
-        				new ConnectApi.BinaryInput(photoBody, photoContentType, photoName)
-        			);
+					ConnectApi.ChatterUsers.setPhotoWithAttributes(
+						Network.getNetworkId(),
+						UserInfo.getUserId(), // it could be that another id
+						pi,
+						new ConnectApi.BinaryInput(bl, photoContentType, 'image.jpg')
+					);
 				}
 				cropX = '';
 				cropY = '';
 				cropSize = '';
+				blobImageData = '';
 				photoContentType = '';
-				photoBody = null;
 			}
-			PageReference pr = new PageReference(ApexPages.currentPage().getUrl());
-			pr.setRedirect(true);
-			return pr;
 		}
 		catch(Exception e) {
+			System.Debug('error');
 			ApexPages.addMessages(e);
-			return null;
 		}
-		
 	}
 
 	public Community_Resource__c getBannerTextLabel() {
 		return CommunityUtils.getHtmlField(Label.LBL_Banner_Text);
+	}
+
+	public static Boolean getHasTwitterFeed() {
+		Community_Settings__c cs = Community_Settings__c.getInstance();
+		return String.isNotBlank(cs.Twitter_Handle__c) && String.isNotBlank(cs.Twitter_Data_Widget_ID__c);
+	}
+
+	public static String getTwitterHandle() {
+		return Community_Settings__c.getInstance().Twitter_Handle__c;
+	}
+
+	public static String getTwitterDataWidgetId() {
+		return Community_Settings__c.getInstance().Twitter_Data_Widget_ID__c;
 	}
 }

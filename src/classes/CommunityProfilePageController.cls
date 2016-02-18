@@ -46,20 +46,17 @@ global with sharing class CommunityProfilePageController {
 	public Boolean getIsCommunityUser() {
 		if (currentUserId == UserInfo.getUserId()) return true;
 		if (currentProfile == null) return false;
-		List<User> currentUserList = CommunityHelperWithoutSharing.getCommunityUsers(currentProfile.Contact__r.Name,100,new List<String>{'ContactId','FullPhotoUrl'},'Name',true);
-		for(User item:currentUserList) {
-			if(item.Id == currentUserId) return true;
-		}
-		return false;
+		List<NetworkMember> nmList = [SELECT Id FROM NetworkMember WHERE MemberId = :currentUserId AND Member.isActive = true AND NetworkId = :Network.getNetworkId()];
+		return !nmList.isEmpty();
 	}
-		
+
 	public CommunityProfilePageController() {
 		try {
 			String tempContactId = CommunityUtils.validateId(ApexPages.currentPage().getParameters().get('cid'));
 			String tempUserId = CommunityUtils.validateId(ApexPages.currentPage().getParameters().get('id'));
 			if (String.isBlank(tempUserId) && String.isNotBlank(tempContactId)) {
 				contactId = Id.valueOf(tempContactId);
-				List<User> currentUserList2 = CommunityHelperWithoutSharing.getCommunityUsers(null,100,new List<String>{'ContactId','FullPhotoUrl'},'Name',true);
+				List<User> currentUserList2 = CommunityHelperWithoutSharing.getCommunityUsers(null, 100, new List<String>{'ContactId', 'FullPhotoUrl'}, 'Name', true);
 				Boolean userFound = currentUserList2.size() > 0;
 				currentUserId = userFound ? currentUserList2[0].Id : NULL;
 				FullPhotoUrl = userFound ? currentUserList2[0].FullPhotoUrl : '/profilephoto/005/F';
@@ -187,7 +184,7 @@ global with sharing class CommunityProfilePageController {
 	}
 
 	public String getStudentName() {
-		return currentProfile.Contact__r.Name;
+		return currentProfile == NULL ? '' : currentProfile.Contact__r.Name;
 	}
 
 	public void initInterests() {
@@ -198,12 +195,14 @@ global with sharing class CommunityProfilePageController {
 			activeTags.add(cptItem.Community_Tag__c);
 		}
 		Map<Id,InterestSection> isMap = new Map<Id,InterestSection>();
-		for (Community_Tag__c ctItem : [
-						SELECT Name, Id, Community_Theme__c, Community_Theme__r.Name, Community_Theme__r.Id
-						FROM Community_Tag__c
-						WHERE Community_Theme__r.Theme_Type__c = 'Interest'
-						ORDER BY Community_Theme__r.Name, Name
-							]) {
+		if (!SObjectType.Community_Tag__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Tag__c);
+		List<Community_Tag__c> ctList = [
+			SELECT Name, Id, Community_Theme__c, Community_Theme__r.Name, Community_Theme__r.Id
+			FROM Community_Tag__c
+			WHERE Community_Theme__r.Theme_Type__c = 'Interest'
+			ORDER BY Community_Theme__r.Name, Name
+		];
+		for (Community_Tag__c ctItem : ctList) {
 			if (!isMap.containsKey(ctItem.Community_Theme__c)) {
 				isMap.put(ctItem.Community_Theme__c, new InterestSection(ctItem.Community_Theme__r.Name, ctItem.Community_Theme__r.Id));
 			}
@@ -366,9 +365,9 @@ global with sharing class CommunityProfilePageController {
 		User currentUserLocal3 = [SELECT ContactId, Community_Contact_ID__c, FullPhotoUrl FROM User WHERE Id =:UserInfo.getUserId()];
 		Id ccId = currentUserLocal3.ContactId != NULL ? currentUserLocal3.ContactId : currentUserLocal3.Community_Contact_ID__c;
 		if (ccId != NULL) {
-			if (!SObjectType.Community_Profile_Tag__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Profile_Tag__c);
 			String queryCcId = CommunityUtils.validateId(ccId);
 			String queryInId = CommunityUtils.validateId(inid);
+			if (!SObjectType.Community_Profile_Tag__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Profile_Tag__c);
 			List<Community_Profile_Tag__c> cptList3 = [SELECT Id, Active__c FROM Community_Profile_Tag__c WHERE Contact__c = :queryCcId AND Community_Tag__c = :queryInId LIMIT 1];
 			if (cptList3.size() > 0) {
 				cptList3[0].Active__c = sel;
@@ -408,14 +407,14 @@ global with sharing class CommunityProfilePageController {
 		NetworkMember nm = Database.query(queryString);
 		Boolean tb = (Boolean)nm.get(fieldName) == true;
 		nm.put(fieldName, !tb);
-		update nm;
-		/*CommunityAccess.UpdateWithoutSharing(
+		//update nm;
+		CommunityAccess.UpdateWithoutSharing(
 			nm,
 			'CommunityProfilePageController.cls [toggleUserNotification]',
 			new List<Schema.DescribeFieldResult> {
-				NetworkMember.MemberId.getDescribe()
+				NetworkMember.DefaultGroupNotificationFrequency.getDescribe()
 			}
-		);*/
+		);
 		return '';
 	}
 	
@@ -436,8 +435,8 @@ global with sharing class CommunityProfilePageController {
 			//update nm;
 		}
 		else {
-			if (!SObjectType.CollaborationGroupMember.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.CollaborationGroupMember);
 			String queryGroupId = CommunityUtils.validateId(groupId);
+			if (!SObjectType.CollaborationGroupMember.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.CollaborationGroupMember);
 			CollaborationGroupMember cgm = [SELECT Id, NotificationFrequency FROM CollaborationGroupMember WHERE MemberId = :UserInfo.getUserId() AND CollaborationGroupId = :queryGroupId];
 			cgm.NotificationFrequency = freq;
 			//update cgm;
@@ -568,13 +567,12 @@ global with sharing class CommunityProfilePageController {
 	public Boolean getIsSubscribe() { 
 		if (!SObjectType.EntitySubscription.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.EntitySubscription);
 		List<EntitySubscription> followings = [
-				Select SubscriberId, ParentId, IsDeleted, Id, CreatedDate, CreatedById
-				From EntitySubscription
-				WHERE SubscriberId =:Userinfo.getUserId()
-				AND ParentId = :currentUserId
-				LIMIT 1
-			];
-		return (followings.isEmpty())?false:true;
+			SELECT Id
+			FROM EntitySubscription
+			WHERE SubscriberId =:Userinfo.getUserId() AND ParentId = :currentUserId
+			LIMIT 1
+		];
+		return !followings.isEmpty();
 	}
 
 	

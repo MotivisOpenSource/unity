@@ -355,6 +355,21 @@ public with sharing class CommunityUtils {
 		/*Set<String> noredirect = new Set<String> { 'Standard', 'Salesforce' };
 		Map<Id, Profile> studentsProfiles = new Map<Id, Profile>([SELECT Id FROM Profile WHERE Name LIKE '%Community%']);
 		if (noredirect.contains(Userinfo.getUserType()) || !studentsProfiles.containsKey(Userinfo.getProfileId())) {*/
+		if(String.isNOTBlank(Site.getName()) && ApexPages.currentPage().getParameters().get('fromEmail') == '1'){
+			String sObjectName = sObjectId.getSObjectType().getDescribe().getName();	
+			String fId = ApexPages.currentPage().getParameters().get('fid');
+			if(sObjectName.contains('Community_Group_Control__c')){
+				resultpr = Page.CommunityGroupManager;
+				resultpr.getParameters().put('gc',sObjectId);
+			}else if(fId != NULL){
+				resultpr = Page.CommunityFeed_MyFeed;
+			}
+			if(resultpr != NULL){
+				resultpr.getParameters().put('oid',ApexPages.currentPage().getParameters().get('id'));
+				resultpr.getParameters().put('fid',ApexPages.currentPage().getParameters().get('fid'));
+				resultpr.getParameters().put('fromEmail','1');
+			}
+		}		
 		if (String.isBlank(Site.getName())) {
 			resultpr = new PageReference('/' + sObjectId);
 			resultpr.getParameters().putAll(ApexPages.currentPage().getParameters());
@@ -370,16 +385,20 @@ public with sharing class CommunityUtils {
 	*/
 	public static List<String> getNamesOfAvailableGroups(List<String> groupIds){
 		List<String> groupsNames = new List<String>();
+		Boolean hasShareAllGroups = CommunityUtils.isModifyAllData();
 		try {
 			List<ConnectApi.BatchResult> batchResults = ConnectApi.ChatterGroups.getGroupBatch(Network.getNetworkId(),groupIds);
 			for(ConnectApi.BatchResult batchResult : batchResults){
 				if (batchResult.isSuccess()) {
 					ConnectApi.ChatterGroup aGroup = (ConnectApi.ChatterGroup) batchResult.getResult();
-					if((String.valueOf(aGroup.myRole) != 'NotAMember' 
+					if(String.valueOf(aGroup.isArchived) == 'false'){
+						if(hasShareAllGroups || 
+							(String.valueOf(aGroup.myRole) != 'NotAMember' 
 						&& String.valueOf(aGroup.myRole) != 'NotAMemberPrivateRequested' 
 						&& String.valueOf(aGroup.visibility) == 'PrivateAccess') || String.valueOf(aGroup.visibility) == 'PublicAccess'){
 						groupsNames.add(aGroup.name);
 					}
+				}
 				}
 				else {
 					// Operation failed. Print errors.
@@ -404,8 +423,7 @@ public with sharing class CommunityUtils {
 			for(ConnectApi.BatchResult batchResult : batchResults){
 				if (batchResult.isSuccess()) {
 					ConnectApi.ChatterGroup aGroup = (ConnectApi.ChatterGroup) batchResult.getResult();
-					if(String.valueOf(aGroup.myRole) != 'GroupOwner' 
-						&& String.valueOf(aGroup.myRole) != 'GroupManager'){
+					if(String.valueOf(aGroup.myRole) != 'GroupOwner' && String.valueOf(aGroup.myRole) != 'GroupManager'){
 						groupsIds.add(aGroup.Id);
 					}
 				}
@@ -438,7 +456,7 @@ public with sharing class CommunityUtils {
 
 
 		return result;
-	} 
+	}
 
 	public static Boolean isFeedTrakingEnabled (String objName, Map<String, String> reqFields){
 		
@@ -466,6 +484,79 @@ public with sharing class CommunityUtils {
 		Database.rollback(sp);
 		
 		return result;
+	}
+
+
+	@future(callout=true)
+	public static void changeManagerRoleToStandard(Set<Id> collaborationMembersIds) {
+		List<CollaborationGroupMember> collaborationAdmins = [
+			SELECT Id, CollaborationRole 
+			FROM CollaborationGroupMember 
+			WHERE CollaborationRole = 'Admin'
+				AND Id IN :collaborationMembersIds
+		];
+		for (CollaborationGroupMember gm : collaborationAdmins) {
+			gm.CollaborationRole = 'Standard';
+		}
+		CommunityAccess.UpdateWithoutSharing(
+			collaborationAdmins,
+			'CommunityUtils.cls [changeManagerRoleToStandard]',
+			new List<Schema.DescribeFieldResult> {
+				CollaborationGroupMember.CollaborationRole.getDescribe()
+			}
+		);
+		//update collaborationAdmins;
+	}
+
+	public static Set<Id> checkGroupManagers(Set<Id> userIds) {
+		Set<Id> collaborationMemberIds = new Set<Id>();
+		List<CollaborationGroupMember> collaborationAdmins = [
+			SELECT Id, CollaborationGroupId, CollaborationRole, MemberId 
+			FROM CollaborationGroupMember 
+			WHERE CollaborationRole = 'Admin' AND MemberId IN :userIds
+		];
+		Map<Id, Set<Id>> groupAdminMap = new Map<Id, Set<Id>>();
+		for (CollaborationGroupMember gm : collaborationAdmins) {
+			if (groupAdminMap.get(gm.MemberId) == NULL) {
+				groupAdminMap.put(gm.MemberId, new Set<Id>());
+			}
+			groupAdminMap.get(gm.MemberId).add(gm.CollaborationGroupId);
+		}
+		List<Community_Group_Manager__c> groupManagers = [
+			SELECT Id, Group_Control__r.Chatter_Group_ID__c, Group_Manager_User__c, Manager_Role__c 
+			FROM Community_Group_Manager__c
+			WHERE Group_Manager_User__c IN :groupAdminMap.keySet()
+		];
+		Map<Id, Set<Id>> groupManagersMap = new Map<Id, Set<Id>>();
+		for (Community_Group_Manager__c gm : groupManagers) {
+			if (groupManagersMap.get(gm.Group_Manager_User__c) == NULL) {
+				groupManagersMap.put(gm.Group_Manager_User__c, new Set<Id>());
+			}
+			groupManagersMap.get(gm.Group_Manager_User__c).add(gm.Group_Control__r.Chatter_Group_ID__c);
+		}
+		for (CollaborationGroupMember gm : collaborationAdmins) {
+			if (!groupManagersMap.containsKey(gm.MemberId) || !groupManagersMap.get(gm.MemberId).contains(gm.CollaborationGroupId)) {
+				collaborationMemberIds.add(gm.Id);
+			}
+		}
+		return collaborationMemberIds;
+	}
+
+	public static Boolean isShowGroupManagerUser(String groupId, Boolean checkModifyAllControl) {
+		Boolean isShow = false;
+		String queryGroupId = validateId(groupId);
+		if (String.isNotBlank(queryGroupId)) {
+			if (!SObjectType.Community_Group_Control__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Group_Control__c);
+			List<Community_Group_Control__c> gcList = [SELECT Id, Chatter_Group_ID__c, UserRecordAccess.HasAllAccess FROM Community_Group_Control__c WHERE Id = :queryGroupId OR Chatter_Group_ID__c = :queryGroupId];
+			if (gcList != NULL && !gcList.isEmpty()) {
+				isShow = checkModifyAllControl && gcList[0].UserRecordAccess.HasAllAccess == true;
+				if (SObjectType.Community_Group_Manager__c.isAccessible()) {
+					isShow = isShow || [SELECT COUNT() FROM Community_Group_Manager__c WHERE Group_Manager_User__c = :UserInfo.getUserId() AND Group_Control__c = : gcList[0].Id] > 0;
+				}
+				isShow = isShow || CommunityUtils.isModifyAllData();
+			}
+		}
+		return isShow;
 	}
 
 	static public Boolean isValidId(String paramId) {
