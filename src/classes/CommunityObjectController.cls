@@ -52,7 +52,7 @@ public with sharing class CommunityObjectController {
 			Map<String, Schema.SObjectType> GlobalDescribeMap = Schema.getGlobalDescribe();
 			Schema.SObjectType SObjectTypeObj = GlobalDescribeMap.get(soName);
 			Schema.DescribeSObjectResult DescribeSObjectResultObj = SObjectTypeObj.getDescribe();
-			Boolean isCommunityGroupControl = so instanceof Community_Group_Control__c;
+			Boolean isCommunityGroupControl = soId.getSobjectType().newSObject() instanceof Community_Group_Control__c;
 			if (isCommunityGroupControl) {
 				fieldList.add('Automatic_Archiving__c');
 			}
