@@ -52,6 +52,10 @@ public with sharing class CommunityObjectController {
 			Map<String, Schema.SObjectType> GlobalDescribeMap = Schema.getGlobalDescribe();
 			Schema.SObjectType SObjectTypeObj = GlobalDescribeMap.get(soName);
 			Schema.DescribeSObjectResult DescribeSObjectResultObj = SObjectTypeObj.getDescribe();
+			Boolean isCommunityGroupControl = soId.getSobjectType().newSObject() instanceof Community_Group_Control__c;
+			if (isCommunityGroupControl) {
+				fieldList.add('Automatic_Archiving__c');
+			}
 			flayout = new CommunityFieldLayout(
 				soId,
 				DescribeSObjectResultObj.FieldSets.getMap().get(CommunityUtils.getPackagePrefix()+fieldSetName),
@@ -60,7 +64,7 @@ public with sharing class CommunityObjectController {
 				CommunityUtils.getPackagePrefix()
 			);
 			so = flayout.getRecord();
-			if(fieldSetName.equalsIgnoreCase('EditGroup') || fieldSetName.equalsIgnoreCase('ViewGroup')){
+			if(isCommunityGroupControl){
 				setName = fieldSetName;
 				Community_Group_Control__c cgc = (Community_Group_Control__c) so;
 				arhivingValue = cgc.Automatic_Archiving__c ? 'true' : 'false';
@@ -68,7 +72,7 @@ public with sharing class CommunityObjectController {
 
 			//firewall
 			Boolean haveAccessToEditObject = false;
-			if (so instanceof Community_Group_Control__c) {
+			if (isCommunityGroupControl) {
 				ApexPages.currentPage().getParameters().put('gc',(String)so.get('Id'));
 				CommunityGroupDetailPageController cgdpc = new CommunityGroupDetailPageController();
 				haveAccessToEditObject = cgdpc.getGroupEditable();

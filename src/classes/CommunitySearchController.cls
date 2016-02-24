@@ -233,17 +233,18 @@ public with sharing class CommunitySearchController {
 		if (resourcePageNum != 0) {
 			String queryPrimaryTagId = CommunityUtils.validateId(ApexPages.currentPage().getParameters().get('tr'));
 			Set<Id> resourcesIds = filterObjects('Community_Resource__c');
-			
-			Set<Id> libraryResourcesIds = getLibraryResourcesIds( queryPrimaryTagId );
-         
+			Set<Id> libraryResourcesIds;
 			if (!SObjectType.Community_Resource__c.isAccessible()) CommunityAccess.ThrowAccessException(SObjectType.Community_Resource__c);
 			String rQuery = 'SELECT Id, Name, Resource_Name__c, Link__c, Description__c,';
 			rQuery += 		' (SELECT Id, IsNote, Title FROM NotesAndAttachments WHERE IsNote = false ORDER BY CreatedDate DESC LIMIT 1) ';
 			rQuery += 		'FROM Community_Resource__c WHERE';
-			rQuery += (mode == 'resource')
-                         // ?   ' Primary_Tag__c = \'' + queryPrimaryTagId + '\' AND Status__c = \'active\''
-                         ?   ' (Primary_Tag__c = \'' + queryPrimaryTagId + '\' AND Status__c = \'active\') or (Id IN :libraryResourcesIds)'
-						:	' Id IN :resourcesIds';
+			if (mode != 'resource') {
+				rQuery += ' Id IN :resourcesIds';
+			}
+			else {
+				libraryResourcesIds = getLibraryResourcesIds(queryPrimaryTagId);
+				rQuery += ' (Primary_Tag__c = \'' + queryPrimaryTagId + '\' AND Status__c = \'active\') OR Id IN :libraryResourcesIds';
+			}
 			rQuery += ' ORDER BY Sort__c NULLS LAST, Name';
 			List<Community_Resource__c> rList = Database.query(rQuery);
 			result = rList.isEmpty() ? new SearchItem() : new SearchItem(rList, resourcePageNum);
@@ -251,18 +252,17 @@ public with sharing class CommunitySearchController {
 		return result;
 	}
 
-   	private Set<ID> getLibraryResourcesIds (String tagId){
-   		 Set<Id> results = new Set<Id>();
-         String soqlStr = 'SELECT Resource__c FROM Community_Resource_Tag__c';
-         soqlStr += ' WHERE Resource__r.Status__c =\'active\'';
-         soqlStr += ' AND Community_Tag__r.Community_Theme__r.Theme_Type__c =\'Resource\'';
-         soqlStr += ' AND Community_Tag__c = \''+String.escapeSingleQuotes(tagId)+'\'';
-         for (sObject soItem : Database.query(soqlStr)) {
-              results.add((Id)soItem.get('Resource__c'));
-            
-         }
-         return results;
-   	}
+	private Set<Id> getLibraryResourcesIds(String tagId) {
+		Set<Id> results = new Set<Id>();
+		String soqlStr = 'SELECT Resource__c FROM Community_Resource_Tag__c';
+		soqlStr += ' WHERE Resource__r.Status__c =\'active\'';
+		soqlStr += ' AND Community_Tag__r.Community_Theme__r.Theme_Type__c =\'Resource\'';
+		soqlStr += ' AND Community_Tag__c = \''+String.escapeSingleQuotes(tagId)+'\'';
+		for (sObject soItem : Database.query(soqlStr)) {
+			results.add((Id)soItem.get('Resource__c'));
+		}
+		return results;
+	}
 
 	private static Integer GROUPS_ON_PAGE = 3;
 	private static Integer ITEMS_ON_PAGE = 10;
@@ -272,18 +272,7 @@ public with sharing class CommunitySearchController {
 		'txt' => 'fa-file-text-o', 'png' => 'fa-file-image-o', 'gif' => 'fa-file-image-o', 'jpeg' => 'fa-file-image-o',
 		'jpg' => 'fa-file-image-o', 'bmp' => 'fa-file-image-o'
 	};
-/*
-	private static String communityPrefix;
-	public static String CommunityUtils.checkUrl(String inUrl) {
-		if (communityPrefix == NULL) {
-			communityPrefix = Site.getPathPrefix();
-		}
-		if (inUrl != NULL && String.isNotBlank(communityPrefix) && !inUrl.startsWith(communityPrefix)) {
-			inUrl = communityPrefix + inUrl;
-		}
-		return inUrl;
-	}
-*/
+
 	@RemoteAction
 	public static CommunityUtils.GroupAction membershipGroup(String mc, String grId, String action) {
 		CommunityUtils.GroupAction resultAction;
@@ -376,7 +365,7 @@ public with sharing class CommunitySearchController {
 			for (Integer ii = startCopyInterval; ii < endCopyInterval; ii++) {
 				SearchResult sr = new SearchResult();
 				sr.title = inResources[ii].Name;
-				//sr.teaser = CommunityUtils.getHtmlField(inResources[ii].Description__c);                
+				//sr.teaser = CommunityUtils.getHtmlField(inResources[ii].Description__c);				
 				
 				String description = String.isNotBlank(inResources[ii].Description__c) ? inResources[ii].Description__c.replaceAll('<[^>]+>','') : '';
 				if(description.length()>700){
@@ -384,8 +373,8 @@ public with sharing class CommunitySearchController {
 					description = description.mid(0,699);
 					description += '...';
 				}
-				sr.teaser = new Community_Resource__c(Description__c =  description);                
-                
+				sr.teaser = new Community_Resource__c(Description__c =  description);				
+				
 				if (String.isNotBlank(inResources[ii].Link__c)) {
 					sr.linkUrl = inResources[ii].Link__c;
 					sr.imagePath = 'fa-link';
@@ -399,9 +388,9 @@ public with sharing class CommunitySearchController {
 					sr.fdate = inResources[ii].NotesAndAttachments[0].Title;
 				}
 				else {
-                    sr.linkUrl = CommunityUtils.checkUrl(Page.CommunityResourceDetail.getUrl().replace('/apex','') + '?id=' + inResources[ii].Id);//'#';
-                    sr.imagePath = 'fa-file-text-o';//'fa-file-o';
-                    sr.fdate = 'Note Resource'; //'Empty Resource';
+					sr.linkUrl = CommunityUtils.checkUrl(Page.CommunityResourceDetail.getUrl().replace('/apex','') + '?id=' + inResources[ii].Id);//'#';
+					sr.imagePath = 'fa-file-text-o';//'fa-file-o';
+					sr.fdate = 'Note Resource'; //'Empty Resource';
 				}
 				sr.detailUrl = CommunityUtils.checkUrl(Page.CommunityResourceDetail.getUrl().replace('/apex','') + '?id=' + inResources[ii].Id);
 				results.add(sr);
