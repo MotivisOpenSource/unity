@@ -74,11 +74,6 @@
     <enableStreamingApi>true</enableStreamingApi>
     <fieldSets>
         <fullName>EditNews</fullName>
-        <availableFields>
-            <field>Name</field>
-            <isFieldManaged>false</isFieldManaged>
-            <isRequired>false</isRequired>
-        </availableFields>
         <description>Create, Edit, Clone Community News pages</description>
         <displayedFields>
             <field>Title__c</field>
@@ -144,31 +139,6 @@
     </fieldSets>
     <fieldSets>
         <fullName>ViewNews</fullName>
-        <availableFields>
-            <field>Alert__c</field>
-            <isFieldManaged>false</isFieldManaged>
-            <isRequired>false</isRequired>
-        </availableFields>
-        <availableFields>
-            <field>Comment_Expiration_Date__c</field>
-            <isFieldManaged>false</isFieldManaged>
-            <isRequired>false</isRequired>
-        </availableFields>
-        <availableFields>
-            <field>CreatedById</field>
-            <isFieldManaged>false</isFieldManaged>
-            <isRequired>false</isRequired>
-        </availableFields>
-        <availableFields>
-            <field>Image_Path__c</field>
-            <isFieldManaged>false</isFieldManaged>
-            <isRequired>false</isRequired>
-        </availableFields>
-        <availableFields>
-            <field>Make_Entry_Sticky__c</field>
-            <isFieldManaged>false</isFieldManaged>
-            <isRequired>false</isRequired>
-        </availableFields>
         <description>View Details Page of Community News record.</description>
         <displayedFields>
             <field>Title__c</field>
