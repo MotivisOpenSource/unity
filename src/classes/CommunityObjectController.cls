@@ -122,7 +122,7 @@ public with sharing class CommunityObjectController {
 	public PageReference saveAction() {
 		PageReference pr;
 		try {
-			if(setName.equalsIgnoreCase('EditGroup') || setName.equalsIgnoreCase('ViewGroup')){
+			if(setName != NULL && (setName.equalsIgnoreCase('EditGroup') || setName.equalsIgnoreCase('ViewGroup'))){
 				Community_Group_Control__c cgc = (Community_Group_Control__c) so;
 				cgc.Automatic_Archiving__c = arhivingValue.equals('true') ? true : false;
 			}
